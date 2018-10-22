@@ -1,0 +1,10 @@
+eclipse.preferences.version=1
+encoding//src/main/java=UTF-8
+encoding//src/main/kotlin/io/vlingo/schemata/Schemata.kt=UTF-8
+encoding//src/main/kotlin/io/vlingo/schemata/model/Context.kt=UTF-8
+encoding//src/main/kotlin/io/vlingo/schemata/model/Events.kt=UTF-8
+encoding//src/main/kotlin/io/vlingo/schemata/model/Id.kt=UTF-8
+encoding//src/main/kotlin/io/vlingo/schemata/model/Organization.kt=UTF-8
+encoding//src/main/kotlin/io/vlingo/schemata/model/Schema.kt=UTF-8
+encoding//src/test/java=UTF-8
+encoding/<project>=UTF-8
