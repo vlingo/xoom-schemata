@@ -8,5 +8,5 @@
 package io.vlingo.schemata.model
 
 enum class Category {
-  Commands, Data, Documents, Envelops, Events, Metadata, None
+  Commands, Data, Documents, Envelopes, Events, Metadata, None
 }
