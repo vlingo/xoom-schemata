@@ -19,9 +19,9 @@ import java.util.function.BiConsumer;
  */
 public class Context extends EventSourced implements ContextEntity {
     static {
-        BiConsumer<Context, ContextDefined> applyContextDefinedFn = Context::applyDefinedVlingoSchemata;
+        BiConsumer<Context, ContextDefined> applyContextDefinedFn = Context::applyDefined;
         EventSourced.registerConsumer ( Context.class, ContextDefined.class, applyContextDefinedFn );
-        BiConsumer<Context, ContextDescribed> applyContextDescribedFn = Context::applyDescribedVlingoSchemata;
+        BiConsumer<Context, ContextDescribed> applyContextDescribedFn = Context::applyDescribed;
         EventSourced.registerConsumer ( Context.class, ContextDescribed.class, applyContextDescribedFn );
         BiConsumer<Context, ContextRenamed> applyContextNamespaceChangedFn = Context::applyNamespaceChangedVlingoSchemata;
         EventSourced.registerConsumer ( Context.class, ContextRenamed.class, applyContextNamespaceChangedFn );
@@ -82,7 +82,7 @@ public class Context extends EventSourced implements ContextEntity {
      *
      * @param event
      */
-    public void applyDefinedVlingoSchemata(@NotNull ContextDefined event) {
+    public void applyDefined(@NotNull ContextDefined event) {
         this.state = new Context.State ( OrganizationId.Companion.existing ( event.getOrganizationId () ), ContextId.Companion.existing ( event.getContextId () ), event.getNamespace (), event.getDescription () );
         result.defined = true;
         result.applied.add ( event );
@@ -94,8 +94,8 @@ public class Context extends EventSourced implements ContextEntity {
      *
      * @param event
      */
-    public void applyDescribedVlingoSchemata(@NotNull ContextDescribed event) {
-        this.state = this.state.withDescriptionVlingoSchemata ( event.getDescription () );
+    public void applyDescribed(@NotNull ContextDescribed event) {
+        this.state = this.state.withDescription ( event.getDescription () );
         result.described = true;
         result.applied.add ( event );
         result.until.happened ();
@@ -107,7 +107,7 @@ public class Context extends EventSourced implements ContextEntity {
      * @param event
      */
     public void applyNamespaceChangedVlingoSchemata(@NotNull ContextRenamed event) {
-        this.state = this.state.withNamespaceVlingoSchemata ( event.getNamespace () );
+        this.state = this.state.withNamespace ( event.getNamespace () );
         result.renamed = true;
         result.applied.add ( event );
         result.until.happened ();
@@ -143,11 +143,11 @@ public class Context extends EventSourced implements ContextEntity {
             return this.organizationId;
         }
 
-        public Context.State withDescriptionVlingoSchemata(@NotNull String description) {
+        public Context.State withDescription(@NotNull String description) {
             return Context.this.new State ( this.organizationId, this.contextId, this.namespace, description );
         }
 
-        public Context.State withNamespaceVlingoSchemata(@NotNull String namespace) {
+        public Context.State withNamespace(@NotNull String namespace) {
             return Context.this.new State ( this.organizationId, this.contextId, namespace, this.description );
         }
 

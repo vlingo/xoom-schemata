@@ -18,11 +18,11 @@ import java.util.function.BiConsumer;
  */
 public class Organization extends EventSourced implements OrganizationEntity {
     static {
-        BiConsumer<Organization, OrganizationDefined> applyOrganizationDefinedFn = Organization::applyDefinedVlingoSchemata;
+        BiConsumer<Organization, OrganizationDefined> applyOrganizationDefinedFn = Organization::applyDefined;
         EventSourced.registerConsumer ( Organization.class, OrganizationDefined.class, applyOrganizationDefinedFn );
-        BiConsumer<Organization, OrganizationDescribed> applyOrganizationDescribedFn = Organization::applyDescribedVlingoSchemata;
+        BiConsumer<Organization, OrganizationDescribed> applyOrganizationDescribedFn = Organization::applyDescribed;
         EventSourced.registerConsumer ( Organization.class, OrganizationDescribed.class, applyOrganizationDescribedFn );
-        BiConsumer<Organization, OrganizationRenamed> applyOrganizationRenamedFn = Organization::applyRenamedVlingoSchemata;
+        BiConsumer<Organization, OrganizationRenamed> applyOrganizationRenamedFn = Organization::applyRenamed;
         EventSourced.registerConsumer ( Organization.class, OrganizationRenamed.class, applyOrganizationRenamedFn );
     }
 
@@ -60,8 +60,11 @@ public class Organization extends EventSourced implements OrganizationEntity {
      *
      * @param event
      */
-    public void applyDefinedVlingoSchemata(@NotNull OrganizationDefined event) {
+    public void applyDefined(@NotNull OrganizationDefined event) {
         this.state = new Organization.State ( OrganizationId.Companion.existing ( event.getOrganizationId () ), OrganizationId.Companion.existing ( event.getParentId () ), event.getName (), event.getDescription () );
+        result.defined = true;
+        result.applied.add ( event );
+        result.until.happened ();
     }
 
     /**
@@ -69,8 +72,11 @@ public class Organization extends EventSourced implements OrganizationEntity {
      *
      * @param event
      */
-    public final void applyDescribedVlingoSchemata(@NotNull OrganizationDescribed event) {
-        this.state = this.state.withDescriptionVlingoSchemata ( event.getDescription () );
+    public final void applyDescribed(@NotNull OrganizationDescribed event) {
+        this.state = this.state.withDescription ( event.getDescription () );
+        result.described = true;
+        result.applied.add ( event );
+        result.until.happened ();
     }
 
     /**
@@ -78,8 +84,11 @@ public class Organization extends EventSourced implements OrganizationEntity {
      *
      * @param event
      */
-    public final void applyRenamedVlingoSchemata(@NotNull OrganizationRenamed event) {
-        this.state = this.state.withNameVlingoSchemata ( event.getName () );
+    public final void applyRenamed(@NotNull OrganizationRenamed event) {
+        this.state = this.state.withName ( event.getName () );
+        result.renamed = true;
+        result.applied.add ( event );
+        result.until.happened ();
     }
 
 
@@ -96,11 +105,11 @@ public class Organization extends EventSourced implements OrganizationEntity {
         @NotNull
         private String description;
 
-        private Organization.State withDescriptionVlingoSchemata(@NotNull String description) {
+        private Organization.State withDescription(@NotNull String description) {
             return Organization.this.new State ( this.id, this.parentId, this.name, description );
         }
 
-        private Organization.State withNameVlingoSchemata(@NotNull String name) {
+        private Organization.State withName(@NotNull String name) {
             return Organization.this.new State ( this.id, this.parentId, name, this.description );
         }
 

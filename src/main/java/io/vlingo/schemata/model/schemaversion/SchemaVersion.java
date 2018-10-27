@@ -77,19 +77,19 @@ public final class SchemaVersion {
             return this.version;
         }
 
-        public SchemaVersion.State asPublishedVlingoSchemata() {
+        public SchemaVersion.State asPublished() {
             return SchemaVersion.this.new State ( this.organizationId, this.contextId, this.schemaId, this.schemaVersionId, this.description, this.definition, this.version, SchemaVersion.Status.Published );
         }
 
-        public SchemaVersion.State withDefinitionVlingoSchemata(@NotNull SchemaVersion.Definition definition) {
+        public SchemaVersion.State withDefinition(@NotNull SchemaVersion.Definition definition) {
             return SchemaVersion.this.new State ( this.organizationId, this.contextId, this.schemaId, this.schemaVersionId, this.description, definition, this.version, this.status );
         }
 
-        public SchemaVersion.State withDescriptionVlingoSchemata(@NotNull String description) {
+        public SchemaVersion.State withDescription(@NotNull String description) {
             return SchemaVersion.this.new State ( this.organizationId, this.contextId, this.schemaId, this.schemaVersionId, description, this.definition, this.version, this.status );
         }
 
-        public SchemaVersion.State withVersionVlingoSchemata(@NotNull SchemaVersion.Version version) {
+        public SchemaVersion.State withVersion(@NotNull SchemaVersion.Version version) {
             return SchemaVersion.this.new State ( this.organizationId, this.contextId, this.schemaId, this.schemaVersionId, this.description, this.definition, version, this.status );
         }
 

@@ -8,6 +8,7 @@ import io.vlingo.schemata.model.events.schemaevent.SchemaDefined;
 import io.vlingo.schemata.model.events.schemaevent.SchemaDescribed;
 import io.vlingo.schemata.model.events.schemaevent.SchemaRecategorized;
 import io.vlingo.schemata.model.events.schemaevent.SchemaRenamed;
+import io.vlingo.schemata.model.sourcing.Result;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiConsumer;
@@ -16,18 +17,25 @@ import java.util.function.BiConsumer;
  * @author Chandrabhan Kumhar
  * Used to perform schema operations
  */
-public class Schema extends EventSourced {
-    private Schema.State state;
+public class Schema extends EventSourced implements SchemaEntity {
 
     static {
-        BiConsumer<Schema, SchemaDefined> applySchemaDefinedFn = Schema::applyDefinedVlingoSchemata;
+        BiConsumer<Schema, SchemaDefined> applySchemaDefinedFn = Schema::applyDefined;
         EventSourced.registerConsumer ( Schema.class, SchemaDefined.class, applySchemaDefinedFn );
-        BiConsumer<Schema, SchemaRecategorized> applySchemaRecategorizedFn = Schema::applyRecategorizedVlingoSchemata;
+        BiConsumer<Schema, SchemaRecategorized> applySchemaRecategorizedFn = Schema::applyRecategorized;
         EventSourced.registerConsumer ( Schema.class, SchemaRecategorized.class, applySchemaRecategorizedFn );
-        BiConsumer<Schema, SchemaDescribed> applySchemaDescribedFn = Schema::applyDescribedVlingoSchemata;
+        BiConsumer<Schema, SchemaDescribed> applySchemaDescribedFn = Schema::applyDescribed;
         EventSourced.registerConsumer ( Schema.class, SchemaDescribed.class, applySchemaDescribedFn );
-        BiConsumer<Schema, SchemaRenamed> applySchemaRenamedFn = Schema::applyRenamedVlingoSchemata;
+        BiConsumer<Schema, SchemaRenamed> applySchemaRenamedFn = Schema::applyRenamed;
         EventSourced.registerConsumer ( Schema.class, SchemaRenamed.class, applySchemaRenamedFn );
+    }
+
+    private Schema.State state;
+    private final Result result;
+
+    public Schema(final Result result) {
+        this.result = result;
+        this.apply ( (Source) (new SchemaDefined ( Id.OrganizationId.Companion.unique (), Id.ContextId.Companion.unique (), Id.SchemaId.Companion.unique (), EventsCategory.Category.None, "name", "desc" )) );
     }
 
     /**
@@ -35,7 +43,8 @@ public class Schema extends EventSourced {
      *
      * @param description
      */
-    private void describeAs(@NotNull String description) {
+    @Override
+    public void describeAs(@NotNull String description) {
         this.apply ( (Source) (new SchemaDescribed ( this.state.getOrganizationId (), this.state.getContextId (), this.state.getSchemaId (), description )) );
     }
 
@@ -44,7 +53,8 @@ public class Schema extends EventSourced {
      *
      * @param category
      */
-    private void recategorizedAs(@NotNull EventsCategory.Category category) {
+    @Override
+    public void recategorizedAs(@NotNull EventsCategory.Category category) {
         this.apply ( (Source) (new SchemaRecategorized ( this.state.getOrganizationId (), this.state.getContextId (), this.state.getSchemaId (), category )) );
     }
 
@@ -53,7 +63,8 @@ public class Schema extends EventSourced {
      *
      * @param name
      */
-    private void renameTo(@NotNull String name) {
+    @Override
+    public void renameTo(@NotNull String name) {
         this.apply ( (Source) (new SchemaRenamed ( this.state.getOrganizationId (), this.state.getContextId (), this.state.getSchemaId (), name )) );
     }
 
@@ -62,8 +73,11 @@ public class Schema extends EventSourced {
      *
      * @param event
      */
-    public void applyDefinedVlingoSchemata(@NotNull SchemaDefined event) {
+    public void applyDefined(@NotNull SchemaDefined event) {
         this.state = new Schema.State ( Id.OrganizationId.Companion.existing ( event.getOrganizationId () ), Id.ContextId.Companion.existing ( event.getContextId () ), Id.SchemaId.Companion.existing ( event.getSchemaId () ), EventsCategory.Category.None, event.getName (), event.getDescription () );
+        result.defined = true;
+        result.applied.add ( event );
+        result.until.happened ();
     }
 
     /**
@@ -71,8 +85,11 @@ public class Schema extends EventSourced {
      *
      * @param event
      */
-    public void applyDescribedVlingoSchemata(@NotNull SchemaDescribed event) {
-        this.state = this.state.withDescriptionVlingoSchemata ( event.getDescription () );
+    public void applyDescribed(@NotNull SchemaDescribed event) {
+        this.state = this.state.withDescription ( event.getDescription () );
+        result.described = true;
+        result.applied.add ( event );
+        result.until.happened ();
     }
 
     /**
@@ -80,8 +97,11 @@ public class Schema extends EventSourced {
      *
      * @param event
      */
-    public void applyRecategorizedVlingoSchemata(@NotNull SchemaRecategorized event) {
-        this.state = this.state.withCategoryVlingoSchemata ( EventsCategory.Category.valueOf ( event.getCategory () ) );
+    public void applyRecategorized(@NotNull SchemaRecategorized event) {
+        this.state = this.state.withCategory ( EventsCategory.Category.valueOf ( event.getCategory () ) );
+        result.recategorised = true;
+        result.applied.add ( event );
+        result.until.happened ();
     }
 
     /**
@@ -89,8 +109,11 @@ public class Schema extends EventSourced {
      *
      * @param event
      */
-    public void applyRenamedVlingoSchemata(@NotNull SchemaRenamed event) {
-        this.state = this.state.withNameVlingoSchemata ( event.getName () );
+    public void applyRenamed(@NotNull SchemaRenamed event) {
+        this.state = this.state.withName ( event.getName () );
+        result.renamed = true;
+        result.applied.add ( event );
+        result.until.happened ();
     }
 
     /**
@@ -134,15 +157,15 @@ public class Schema extends EventSourced {
             return this.schemaId;
         }
 
-        public Schema.State withCategoryVlingoSchemata(@NotNull EventsCategory.Category category) {
+        public Schema.State withCategory(@NotNull EventsCategory.Category category) {
             return Schema.this.new State ( this.organizationId, this.contextId, this.schemaId, category, this.name, this.description );
         }
 
-        public Schema.State withDescriptionVlingoSchemata(@NotNull String description) {
+        public Schema.State withDescription(@NotNull String description) {
             return Schema.this.new State ( this.organizationId, this.contextId, this.schemaId, this.category, this.name, description );
         }
 
-        public Schema.State withNameVlingoSchemata(@NotNull String name) {
+        public Schema.State withName(@NotNull String name) {
             return Schema.this.new State ( this.organizationId, this.contextId, this.schemaId, this.category, name, this.description );
         }
 
