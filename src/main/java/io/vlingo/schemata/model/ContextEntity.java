@@ -15,6 +15,7 @@ import io.vlingo.schemata.model.Events.ContextDescribed;
 import io.vlingo.schemata.model.Events.ContextRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.schemata.model.Id.UnitId;
 
 public class ContextEntity extends EventSourced implements Context {
   static {
@@ -28,26 +29,26 @@ public class ContextEntity extends EventSourced implements Context {
 
   private State state;
 
-  public ContextEntity(final OrganizationId organizationId, final ContextId contextId, final String namespace, final String description) {
+  public ContextEntity(final OrganizationId organizationId, final UnitId unitId, final ContextId contextId, final String namespace, final String description) {
     assert(namespace != null && !namespace.isEmpty());
     assert(description != null && !description.isEmpty());
-    apply(new ContextDefined(organizationId, contextId, namespace, description));
+    apply(ContextDefined.with(organizationId, unitId, contextId, namespace, description));
   }
 
   @Override
   public void changeNamespaceTo(final String namespace) {
     assert (namespace != null && !namespace.isEmpty());
-    this.apply(new ContextRenamed(state.organizationId, state.contextId, namespace));
+    this.apply(ContextRenamed.with(state.organizationId, state.contextId, namespace));
   }
 
   @Override
   public void describeAs(final String description) {
     assert (description != null && !description.isEmpty());
-    this.apply(new ContextDescribed(state.organizationId, state.contextId, description));
+    this.apply(ContextDescribed.with(state.organizationId, state.contextId, description));
   }
 
   public void applyDefined(final ContextDefined e) {
-    this.state = new State(OrganizationId.existing(e.organizationId), ContextId.existing(e.contextId), e.namespace, e.description);
+    this.state = new State(OrganizationId.existing(e.organizationId), UnitId.existing(e.unitId), ContextId.existing(e.contextId), e.namespace, e.description);
   }
 
   public void applyDescribed(final ContextDescribed e) {
@@ -59,24 +60,26 @@ public class ContextEntity extends EventSourced implements Context {
   }
 
   public class State {
+    public final OrganizationId organizationId;
+    public final UnitId unitId;
     public final ContextId contextId;
     public final String description;
     public final String namespace;
-    public final OrganizationId organizationId;
 
-    public State withDescription(final String description) {
-      return new State(this.organizationId, this.contextId, this.namespace, description);
-    }
-
-    public State withNamespace(final String namespace) {
-      return new State(this.organizationId, this.contextId, namespace, this.description);
-    }
-
-    public State(final OrganizationId organizationId, final ContextId contextId, final String namespace, final String description) {
+    public State(final OrganizationId organizationId, final UnitId unitId, final ContextId contextId, final String namespace, final String description) {
       this.organizationId = organizationId;
+      this.unitId = unitId;
       this.contextId = contextId;
       this.namespace = namespace;
       this.description = description;
+    }
+
+    public State withDescription(final String description) {
+      return new State(this.organizationId, this.unitId, this.contextId, this.namespace, description);
+    }
+
+    public State withNamespace(final String namespace) {
+      return new State(this.organizationId, this.unitId, this.contextId, namespace, this.description);
     }
   }
 }
