@@ -112,6 +112,7 @@ public final class Events {
 
   public static final class SchemaDefined extends DomainEvent {
     public final String organizationId;
+    public final String unitId;
     public final String contextId;
     public final String schemaId;
     public final String category;
@@ -120,22 +121,25 @@ public final class Events {
 
     public static SchemaDefined with(
             final OrganizationId organizationId,
+            final UnitId unitId,
             final ContextId contextId,
             final SchemaId schemaId,
             final Category category,
             final String name,
             final String description) {
-      return new SchemaDefined(organizationId, contextId, schemaId, category, name, description);
+      return new SchemaDefined(organizationId, unitId, contextId, schemaId, category, name, description);
     }
 
     public SchemaDefined(
             final OrganizationId organizationId,
+            final UnitId unitId,
             final ContextId contextId,
             final SchemaId schemaId,
             final Category category,
             final String name,
             final String description) {
       this.organizationId = organizationId.value;
+      this.unitId = unitId.value;
       this.contextId = contextId.value;
       this.schemaId = schemaId.value;
       this.category = category.name();
@@ -146,24 +150,28 @@ public final class Events {
 
   public static final class SchemaDescribed extends DomainEvent {
     public final String organizationId;
+    public final String unitId;
     public final String contextId;
     public final String schemaId;
     public final String description;
 
     public static SchemaDescribed with(
             final OrganizationId organizationId,
+            final UnitId unitId,
             final ContextId contextId,
             final SchemaId schemaId,
             final String description) {
-      return new SchemaDescribed(organizationId, contextId, schemaId, description);
+      return new SchemaDescribed(organizationId, unitId, contextId, schemaId, description);
     }
 
     public SchemaDescribed(
             final OrganizationId organizationId,
+            final UnitId unitId,
             final ContextId contextId,
             final SchemaId schemaId,
             final String description) {
       this.organizationId = organizationId.value;
+      this.unitId = unitId.value;
       this.contextId = contextId.value;
       this.schemaId = schemaId.value;
       this.description = description;
@@ -172,24 +180,28 @@ public final class Events {
 
   public static final class SchemaRecategorized extends DomainEvent {
     public final String organizationId;
+    public final String unitId;
     public final String contextId;
     public final String schemaId;
     public final String category;
 
     public static SchemaRecategorized with(
             final OrganizationId organizationId,
+            final UnitId unitId,
             final ContextId contextId,
             final SchemaId schemaId,
             final Category category) {
-      return new SchemaRecategorized(organizationId, contextId, schemaId, category);
+      return new SchemaRecategorized(organizationId, unitId, contextId, schemaId, category);
     }
 
     public SchemaRecategorized(
             final OrganizationId organizationId,
+            final UnitId unitId,
             final ContextId contextId,
             final SchemaId schemaId,
             final Category category) {
       this.organizationId = organizationId.value;
+      this.unitId = unitId.value;
       this.contextId = contextId.value;
       this.schemaId = schemaId.value;
       this.category = category.name();
@@ -198,24 +210,28 @@ public final class Events {
 
   public static final class SchemaRenamed extends DomainEvent {
     public final String organizationId;
+    public final String unitId;
     public final String contextId;
     public final String schemaId;
     public final String name;
 
     public static SchemaRenamed with(
             final OrganizationId organizationId,
+            final UnitId unitId,
             final ContextId contextId,
             final SchemaId schemaId,
             final String name) {
-      return new SchemaRenamed(organizationId, contextId, schemaId, name);
+      return new SchemaRenamed(organizationId, unitId, contextId, schemaId, name);
     }
 
     public SchemaRenamed(
             final OrganizationId organizationId,
+            final UnitId unitId,
             final ContextId contextId,
             final SchemaId schemaId,
             final String name) {
       this.organizationId = organizationId.value;
+      this.unitId = unitId.value;
       this.contextId = contextId.value;
       this.schemaId = schemaId.value;
       this.name = name;
