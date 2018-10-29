@@ -1,159 +1,125 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.model;
 
 import io.vlingo.lattice.model.identity.IdentityGeneratorType;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
-/**
- * @author Chandrabhan Kumhar
- * Used to set unique id for every schemata
- */
 public abstract class Id {
-    @NotNull
-    private final String value;
+  public final String value;
 
-    @NotNull
-    public final String getValue() {
-        return this.value;
+  public final boolean isDefined() {
+    return value.length() > 0;
+  }
+
+  public final boolean isUndefined() {
+    return value.isEmpty();
+  }
+
+  public Id(final String value) {
+    this.value = value;
+  }
+
+  public static class OrganizationId extends Id {
+
+    public OrganizationId(final String value) {
+      super(value);
     }
 
-    public final boolean isDefined() {
-        CharSequence var1 = this.value;
-        return var1.length () > 0;
+    public static OrganizationId existing(final String id) {
+      return new OrganizationId(UUID.fromString(id).toString());
     }
 
-    public final boolean isUndefined() {
-        CharSequence var1 = this.value;
-        return var1.length () == 0;
+    public static OrganizationId undefined() {
+      return new OrganizationId("");
     }
 
-    public Id(@NotNull String value) {
-        super ();
-        this.value = value;
+    public static OrganizationId unique() {
+      return new OrganizationId(IdentityGeneratorType.Random.generate().toString());
+    }
+  }
+
+  public static class UnitId extends Id {
+
+    public UnitId(final String value) {
+      super(value);
     }
 
-    /**
-     * Inner class for organization id to set unique or different id
-     */
-    public static class OrganizationId extends Id {
-
-        public OrganizationId(@NotNull String value) {
-            super ( value );
-        }
-
-        public static class Companion {
-            @NotNull
-            public static Id.OrganizationId existing(@NotNull String id) {
-                String var10002 = UUID.fromString ( id ).toString ();
-                return new Id.OrganizationId ( var10002 );
-            }
-
-            @NotNull
-            public static Id.OrganizationId undefined() {
-                return new Id.OrganizationId ( "" );
-            }
-
-            @NotNull
-            public static Id.OrganizationId unique() {
-                String var10002 = IdentityGeneratorType.Random.generate ().toString ();
-                return new Id.OrganizationId ( var10002 );
-            }
-
-
-        }
+    public static UnitId existing(final String id) {
+      return new UnitId(UUID.fromString(id).toString());
     }
 
-    /**
-     * Inner class to set unique or different context id
-     */
-    public static class ContextId extends Id {
-
-        public ContextId(@NotNull String value) {
-            super ( value );
-        }
-
-        public static class Companion {
-            @NotNull
-            public static Id.ContextId existing(@NotNull String id) {
-                String var10002 = UUID.fromString ( id ).toString ();
-                return new Id.ContextId ( var10002 );
-            }
-
-            @NotNull
-            public static Id.ContextId undefined() {
-                return new Id.ContextId ( "" );
-            }
-
-            @NotNull
-            public static Id.ContextId unique() {
-                String var10002 = IdentityGeneratorType.Random.generate ().toString ();
-                return new Id.ContextId ( var10002 );
-            }
-
-        }
+    public static UnitId undefined() {
+      return new UnitId("");
     }
 
-    /**
-     * Inner class to set unique or different schema id
-     */
-    public static class SchemaId extends Id {
+    public static UnitId unique() {
+      return new UnitId(IdentityGeneratorType.Random.generate().toString());
+    }
+  }
 
-        public SchemaId(String value) {
-            super ( value );
-        }
+  public static class ContextId extends Id {
 
-
-        public static class Companion {
-            @NotNull
-            public static Id.SchemaId existing(@NotNull String id) {
-                String var10002 = UUID.fromString ( id ).toString ();
-                return new Id.SchemaId ( var10002 );
-            }
-
-            @NotNull
-            public static Id.SchemaId undefined() {
-                return new Id.SchemaId ( "" );
-            }
-
-            @NotNull
-            public static Id.SchemaId unique() {
-                String var10002 = IdentityGeneratorType.Random.generate ().toString ();
-                return new Id.SchemaId ( var10002 );
-            }
-
-        }
+    public ContextId(final String value) {
+      super(value);
     }
 
-    /**
-     * Inner class to set unique or different schema version id
-     */
-    public static class SchemaVersionId extends Id {
-
-        public SchemaVersionId(String value) {
-            super ( value );
-        }
-
-
-        public static class Companion {
-            @NotNull
-            public static Id.SchemaVersionId existing(@NotNull String id) {
-                String var10002 = UUID.fromString ( id ).toString ();
-                return new Id.SchemaVersionId ( var10002 );
-            }
-
-            @NotNull
-            public static Id.SchemaVersionId undefined() {
-                return new Id.SchemaVersionId ( "" );
-            }
-
-            @NotNull
-            public static Id.SchemaVersionId unique() {
-                String var10002 = IdentityGeneratorType.Random.generate ().toString ();
-                return new Id.SchemaVersionId ( var10002 );
-            }
-
-        }
+    public static ContextId existing(final String id) {
+      String var10002 = UUID.fromString(id).toString();
+      return new ContextId(var10002);
     }
+
+    public static ContextId undefined() {
+      return new ContextId("");
+    }
+
+    public static ContextId unique() {
+      String var10002 = IdentityGeneratorType.Random.generate().toString();
+      return new ContextId(var10002);
+    }
+  }
+
+  public static class SchemaId extends Id {
+
+    public SchemaId(final String value) {
+      super(value);
+    }
+
+    public static SchemaId existing(final String id) {
+      return new SchemaId(UUID.fromString(id).toString());
+    }
+
+    public static SchemaId undefined() {
+      return new SchemaId("");
+    }
+
+    public static SchemaId unique() {
+      return new SchemaId(UUID.randomUUID().toString());
+    }
+  }
+
+  public static class SchemaVersionId extends Id {
+
+    public SchemaVersionId(final String value) {
+      super(value);
+    }
+
+    public static SchemaVersionId existing(final String id) {
+      return new SchemaVersionId(UUID.fromString(id).toString());
+    }
+
+    public static SchemaVersionId undefined() {
+      return new SchemaVersionId("");
+    }
+
+    public static SchemaVersionId unique() {
+      return new SchemaVersionId(IdentityGeneratorType.Random.generate().toString());
+    }
+  }
 }
-
