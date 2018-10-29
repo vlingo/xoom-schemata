@@ -17,6 +17,7 @@ import io.vlingo.schemata.model.Events.SchemaRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.schemata.model.Id.UnitId;
 
 public class SchemaEntity extends EventSourced implements Schema {
 
@@ -35,33 +36,34 @@ public class SchemaEntity extends EventSourced implements Schema {
 
   public SchemaEntity(
           final OrganizationId organizationId,
+          final UnitId unitId,
           final ContextId contextId,
           final SchemaId schemaId,
           final Category category,
           final String name,
           final String description) {
-    apply(new SchemaDefined(organizationId, contextId, schemaId, category, name, description));
+    apply(new SchemaDefined(organizationId, unitId, contextId, schemaId, category, name, description));
   }
 
   @Override
   public void describeAs(String description) {
-    apply(new SchemaDescribed(state.organizationId, state.contextId, state.schemaId, description));
+    apply(new SchemaDescribed(state.organizationId, state.unitId, state.contextId, state.schemaId, description));
   }
 
   @Override
   public void recategorizedAs(final Category category) {
-    apply(new SchemaRecategorized(state.organizationId, state.contextId, state.schemaId, category));
+    apply(new SchemaRecategorized(state.organizationId, state.unitId, state.contextId, state.schemaId, category));
   }
 
   @Override
   public void renameTo(String name) {
-    apply(new SchemaRenamed(state.organizationId, state.contextId, state.schemaId, name));
+    apply(new SchemaRenamed(state.organizationId, state.unitId, state.contextId, state.schemaId, name));
   }
 
   public void applyDefined(SchemaDefined e) {
-    state = new SchemaEntity.State(Id.OrganizationId.existing(e.organizationId),
-            Id.ContextId.existing(e.contextId), Id.SchemaId.existing(e.schemaId),
-            Category.None, e.name, e.description);
+    state = new State(OrganizationId.existing(e.organizationId), UnitId.existing(e.unitId),
+            ContextId.existing(e.contextId), SchemaId.existing(e.schemaId),
+            Category.valueOf(e.category), e.name, e.description);
   }
 
   public void applyDescribed(SchemaDescribed e) {
@@ -77,38 +79,41 @@ public class SchemaEntity extends EventSourced implements Schema {
   }
 
   public class State {
-    public final Category category;
+    public final OrganizationId organizationId;
+    public final UnitId unitId;
     public final ContextId contextId;
+    public final SchemaId schemaId;
+    public final Category category;
     public final String description;
     public final String name;
-    public final OrganizationId organizationId;
-    public final SchemaId schemaId;
-
-    public State withCategory(final Category category) {
-      return new State(this.organizationId, this.contextId, this.schemaId, category, this.name, this.description);
-    }
-
-    public State withDescription(final String description) {
-      return new State(this.organizationId, this.contextId, this.schemaId, this.category, this.name, description);
-    }
-
-    public State withName(final String name) {
-      return new State(this.organizationId, this.contextId, this.schemaId, this.category, name, this.description);
-    }
 
     public State(
             final OrganizationId organizationId,
+            final UnitId unitId,
             final ContextId contextId,
             final SchemaId schemaId,
             final Category category,
             final String name,
             final String description) {
       this.organizationId = organizationId;
+      this.unitId = unitId;
       this.contextId = contextId;
       this.schemaId = schemaId;
       this.category = category;
       this.name = name;
       this.description = description;
+    }
+
+    public State withCategory(final Category category) {
+      return new State(this.organizationId, this.unitId, this.contextId, this.schemaId, category, this.name, this.description);
+    }
+
+    public State withDescription(final String description) {
+      return new State(this.organizationId, this.unitId, this.contextId, this.schemaId, this.category, this.name, description);
+    }
+
+    public State withName(final String name) {
+      return new State(this.organizationId, this.unitId, this.contextId, this.schemaId, this.category, name, this.description);
     }
   }
 }
