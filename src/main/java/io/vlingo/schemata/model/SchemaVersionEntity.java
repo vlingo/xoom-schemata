@@ -22,7 +22,7 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
     static {
         BiConsumer<SchemaVersionEntity, Events.SchemaVersionDefined> applySchemaDefinedFn = SchemaVersionEntity::applyDefined;
         EventSourced.registerConsumer ( SchemaVersionEntity.class, Events.SchemaVersionDefined.class, applySchemaDefinedFn );
-        BiConsumer<SchemaVersionEntity, Events.SchemaVersionDefinition> applySchemaVersionDefinitionFn = SchemaVersionEntity::applyDefiniton;
+        BiConsumer<SchemaVersionEntity, Events.SchemaVersionDefinition> applySchemaVersionDefinitionFn = SchemaVersionEntity::applyDefinition;
         EventSourced.registerConsumer ( SchemaVersionEntity.class, Events.SchemaVersionDefinition.class, applySchemaVersionDefinitionFn );
         BiConsumer<SchemaVersionEntity, Events.SchemaVersionDescribed> applySchemaDescribedFn = SchemaVersionEntity::applyDescribed;
         EventSourced.registerConsumer ( SchemaVersionEntity.class, Events.SchemaVersionDescribed.class, applySchemaDescribedFn );
@@ -83,7 +83,7 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
                 defined.version, defined.status );
     }
 
-    public void applyDefiniton(final Events.SchemaVersionDefinition definition) {
+    public void applyDefinition(final Events.SchemaVersionDefinition definition) {
         this.state = this.state.withDefinition ( definition.definition );
     }
 
