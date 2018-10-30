@@ -8,7 +8,9 @@
 package io.vlingo.schemata.model;
 
 public interface Schema {
-  void describeAs(final String description);
-  void recategorizedAs(final Category category);
-  void renameTo(final String name);
+    void describeAs(final String description);
+
+    void recategorizedAs(final Category category);
+
+    void renameTo(final String name);
 }

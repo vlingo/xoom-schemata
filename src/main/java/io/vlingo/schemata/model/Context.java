@@ -8,6 +8,7 @@
 package io.vlingo.schemata.model;
 
 public interface Context {
-  void changeNamespaceTo(final String namespace);
-  void describeAs(final String description);
+    void changeNamespaceTo(final String namespace);
+
+    void describeAs(final String description);
 }

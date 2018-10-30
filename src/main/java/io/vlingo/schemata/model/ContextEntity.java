@@ -7,8 +7,7 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.function.BiConsumer;
-
+import io.vlingo.actors.testkit.TestState;
 import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.ContextDefined;
 import io.vlingo.schemata.model.Events.ContextDescribed;
@@ -16,6 +15,8 @@ import io.vlingo.schemata.model.Events.ContextRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
+
+import java.util.function.BiConsumer;
 
 public class ContextEntity extends EventSourced implements Context {
   static {
@@ -38,13 +39,13 @@ public class ContextEntity extends EventSourced implements Context {
   @Override
   public void changeNamespaceTo(final String namespace) {
     assert (namespace != null && !namespace.isEmpty());
-    this.apply(ContextRenamed.with(state.organizationId, state.contextId, namespace));
+    this.apply(ContextRenamed.with(state.organizationId, state.unitId, state.contextId, namespace));
   }
 
   @Override
   public void describeAs(final String description) {
     assert (description != null && !description.isEmpty());
-    this.apply(ContextDescribed.with(state.organizationId, state.contextId, description));
+    this.apply(ContextDescribed.with(state.organizationId, state.unitId, state.contextId, description));
   }
 
   public void applyDefined(final ContextDefined e) {
@@ -81,5 +82,12 @@ public class ContextEntity extends EventSourced implements Context {
     public State withNamespace(final String namespace) {
       return new State(this.organizationId, this.unitId, this.contextId, namespace, this.description);
     }
+  }
+
+  @Override
+  public TestState viewTestState() {
+    TestState testState = new TestState ();
+    testState.putValue ( "applied", applied () );
+    return testState;
   }
 }

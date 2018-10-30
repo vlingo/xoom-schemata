@@ -5,7 +5,7 @@
 
     <groupId>io.vlingo</groupId>
     <artifactId>vlingo-schemata</artifactId>
-    <version>0.7.2</version>
+    <version>0.7.3</version>
     <packaging>jar</packaging>
 
     <name>vlingo-schemata</name>
@@ -83,17 +83,17 @@
         <dependency>
             <groupId>io.vlingo</groupId>
             <artifactId>vlingo-actors</artifactId>
-            <version>0.7.2</version>
+            <version>0.7.3</version>
         </dependency>
         <dependency>
             <groupId>io.vlingo</groupId>
             <artifactId>vlingo-http</artifactId>
-            <version>0.7.2</version>
+            <version>0.7.3</version>
         </dependency>
         <dependency>
             <groupId>io.vlingo</groupId>
             <artifactId>vlingo-lattice</artifactId>
-            <version>0.7.2</version>
+            <version>0.7.3</version>
         </dependency>
     </dependencies>
 </project>

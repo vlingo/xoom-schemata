@@ -8,6 +8,7 @@
 package io.vlingo.schemata.model;
 
 public interface Unit {
-  void describeAs(final String description);
-  void renameTo(final String name);
+    void describeAs(final String description);
+
+    void renameTo(final String name);
 }
