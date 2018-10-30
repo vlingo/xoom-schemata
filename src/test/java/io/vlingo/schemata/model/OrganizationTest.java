@@ -19,7 +19,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 
 public class OrganizationTest {
-    TestWorld world;
+    private TestWorld world;
 
     @Before
     public void setUp() throws Exception {

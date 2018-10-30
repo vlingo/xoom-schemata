@@ -13,6 +13,8 @@ public interface SchemaVersion {
 
     void assignStatus(final Status status);
 
+    void assignVersion(final Version version);
+
     class Definition {
         public final String value;
 

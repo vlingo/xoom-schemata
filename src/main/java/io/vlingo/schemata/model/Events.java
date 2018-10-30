@@ -250,10 +250,10 @@ public final class Events {
         public final String category;
         public final String name;
         public final String description;
-        public final SchemaVersion.Status status;
-        public final SchemaVersion.Definition definition;
+        public final String status;
+        public final String definition;
         public final String unitId;
-        public final SchemaVersion.Version version;
+        public final String version;
 
         public static SchemaVersionDefined with(
                 final OrganizationId organizationId,
@@ -289,10 +289,10 @@ public final class Events {
             this.name = name;
             this.description = description;
             this.schemaVersionId = schemaVersionId.value;
-            this.status = status;
-            this.definition = definition;
+            this.status = status.toString ();
+            this.definition = definition.value;
             this.unitId = unitId.value;
-            this.version = version;
+            this.version = version.value;
         }
     }
 
@@ -321,7 +321,7 @@ public final class Events {
         }
     }
 
-    public static final class SchemaVersionAssigned extends DomainEvent {
+    public static final class SchemaVersionStatus extends DomainEvent {
         public final String organizationId;
         public final String contextId;
         public final String schemaId;
@@ -329,13 +329,13 @@ public final class Events {
         public final String unitId;
         public final String status;
 
-        public static SchemaVersionAssigned with(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
-                                                 final Id.SchemaVersionId schemaVersionId, final UnitId unitId, final SchemaVersion.Status status) {
-            return new SchemaVersionAssigned ( organizationId, contextId, schemaId, schemaVersionId, unitId, status );
+        public static SchemaVersionStatus with(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
+                                               final Id.SchemaVersionId schemaVersionId, final UnitId unitId, final SchemaVersion.Status status) {
+            return new SchemaVersionStatus ( organizationId, contextId, schemaId, schemaVersionId, unitId, status );
         }
 
-        public SchemaVersionAssigned(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
-                                     final Id.SchemaVersionId schemaVersionId, final UnitId unitId, final SchemaVersion.Status status) {
+        public SchemaVersionStatus(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
+                                   final Id.SchemaVersionId schemaVersionId, final UnitId unitId, final SchemaVersion.Status status) {
             this.organizationId = organizationId.value;
             this.contextId = contextId.value;
             this.schemaId = schemaId.value;
@@ -345,6 +345,31 @@ public final class Events {
         }
 
     }
+
+    public static final class SchemaVersionAssignedVersion extends DomainEvent {
+        public final String organizationId;
+        public final String contextId;
+        public final String schemaId;
+        public final String schemaVersionId;
+        public final String unitId;
+        public final String version;
+
+        public static SchemaVersionAssignedVersion with(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
+                                                        final Id.SchemaVersionId schemaVersionId, final UnitId unitId, final SchemaVersion.Version version) {
+            return new SchemaVersionAssignedVersion ( organizationId, contextId, schemaId, schemaVersionId, unitId, version );
+        }
+
+        public SchemaVersionAssignedVersion(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
+                                            final Id.SchemaVersionId schemaVersionId, final UnitId unitId, final SchemaVersion.Version version) {
+            this.organizationId = organizationId.value;
+            this.contextId = contextId.value;
+            this.schemaId = schemaId.value;
+            this.schemaVersionId = schemaVersionId.value;
+            this.unitId = unitId.value;
+            this.version = version.value;
+        }
+    }
+
 
     public static final class SchemaVersionDefinition extends DomainEvent {
         public final String organizationId;
