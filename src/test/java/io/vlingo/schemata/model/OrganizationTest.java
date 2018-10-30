@@ -18,12 +18,12 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-public class ContextTest {
-    private TestWorld world;
+public class OrganizationTest {
+    TestWorld world;
 
     @Before
     public void setUp() throws Exception {
-        world = TestWorld.start ( "context-test" );
+        world = TestWorld.start ( "organization-test" );
     }
 
     @After
@@ -32,15 +32,15 @@ public class ContextTest {
     }
 
     @Test
-    public void testApplyContextVlingoSchemata() throws Exception {
-        final TestActor<Context> contextTestActor =
-                world.actorFor ( Definition.has ( ContextEntity.class, Definition.parameters ( Id.OrganizationId.unique (), Id.UnitId.unique (),
-                        Id.ContextId.unique (), "namespace", "desc" ) ), Context.class );
-        contextTestActor.actor ().changeNamespaceTo ( "newNamespace" );
-        contextTestActor.actor ().describeAs ( "newDesc" );
+    public void testApplyOrganizationVlingoSchemata() throws Exception {
+        final TestActor<Organization> organizationTestActor =
+                world.actorFor ( Definition.has ( OrganizationEntity.class, Definition.parameters ( "name", "description" ) ), Organization.class );
 
-        Assert.assertEquals ( 2, TestWorld.Instance.get ().allMessagesFor ( contextTestActor.address () ).size () );
-        Assert.assertEquals ( 3, ((ArrayList) contextTestActor.viewTestState ().valueOf ( "applied" )).size () );
+        organizationTestActor.actor ().renameTo ( "newName" );
+        organizationTestActor.actor ().describeAs ( "newDescription" );
+
+        Assert.assertEquals ( 2, TestWorld.Instance.get ().allMessagesFor ( organizationTestActor.address () ).size () );
+        Assert.assertEquals ( 3, ((ArrayList) organizationTestActor.viewTestState ().valueOf ( "applied" )).size () );
 
     }
 
@@ -49,6 +49,5 @@ public class ContextTest {
         final TestUntil until = TestUntil.happenings ( 1 );
         Assert.assertFalse ( until.completesWithin ( 100 ) );
     }
-
 
 }
