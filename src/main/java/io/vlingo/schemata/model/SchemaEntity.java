@@ -16,6 +16,7 @@ import io.vlingo.schemata.model.Events.SchemaRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.schemata.model.Id.UnitId;
 
 import java.util.function.BiConsumer;
 
