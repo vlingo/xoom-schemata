@@ -16,7 +16,6 @@ import io.vlingo.schemata.model.Events.SchemaRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
-import io.vlingo.schemata.model.Id.UnitId;
 
 import java.util.function.BiConsumer;
 
@@ -24,13 +23,13 @@ public class SchemaEntity extends EventSourced implements Schema {
 
     static {
         BiConsumer<SchemaEntity, SchemaDefined> applySchemaDefinedFn = SchemaEntity::applyDefined;
-        EventSourced.registerConsumer ( SchemaEntity.class, SchemaDefined.class, applySchemaDefinedFn );
+        EventSourced.registerConsumer(SchemaEntity.class, SchemaDefined.class, applySchemaDefinedFn);
         BiConsumer<SchemaEntity, SchemaRecategorized> applySchemaRecategorizedFn = SchemaEntity::applyRecategorized;
-        EventSourced.registerConsumer ( SchemaEntity.class, SchemaRecategorized.class, applySchemaRecategorizedFn );
+        EventSourced.registerConsumer(SchemaEntity.class, SchemaRecategorized.class, applySchemaRecategorizedFn);
         BiConsumer<SchemaEntity, SchemaDescribed> applySchemaDescribedFn = SchemaEntity::applyDescribed;
-        EventSourced.registerConsumer ( SchemaEntity.class, SchemaDescribed.class, applySchemaDescribedFn );
+        EventSourced.registerConsumer(SchemaEntity.class, SchemaDescribed.class, applySchemaDescribedFn);
         BiConsumer<SchemaEntity, SchemaRenamed> applySchemaRenamedFn = SchemaEntity::applyRenamed;
-        EventSourced.registerConsumer ( SchemaEntity.class, SchemaRenamed.class, applySchemaRenamedFn );
+        EventSourced.registerConsumer(SchemaEntity.class, SchemaRenamed.class, applySchemaRenamedFn);
     }
 
     private State state;
@@ -43,41 +42,41 @@ public class SchemaEntity extends EventSourced implements Schema {
             final Category category,
             final String name,
             final String description) {
-        apply ( new SchemaDefined ( organizationId, unitId, contextId, schemaId, category, name, description ) );
+        apply(new SchemaDefined(organizationId, unitId, contextId, schemaId, category, name, description));
     }
 
     @Override
     public void describeAs(String description) {
-        apply ( new SchemaDescribed ( state.organizationId, state.unitId, state.contextId, state.schemaId, description ) );
+        apply(new SchemaDescribed(state.organizationId, state.unitId, state.contextId, state.schemaId, description));
     }
 
     @Override
     public void recategorizedAs(final Category category) {
-        apply ( new SchemaRecategorized ( state.organizationId, state.unitId, state.contextId, state.schemaId, category ) );
+        apply(new SchemaRecategorized(state.organizationId, state.unitId, state.contextId, state.schemaId, category));
     }
 
     @Override
     public void renameTo(String name) {
-        apply ( new SchemaRenamed ( state.organizationId, state.unitId, state.contextId, state.schemaId, name ) );
+        apply(new SchemaRenamed(state.organizationId, state.unitId, state.contextId, state.schemaId, name));
     }
 
     public void applyDefined(SchemaDefined e) {
-        state = new SchemaEntity.State ( Id.OrganizationId.existing ( e.organizationId ),
-                Id.UnitId.existing ( e.unitId ),
-                Id.ContextId.existing ( e.contextId ), Id.SchemaId.existing ( e.schemaId ),
-                Category.None, e.name, e.description );
+        state = new SchemaEntity.State(Id.OrganizationId.existing(e.organizationId),
+                Id.UnitId.existing(e.unitId),
+                Id.ContextId.existing(e.contextId), Id.SchemaId.existing(e.schemaId),
+                Category.None, e.name, e.description);
     }
 
     public void applyDescribed(SchemaDescribed e) {
-        state = state.withDescription ( e.description );
+        state = state.withDescription(e.description);
     }
 
     public void applyRecategorized(SchemaRecategorized e) {
-        state = state.withCategory ( Category.valueOf ( e.category ) );
+        state = state.withCategory(Category.valueOf(e.category));
     }
 
     public void applyRenamed(SchemaRenamed event) {
-        state = state.withName ( event.name );
+        state = state.withName(event.name);
     }
 
     public class State {
@@ -90,15 +89,15 @@ public class SchemaEntity extends EventSourced implements Schema {
         public final SchemaId schemaId;
 
         public State withCategory(final Category category) {
-            return new State ( this.organizationId, this.unitId, this.contextId, this.schemaId, category, this.name, this.description );
+            return new State(this.organizationId, this.unitId, this.contextId, this.schemaId, category, this.name, this.description);
         }
 
         public State withDescription(final String description) {
-            return new State ( this.organizationId, this.unitId, this.contextId, this.schemaId, this.category, this.name, description );
+            return new State(this.organizationId, this.unitId, this.contextId, this.schemaId, this.category, this.name, description);
         }
 
         public State withName(final String name) {
-            return new State ( this.organizationId, this.unitId, this.contextId, this.schemaId, this.category, name, this.description );
+            return new State(this.organizationId, this.unitId, this.contextId, this.schemaId, this.category, name, this.description);
         }
 
         public State(
@@ -121,8 +120,8 @@ public class SchemaEntity extends EventSourced implements Schema {
 
     @Override
     public TestState viewTestState() {
-        TestState testState = new TestState ();
-        testState.putValue ( "applied", applied () );
+        TestState testState = new TestState();
+        testState.putValue("applied", applied());
         return testState;
     }
 }

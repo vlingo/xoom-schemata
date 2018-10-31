@@ -22,7 +22,7 @@ public final class Events {
         public final String description;
 
         public static ContextDefined with(final OrganizationId organizationId, final UnitId unitId, final ContextId contextId, final String namespace, final String description) {
-            return new ContextDefined ( organizationId, unitId, contextId, namespace, description );
+            return new ContextDefined(organizationId, unitId, contextId, namespace, description);
         }
 
         public ContextDefined(final OrganizationId organizationId, final UnitId unitId, final ContextId contextId, final String namespace, final String description) {
@@ -31,6 +31,46 @@ public final class Events {
             this.contextId = contextId.value;
             this.namespace = namespace;
             this.description = description;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            ContextDefined that = (ContextDefined) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!this.contextId.equals(that.contextId))
+                return false;
+
+            if(that.namespace == null) {
+                if(this.namespace != null)
+                    return false;
+            } else if(!this.namespace.equals(that.namespace))
+                return false;
+
+            if(that.description == null) {
+                if(this.description != null)
+                    return false;
+            } else if(!this.description.equals(that.description))
+                return false;
+
+            return true;
         }
     }
 
@@ -41,7 +81,7 @@ public final class Events {
         public final String description;
 
         public static ContextDescribed with(final OrganizationId organizationId, final UnitId unitId, final ContextId contextId, final String description) {
-            return new ContextDescribed ( organizationId, unitId, contextId, description );
+            return new ContextDescribed(organizationId, unitId, contextId, description);
         }
 
         public ContextDescribed(final OrganizationId organizationId, final UnitId unitId, final ContextId contextId, final String description) {
@@ -49,6 +89,40 @@ public final class Events {
             this.unitId = unitId.value;
             this.contextId = contextId.value;
             this.description = description;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            ContextDescribed that = (ContextDescribed) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!this.contextId.equals(that.contextId))
+                return false;
+
+            if(that.description == null) {
+                if(this.description != null)
+                    return false;
+            } else if(!this.description.equals(that.description))
+                return false;
+
+            return true;
         }
     }
 
@@ -59,7 +133,7 @@ public final class Events {
         public final String namespace;
 
         public static ContextRenamed with(final OrganizationId organizationId, final UnitId unitId, final ContextId contextId, final String namespace) {
-            return new ContextRenamed ( organizationId, unitId, contextId, namespace );
+            return new ContextRenamed(organizationId, unitId, contextId, namespace);
         }
 
         public ContextRenamed(final OrganizationId organizationId, final UnitId unitId, final ContextId contextId, String namespace) {
@@ -67,6 +141,40 @@ public final class Events {
             this.unitId = unitId.value;
             this.contextId = contextId.value;
             this.namespace = namespace;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            ContextRenamed that = (ContextRenamed) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!this.contextId.equals(that.contextId))
+                return false;
+
+            if(that.namespace == null) {
+                if(this.namespace != null)
+                    return false;
+            } else if(!this.namespace.equals(that.namespace))
+                return false;
+
+            return true;
         }
     }
 
@@ -76,13 +184,41 @@ public final class Events {
         public final String description;
 
         public static OrganizationDefined with(final OrganizationId organizationId, final String name, final String description) {
-            return new OrganizationDefined ( organizationId, name, description );
+            return new OrganizationDefined(organizationId, name, description);
         }
 
         public OrganizationDefined(final OrganizationId organizationId, final String name, final String description) {
             this.organizationId = organizationId.value;
             this.name = name;
             this.description = description;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            OrganizationDefined that = (OrganizationDefined) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.name == null) {
+                if(this.name != null)
+                    return false;
+            } else if(!this.name.equals(that.name))
+                return false;
+
+            if(that.description == null) {
+                if(this.description != null)
+                    return false;
+            } else if(!this.description.equals(that.description))
+                return false;
+
+            return true;
         }
     }
 
@@ -91,12 +227,34 @@ public final class Events {
         public final String description;
 
         public static OrganizationDescribed with(final OrganizationId organizationId, final String description) {
-            return new OrganizationDescribed ( organizationId, description );
+            return new OrganizationDescribed(organizationId, description);
         }
 
         public OrganizationDescribed(final OrganizationId organizationId, final String description) {
             this.organizationId = organizationId.value;
             this.description = description;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            OrganizationDescribed that = (OrganizationDescribed) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.description == null) {
+                if(this.description != null)
+                    return false;
+            } else if(!this.description.equals(that.description))
+                return false;
+
+            return true;
         }
     }
 
@@ -105,12 +263,34 @@ public final class Events {
         public final String name;
 
         public static OrganizationRenamed with(final OrganizationId organizationId, final String name) {
-            return new OrganizationRenamed ( organizationId, name );
+            return new OrganizationRenamed(organizationId, name);
         }
 
         public OrganizationRenamed(final OrganizationId organizationId, final String name) {
             this.organizationId = organizationId.value;
             this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            OrganizationRenamed that = (OrganizationRenamed) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.name == null) {
+                if(this.name != null)
+                    return false;
+            } else if(!this.name.equals(that.name))
+                return false;
+
+            return true;
         }
     }
 
@@ -131,7 +311,7 @@ public final class Events {
                 final Category category,
                 final String name,
                 final String description) {
-            return new SchemaDefined ( organizationId, unitId, contextId, schemaId, category, name, description );
+            return new SchemaDefined(organizationId, unitId, contextId, schemaId, category, name, description);
         }
 
         public SchemaDefined(
@@ -146,9 +326,61 @@ public final class Events {
             this.unitId = unitId.value;
             this.contextId = contextId.value;
             this.schemaId = schemaId.value;
-            this.category = category.name ();
+            this.category = category.name();
             this.name = name;
             this.description = description;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            SchemaDefined that = (SchemaDefined) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!contextId.equals(that.contextId))
+                return false;
+
+            if(that.schemaId == null) {
+                if(this.schemaId != null)
+                    return false;
+            } else if(!schemaId.equals(that.schemaId))
+                return false;
+
+            if(that.category == null) {
+                if(this.category != null)
+                    return false;
+            } else if(!category.equals(that.category))
+                return false;
+
+            if(that.name == null) {
+                if(this.name != null)
+                    return false;
+            } else if(!name.equals(that.name))
+                return false;
+
+            if(that.description == null) {
+                if(this.description != null)
+                    return false;
+            } else if(!this.description.equals(that.description))
+                return false;
+
+            return true;
         }
     }
 
@@ -165,7 +397,7 @@ public final class Events {
                 final ContextId contextId,
                 final SchemaId schemaId,
                 final String description) {
-            return new SchemaDescribed ( organizationId, unitId, contextId, schemaId, description );
+            return new SchemaDescribed(organizationId, unitId, contextId, schemaId, description);
         }
 
         public SchemaDescribed(
@@ -179,6 +411,46 @@ public final class Events {
             this.contextId = contextId.value;
             this.schemaId = schemaId.value;
             this.description = description;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            SchemaDescribed that = (SchemaDescribed) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!contextId.equals(that.contextId))
+                return false;
+
+            if(that.schemaId == null) {
+                if(this.schemaId != null)
+                    return false;
+            } else if(!schemaId.equals(that.schemaId))
+                return false;
+
+            if(that.description == null) {
+                if(this.description != null)
+                    return false;
+            } else if(!this.description.equals(that.description))
+                return false;
+
+            return true;
         }
     }
 
@@ -195,7 +467,7 @@ public final class Events {
                 final ContextId contextId,
                 final SchemaId schemaId,
                 final Category category) {
-            return new SchemaRecategorized ( organizationId, unitId, contextId, schemaId, category );
+            return new SchemaRecategorized(organizationId, unitId, contextId, schemaId, category);
         }
 
         public SchemaRecategorized(
@@ -208,7 +480,47 @@ public final class Events {
             this.unitId = unitId.value;
             this.contextId = contextId.value;
             this.schemaId = schemaId.value;
-            this.category = category.name ();
+            this.category = category.name();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            SchemaRecategorized that = (SchemaRecategorized) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!contextId.equals(that.contextId))
+                return false;
+
+            if(that.schemaId == null) {
+                if(this.schemaId != null)
+                    return false;
+            } else if(!schemaId.equals(that.schemaId))
+                return false;
+
+            if(that.category == null) {
+                if(this.category != null)
+                    return false;
+            } else if(!category.equals(that.category))
+                return false;
+
+            return true;
         }
     }
 
@@ -225,7 +537,7 @@ public final class Events {
                 final ContextId contextId,
                 final SchemaId schemaId,
                 final String name) {
-            return new SchemaRenamed ( organizationId, unitId, contextId, schemaId, name );
+            return new SchemaRenamed(organizationId, unitId, contextId, schemaId, name);
         }
 
         public SchemaRenamed(
@@ -239,6 +551,40 @@ public final class Events {
             this.contextId = contextId.value;
             this.schemaId = schemaId.value;
             this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            SchemaRenamed that = (SchemaRenamed) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!contextId.equals(that.contextId))
+                return false;
+
+            if(that.schemaId == null) {
+                if(this.schemaId != null)
+                    return false;
+            } else if(!schemaId.equals(that.schemaId))
+                return false;
+
+            return true;
         }
     }
 
@@ -267,7 +613,7 @@ public final class Events {
                 final SchemaVersion.Definition definition,
                 final UnitId unitId,
                 final SchemaVersion.Version version) {
-            return new SchemaVersionDefined ( organizationId, contextId, schemaId, category, name, description, schemaVersionId, status, definition, unitId, version );
+            return new SchemaVersionDefined(organizationId, contextId, schemaId, category, name, description, schemaVersionId, status, definition, unitId, version);
         }
 
         public SchemaVersionDefined(
@@ -285,14 +631,90 @@ public final class Events {
             this.organizationId = organizationId.value;
             this.contextId = contextId.value;
             this.schemaId = schemaId.value;
-            this.category = category.name ();
+            this.category = category.name();
             this.name = name;
             this.description = description;
             this.schemaVersionId = schemaVersionId.value;
-            this.status = status.toString ();
+            this.status = status.toString();
             this.definition = definition.value;
             this.unitId = unitId.value;
             this.version = version.value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            SchemaVersionDefined that = (SchemaVersionDefined) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!contextId.equals(that.contextId))
+                return false;
+
+            if(that.schemaId == null) {
+                if(this.schemaId != null)
+                    return false;
+            } else if(!schemaId.equals(that.schemaId))
+                return false;
+
+            if(that.schemaVersionId == null) {
+                if(this.schemaVersionId != null)
+                    return false;
+            } else if(!schemaVersionId.equals(that.schemaVersionId))
+                return false;
+
+            if(that.category == null) {
+                if(this.category != null)
+                    return false;
+            } else if(!category.equals(that.category))
+                return false;
+
+            if(that.name == null) {
+                if(this.name != null)
+                    return false;
+            } else if(!name.equals(that.name))
+                return false;
+
+            if(that.description == null) {
+                if(this.description != null)
+                    return false;
+            } else if(!this.description.equals(that.description))
+                return false;
+
+            if(that.status == null) {
+                if(this.status != null)
+                    return false;
+            } else if(!this.status.equals(that.status))
+                return false;
+
+            if(that.definition == null) {
+                if(this.definition != null)
+                    return false;
+            } else if(!this.definition.equals(that.definition))
+                return false;
+
+            if(that.version == null) {
+                if(this.version != null)
+                    return false;
+            } else if(!this.version.equals(that.version))
+                return false;
+
+            return true;
         }
     }
 
@@ -306,7 +728,7 @@ public final class Events {
 
         public static SchemaVersionDescribed with(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
                                                   final String description, final Id.SchemaVersionId schemaVersionId, final UnitId unitId) {
-            return new SchemaVersionDescribed ( organizationId, contextId, schemaId, schemaVersionId, unitId, description );
+            return new SchemaVersionDescribed(organizationId, contextId, schemaId, schemaVersionId, unitId, description);
         }
 
         public SchemaVersionDescribed(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId, final Id.SchemaVersionId schemaVersionId, final UnitId unitId, final String description) {
@@ -318,6 +740,53 @@ public final class Events {
             this.description = description;
 
 
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            SchemaVersionDescribed that = (SchemaVersionDescribed) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!contextId.equals(that.contextId))
+                return false;
+
+            if(that.schemaId == null) {
+                if(this.schemaId != null)
+                    return false;
+            } else if(!schemaId.equals(that.schemaId))
+                return false;
+
+            if(that.schemaVersionId == null) {
+                if(this.schemaVersionId != null)
+                    return false;
+            } else if(!schemaVersionId.equals(that.schemaVersionId))
+                return false;
+
+            if(that.description == null) {
+                if(this.description != null)
+                    return false;
+            } else if(!this.description.equals(that.description))
+                return false;
+
+
+            return true;
         }
     }
 
@@ -331,7 +800,7 @@ public final class Events {
 
         public static SchemaVersionStatus with(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
                                                final Id.SchemaVersionId schemaVersionId, final UnitId unitId, final SchemaVersion.Status status) {
-            return new SchemaVersionStatus ( organizationId, contextId, schemaId, schemaVersionId, unitId, status );
+            return new SchemaVersionStatus(organizationId, contextId, schemaId, schemaVersionId, unitId, status);
         }
 
         public SchemaVersionStatus(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
@@ -341,7 +810,53 @@ public final class Events {
             this.schemaId = schemaId.value;
             this.schemaVersionId = schemaVersionId.value;
             this.unitId = unitId.value;
-            this.status = status.name ();
+            this.status = status.name();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            SchemaVersionStatus that = (SchemaVersionStatus) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!contextId.equals(that.contextId))
+                return false;
+
+            if(that.schemaId == null) {
+                if(this.schemaId != null)
+                    return false;
+            } else if(!schemaId.equals(that.schemaId))
+                return false;
+
+            if(that.schemaVersionId == null) {
+                if(this.schemaVersionId != null)
+                    return false;
+            } else if(!schemaVersionId.equals(that.schemaVersionId))
+                return false;
+
+            if(that.status == null) {
+                if(this.status != null)
+                    return false;
+            } else if(!this.status.equals(that.status))
+                return false;
+
+            return true;
         }
 
     }
@@ -356,7 +871,7 @@ public final class Events {
 
         public static SchemaVersionAssignedVersion with(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
                                                         final Id.SchemaVersionId schemaVersionId, final UnitId unitId, final SchemaVersion.Version version) {
-            return new SchemaVersionAssignedVersion ( organizationId, contextId, schemaId, schemaVersionId, unitId, version );
+            return new SchemaVersionAssignedVersion(organizationId, contextId, schemaId, schemaVersionId, unitId, version);
         }
 
         public SchemaVersionAssignedVersion(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
@@ -367,6 +882,52 @@ public final class Events {
             this.schemaVersionId = schemaVersionId.value;
             this.unitId = unitId.value;
             this.version = version.value;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            SchemaVersionAssignedVersion that = (SchemaVersionAssignedVersion) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!contextId.equals(that.contextId))
+                return false;
+
+            if(that.schemaId == null) {
+                if(this.schemaId != null)
+                    return false;
+            } else if(!schemaId.equals(that.schemaId))
+                return false;
+
+            if(that.schemaVersionId == null) {
+                if(this.schemaVersionId != null)
+                    return false;
+            } else if(!schemaVersionId.equals(that.schemaVersionId))
+                return false;
+
+            if(that.version == null) {
+                if(this.version != null)
+                    return false;
+            } else if(!this.version.equals(that.version))
+                return false;
+
+            return true;
         }
     }
 
@@ -381,7 +942,7 @@ public final class Events {
 
         public static SchemaVersionDefinition with(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
                                                    final Id.SchemaVersionId schemaVersionId, final UnitId unitId, final SchemaVersion.Definition definition) {
-            return new SchemaVersionDefinition ( organizationId, contextId, schemaId, schemaVersionId, unitId, definition );
+            return new SchemaVersionDefinition(organizationId, contextId, schemaId, schemaVersionId, unitId, definition);
         }
 
         public SchemaVersionDefinition(final OrganizationId organizationId, final ContextId contextId, final SchemaId schemaId,
@@ -393,6 +954,52 @@ public final class Events {
             this.unitId = unitId.value;
             this.definition = definition.value;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            SchemaVersionDefinition that = (SchemaVersionDefinition) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.contextId == null) {
+                if(this.contextId != null)
+                    return false;
+            } else if(!contextId.equals(that.contextId))
+                return false;
+
+            if(that.schemaId == null) {
+                if(this.schemaId != null)
+                    return false;
+            } else if(!schemaId.equals(that.schemaId))
+                return false;
+
+            if(that.schemaVersionId == null) {
+                if(this.schemaVersionId != null)
+                    return false;
+            } else if(!schemaVersionId.equals(that.schemaVersionId))
+                return false;
+
+            if(that.definition == null) {
+                if(this.definition != null)
+                    return false;
+            } else if(!this.definition.equals(that.definition))
+                return false;
+
+            return true;
+        }
     }
 
     public static final class UnitDefined extends DomainEvent {
@@ -402,7 +1009,7 @@ public final class Events {
         public final String description;
 
         public static UnitDefined with(final OrganizationId organizationId, final UnitId unitId, final String name, final String description) {
-            return new UnitDefined ( organizationId, unitId, name, description );
+            return new UnitDefined(organizationId, unitId, name, description);
         }
 
         public UnitDefined(final OrganizationId organizationId, final UnitId unitId, final String name, final String description) {
@@ -410,6 +1017,40 @@ public final class Events {
             this.unitId = unitId.value;
             this.name = name;
             this.description = description;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            UnitDefined that = (UnitDefined) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.name == null) {
+                if(this.name != null)
+                    return false;
+            } else if(!name.equals(that.name))
+                return false;
+
+            if(that.description == null) {
+                if(this.description != null)
+                    return false;
+            } else if(!this.description.equals(that.description))
+                return false;
+
+            return true;
         }
     }
 
@@ -419,13 +1060,41 @@ public final class Events {
         public final String description;
 
         public static UnitDescribed with(final OrganizationId organizationId, final UnitId unitId, final String description) {
-            return new UnitDescribed ( organizationId, unitId, description );
+            return new UnitDescribed(organizationId, unitId, description);
         }
 
         public UnitDescribed(final OrganizationId organizationId, final UnitId unitId, final String description) {
             this.organizationId = organizationId.value;
             this.unitId = unitId.value;
             this.description = description;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            UnitDescribed that = (UnitDescribed) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.description == null) {
+                if(this.description != null)
+                    return false;
+            } else if(!this.description.equals(that.description))
+                return false;
+
+            return true;
         }
     }
 
@@ -435,13 +1104,41 @@ public final class Events {
         public final String name;
 
         public static UnitRenamed with(final OrganizationId organizationId, final UnitId unitId, final String name) {
-            return new UnitRenamed ( organizationId, unitId, name );
+            return new UnitRenamed(organizationId, unitId, name);
         }
 
         public UnitRenamed(final OrganizationId organizationId, final UnitId unitId, final String name) {
             this.organizationId = organizationId.value;
             this.unitId = unitId.value;
             this.name = name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            UnitRenamed that = (UnitRenamed) o;
+
+            if(that.organizationId == null) {
+                if(this.organizationId != null)
+                    return false;
+            } else if(!organizationId.equals(that.organizationId))
+                return false;
+
+            if(that.unitId == null) {
+                if(this.unitId != null)
+                    return false;
+            } else if(!unitId.equals(that.unitId))
+                return false;
+
+            if(that.name == null) {
+                if(this.name != null)
+                    return false;
+            } else if(!name.equals(that.name))
+                return false;
+
+            return true;
         }
     }
 }

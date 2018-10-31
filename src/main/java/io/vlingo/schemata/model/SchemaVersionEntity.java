@@ -21,15 +21,15 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
 
     static {
         BiConsumer<SchemaVersionEntity, Events.SchemaVersionDefined> applySchemaDefinedFn = SchemaVersionEntity::applyDefined;
-        EventSourced.registerConsumer ( SchemaVersionEntity.class, Events.SchemaVersionDefined.class, applySchemaDefinedFn );
+        EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionDefined.class, applySchemaDefinedFn);
         BiConsumer<SchemaVersionEntity, Events.SchemaVersionDefinition> applySchemaVersionDefinitionFn = SchemaVersionEntity::applyDefinition;
-        EventSourced.registerConsumer ( SchemaVersionEntity.class, Events.SchemaVersionDefinition.class, applySchemaVersionDefinitionFn );
+        EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionDefinition.class, applySchemaVersionDefinitionFn);
         BiConsumer<SchemaVersionEntity, Events.SchemaVersionDescribed> applySchemaDescribedFn = SchemaVersionEntity::applyDescribed;
-        EventSourced.registerConsumer ( SchemaVersionEntity.class, Events.SchemaVersionDescribed.class, applySchemaDescribedFn );
+        EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionDescribed.class, applySchemaDescribedFn);
         BiConsumer<SchemaVersionEntity, Events.SchemaVersionStatus> applySchemaVersionStatusFn = SchemaVersionEntity::applyStatus;
-        EventSourced.registerConsumer ( SchemaVersionEntity.class, Events.SchemaVersionStatus.class, applySchemaVersionStatusFn );
+        EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionStatus.class, applySchemaVersionStatusFn);
         BiConsumer<SchemaVersionEntity, Events.SchemaVersionAssignedVersion> applySchemaVersionFn = SchemaVersionEntity::applyVersioned;
-        EventSourced.registerConsumer ( SchemaVersionEntity.class, Events.SchemaVersionAssignedVersion.class, applySchemaVersionFn );
+        EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionAssignedVersion.class, applySchemaVersionFn);
     }
 
     private State state;
@@ -40,63 +40,63 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
             final ContextId contextId,
             final SchemaId schemaId,
             final SchemaVersionId schemaVersionId,
+            final String name,
             final String description,
             final Definition definition,
             final Status status,
-            final Version version,
-            final String name) {
-        assert (name != null && !name.isEmpty ());
-        assert (description != null && !description.isEmpty ());
-        apply ( new Events.SchemaVersionDefined ( organizationId, contextId, schemaId, Category.Commands, name,
-                description, schemaVersionId, status, definition, unitId, version ) );
+            final Version version) {
+        assert (name != null && !name.isEmpty());
+        assert (description != null && !description.isEmpty());
+        apply(new Events.SchemaVersionDefined(organizationId, contextId, schemaId, Category.Commands, name,
+                description, schemaVersionId, status, definition, unitId, version));
     }
 
     @Override
     public void describeAs(final String description) {
-        assert (description != null && !description.isEmpty ());
-        apply ( new Events.SchemaVersionDescribed ( state.organizationId, state.contextId, state.schemaId, state.schemaVersionId, state.unitId, description ) );
+        assert (description != null && !description.isEmpty());
+        apply(new Events.SchemaVersionDescribed(state.organizationId, state.contextId, state.schemaId, state.schemaVersionId, state.unitId, description));
     }
 
     @Override
     public void assignStatus(final Status status) {
         assert (status != null);
-        apply ( new Events.SchemaVersionStatus ( state.organizationId, state.contextId, state.schemaId, state.schemaVersionId, state.unitId, status ) );
+        apply(new Events.SchemaVersionStatus(state.organizationId, state.contextId, state.schemaId, state.schemaVersionId, state.unitId, status));
 
     }
 
     @Override
     public void definedAs(final Definition definition) {
         assert (definition != null);
-        apply ( new Events.SchemaVersionDefinition ( state.organizationId, state.contextId, state.schemaId, state.schemaVersionId, state.unitId, definition ) );
+        apply(new Events.SchemaVersionDefinition(state.organizationId, state.contextId, state.schemaId, state.schemaVersionId, state.unitId, definition));
 
     }
 
     @Override
     public void assignVersion(Version version) {
         assert (version != null);
-        apply ( new Events.SchemaVersionAssignedVersion ( state.organizationId, state.contextId, state.schemaId, state.schemaVersionId, state.unitId, version ) );
+        apply(new Events.SchemaVersionAssignedVersion(state.organizationId, state.contextId, state.schemaId, state.schemaVersionId, state.unitId, version));
     }
 
     public void applyDefined(final Events.SchemaVersionDefined defined) {
-        this.state = new State ( OrganizationId.existing ( defined.organizationId ), UnitId.existing ( defined.unitId ), ContextId.existing ( defined.contextId ),
-                SchemaId.existing ( defined.schemaId ), SchemaVersionId.existing ( defined.schemaVersionId ), defined.description, defined.definition,
-                defined.version, defined.status );
+        this.state = new State(OrganizationId.existing(defined.organizationId), UnitId.existing(defined.unitId), ContextId.existing(defined.contextId),
+                SchemaId.existing(defined.schemaId), SchemaVersionId.existing(defined.schemaVersionId), defined.description, defined.definition,
+                defined.version, defined.status);
     }
 
     public void applyDefinition(final Events.SchemaVersionDefinition definition) {
-        this.state = this.state.withDefinition ( definition.definition );
+        this.state = this.state.withDefinition(definition.definition);
     }
 
     public void applyDescribed(final Events.SchemaVersionDescribed description) {
-        this.state = this.state.withDescription ( description.description );
+        this.state = this.state.withDescription(description.description);
     }
 
     public void applyVersioned(final Events.SchemaVersionAssignedVersion version) {
-        this.state = this.state.withVersion ( version.version );
+        this.state = this.state.withVersion(version.version);
     }
 
     public void applyStatus(final Events.SchemaVersionStatus status) {
-        this.state = this.state.withStatus ( status.status );
+        this.state = this.state.withStatus(status.status);
     }
 
     public class State {
@@ -132,35 +132,35 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
         }
 
         public State asPublished() {
-            return new State ( this.organizationId, this.unitId, this.contextId, this.schemaId, this.schemaVersionId,
-                    this.description, this.definition, this.version, Status.Published.name () );
+            return new State(this.organizationId, this.unitId, this.contextId, this.schemaId, this.schemaVersionId,
+                    this.description, this.definition, this.version, Status.Published.name());
         }
 
         public State withDefinition(final String definition) {
-            return new State ( this.organizationId, this.unitId, this.contextId, this.schemaId, this.schemaVersionId,
-                    this.description, definition, this.version, this.status );
+            return new State(this.organizationId, this.unitId, this.contextId, this.schemaId, this.schemaVersionId,
+                    this.description, definition, this.version, this.status);
         }
 
         public State withDescription(final String description) {
-            return new State ( this.organizationId, this.unitId, this.contextId, this.schemaId, this.schemaVersionId,
-                    description, this.definition, this.version, this.status );
+            return new State(this.organizationId, this.unitId, this.contextId, this.schemaId, this.schemaVersionId,
+                    description, this.definition, this.version, this.status);
         }
 
         public State withVersion(final String version) {
-            return new State ( this.organizationId, this.unitId, this.contextId, this.schemaId, this.schemaVersionId,
-                    this.description, this.definition, version, this.status );
+            return new State(this.organizationId, this.unitId, this.contextId, this.schemaId, this.schemaVersionId,
+                    this.description, this.definition, version, this.status);
         }
 
         public State withStatus(final String status) {
-            return new State ( this.organizationId, this.unitId, this.contextId, this.schemaId, this.schemaVersionId,
-                    this.description, this.definition, this.version, status );
+            return new State(this.organizationId, this.unitId, this.contextId, this.schemaId, this.schemaVersionId,
+                    this.description, this.definition, this.version, status);
         }
     }
 
     @Override
     public TestState viewTestState() {
-        TestState testState = new TestState ();
-        testState.putValue ( "applied", applied () );
+        TestState testState = new TestState();
+        testState.putValue("applied", applied());
         return testState;
     }
 }

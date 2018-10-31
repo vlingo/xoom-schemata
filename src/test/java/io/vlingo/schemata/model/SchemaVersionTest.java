@@ -9,7 +9,6 @@ package io.vlingo.schemata.model;
 
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.testkit.TestActor;
-import io.vlingo.actors.testkit.TestUntil;
 import io.vlingo.actors.testkit.TestWorld;
 import org.junit.After;
 import org.junit.Assert;
@@ -20,35 +19,48 @@ import java.util.ArrayList;
 
 public class SchemaVersionTest {
 
-  private TestWorld world;
+    private TestWorld world;
 
-  @Before
-  public void setUp() throws Exception {
-    world = TestWorld.start ( "schema-version-test" );
-  }
+    @Before
+    public void setUp() throws Exception {
+        world = TestWorld.start("schema-version-test");
+    }
 
-  @After
-  public void tearDown(){
-    world.terminate ();
-  }
+    @After
+    public void tearDown() {
+        world.terminate();
+    }
 
-  @Test
-  public void testSchemaVersionVlingoSchemata() throws Exception {
-    final TestActor<SchemaVersion> schemaVersionTestActor =
-            world.actorFor ( Definition.has ( SchemaVersionEntity.class, Definition.parameters ( Id.OrganizationId.unique (), Id.UnitId.unique (),
-                    Id.ContextId.unique (), Id.SchemaId.unique (), Id.SchemaVersionId.unique (), "desc", new SchemaVersion.Definition("definition"), SchemaVersion.Status.Undefined, new SchemaVersion.Version("version-1"), "name") ), SchemaVersion.class );
+    @Test
+    public void testSchemaVersionVlingoSchemata() throws Exception {
+        final TestActor<SchemaVersion> schemaVersionTestActor =
+                world.actorFor(Definition.has(SchemaVersionEntity.class, Definition.parameters(Id.OrganizationId.unique(), Id.UnitId.unique(),
+                        Id.ContextId.unique(), Id.SchemaId.unique(), Id.SchemaVersionId.unique(), "name", "desc", new SchemaVersion.Definition("definition"), SchemaVersion.Status.Undefined, new SchemaVersion.Version("version-1"))), SchemaVersion.class);
 
-    schemaVersionTestActor.actor ().definedAs ( new SchemaVersion.Definition ( "newDefinition" ) );
-    schemaVersionTestActor.actor ().describeAs ( "newDescription" );
-    schemaVersionTestActor.actor ().assignStatus ( SchemaVersion.Status.Draft );
+        schemaVersionTestActor.actor().definedAs(new SchemaVersion.Definition("newDefinition"));
+        schemaVersionTestActor.actor().describeAs("newDescription");
+        schemaVersionTestActor.actor().assignStatus(SchemaVersion.Status.Draft);
+        schemaVersionTestActor.actor().assignVersion(new SchemaVersion.Version("version-1"));
 
-    Assert.assertEquals ( 3, TestWorld.Instance.get ().allMessagesFor ( schemaVersionTestActor.address () ).size () );
-    Assert.assertEquals ( 4, ((ArrayList)schemaVersionTestActor.viewTestState ().valueOf ( "applied" )).size () );
-  }
+        //Assertion for schema version definition
+        Assert.assertEquals(Events.SchemaVersionDefinition.class, ((ArrayList) schemaVersionTestActor.viewTestState().valueOf("applied")).get(1).getClass());
+        Assert.assertEquals(Events.SchemaVersionDefinition.with(Id.OrganizationId.unique(), Id.ContextId.unique(), Id.SchemaId.unique(),
+                Id.SchemaVersionId.unique(), Id.UnitId.unique(), new SchemaVersion.Definition("assertionDefinition")).definition, "assertionDefinition");
 
-  @Test
-  public void testThatUntilCompletesTimesOut() {
-    final TestUntil until = TestUntil.happenings ( 1 );
-    Assert.assertFalse ( until.completesWithin ( 100 ) );
-  }
+        //Assertion for schema version description
+        Assert.assertEquals(Events.SchemaVersionDescribed.class, ((ArrayList) schemaVersionTestActor.viewTestState().valueOf("applied")).get(2).getClass());
+        Assert.assertEquals(Events.SchemaVersionDescribed.with(Id.OrganizationId.unique(), Id.ContextId.unique(), Id.SchemaId.unique(),
+                "assertionDescription", Id.SchemaVersionId.unique(), Id.UnitId.unique()).description, "assertionDescription");
+
+        //Assertion for schema version status
+        Assert.assertEquals(Events.SchemaVersionStatus.class, ((ArrayList) schemaVersionTestActor.viewTestState().valueOf("applied")).get(3).getClass());
+        Assert.assertEquals(Events.SchemaVersionStatus.with(Id.OrganizationId.unique(), Id.ContextId.unique(), Id.SchemaId.unique(),
+                Id.SchemaVersionId.unique(), Id.UnitId.unique(), SchemaVersion.Status.Published).status, SchemaVersion.Status.Published.name());
+
+        //Assertion for assign schema version
+        Assert.assertEquals(Events.SchemaVersionAssignedVersion.class, ((ArrayList) schemaVersionTestActor.viewTestState().valueOf("applied")).get(4).getClass());
+        Assert.assertEquals(Events.SchemaVersionAssignedVersion.with(Id.OrganizationId.unique(), Id.ContextId.unique(), Id.SchemaId.unique(),
+                Id.SchemaVersionId.unique(), Id.UnitId.unique(), new SchemaVersion.Version("assertion-version")).version, "assertion-version");
+    }
+
 }

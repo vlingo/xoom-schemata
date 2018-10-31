@@ -20,39 +20,39 @@ import java.util.function.BiConsumer;
 public class UnitEntity extends EventSourced implements Organization {
     static {
         BiConsumer<UnitEntity, UnitDefined> applyOrganizationDefinedFn = UnitEntity::applyDefined;
-        EventSourced.registerConsumer ( UnitEntity.class, UnitDefined.class, applyOrganizationDefinedFn );
+        EventSourced.registerConsumer(UnitEntity.class, UnitDefined.class, applyOrganizationDefinedFn);
         BiConsumer<UnitEntity, UnitDescribed> applyOrganizationDescribedFn = UnitEntity::applyDescribed;
-        EventSourced.registerConsumer ( UnitEntity.class, UnitDescribed.class, applyOrganizationDescribedFn );
+        EventSourced.registerConsumer(UnitEntity.class, UnitDescribed.class, applyOrganizationDescribedFn);
         BiConsumer<UnitEntity, UnitRenamed> applyOrganizationRenamedFn = UnitEntity::applyRenamed;
-        EventSourced.registerConsumer ( UnitEntity.class, UnitRenamed.class, applyOrganizationRenamedFn );
+        EventSourced.registerConsumer(UnitEntity.class, UnitRenamed.class, applyOrganizationRenamedFn);
     }
 
     private UnitEntity.State state;
 
     public UnitEntity(final OrganizationId organizationId, final UnitId unitId, final String name, final String description) {
-        apply ( new UnitDefined ( organizationId, unitId, name, description ) );
+        apply(new UnitDefined(organizationId, unitId, name, description));
     }
 
     @Override
     public void describeAs(final String description) {
-        apply ( new UnitDescribed ( state.organizationId, state.unitId, description ) );
+        apply(new UnitDescribed(state.organizationId, state.unitId, description));
     }
 
     @Override
     public void renameTo(final String name) {
-        apply ( new UnitRenamed ( state.organizationId, state.unitId, name ) );
+        apply(new UnitRenamed(state.organizationId, state.unitId, name));
     }
 
     public void applyDefined(final UnitDefined e) {
-        state = new State ( OrganizationId.existing ( e.organizationId ), UnitId.existing ( e.unitId ), e.name, e.description );
+        state = new State(OrganizationId.existing(e.organizationId), UnitId.existing(e.unitId), e.name, e.description);
     }
 
     public final void applyDescribed(UnitDescribed event) {
-        state = state.withDescription ( event.description );
+        state = state.withDescription(event.description);
     }
 
     public final void applyRenamed(UnitRenamed event) {
-        state = state.withName ( event.name );
+        state = state.withName(event.name);
     }
 
     public class State {
@@ -62,11 +62,11 @@ public class UnitEntity extends EventSourced implements Organization {
         public final String description;
 
         public UnitEntity.State withDescription(final String description) {
-            return new State ( this.organizationId, this.unitId, this.name, description );
+            return new State(this.organizationId, this.unitId, this.name, description);
         }
 
         public State withName(final String name) {
-            return new State ( this.organizationId, this.unitId, name, this.description );
+            return new State(this.organizationId, this.unitId, name, this.description);
         }
 
         public State(final OrganizationId organizationId, final UnitId unitId, final String name, final String description) {
@@ -79,8 +79,8 @@ public class UnitEntity extends EventSourced implements Organization {
 
     @Override
     public TestState viewTestState() {
-        TestState testState = new TestState ();
-        testState.putValue ( "applied", applied () );
+        TestState testState = new TestState();
+        testState.putValue("applied", applied());
         return testState;
     }
 }

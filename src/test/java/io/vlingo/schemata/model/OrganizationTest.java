@@ -9,7 +9,6 @@ package io.vlingo.schemata.model;
 
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.testkit.TestActor;
-import io.vlingo.actors.testkit.TestUntil;
 import io.vlingo.actors.testkit.TestWorld;
 import org.junit.After;
 import org.junit.Assert;
@@ -23,31 +22,31 @@ public class OrganizationTest {
 
     @Before
     public void setUp() throws Exception {
-        world = TestWorld.start ( "organization-test" );
+        world = TestWorld.start("organization-test");
     }
 
     @After
     public void tearDown() {
-        world.terminate ();
+        world.terminate();
     }
 
     @Test
     public void testApplyOrganizationVlingoSchemata() throws Exception {
         final TestActor<Organization> organizationTestActor =
-                world.actorFor ( Definition.has ( OrganizationEntity.class, Definition.parameters ( "name", "description" ) ), Organization.class );
+                world.actorFor(Definition.has(OrganizationEntity.class, Definition.parameters("name", "description")), Organization.class);
 
-        organizationTestActor.actor ().renameTo ( "newName" );
-        organizationTestActor.actor ().describeAs ( "newDescription" );
+        organizationTestActor.actor().renameTo("newName");
+        organizationTestActor.actor().describeAs("newDescription");
 
-        Assert.assertEquals ( 2, TestWorld.Instance.get ().allMessagesFor ( organizationTestActor.address () ).size () );
-        Assert.assertEquals ( 3, ((ArrayList) organizationTestActor.viewTestState ().valueOf ( "applied" )).size () );
+        //Assertion for organization rename
+        Assert.assertEquals(Events.OrganizationRenamed.class, ((ArrayList) organizationTestActor.viewTestState().valueOf("applied")).get(1).getClass());
+        Assert.assertEquals(Events.OrganizationRenamed.with(Id.OrganizationId.unique(), "assertionName").name, "assertionName");
+
+        //Assertion for organization description
+        Assert.assertEquals(Events.OrganizationDescribed.class, ((ArrayList) organizationTestActor.viewTestState().valueOf("applied")).get(2).getClass());
+        Assert.assertEquals(Events.OrganizationDescribed.with(Id.OrganizationId.unique(), "assertionDescription").description, "assertionDescription");
 
     }
 
-    @Test
-    public void testThatUntilCompletesTimesOut() {
-        final TestUntil until = TestUntil.happenings ( 1 );
-        Assert.assertFalse ( until.completesWithin ( 100 ) );
-    }
 
 }

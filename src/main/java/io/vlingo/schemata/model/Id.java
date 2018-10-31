@@ -15,11 +15,11 @@ public abstract class Id {
     public final String value;
 
     public final boolean isDefined() {
-        return value.length () > 0;
+        return value.length() > 0;
     }
 
     public final boolean isUndefined() {
-        return value.isEmpty ();
+        return value.isEmpty();
     }
 
     public Id(final String value) {
@@ -29,97 +29,97 @@ public abstract class Id {
     public static class OrganizationId extends Id {
 
         public OrganizationId(final String value) {
-            super ( value );
+            super(value);
         }
 
         public static OrganizationId existing(final String id) {
-            return new OrganizationId ( UUID.fromString ( id ).toString () );
+            return new OrganizationId(UUID.fromString(id).toString());
         }
 
         public static OrganizationId undefined() {
-            return new OrganizationId ( "" );
+            return new OrganizationId("");
         }
 
         public static OrganizationId unique() {
-            return new OrganizationId ( IdentityGeneratorType.Random.generate ().toString () );
+            return new OrganizationId(IdentityGeneratorType.Random.generate().toString());
         }
     }
 
     public static class UnitId extends Id {
 
         public UnitId(final String value) {
-            super ( value );
+            super(value);
         }
 
         public static UnitId existing(final String id) {
-            return new UnitId ( UUID.fromString ( id ).toString () );
+            return new UnitId(UUID.fromString(id).toString());
         }
 
         public static UnitId undefined() {
-            return new UnitId ( "" );
+            return new UnitId("");
         }
 
         public static UnitId unique() {
-            return new UnitId ( IdentityGeneratorType.Random.generate ().toString () );
+            return new UnitId(IdentityGeneratorType.Random.generate().toString());
         }
     }
 
     public static class ContextId extends Id {
 
         public ContextId(final String value) {
-            super ( value );
+            super(value);
         }
 
         public static ContextId existing(final String id) {
-            String var10002 = UUID.fromString ( id ).toString ();
-            return new ContextId ( var10002 );
+            String var10002 = UUID.fromString(id).toString();
+            return new ContextId(var10002);
         }
 
         public static ContextId undefined() {
-            return new ContextId ( "" );
+            return new ContextId("");
         }
 
         public static ContextId unique() {
-            String var10002 = IdentityGeneratorType.Random.generate ().toString ();
-            return new ContextId ( var10002 );
+            String var10002 = IdentityGeneratorType.Random.generate().toString();
+            return new ContextId(var10002);
         }
     }
 
     public static class SchemaId extends Id {
 
         public SchemaId(final String value) {
-            super ( value );
+            super(value);
         }
 
         public static SchemaId existing(final String id) {
-            return new SchemaId ( UUID.fromString ( id ).toString () );
+            return new SchemaId(UUID.fromString(id).toString());
         }
 
         public static SchemaId undefined() {
-            return new SchemaId ( "" );
+            return new SchemaId("");
         }
 
         public static SchemaId unique() {
-            return new SchemaId ( UUID.randomUUID ().toString () );
+            return new SchemaId(UUID.randomUUID().toString());
         }
     }
 
     public static class SchemaVersionId extends Id {
 
         public SchemaVersionId(final String value) {
-            super ( value );
+            super(value);
         }
 
         public static SchemaVersionId existing(final String id) {
-            return new SchemaVersionId ( UUID.fromString ( id ).toString () );
+            return new SchemaVersionId(UUID.fromString(id).toString());
         }
 
         public static SchemaVersionId undefined() {
-            return new SchemaVersionId ( "" );
+            return new SchemaVersionId("");
         }
 
         public static SchemaVersionId unique() {
-            return new SchemaVersionId ( IdentityGeneratorType.Random.generate ().toString () );
+            return new SchemaVersionId(IdentityGeneratorType.Random.generate().toString());
         }
     }
 }

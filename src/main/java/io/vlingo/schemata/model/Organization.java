@@ -13,11 +13,11 @@ import io.vlingo.schemata.model.Id.OrganizationId;
 
 public interface Organization {
     static OrganizationId uniqueId() {
-        return OrganizationId.unique ();
+        return OrganizationId.unique();
     }
 
     static Organization newWith(final Stage stage, final String name, final String description) {
-        return stage.actorFor ( Definition.has ( OrganizationEntity.class, Definition.parameters ( uniqueId (), name, description ) ), Organization.class );
+        return stage.actorFor(Definition.has(OrganizationEntity.class, Definition.parameters(uniqueId(), name, description)), Organization.class);
     }
 
     void describeAs(final String description);
