@@ -71,8 +71,7 @@ public abstract class Id {
         }
 
         public static ContextId existing(final String id) {
-            String var10002 = UUID.fromString(id).toString();
-            return new ContextId(var10002);
+            return new ContextId(UUID.fromString(id).toString());
         }
 
         public static ContextId undefined() {
@@ -80,8 +79,7 @@ public abstract class Id {
         }
 
         public static ContextId unique() {
-            String var10002 = IdentityGeneratorType.Random.generate().toString();
-            return new ContextId(var10002);
+            return new ContextId(IdentityGeneratorType.Random.generate().toString());
         }
     }
 
@@ -100,7 +98,7 @@ public abstract class Id {
         }
 
         public static SchemaId unique() {
-            return new SchemaId(UUID.randomUUID().toString());
+            return new SchemaId(IdentityGeneratorType.Random.generate().toString());
         }
     }
 

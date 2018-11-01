@@ -7,7 +7,18 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.Definition;
+import io.vlingo.actors.Stage;
+
 public interface Unit {
+    static Id.UnitId uniqueId() {
+        return Id.UnitId.unique();
+    }
+
+    static Unit newWith(final Stage stage, final String name, final String description){
+        return stage.actorFor(Definition.has(UnitEntity.class, Definition.parameters(Organization.uniqueId(), Unit.uniqueId(), name, description)), Unit.class);
+    }
+
     void describeAs(final String description);
 
     void renameTo(final String name);

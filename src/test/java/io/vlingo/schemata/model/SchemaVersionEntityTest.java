@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-public class SchemaVersionTest {
+public class SchemaVersionEntityTest {
 
     private TestWorld world;
 
