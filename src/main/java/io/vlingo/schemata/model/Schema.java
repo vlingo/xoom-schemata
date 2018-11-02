@@ -7,8 +7,22 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.Definition;
+import io.vlingo.actors.Stage;
+
 public interface Schema {
-  void describeAs(final String description);
-  void recategorizedAs(final Category category);
-  void renameTo(final String name);
+    static Id.SchemaId uniqueId() {
+        return Id.SchemaId.unique();
+    }
+
+    static Schema newWith(final Stage stage, final String name, final String description) {
+        return stage.actorFor(Definition.has(SchemaEntity.class, Definition.parameters(Organization.uniqueId(), Unit.uniqueId(), Context.uniqueId(),
+                uniqueId(), name, description)), Schema.class);
+    }
+
+    void describeAs(final String description);
+
+    void recategorizedAs(final Category category);
+
+    void renameTo(final String name);
 }
