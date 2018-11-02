@@ -39,7 +39,7 @@ public class ContextEntityTest {
         //Assertion for change namespace
         final Events.ContextRenamed  contextRenamed = (Events.ContextRenamed)((ArrayList) contextTestActor.viewTestState().valueOf("applied")).get(1);
         Assert.assertEquals("newNamespace", contextRenamed.namespace );
-    }
+}
 
     @Test
     public void testThatContextIsDescribed() throws Exception{
@@ -48,5 +48,14 @@ public class ContextEntityTest {
         final Events.ContextDescribed contextDescribed = (Events.ContextDescribed)((ArrayList) contextTestActor.viewTestState().valueOf("applied")).get(1);
         Assert.assertEquals("newDesc", contextDescribed.description);
     }
+
+    @Test
+    public void testThatContextDefinedIsEquals() throws Exception{
+        final Events.ContextDefined  contextDefined = (Events.ContextDefined)((ArrayList) contextTestActor.viewTestState().valueOf("applied")).get(0);
+        final Events.ContextDefined newContextDefined = new Events.ContextDefined(Id.OrganizationId.existing(contextDefined.organizationId), Id.UnitId.existing(contextDefined.unitId),
+                Id.ContextId.existing(contextDefined.contextId), contextDefined.namespace, contextDefined.description);
+        Assert.assertEquals(newContextDefined, contextDefined);
+    }
+
 
 }

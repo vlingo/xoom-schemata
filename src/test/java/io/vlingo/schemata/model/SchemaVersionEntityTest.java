@@ -70,4 +70,14 @@ public class SchemaVersionEntityTest {
         Assert.assertEquals("version-1", schemaVersionAssignedVersion.version);
     }
 
+    @Test
+    public void testThatSchemaEquals() throws Exception {
+        final Events.SchemaVersionDefined schemaVersionDefined = (Events.SchemaVersionDefined) ((ArrayList) schemaVersionTestActor.viewTestState().valueOf("applied")).get(0);
+        final Events.SchemaVersionDefined newSchemaVersionDefined = new Events.SchemaVersionDefined(Id.OrganizationId.existing(schemaVersionDefined.organizationId),
+                Id.ContextId.existing(schemaVersionDefined.contextId), Id.SchemaId.existing(schemaVersionDefined.schemaId), Category.valueOf(schemaVersionDefined.category),
+                schemaVersionDefined.name, schemaVersionDefined.description, Id.SchemaVersionId.existing(schemaVersionDefined.schemaVersionId), SchemaVersion.Status.valueOf(schemaVersionDefined.status),
+                new SchemaVersion.Definition(schemaVersionDefined.definition), Id.UnitId.existing(schemaVersionDefined.unitId), new SchemaVersion.Version(schemaVersionDefined.version));
+        Assert.assertEquals(newSchemaVersionDefined, schemaVersionDefined);
+    }
+
 }

@@ -49,5 +49,12 @@ public class OrganizationEntityTest {
         Assert.assertEquals("newDescription", organizationDescribed.description);
     }
 
+    @Test
+    public void testThatOrganizationEquals() throws Exception{
+        final Events.OrganizationDefined organizationDefined = (Events.OrganizationDefined) ((ArrayList) organizationTestActor.viewTestState().valueOf("applied")).get(0);
+        final Events.OrganizationDefined newOrganizationDefined = new Events.OrganizationDefined(Id.OrganizationId.existing(organizationDefined.organizationId), organizationDefined.name, organizationDefined.description);
+        Assert.assertEquals(newOrganizationDefined, organizationDefined);
+    }
+
 
 }

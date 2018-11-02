@@ -57,4 +57,12 @@ public class SchemaEntityTest {
         Assert.assertEquals("newName", schemaRenamed.name);
     }
 
+    @Test
+    public void testThatSchemaEquals() throws Exception {
+        final Events.SchemaDefined schemaDefined = (Events.SchemaDefined) ((ArrayList) schemaTestActor.viewTestState().valueOf("applied")).get(0);
+        final Events.SchemaDefined newSchemaDefined = new Events.SchemaDefined(Id.OrganizationId.existing(schemaDefined.organizationId),
+                Id.UnitId.existing(schemaDefined.unitId), Id.ContextId.existing(schemaDefined.contextId), Id.SchemaId.existing(schemaDefined.schemaId),
+                Category.valueOf(schemaDefined.category), schemaDefined.name, schemaDefined.description);
+        Assert.assertEquals(newSchemaDefined, schemaDefined);
+    }
 }

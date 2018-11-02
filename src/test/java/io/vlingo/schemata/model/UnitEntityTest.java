@@ -40,4 +40,12 @@ public class UnitEntityTest {
         Assert.assertEquals("newName", unitRenamed.name);
     }
 
+    @Test
+    public void testThatUnitIsEquals() throws Exception{
+        final Events.UnitDefined unitDefined = (Events.UnitDefined) ((ArrayList)unitTestActor.viewTestState().valueOf("applied")).get(0);
+        final Events.UnitDefined newUnitDefined = new Events.UnitDefined(Id.OrganizationId.existing(unitDefined.organizationId),
+                Id.UnitId.existing(unitDefined.unitId), unitDefined.name, unitDefined.description);
+        Assert.assertEquals(newUnitDefined, unitDefined);
+    }
+
 }
