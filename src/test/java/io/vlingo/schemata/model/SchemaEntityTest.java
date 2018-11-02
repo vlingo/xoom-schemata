@@ -34,7 +34,7 @@ public class SchemaEntityTest {
     }
 
     @Test
-    public void testThatSchemaDescribed() throws Exception {
+    public void testThatSchemaIsDescribed() throws Exception {
         schemaTestActor.actor().describeAs("newDescription");
         //Assertion for schema description
         final Events.SchemaDescribed schemaDescribed = (Events.SchemaDescribed) ((ArrayList) schemaTestActor.viewTestState().valueOf("applied")).get(1);

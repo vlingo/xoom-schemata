@@ -42,7 +42,7 @@ public class OrganizationEntityTest {
     }
 
     @Test
-    public void testThatOrganizationDescribed() throws Exception{
+    public void testThatOrganizationIsDescribed() throws Exception{
         organizationTestActor.actor().describeAs("newDescription");
         //Assertion for organization description
         final Events.OrganizationDescribed organizationDescribed = (Events.OrganizationDescribed)((ArrayList) organizationTestActor.viewTestState().valueOf("applied")).get(1);
