@@ -15,10 +15,11 @@ public interface Schema {
         return Id.SchemaId.unique();
     }
 
-    static Schema newWith(final Stage stage, final String name, final String description){
+    static Schema newWith(final Stage stage, final String name, final String description) {
         return stage.actorFor(Definition.has(SchemaEntity.class, Definition.parameters(Organization.uniqueId(), Unit.uniqueId(), Context.uniqueId(),
                 uniqueId(), name, description)), Schema.class);
     }
+
     void describeAs(final String description);
 
     void recategorizedAs(final Category category);

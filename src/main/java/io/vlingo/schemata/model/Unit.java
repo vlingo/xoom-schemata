@@ -15,7 +15,7 @@ public interface Unit {
         return Id.UnitId.unique();
     }
 
-    static Unit newWith(final Stage stage, final String name, final String description){
+    static Unit newWith(final Stage stage, final String name, final String description) {
         return stage.actorFor(Definition.has(UnitEntity.class, Definition.parameters(Organization.uniqueId(), Unit.uniqueId(), name, description)), Unit.class);
     }
 

@@ -13,7 +13,7 @@ public interface SchemaVersion {
         return Id.SchemaVersionId.unique();
     }
 
-    static SchemaVersion newWith(final Stage stage, final String name, final String description, final Definition definition, final Status status, final Version version){
+    static SchemaVersion newWith(final Stage stage, final String name, final String description, final Definition definition, final Status status, final Version version) {
         return stage.actorFor(io.vlingo.actors.Definition.has(SchemaVersionEntity.class, io.vlingo.actors.Definition.parameters(Organization.uniqueId(), Unit.uniqueId(),
                 Context.uniqueId(), Schema.uniqueId(), uniqueId(), name, description, definition, status, version)), SchemaVersion.class);
     }

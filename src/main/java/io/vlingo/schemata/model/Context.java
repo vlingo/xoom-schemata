@@ -16,7 +16,7 @@ public interface Context {
     }
 
     static Context newWith(final Stage stage, final String name, final String description) {
-        return stage.actorFor(Definition.has(ContextEntity.class,Definition.parameters(Organization.uniqueId(), Unit.uniqueId(), uniqueId(), name, description)), Context.class);
+        return stage.actorFor(Definition.has(ContextEntity.class, Definition.parameters(Organization.uniqueId(), Unit.uniqueId(), uniqueId(), name, description)), Context.class);
     }
 
     void changeNamespaceTo(final String namespace);
