@@ -7,17 +7,16 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.function.BiConsumer;
+
 import io.vlingo.actors.testkit.TestState;
 import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.UnitDefined;
 import io.vlingo.schemata.model.Events.UnitDescribed;
 import io.vlingo.schemata.model.Events.UnitRenamed;
-import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
 
-import java.util.function.BiConsumer;
-
-public class UnitEntity extends EventSourced implements Organization {
+public class UnitEntity extends EventSourced implements Unit {
     static {
         BiConsumer<UnitEntity, UnitDefined> applyOrganizationDefinedFn = UnitEntity::applyDefined;
         EventSourced.registerConsumer(UnitEntity.class, UnitDefined.class, applyOrganizationDefinedFn);
@@ -29,22 +28,22 @@ public class UnitEntity extends EventSourced implements Organization {
 
     private UnitEntity.State state;
 
-    public UnitEntity(final OrganizationId organizationId, final UnitId unitId, final String name, final String description) {
-        apply(new UnitDefined(organizationId, unitId, name, description));
+    public UnitEntity(final UnitId unitId, final String name, final String description) {
+        apply(new UnitDefined(unitId, name, description));
     }
 
     @Override
     public void describeAs(final String description) {
-        apply(new UnitDescribed(state.organizationId, state.unitId, description));
+        apply(new UnitDescribed(state.unitId, description));
     }
 
     @Override
     public void renameTo(final String name) {
-        apply(new UnitRenamed(state.organizationId, state.unitId, name));
+        apply(new UnitRenamed(state.unitId, name));
     }
 
-    public void applyDefined(final UnitDefined e) {
-        state = new State(OrganizationId.existing(e.organizationId), UnitId.existing(e.unitId), e.name, e.description);
+    private void applyDefined(final UnitDefined e) {
+        state = new State(UnitId.existing(e.unitId), e.name, e.description);
     }
 
     public final void applyDescribed(UnitDescribed event) {
@@ -56,21 +55,19 @@ public class UnitEntity extends EventSourced implements Organization {
     }
 
     public class State {
-        public final OrganizationId organizationId;
         public final UnitId unitId;
         public final String name;
         public final String description;
 
         public UnitEntity.State withDescription(final String description) {
-            return new State(this.organizationId, this.unitId, this.name, description);
+            return new State(this.unitId, this.name, description);
         }
 
         public State withName(final String name) {
-            return new State(this.organizationId, this.unitId, name, this.description);
+            return new State(this.unitId, name, this.description);
         }
 
-        public State(final OrganizationId organizationId, final UnitId unitId, final String name, final String description) {
-            this.organizationId = organizationId;
+        public State(final UnitId unitId, final String name, final String description) {
             this.unitId = unitId;
             this.name = name;
             this.description = description;
@@ -80,7 +77,7 @@ public class UnitEntity extends EventSourced implements Organization {
     @Override
     public TestState viewTestState() {
         TestState testState = new TestState();
-        testState.putValue("applied", applied());
+        testState.putValue("sourced", this);
         return testState;
     }
 }

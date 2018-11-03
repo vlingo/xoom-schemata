@@ -7,117 +7,112 @@
 
 package io.vlingo.schemata.model;
 
-import io.vlingo.lattice.model.identity.IdentityGeneratorType;
-
 import java.util.UUID;
 
+import io.vlingo.common.identity.IdentityGeneratorType;
+
 public abstract class Id {
-    public final String value;
+  public final String value;
 
-    public final boolean isDefined() {
-        return value.length() > 0;
+  public final boolean isDefined() {
+    return value.length() > 0;
+  }
+
+  public final boolean isUndefined() {
+    return value.isEmpty();
+  }
+
+  public Id(final String value) {
+    this.value = value;
+  }
+
+  public static class OrganizationId extends Id {
+    public static OrganizationId existing(final String id) {
+      return new OrganizationId(UUID.fromString(id).toString());
     }
 
-    public final boolean isUndefined() {
-        return value.isEmpty();
+    public static OrganizationId undefined() {
+      return new OrganizationId("");
     }
 
-    public Id(final String value) {
-        this.value = value;
+    public static OrganizationId unique() {
+      return new OrganizationId(IdentityGeneratorType.Random.generate().toString());
     }
 
-    public static class OrganizationId extends Id {
+    private OrganizationId(final String value) {
+      super(value);
+    }
+  }
 
-        public OrganizationId(final String value) {
-            super(value);
-        }
-
-        public static OrganizationId existing(final String id) {
-            return new OrganizationId(UUID.fromString(id).toString());
-        }
-
-        public static OrganizationId undefined() {
-            return new OrganizationId("");
-        }
-
-        public static OrganizationId unique() {
-            return new OrganizationId(IdentityGeneratorType.Random.generate().toString());
-        }
+  public static class UnitId extends Id {
+    public static UnitId existing(final String id) {
+      return new UnitId(id);
     }
 
-    public static class UnitId extends Id {
-
-        public UnitId(final String value) {
-            super(value);
-        }
-
-        public static UnitId existing(final String id) {
-            return new UnitId(UUID.fromString(id).toString());
-        }
-
-        public static UnitId undefined() {
-            return new UnitId("");
-        }
-
-        public static UnitId unique() {
-            return new UnitId(IdentityGeneratorType.Random.generate().toString());
-        }
+    public static UnitId undefined() {
+      return new UnitId("");
     }
 
-    public static class ContextId extends Id {
-
-        public ContextId(final String value) {
-            super(value);
-        }
-
-        public static ContextId existing(final String id) {
-            return new ContextId(UUID.fromString(id).toString());
-        }
-
-        public static ContextId undefined() {
-            return new ContextId("");
-        }
-
-        public static ContextId unique() {
-            return new ContextId(IdentityGeneratorType.Random.generate().toString());
-        }
+    public static UnitId uniqueFor(final OrganizationId organizationId) {
+      return new UnitId(organizationId.value + ":" + IdentityGeneratorType.Random.generate().toString());
     }
 
-    public static class SchemaId extends Id {
+    private UnitId(final String value) {
+      super(value);
+    }
+  }
 
-        public SchemaId(final String value) {
-            super(value);
-        }
-
-        public static SchemaId existing(final String id) {
-            return new SchemaId(UUID.fromString(id).toString());
-        }
-
-        public static SchemaId undefined() {
-            return new SchemaId("");
-        }
-
-        public static SchemaId unique() {
-            return new SchemaId(IdentityGeneratorType.Random.generate().toString());
-        }
+  public static class ContextId extends Id {
+    public static ContextId existing(final String id) {
+      return new ContextId(id);
     }
 
-    public static class SchemaVersionId extends Id {
-
-        public SchemaVersionId(final String value) {
-            super(value);
-        }
-
-        public static SchemaVersionId existing(final String id) {
-            return new SchemaVersionId(UUID.fromString(id).toString());
-        }
-
-        public static SchemaVersionId undefined() {
-            return new SchemaVersionId("");
-        }
-
-        public static SchemaVersionId unique() {
-            return new SchemaVersionId(IdentityGeneratorType.Random.generate().toString());
-        }
+    public static ContextId undefined() {
+      return new ContextId("");
     }
+
+    public static ContextId uniqueFor(final UnitId unitId) {
+      return new ContextId(unitId.value + ":" + IdentityGeneratorType.Random.generate().toString());
+    }
+
+    private ContextId(final String value) {
+      super(value);
+    }
+  }
+
+  public static class SchemaId extends Id {
+    public static SchemaId existing(final String id) {
+      return new SchemaId(id);
+    }
+
+    public static SchemaId undefined() {
+      return new SchemaId("");
+    }
+
+    public static SchemaId uniqueFor(final ContextId contextId) {
+      return new SchemaId(contextId.value + ":" + IdentityGeneratorType.Random.generate().toString());
+    }
+
+    private SchemaId(final String value) {
+      super(value);
+    }
+  }
+
+  public static class SchemaVersionId extends Id {
+    public static SchemaVersionId existing(final String id) {
+      return new SchemaVersionId(id);
+    }
+
+    public static SchemaVersionId undefined() {
+      return new SchemaVersionId("");
+    }
+
+    public static SchemaVersionId uniqueFor(final SchemaId schemaId) {
+      return new SchemaVersionId(schemaId.value + ":" + IdentityGeneratorType.Random.generate().toString());
+    }
+
+    public SchemaVersionId(final String value) {
+      super(value);
+    }
+  }
 }

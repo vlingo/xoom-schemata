@@ -17,67 +17,67 @@ import io.vlingo.schemata.model.Id.OrganizationId;
 import java.util.function.BiConsumer;
 
 public class OrganizationEntity extends EventSourced implements Organization {
-    static {
-        BiConsumer<OrganizationEntity, OrganizationDefined> applyOrganizationDefinedFn = OrganizationEntity::applyDefined;
-        EventSourced.registerConsumer(OrganizationEntity.class, OrganizationDefined.class, applyOrganizationDefinedFn);
-        BiConsumer<OrganizationEntity, OrganizationDescribed> applyOrganizationDescribedFn = OrganizationEntity::applyDescribed;
-        EventSourced.registerConsumer(OrganizationEntity.class, OrganizationDescribed.class, applyOrganizationDescribedFn);
-        BiConsumer<OrganizationEntity, OrganizationRenamed> applyOrganizationRenamedFn = OrganizationEntity::applyRenamed;
-        EventSourced.registerConsumer(OrganizationEntity.class, OrganizationRenamed.class, applyOrganizationRenamedFn);
+  static {
+    BiConsumer<OrganizationEntity, OrganizationDefined> applyOrganizationDefinedFn = OrganizationEntity::applyDefined;
+    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationDefined.class, applyOrganizationDefinedFn);
+    BiConsumer<OrganizationEntity, OrganizationDescribed> applyOrganizationDescribedFn = OrganizationEntity::applyDescribed;
+    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationDescribed.class, applyOrganizationDescribedFn);
+    BiConsumer<OrganizationEntity, OrganizationRenamed> applyOrganizationRenamedFn = OrganizationEntity::applyRenamed;
+    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationRenamed.class, applyOrganizationRenamedFn);
+  }
+
+  private State state;
+
+  public OrganizationEntity(final OrganizationId organizationId, final String name, final String description) {
+    apply(new OrganizationDefined(organizationId, name, description));
+  }
+
+  @Override
+  public void describeAs(final String description) {
+    apply(new OrganizationDescribed(state.organizationId, description));
+  }
+
+  @Override
+  public void renameTo(final String name) {
+    apply(new OrganizationRenamed(state.organizationId, name));
+  }
+
+  private void applyDefined(OrganizationDefined event) {
+    state = new State(OrganizationId.existing(event.organizationId), event.name, event.description);
+  }
+
+  public final void applyDescribed(OrganizationDescribed event) {
+    state = state.withDescription(event.description);
+  }
+
+  public final void applyRenamed(OrganizationRenamed event) {
+    state = state.withName(event.name);
+  }
+
+  public class State {
+    public final OrganizationId organizationId;
+    public final String name;
+    public final String description;
+
+    public State withDescription(final String description) {
+      return new State(this.organizationId, this.name, description);
     }
 
-    private OrganizationEntity.State state;
-
-    public OrganizationEntity(final String name, final String description) {
-        apply(new OrganizationDefined(OrganizationId.unique(), name, description));
+    public State withName(final String name) {
+      return new State(this.organizationId, name, this.description);
     }
 
-    @Override
-    public void describeAs(final String description) {
-        apply(new OrganizationDescribed(state.id, description));
+    public State(final OrganizationId organizationId, final String name, final String description) {
+      this.organizationId = organizationId;
+      this.name = name;
+      this.description = description;
     }
+  }
 
-    @Override
-    public void renameTo(final String name) {
-        apply(new OrganizationRenamed(state.id, name));
-    }
-
-    public void applyDefined(OrganizationDefined event) {
-        state = new State(OrganizationId.existing(event.organizationId), event.name, event.description);
-    }
-
-    public final void applyDescribed(OrganizationDescribed event) {
-        state = state.withDescription(event.description);
-    }
-
-    public final void applyRenamed(OrganizationRenamed event) {
-        state = state.withName(event.name);
-    }
-
-    public class State {
-        public final OrganizationId id;
-        public final String name;
-        public final String description;
-
-        public OrganizationEntity.State withDescription(final String description) {
-            return new State(this.id, this.name, description);
-        }
-
-        public State withName(final String name) {
-            return new State(this.id, name, this.description);
-        }
-
-        public State(final OrganizationId id, final String name, final String description) {
-            this.id = id;
-            this.name = name;
-            this.description = description;
-        }
-    }
-
-    @Override
-    public TestState viewTestState() {
-        TestState testState = new TestState();
-        testState.putValue("applied", applied());
-        return testState;
-    }
+  @Override
+  public TestState viewTestState() {
+    TestState testState = new TestState();
+    testState.putValue("sourced", this);
+    return testState;
+  }
 }

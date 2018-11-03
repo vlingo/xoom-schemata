@@ -7,72 +7,58 @@
 
 package io.vlingo.schemata.model;
 
-import io.vlingo.actors.Definition;
-import io.vlingo.actors.testkit.TestActor;
-import io.vlingo.actors.testkit.TestWorld;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
+import io.vlingo.actors.Definition;
+import io.vlingo.actors.testkit.TestActor;
+import io.vlingo.actors.testkit.TestWorld;
+import io.vlingo.lattice.model.sourcing.Sourced;
+import io.vlingo.schemata.model.Events.OrganizationDefined;
+import io.vlingo.schemata.model.Events.OrganizationDescribed;
+import io.vlingo.schemata.model.Events.OrganizationRenamed;
+import io.vlingo.schemata.model.Id.OrganizationId;
 
 public class OrganizationEntityTest {
-    private TestWorld world;
-    private TestActor<Organization> organizationTestActor;
+  private TestWorld world;
+  private TestActor<Organization> organizationTestActor;
 
-    @Before
-    public void setUp() throws Exception {
-        world = TestWorld.start("organization-test");
-        organizationTestActor = world.actorFor(Definition.has(OrganizationEntity.class, Definition.parameters("name", "description")), Organization.class);
-    }
+  @Before
+  public void setUp() throws Exception {
+    world = TestWorld.start("organization-test");
+    organizationTestActor = world.actorFor(Definition.has(OrganizationEntity.class, Definition.parameters(OrganizationId.unique(), "name", "description")), Organization.class);
+  }
 
-    @After
-    public void tearDown() {
-        world.terminate();
-    }
+  @After
+  public void tearDown() {
+    world.terminate();
+  }
 
+  @Test
+  public void testThatOrganizationDefinedIsEquals() throws Exception {
+    final OrganizationDefined organizationDefined = (OrganizationDefined) sourced().appliedEvent(0);
+    Assert.assertEquals("name", organizationDefined.name);
+    Assert.assertEquals("description", organizationDefined.description);
+  }
 
-    @Test
-    public void testThatOrganizationRenamed() throws Exception {
-        organizationTestActor.actor().renameTo("newName");
-        //Assertion for organization rename
-        final Events.OrganizationRenamed organizationRenamed = (Events.OrganizationRenamed) ((ArrayList) organizationTestActor.viewTestState().valueOf("applied")).get(1);
-        Assert.assertEquals("newName", organizationRenamed.name);
-    }
+  @Test
+  public void testThatOrganizationRenamed() throws Exception {
+    organizationTestActor.actor().renameTo("new name");
+    final OrganizationRenamed organizationRenamed = (OrganizationRenamed) sourced().appliedEvent(1);
+    Assert.assertEquals("new name", organizationRenamed.name);
+  }
 
-    @Test
-    public void testThatOrganizationIsDescribed() throws Exception {
-        organizationTestActor.actor().describeAs("newDescription");
-        //Assertion for organization description
-        final Events.OrganizationDescribed organizationDescribed = (Events.OrganizationDescribed) ((ArrayList) organizationTestActor.viewTestState().valueOf("applied")).get(1);
-        Assert.assertEquals("newDescription", organizationDescribed.description);
-    }
+  @Test
+  public void testThatOrganizationIsDescribed() throws Exception {
+    organizationTestActor.actor().describeAs("new description");
+    final OrganizationDescribed organizationDescribed = (OrganizationDescribed) sourced().appliedEvent(1);
+    Assert.assertEquals("new description", organizationDescribed.description);
+  }
 
-    @Test
-    public void testThatOrganizationDefinedIsEquals() throws Exception {
-        final Events.OrganizationDefined organizationDefined = (Events.OrganizationDefined) ((ArrayList) organizationTestActor.viewTestState().valueOf("applied")).get(0);
-        final Events.OrganizationDefined newOrganizationDefined = new Events.OrganizationDefined(Id.OrganizationId.existing(organizationDefined.organizationId), organizationDefined.name, organizationDefined.description);
-        Assert.assertEquals(newOrganizationDefined, organizationDefined);
-    }
-
-    @Test
-    public void testThatOrganizationRenamedIsEquals() throws Exception {
-        organizationTestActor.actor().renameTo("newName");
-        final Events.OrganizationRenamed organizationRenamed = (Events.OrganizationRenamed) ((ArrayList) organizationTestActor.viewTestState().valueOf("applied")).get(1);
-        final Events.OrganizationRenamed newOrganizationRenamed = new Events.OrganizationRenamed(Id.OrganizationId.existing(organizationRenamed.organizationId),
-                organizationRenamed.name);
-        Assert.assertEquals(newOrganizationRenamed, organizationRenamed);
-    }
-
-    @Test
-    public void testThatOrganizationDescribedIsEquals() throws Exception {
-        organizationTestActor.actor().describeAs("newDescription");
-        final Events.OrganizationDescribed organizationDescribed = (Events.OrganizationDescribed) ((ArrayList) organizationTestActor.viewTestState().valueOf("applied")).get(1);
-        final Events.OrganizationDescribed newOrganizationDescribed = new Events.OrganizationDescribed(Id.OrganizationId.existing(organizationDescribed.organizationId),
-                organizationDescribed.description);
-        Assert.assertEquals(newOrganizationDescribed, organizationDescribed);
-    }
-
-
+  @SuppressWarnings("unchecked")
+  private <T> Sourced<T> sourced() {
+    return (Sourced<T>) organizationTestActor.actorInside();
+  }
 }

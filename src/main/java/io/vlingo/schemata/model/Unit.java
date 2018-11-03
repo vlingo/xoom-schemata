@@ -9,14 +9,20 @@ package io.vlingo.schemata.model;
 
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
+import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.schemata.model.Id.UnitId;
 
 public interface Unit {
-    static Id.UnitId uniqueId() {
-        return Id.UnitId.unique();
+    static UnitId uniqueId(final OrganizationId organizationId) {
+        return UnitId.uniqueFor(organizationId);
     }
 
-    static Unit newWith(final Stage stage, final String name, final String description) {
-        return stage.actorFor(Definition.has(UnitEntity.class, Definition.parameters(Organization.uniqueId(), Unit.uniqueId(), name, description)), Unit.class);
+    static Unit with(final Stage stage, final OrganizationId organizationId, final String name, final String description) {
+        return with(stage, uniqueId(organizationId), name, description);
+    }
+
+    static Unit with(final Stage stage, final UnitId unitId, final String name, final String description) {
+        return stage.actorFor(Definition.has(UnitEntity.class, Definition.parameters(unitId, name, description)), Unit.class);
     }
 
     void describeAs(final String description);

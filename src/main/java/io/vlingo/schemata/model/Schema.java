@@ -9,20 +9,26 @@ package io.vlingo.schemata.model;
 
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
+import io.vlingo.schemata.model.Id.ContextId;
+import io.vlingo.schemata.model.Id.SchemaId;
 
 public interface Schema {
-    static Id.SchemaId uniqueId() {
-        return Id.SchemaId.unique();
-    }
+  static SchemaId uniqueId(final ContextId contextId) {
+    return SchemaId.uniqueFor(contextId);
+  }
 
-    static Schema newWith(final Stage stage, final String name, final String description) {
-        return stage.actorFor(Definition.has(SchemaEntity.class, Definition.parameters(Organization.uniqueId(), Unit.uniqueId(), Context.uniqueId(),
-                uniqueId(), name, description)), Schema.class);
-    }
+  static Schema with(final Stage stage, final ContextId contextId, final String name, final String description) {
+    return with(stage, uniqueId(contextId), name, description);
+  }
 
-    void describeAs(final String description);
+  static Schema with(final Stage stage, final SchemaId schemaId, final String name, final String description) {
+    return stage.actorFor(Definition.has(SchemaEntity.class, Definition.parameters(schemaId, name, description)),
+            Schema.class);
+  }
 
-    void recategorizedAs(final Category category);
+  void describeAs(final String description);
 
-    void renameTo(final String name);
+  void recategorizedAs(final Category category);
+
+  void renameTo(final String name);
 }
