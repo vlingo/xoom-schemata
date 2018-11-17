@@ -37,8 +37,6 @@ public class SchemaVersionEntityTest {
     schemaVersion = world.actorFor(Definition.has(SchemaVersionEntity.class,
             Definition.parameters(
                     SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique())))),
-                    Category.Command,
-                    "name",
                     "description",
                     new SchemaVersion.Specification("specification"),
                     new SchemaVersion.Version("1.0.0"))),
