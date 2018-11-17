@@ -5,7 +5,7 @@
 
     <groupId>io.vlingo</groupId>
     <artifactId>vlingo-schemata</artifactId>
-    <version>0.7.3</version>
+    <version>0.7.4</version>
     <packaging>jar</packaging>
 
     <name>vlingo-schemata</name>
@@ -29,12 +29,23 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>4.3</version>
+                <executions>
+                    <execution>
+                        <id>antlr</id>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <dependencies>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -42,19 +53,29 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4</artifactId>
+            <version>4.7.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vlingo</groupId>
+            <artifactId>vlingo-common</artifactId>
+            <version>0.7.4</version>
+        </dependency>
+        <dependency>
             <groupId>io.vlingo</groupId>
             <artifactId>vlingo-actors</artifactId>
-            <version>0.7.3</version>
+            <version>0.7.4</version>
         </dependency>
         <dependency>
             <groupId>io.vlingo</groupId>
             <artifactId>vlingo-http</artifactId>
-            <version>0.7.3</version>
+            <version>0.7.4</version>
         </dependency>
         <dependency>
             <groupId>io.vlingo</groupId>
             <artifactId>vlingo-lattice</artifactId>
-            <version>0.7.3</version>
+            <version>0.7.4</version>
         </dependency>
     </dependencies>
 </project>
