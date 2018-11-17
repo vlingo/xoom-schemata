@@ -14,7 +14,8 @@ import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.SchemaVersionDefined;
 import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
 import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
-import io.vlingo.schemata.model.Events.SchemaVersionStatusChanged;
+import io.vlingo.schemata.model.Events.SchemaVersionPublished;
+import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 
 public final class SchemaVersionEntity extends EventSourced implements SchemaVersion {
@@ -26,10 +27,12 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
     EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionSpecified.class, applySchemaVersionSpecifiedFn);
     BiConsumer<SchemaVersionEntity, Events.SchemaVersionDescribed> applySchemaDescribedFn = SchemaVersionEntity::applyDescribed;
     EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionDescribed.class, applySchemaDescribedFn);
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionStatusChanged> applySchemaVersionStatusFn = SchemaVersionEntity::applyStatus;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionStatusChanged.class, applySchemaVersionStatusFn);
     BiConsumer<SchemaVersionEntity, Events.SchemaVersionAssignedVersion> applySchemaVersionFn = SchemaVersionEntity::applyVersioned;
     EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionAssignedVersion.class, applySchemaVersionFn);
+    BiConsumer<SchemaVersionEntity, Events.SchemaVersionPublished> applySchemaVersionPublishedFn = SchemaVersionEntity::applyPublished;
+    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionPublished.class, applySchemaVersionPublishedFn);
+    BiConsumer<SchemaVersionEntity, Events.SchemaVersionRemoved> applySchemaVersionRemovedFn = SchemaVersionEntity::applyRemoved;
+    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionRemoved.class, applySchemaVersionRemovedFn);
   }
 
   private State state;
@@ -40,36 +43,41 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
           final String name,
           final String description,
           final Specification specification,
-          final Status status,
           final Version version) {
     assert (name != null && !name.isEmpty());
     assert (description != null && !description.isEmpty());
-    apply(SchemaVersionDefined.with(schemaVersionId, category, name, description, specification, status, version));
+    apply(SchemaVersionDefined.with(schemaVersionId, category, name, description, specification, Status.Draft, version));
+  }
+
+  @Override
+  public void assignVersionOf(final Version version) {
+    assert (version != null);
+    apply(new Events.SchemaVersionAssignedVersion(state.schemaVersionId, version));
   }
 
   @Override
   public void describeAs(final String description) {
     assert (description != null && !description.isEmpty());
+    assert (state.status.isDraft());
     apply(SchemaVersionDescribed.with(state.schemaVersionId, description));
   }
 
   @Override
-  public void assignStatus(final Status status) {
-    assert (status != null);
-    apply(SchemaVersionStatusChanged.with(state.schemaVersionId, status));
+  public void publish() {
+    assert (state.status.isDraft());
+    apply(SchemaVersionPublished.with(state.schemaVersionId));
   }
 
   @Override
-  public void specifiedAs(final Specification specification) {
+  public void remove() {
+    assert (state.status.isDraft());
+    apply(SchemaVersionRemoved.with(state.schemaVersionId));
+  }
+
+  @Override
+  public void specifyWith(final Specification specification) {
     assert (specification != null);
     apply(SchemaVersionSpecified.with(state.schemaVersionId, specification));
-
-  }
-
-  @Override
-  public void assignVersion(Version version) {
-    assert (version != null);
-    apply(new Events.SchemaVersionAssignedVersion(state.schemaVersionId, version));
   }
 
   private void applyDefined(final Events.SchemaVersionDefined e) {
@@ -89,8 +97,12 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
     this.state = this.state.withVersion(new Version(e.version));
   }
 
-  private void applyStatus(final Events.SchemaVersionStatusChanged e) {
-    this.state = this.state.withStatus(Status.valueOf(e.status));
+  private void applyPublished(final Events.SchemaVersionPublished e) {
+    this.state = this.state.asPublished();
+  }
+
+  private void applyRemoved(final Events.SchemaVersionRemoved e) {
+    this.state = this.state.asRemoved();
   }
 
   public class State {
@@ -123,6 +135,10 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
       return new State(this.schemaVersionId, this.category, this.name, this.description, this.specification, Status.Published, this.version);
     }
 
+    public State asRemoved() {
+      return new State(this.schemaVersionId, this.category, this.name, this.description, this.specification, Status.Removed, this.version);
+    }
+
     public State withSpecification(final Specification specification) {
       return new State(this.schemaVersionId, this.category, this.name, this.description, specification, this.status, this.version);
     }
@@ -133,10 +149,6 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
 
     public State withVersion(final Version version) {
       return new State(this.schemaVersionId, this.category, this.name, this.description, this.specification, this.status, version);
-    }
-
-    public State withStatus(final Status status) {
-      return new State(this.schemaVersionId, this.category, this.name, this.description, this.specification, status, this.version);
     }
   }
 

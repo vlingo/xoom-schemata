@@ -29,13 +29,15 @@ public interface SchemaVersion {
             SchemaVersion.class);
   }
 
-  void assignStatus(final Status status);
-
-  void assignVersion(final Version version);
+  void assignVersionOf(final Version version);
 
   void describeAs(final String description);
 
-  void specifiedAs(final Specification specification);
+  void publish();
+
+  void remove();
+
+  void specifyWith(final Specification specification);
 
   class Specification {
     public final String value;
@@ -46,7 +48,19 @@ public interface SchemaVersion {
   }
 
   enum Status {
-    Draft, Published, Removed, Undefined;
+    Draft {
+      public boolean isDraft() { return true; }
+    },
+    Published {
+      public boolean isPublished() { return true; }
+    },
+    Removed {
+      public boolean isRemoved() { return true; }
+    };
+
+    public boolean isDraft() { return false; }
+    public boolean isPublished() { return false; }
+    public boolean isRemoved() { return false; }
   }
 
   class Version {

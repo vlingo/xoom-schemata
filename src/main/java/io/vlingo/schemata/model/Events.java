@@ -207,20 +207,6 @@ public final class Events {
     }
   }
 
-  public static final class SchemaVersionStatusChanged extends DomainEvent {
-    public final String schemaVersionId;
-    public final String status;
-
-    public static SchemaVersionStatusChanged with(final SchemaVersionId schemaVersionId, final SchemaVersion.Status status) {
-      return new SchemaVersionStatusChanged(schemaVersionId, status);
-    }
-
-    public SchemaVersionStatusChanged(final SchemaVersionId schemaVersionId, final SchemaVersion.Status status) {
-      this.schemaVersionId = schemaVersionId.value;
-      this.status = status.name();
-    }
-  }
-
   public static final class SchemaVersionAssignedVersion extends DomainEvent {
     public final String schemaVersionId;
     public final String version;
@@ -246,6 +232,30 @@ public final class Events {
     public SchemaVersionSpecified(SchemaVersionId schemaVersionId, final SchemaVersion.Specification specification) {
       this.schemaVersionId = schemaVersionId.value;
       this.specification = specification.value;
+    }
+  }
+
+  public static final class SchemaVersionPublished extends DomainEvent {
+    public final String schemaVersionId;
+
+    public static SchemaVersionPublished with(final SchemaVersionId schemaVersionId) {
+      return new SchemaVersionPublished(schemaVersionId);
+    }
+
+    public SchemaVersionPublished(final SchemaVersionId schemaVersionId) {
+      this.schemaVersionId = schemaVersionId.value;
+    }
+  }
+
+  public static final class SchemaVersionRemoved extends DomainEvent {
+    public final String schemaVersionId;
+
+    public static SchemaVersionRemoved with(final SchemaVersionId schemaVersionId) {
+      return new SchemaVersionRemoved(schemaVersionId);
+    }
+
+    public SchemaVersionRemoved(final SchemaVersionId schemaVersionId) {
+      this.schemaVersionId = schemaVersionId.value;
     }
   }
 

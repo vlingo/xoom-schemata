@@ -8,11 +8,11 @@
 package io.vlingo.schemata.model;
 
 public enum Category {
-  Commands,
+  Command,
   Data,
-  Documents,
-  Envelopes,
-  Events,
+  Document,
+  Envelope,
+  Event,
   Metadata,
   None
 }
