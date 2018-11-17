@@ -15,17 +15,20 @@ public interface SchemaVersion {
     return SchemaVersionId.uniqueFor(schemaId);
   }
 
-  static SchemaVersion with(final Stage stage, final SchemaId schemaId,
-          final Category category, final String name, final String description,
-          final Specification definition, final Status status, final Version version) {
-    return with(stage, uniqueId(schemaId), category, name, description, definition, status, version);
+  static SchemaVersionId uniqueId(final SchemaVersionId previousSchemaVersionId) {
+    return SchemaVersionId.uniqueFor(previousSchemaVersionId);
   }
 
-  static SchemaVersion with(final Stage stage, final SchemaVersionId schemaVersionId,
-          final Category category, final String name, final String description,
-          final Specification definition, final Status status, final Version version) {
+  static SchemaVersion with(final Stage stage, final SchemaId schemaId,
+          final String description, final Specification definition,
+          final Status status, final Version version) {
+    return with(stage, uniqueId(schemaId), description, definition, status, version);
+  }
+
+  static SchemaVersion with(final Stage stage, final SchemaVersionId previousSchemaVersionId,
+          final String description, final Specification definition, final Status status, final Version version) {
     return stage.actorFor(io.vlingo.actors.Definition.has(SchemaVersionEntity.class,
-            io.vlingo.actors.Definition.parameters(schemaVersionId, category, name, description, definition, status, version)),
+            io.vlingo.actors.Definition.parameters(uniqueId(previousSchemaVersionId), description, definition, status, version)),
             SchemaVersion.class);
   }
 
@@ -43,6 +46,7 @@ public interface SchemaVersion {
     public final String value;
 
     public Specification(final String value) {
+      assert(value != null && !value.trim().isEmpty());
       this.value = value;
     }
   }

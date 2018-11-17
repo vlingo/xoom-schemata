@@ -165,27 +165,21 @@ public final class Events {
 
   public static final class SchemaVersionDefined extends DomainEvent {
     public final String schemaVersionId;
-    public final String category;
-    public final String name;
     public final String description;
     public final String status;
     public final String specification;
     public final String version;
 
     public static SchemaVersionDefined with(final SchemaVersionId schemaVersionId,
-            final Category category, final String name, final String description, 
-            final SchemaVersion.Specification specification, final SchemaVersion.Status status,
-            final SchemaVersion.Version version) {
-      return new SchemaVersionDefined(schemaVersionId, category, name, description, specification, status, version);
+            final String description,  final SchemaVersion.Specification specification,
+            final SchemaVersion.Status status, final SchemaVersion.Version version) {
+      return new SchemaVersionDefined(schemaVersionId, description, specification, status, version);
     }
 
     public SchemaVersionDefined(SchemaVersionId schemaVersionId, 
-            final Category category, final String name, final String description,
-            final SchemaVersion.Specification specification, final SchemaVersion.Status status,
-            final SchemaVersion.Version version) {
+            final String description, final SchemaVersion.Specification specification,
+            final SchemaVersion.Status status, final SchemaVersion.Version version) {
       this.schemaVersionId = schemaVersionId.value;
-      this.category = category.name();
-      this.name = name;
       this.description = description;
       this.status = status.toString();
       this.specification = specification.value;

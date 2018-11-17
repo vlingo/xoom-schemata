@@ -39,14 +39,11 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
 
   public SchemaVersionEntity(
           final SchemaVersionId schemaVersionId,
-          final Category category,
-          final String name,
           final String description,
           final Specification specification,
           final Version version) {
-    assert (name != null && !name.isEmpty());
     assert (description != null && !description.isEmpty());
-    apply(SchemaVersionDefined.with(schemaVersionId, category, name, description, specification, Status.Draft, version));
+    apply(SchemaVersionDefined.with(schemaVersionId, description, specification, Status.Draft, version));
   }
 
   @Override
@@ -81,7 +78,7 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
   }
 
   private void applyDefined(final Events.SchemaVersionDefined e) {
-    this.state = new State(SchemaVersionId.existing(e.schemaVersionId), Category.valueOf(e.category), e.name, e.description,
+    this.state = new State(SchemaVersionId.existing(e.schemaVersionId), e.description,
             new Specification(e.specification), Status.valueOf(e.status), new Version(e.version));
   }
 
@@ -107,8 +104,6 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
 
   public class State {
     public final SchemaVersionId schemaVersionId;
-    public final Category category;
-    public final String name;
     public final String description;
     public final Specification specification;
     public final Status status;
@@ -116,15 +111,11 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
 
     public State(
             final SchemaVersionId schemaVersionId,
-            final Category category,
-            final String name,
             final String description,
             final Specification specification,
             final Status status,
             final Version version) {
       this.schemaVersionId = schemaVersionId;
-      this.category = category;
-      this.name = name;
       this.description = description;
       this.specification = specification;
       this.status = status;
@@ -132,23 +123,23 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
     }
 
     public State asPublished() {
-      return new State(this.schemaVersionId, this.category, this.name, this.description, this.specification, Status.Published, this.version);
+      return new State(this.schemaVersionId, this.description, this.specification, Status.Published, this.version);
     }
 
     public State asRemoved() {
-      return new State(this.schemaVersionId, this.category, this.name, this.description, this.specification, Status.Removed, this.version);
+      return new State(this.schemaVersionId, this.description, this.specification, Status.Removed, this.version);
     }
 
     public State withSpecification(final Specification specification) {
-      return new State(this.schemaVersionId, this.category, this.name, this.description, specification, this.status, this.version);
+      return new State(this.schemaVersionId, this.description, specification, this.status, this.version);
     }
 
     public State withDescription(final String description) {
-      return new State(this.schemaVersionId, this.category, this.name, description, this.specification, this.status, this.version);
+      return new State(this.schemaVersionId, description, this.specification, this.status, this.version);
     }
 
     public State withVersion(final Version version) {
-      return new State(this.schemaVersionId, this.category, this.name, this.description, this.specification, this.status, version);
+      return new State(this.schemaVersionId, this.description, this.specification, this.status, version);
     }
   }
 

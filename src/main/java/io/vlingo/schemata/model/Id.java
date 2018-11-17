@@ -108,7 +108,15 @@ public abstract class Id {
     }
 
     public static SchemaVersionId uniqueFor(final SchemaId schemaId) {
-      return new SchemaVersionId(schemaId.value + ":" + IdentityGeneratorType.Random.generate().toString());
+      return new SchemaVersionId(schemaId.value + ":1");
+    }
+
+    public static SchemaVersionId uniqueFor(final SchemaVersionId previousSchemaVersionId) {
+      final int index = previousSchemaVersionId.value.lastIndexOf(':');
+      assert(index > 0);
+      final String prefix = previousSchemaVersionId.value.substring(0, index);
+      final int previousSequence = Integer.parseInt(previousSchemaVersionId.value.substring(index + 1));
+      return new SchemaVersionId(prefix + ":" + (previousSequence + 1));
     }
 
     public SchemaVersionId(final String value) {
