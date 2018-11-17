@@ -19,7 +19,8 @@ import io.vlingo.lattice.model.sourcing.Sourced;
 import io.vlingo.schemata.model.Events.SchemaVersionAssignedVersion;
 import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
 import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
-import io.vlingo.schemata.model.Events.SchemaVersionStatusChanged;
+import io.vlingo.schemata.model.Events.SchemaVersionPublished;
+import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
@@ -36,11 +37,10 @@ public class SchemaVersionEntityTest {
     schemaVersion = world.actorFor(Definition.has(SchemaVersionEntity.class,
             Definition.parameters(
                     SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique())))),
-                    Category.Commands,
+                    Category.Command,
                     "name",
                     "description",
                     new SchemaVersion.Specification("specification"),
-                    SchemaVersion.Status.Draft,
                     new SchemaVersion.Version("1.0.0"))),
             SchemaVersion.class);
   }
@@ -52,7 +52,7 @@ public class SchemaVersionEntityTest {
 
   @Test
   public void testThatSchemaVersionIsSpecified() throws Exception {
-    schemaVersion.actor().specifiedAs(new SchemaVersion.Specification("new specification"));
+    schemaVersion.actor().specifyWith(new SchemaVersion.Specification("new specification"));
     final SchemaVersionSpecified schemaVersionSpecified = (SchemaVersionSpecified) sourced().appliedEvent(1);
     Assert.assertEquals("new specification", schemaVersionSpecified.specification);
   }
@@ -66,15 +66,22 @@ public class SchemaVersionEntityTest {
   }
 
   @Test
-  public void testThatSchemaVersionAssignedStatus() throws Exception {
-    schemaVersion.actor().assignStatus(SchemaVersion.Status.Draft);
-    final SchemaVersionStatusChanged schemaVersionStatus = (SchemaVersionStatusChanged) sourced().appliedEvent(1);
-    Assert.assertEquals(SchemaVersion.Status.Draft.name(), schemaVersionStatus.status);
+  public void testThatSchemaVersionPublishes() throws Exception {
+    schemaVersion.actor().publish();
+    final SchemaVersionPublished schemaVersionPublished = (SchemaVersionPublished) sourced().appliedEvent(1);
+    Assert.assertNotNull(schemaVersionPublished);
+  }
+
+  @Test
+  public void testThatSchemaVersionRemoves() throws Exception {
+    schemaVersion.actor().remove();
+    final SchemaVersionRemoved schemaVersionRemoved = (SchemaVersionRemoved) sourced().appliedEvent(1);
+    Assert.assertNotNull(schemaVersionRemoved);
   }
 
   @Test
   public void testThatSchemaVersionAssignedVersion() throws Exception {
-    schemaVersion.actor().assignVersion(new SchemaVersion.Version("version-1"));
+    schemaVersion.actor().assignVersionOf(new SchemaVersion.Version("version-1"));
     final SchemaVersionAssignedVersion schemaVersionAssignedVersion = (SchemaVersionAssignedVersion) sourced().appliedEvent(1);
     Assert.assertEquals("version-1", schemaVersionAssignedVersion.version);
   }

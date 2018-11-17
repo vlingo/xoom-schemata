@@ -33,7 +33,7 @@ public class SchemaEntityTest {
   @Before
   public void setUp() throws Exception {
     world = TestWorld.start("schema-test");
-    schema = world.actorFor(Definition.has(SchemaEntity.class, Definition.parameters(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))), Category.Events, "name", "description")), Schema.class);
+    schema = world.actorFor(Definition.has(SchemaEntity.class, Definition.parameters(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))), Category.Event, "name", "description")), Schema.class);
   }
 
   @After
@@ -45,7 +45,7 @@ public class SchemaEntityTest {
   public void testThatSchemaDefinedIsEquals() throws Exception {
     final SchemaDefined schemaDefined = (SchemaDefined) sourced().appliedEvent(0);
     assertEquals(1, sourced().appliedCount());
-    assertEquals(Category.Events.name(), schemaDefined.category);
+    assertEquals(Category.Event.name(), schemaDefined.category);
     assertEquals("name", schemaDefined.name);
     assertEquals("description", schemaDefined.description);
   }
@@ -60,10 +60,10 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaRecategorised() throws Exception {
-    schema.actor().recategorizedAs(Category.Documents);
+    schema.actor().recategorizedAs(Category.Document);
     final SchemaRecategorized schemaRecategorized = (SchemaRecategorized) sourced().appliedEvent(1);
     assertEquals(2, sourced().appliedCount());
-    assertEquals(Category.Documents.name(), schemaRecategorized.category);
+    assertEquals(Category.Document.name(), schemaRecategorized.category);
   }
 
   @Test
