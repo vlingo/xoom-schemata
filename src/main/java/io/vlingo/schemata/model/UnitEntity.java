@@ -17,67 +17,67 @@ import io.vlingo.schemata.model.Events.UnitRenamed;
 import io.vlingo.schemata.model.Id.UnitId;
 
 public class UnitEntity extends EventSourced implements Unit {
-    static {
-        BiConsumer<UnitEntity, UnitDefined> applyOrganizationDefinedFn = UnitEntity::applyDefined;
-        EventSourced.registerConsumer(UnitEntity.class, UnitDefined.class, applyOrganizationDefinedFn);
-        BiConsumer<UnitEntity, UnitDescribed> applyOrganizationDescribedFn = UnitEntity::applyDescribed;
-        EventSourced.registerConsumer(UnitEntity.class, UnitDescribed.class, applyOrganizationDescribedFn);
-        BiConsumer<UnitEntity, UnitRenamed> applyOrganizationRenamedFn = UnitEntity::applyRenamed;
-        EventSourced.registerConsumer(UnitEntity.class, UnitRenamed.class, applyOrganizationRenamedFn);
+  private UnitEntity.State state;
+
+  public UnitEntity(final UnitId unitId, final String name, final String description) {
+    apply(new UnitDefined(unitId, name, description));
+  }
+
+  @Override
+  public void describeAs(final String description) {
+    apply(new UnitDescribed(state.unitId, description));
+  }
+
+  @Override
+  public void renameTo(final String name) {
+    apply(new UnitRenamed(state.unitId, name));
+  }
+
+  public class State {
+    public final UnitId unitId;
+    public final String name;
+    public final String description;
+
+    public UnitEntity.State withDescription(final String description) {
+      return new State(this.unitId, this.name, description);
     }
 
-    private UnitEntity.State state;
-
-    public UnitEntity(final UnitId unitId, final String name, final String description) {
-        apply(new UnitDefined(unitId, name, description));
+    public State withName(final String name) {
+      return new State(this.unitId, name, this.description);
     }
 
-    @Override
-    public void describeAs(final String description) {
-        apply(new UnitDescribed(state.unitId, description));
+    public State(final UnitId unitId, final String name, final String description) {
+      this.unitId = unitId;
+      this.name = name;
+      this.description = description;
     }
+  }
 
-    @Override
-    public void renameTo(final String name) {
-        apply(new UnitRenamed(state.unitId, name));
-    }
+  @Override
+  public TestState viewTestState() {
+    TestState testState = new TestState();
+    testState.putValue("sourced", this);
+    return testState;
+  }
 
-    private void applyDefined(final UnitDefined e) {
-        state = new State(UnitId.existing(e.unitId), e.name, e.description);
-    }
+  static {
+    BiConsumer<UnitEntity, UnitDefined> applyOrganizationDefinedFn = UnitEntity::applyDefined;
+    EventSourced.registerConsumer(UnitEntity.class, UnitDefined.class, applyOrganizationDefinedFn);
+    BiConsumer<UnitEntity, UnitDescribed> applyOrganizationDescribedFn = UnitEntity::applyDescribed;
+    EventSourced.registerConsumer(UnitEntity.class, UnitDescribed.class, applyOrganizationDescribedFn);
+    BiConsumer<UnitEntity, UnitRenamed> applyOrganizationRenamedFn = UnitEntity::applyRenamed;
+    EventSourced.registerConsumer(UnitEntity.class, UnitRenamed.class, applyOrganizationRenamedFn);
+  }
 
-    public final void applyDescribed(UnitDescribed event) {
-        state = state.withDescription(event.description);
-    }
+  private void applyDefined(final UnitDefined e) {
+    state = new State(UnitId.existing(e.unitId), e.name, e.description);
+  }
 
-    public final void applyRenamed(UnitRenamed event) {
-        state = state.withName(event.name);
-    }
+  private final void applyDescribed(final UnitDescribed event) {
+    state = state.withDescription(event.description);
+  }
 
-    public class State {
-        public final UnitId unitId;
-        public final String name;
-        public final String description;
-
-        public UnitEntity.State withDescription(final String description) {
-            return new State(this.unitId, this.name, description);
-        }
-
-        public State withName(final String name) {
-            return new State(this.unitId, name, this.description);
-        }
-
-        public State(final UnitId unitId, final String name, final String description) {
-            this.unitId = unitId;
-            this.name = name;
-            this.description = description;
-        }
-    }
-
-    @Override
-    public TestState viewTestState() {
-        TestState testState = new TestState();
-        testState.putValue("sourced", this);
-        return testState;
-    }
+  private final void applyRenamed(final UnitRenamed event) {
+    state = state.withName(event.name);
+  }
 }

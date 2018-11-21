@@ -17,15 +17,6 @@ import io.vlingo.schemata.model.Id.OrganizationId;
 import java.util.function.BiConsumer;
 
 public class OrganizationEntity extends EventSourced implements Organization {
-  static {
-    BiConsumer<OrganizationEntity, OrganizationDefined> applyOrganizationDefinedFn = OrganizationEntity::applyDefined;
-    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationDefined.class, applyOrganizationDefinedFn);
-    BiConsumer<OrganizationEntity, OrganizationDescribed> applyOrganizationDescribedFn = OrganizationEntity::applyDescribed;
-    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationDescribed.class, applyOrganizationDescribedFn);
-    BiConsumer<OrganizationEntity, OrganizationRenamed> applyOrganizationRenamedFn = OrganizationEntity::applyRenamed;
-    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationRenamed.class, applyOrganizationRenamedFn);
-  }
-
   private State state;
 
   public OrganizationEntity(final OrganizationId organizationId, final String name, final String description) {
@@ -40,18 +31,6 @@ public class OrganizationEntity extends EventSourced implements Organization {
   @Override
   public void renameTo(final String name) {
     apply(new OrganizationRenamed(state.organizationId, name));
-  }
-
-  private void applyDefined(OrganizationDefined event) {
-    state = new State(OrganizationId.existing(event.organizationId), event.name, event.description);
-  }
-
-  public final void applyDescribed(OrganizationDescribed event) {
-    state = state.withDescription(event.description);
-  }
-
-  public final void applyRenamed(OrganizationRenamed event) {
-    state = state.withName(event.name);
   }
 
   public class State {
@@ -79,5 +58,26 @@ public class OrganizationEntity extends EventSourced implements Organization {
     TestState testState = new TestState();
     testState.putValue("sourced", this);
     return testState;
+  }
+
+  static {
+    BiConsumer<OrganizationEntity, OrganizationDefined> applyOrganizationDefinedFn = OrganizationEntity::applyDefined;
+    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationDefined.class, applyOrganizationDefinedFn);
+    BiConsumer<OrganizationEntity, OrganizationDescribed> applyOrganizationDescribedFn = OrganizationEntity::applyDescribed;
+    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationDescribed.class, applyOrganizationDescribedFn);
+    BiConsumer<OrganizationEntity, OrganizationRenamed> applyOrganizationRenamedFn = OrganizationEntity::applyRenamed;
+    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationRenamed.class, applyOrganizationRenamedFn);
+  }
+
+  private void applyDefined(OrganizationDefined event) {
+    state = new State(OrganizationId.existing(event.organizationId), event.name, event.description);
+  }
+
+  private final void applyDescribed(OrganizationDescribed event) {
+    state = state.withDescription(event.description);
+  }
+
+  private final void applyRenamed(OrganizationRenamed event) {
+    state = state.withName(event.name);
   }
 }

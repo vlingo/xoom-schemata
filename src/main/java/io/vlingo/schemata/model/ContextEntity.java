@@ -17,15 +17,6 @@ import io.vlingo.schemata.model.Events.ContextRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
 
 public class ContextEntity extends EventSourced implements Context {
-  static {
-    BiConsumer<ContextEntity, ContextDefined> applyContextDefinedFn = ContextEntity::applyDefined;
-    EventSourced.registerConsumer(ContextEntity.class, ContextDefined.class, applyContextDefinedFn);
-    BiConsumer<ContextEntity, ContextDescribed> applyContextDescribedFn = ContextEntity::applyDescribed;
-    EventSourced.registerConsumer(ContextEntity.class, ContextDescribed.class, applyContextDescribedFn);
-    BiConsumer<ContextEntity, ContextRenamed> applyContextNamespaceChangedFn = ContextEntity::applyNamespaceChanged;
-    EventSourced.registerConsumer(ContextEntity.class, ContextRenamed.class, applyContextNamespaceChangedFn);
-  }
-
   private State state;
 
   public ContextEntity(final ContextId contextId, final String namespace, final String description) {
@@ -44,18 +35,6 @@ public class ContextEntity extends EventSourced implements Context {
   public void describeAs(final String description) {
     assert (description != null && !description.isEmpty());
     this.apply(ContextDescribed.with(state.contextId, description));
-  }
-
-  private void applyDefined(final ContextDefined e) {
-    this.state = new State(ContextId.existing(e.contextId), e.namespace, e.description);
-  }
-
-  private void applyDescribed(final ContextDescribed e) {
-    this.state = this.state.withDescription(e.description);
-  }
-
-  private void applyNamespaceChanged(final ContextRenamed e) {
-    state = state.withNamespace(e.namespace);
   }
 
   public class State {
@@ -83,5 +62,26 @@ public class ContextEntity extends EventSourced implements Context {
     TestState testState = new TestState();
     testState.putValue("sourced", this);
     return testState;
+  }
+
+  static {
+    BiConsumer<ContextEntity, ContextDefined> applyContextDefinedFn = ContextEntity::applyDefined;
+    EventSourced.registerConsumer(ContextEntity.class, ContextDefined.class, applyContextDefinedFn);
+    BiConsumer<ContextEntity, ContextDescribed> applyContextDescribedFn = ContextEntity::applyDescribed;
+    EventSourced.registerConsumer(ContextEntity.class, ContextDescribed.class, applyContextDescribedFn);
+    BiConsumer<ContextEntity, ContextRenamed> applyContextNamespaceChangedFn = ContextEntity::applyNamespaceChanged;
+    EventSourced.registerConsumer(ContextEntity.class, ContextRenamed.class, applyContextNamespaceChangedFn);
+  }
+
+  private void applyDefined(final ContextDefined e) {
+    this.state = new State(ContextId.existing(e.contextId), e.namespace, e.description);
+  }
+
+  private void applyDescribed(final ContextDescribed e) {
+    this.state = this.state.withDescription(e.description);
+  }
+
+  private void applyNamespaceChanged(final ContextRenamed e) {
+    state = state.withNamespace(e.namespace);
   }
 }

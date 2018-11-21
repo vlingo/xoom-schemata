@@ -19,22 +19,6 @@ import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 
 public final class SchemaVersionEntity extends EventSourced implements SchemaVersion {
-
-  static {
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionDefined> applySchemaDefinedFn = SchemaVersionEntity::applyDefined;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionDefined.class, applySchemaDefinedFn);
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionSpecified> applySchemaVersionSpecifiedFn = SchemaVersionEntity::applySpecification;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionSpecified.class, applySchemaVersionSpecifiedFn);
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionDescribed> applySchemaDescribedFn = SchemaVersionEntity::applyDescribed;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionDescribed.class, applySchemaDescribedFn);
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionAssignedVersion> applySchemaVersionFn = SchemaVersionEntity::applyVersioned;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionAssignedVersion.class, applySchemaVersionFn);
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionPublished> applySchemaVersionPublishedFn = SchemaVersionEntity::applyPublished;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionPublished.class, applySchemaVersionPublishedFn);
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionRemoved> applySchemaVersionRemovedFn = SchemaVersionEntity::applyRemoved;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionRemoved.class, applySchemaVersionRemovedFn);
-  }
-
   private State state;
 
   public SchemaVersionEntity(
@@ -75,31 +59,6 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
   public void specifyWith(final Specification specification) {
     assert (specification != null);
     apply(SchemaVersionSpecified.with(state.schemaVersionId, specification));
-  }
-
-  private void applyDefined(final Events.SchemaVersionDefined e) {
-    this.state = new State(SchemaVersionId.existing(e.schemaVersionId), e.description,
-            new Specification(e.specification), Status.valueOf(e.status), new Version(e.version));
-  }
-
-  private void applySpecification(final Events.SchemaVersionSpecified e) {
-    this.state = this.state.withSpecification(new Specification(e.specification));
-  }
-
-  private void applyDescribed(final Events.SchemaVersionDescribed e) {
-    this.state = this.state.withDescription(e.description);
-  }
-
-  private void applyVersioned(final Events.SchemaVersionAssignedVersion e) {
-    this.state = this.state.withVersion(new Version(e.version));
-  }
-
-  private void applyPublished(final Events.SchemaVersionPublished e) {
-    this.state = this.state.asPublished();
-  }
-
-  private void applyRemoved(final Events.SchemaVersionRemoved e) {
-    this.state = this.state.asRemoved();
   }
 
   public class State {
@@ -148,5 +107,45 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
     TestState testState = new TestState();
     testState.putValue("sourced", this);
     return testState;
+  }
+
+  static {
+    BiConsumer<SchemaVersionEntity, Events.SchemaVersionDefined> applySchemaDefinedFn = SchemaVersionEntity::applyDefined;
+    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionDefined.class, applySchemaDefinedFn);
+    BiConsumer<SchemaVersionEntity, Events.SchemaVersionSpecified> applySchemaVersionSpecifiedFn = SchemaVersionEntity::applySpecification;
+    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionSpecified.class, applySchemaVersionSpecifiedFn);
+    BiConsumer<SchemaVersionEntity, Events.SchemaVersionDescribed> applySchemaDescribedFn = SchemaVersionEntity::applyDescribed;
+    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionDescribed.class, applySchemaDescribedFn);
+    BiConsumer<SchemaVersionEntity, Events.SchemaVersionAssignedVersion> applySchemaVersionFn = SchemaVersionEntity::applyVersioned;
+    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionAssignedVersion.class, applySchemaVersionFn);
+    BiConsumer<SchemaVersionEntity, Events.SchemaVersionPublished> applySchemaVersionPublishedFn = SchemaVersionEntity::applyPublished;
+    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionPublished.class, applySchemaVersionPublishedFn);
+    BiConsumer<SchemaVersionEntity, Events.SchemaVersionRemoved> applySchemaVersionRemovedFn = SchemaVersionEntity::applyRemoved;
+    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionRemoved.class, applySchemaVersionRemovedFn);
+  }
+
+  private void applyDefined(final Events.SchemaVersionDefined e) {
+    this.state = new State(SchemaVersionId.existing(e.schemaVersionId), e.description,
+            new Specification(e.specification), Status.valueOf(e.status), new Version(e.version));
+  }
+
+  private void applySpecification(final Events.SchemaVersionSpecified e) {
+    this.state = this.state.withSpecification(new Specification(e.specification));
+  }
+
+  private void applyDescribed(final Events.SchemaVersionDescribed e) {
+    this.state = this.state.withDescription(e.description);
+  }
+
+  private void applyVersioned(final Events.SchemaVersionAssignedVersion e) {
+    this.state = this.state.withVersion(new Version(e.version));
+  }
+
+  private void applyPublished(final Events.SchemaVersionPublished e) {
+    this.state = this.state.asPublished();
+  }
+
+  private void applyRemoved(final Events.SchemaVersionRemoved e) {
+    this.state = this.state.asRemoved();
   }
 }

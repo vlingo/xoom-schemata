@@ -18,18 +18,6 @@ import io.vlingo.schemata.model.Events.SchemaRenamed;
 import io.vlingo.schemata.model.Id.SchemaId;
 
 public class SchemaEntity extends EventSourced implements Schema {
-
-  static {
-    BiConsumer<SchemaEntity, SchemaDefined> applySchemaDefinedFn = SchemaEntity::applyDefined;
-    EventSourced.registerConsumer(SchemaEntity.class, SchemaDefined.class, applySchemaDefinedFn);
-    BiConsumer<SchemaEntity, SchemaRecategorized> applySchemaRecategorizedFn = SchemaEntity::applyRecategorized;
-    EventSourced.registerConsumer(SchemaEntity.class, SchemaRecategorized.class, applySchemaRecategorizedFn);
-    BiConsumer<SchemaEntity, SchemaDescribed> applySchemaDescribedFn = SchemaEntity::applyDescribed;
-    EventSourced.registerConsumer(SchemaEntity.class, SchemaDescribed.class, applySchemaDescribedFn);
-    BiConsumer<SchemaEntity, SchemaRenamed> applySchemaRenamedFn = SchemaEntity::applyRenamed;
-    EventSourced.registerConsumer(SchemaEntity.class, SchemaRenamed.class, applySchemaRenamedFn);
-  }
-
   private State state;
 
   public SchemaEntity(final SchemaId schemaId, final Category category, final String name, final String description) {
@@ -49,22 +37,6 @@ public class SchemaEntity extends EventSourced implements Schema {
   @Override
   public void renameTo(String name) {
     apply(new SchemaRenamed(state.schemaId, name));
-  }
-
-  private void applyDefined(SchemaDefined e) {
-    state = new State(SchemaId.existing(e.schemaId), Category.valueOf(e.category), e.name, e.description);
-  }
-
-  private void applyDescribed(SchemaDescribed e) {
-    state = state.withDescription(e.description);
-  }
-
-  private void applyRecategorized(SchemaRecategorized e) {
-    state = state.withCategory(Category.valueOf(e.category));
-  }
-
-  private void applyRenamed(SchemaRenamed event) {
-    state = state.withName(event.name);
   }
 
   public class State {
@@ -98,5 +70,32 @@ public class SchemaEntity extends EventSourced implements Schema {
     TestState testState = new TestState();
     testState.putValue("sourced", this);
     return testState;
+  }
+
+  static {
+    BiConsumer<SchemaEntity, SchemaDefined> applySchemaDefinedFn = SchemaEntity::applyDefined;
+    EventSourced.registerConsumer(SchemaEntity.class, SchemaDefined.class, applySchemaDefinedFn);
+    BiConsumer<SchemaEntity, SchemaRecategorized> applySchemaRecategorizedFn = SchemaEntity::applyRecategorized;
+    EventSourced.registerConsumer(SchemaEntity.class, SchemaRecategorized.class, applySchemaRecategorizedFn);
+    BiConsumer<SchemaEntity, SchemaDescribed> applySchemaDescribedFn = SchemaEntity::applyDescribed;
+    EventSourced.registerConsumer(SchemaEntity.class, SchemaDescribed.class, applySchemaDescribedFn);
+    BiConsumer<SchemaEntity, SchemaRenamed> applySchemaRenamedFn = SchemaEntity::applyRenamed;
+    EventSourced.registerConsumer(SchemaEntity.class, SchemaRenamed.class, applySchemaRenamedFn);
+  }
+
+  private void applyDefined(final SchemaDefined e) {
+    state = new State(SchemaId.existing(e.schemaId), Category.valueOf(e.category), e.name, e.description);
+  }
+
+  private void applyDescribed(final SchemaDescribed e) {
+    state = state.withDescription(e.description);
+  }
+
+  private void applyRecategorized(final SchemaRecategorized e) {
+    state = state.withCategory(Category.valueOf(e.category));
+  }
+
+  private void applyRenamed(final SchemaRenamed event) {
+    state = state.withName(event.name);
   }
 }
