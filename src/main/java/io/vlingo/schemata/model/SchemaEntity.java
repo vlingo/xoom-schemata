@@ -21,22 +21,22 @@ public class SchemaEntity extends EventSourced implements Schema {
   private State state;
 
   public SchemaEntity(final SchemaId schemaId, final Category category, final String name, final String description) {
-    apply(new SchemaDefined(schemaId, category, name, description));
+    apply(SchemaDefined.with(schemaId, category, name, description));
   }
 
   @Override
   public void describeAs(String description) {
-    apply(new SchemaDescribed(state.schemaId, description));
+    apply(SchemaDescribed.with(state.schemaId, description));
   }
 
   @Override
   public void recategorizedAs(final Category category) {
-    apply(new SchemaRecategorized(state.schemaId, category));
+    apply(SchemaRecategorized.with(state.schemaId, category));
   }
 
   @Override
   public void renameTo(String name) {
-    apply(new SchemaRenamed(state.schemaId, name));
+    apply(SchemaRenamed.with(state.schemaId, name));
   }
 
   public class State {
