@@ -11,11 +11,12 @@ import java.util.function.BiConsumer;
 
 import io.vlingo.actors.testkit.TestState;
 import io.vlingo.lattice.model.sourcing.EventSourced;
+import io.vlingo.schemata.model.Events.SchemaVersionAssignedVersion;
 import io.vlingo.schemata.model.Events.SchemaVersionDefined;
 import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
-import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
 import io.vlingo.schemata.model.Events.SchemaVersionPublished;
 import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
+import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 
 public final class SchemaVersionEntity extends EventSourced implements SchemaVersion {
@@ -33,7 +34,7 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
   @Override
   public void assignVersionOf(final Version version) {
     assert (version != null);
-    apply(new Events.SchemaVersionAssignedVersion(state.schemaVersionId, version));
+    apply(SchemaVersionAssignedVersion.with(state.schemaVersionId, version));
   }
 
   @Override
