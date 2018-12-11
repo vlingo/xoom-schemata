@@ -1,8 +1,8 @@
 event SalutationHappened {
-    type eventType;
-    timestamp occurredOn;
-    version eventVersion;
+    type eventType
+    timestamp occurredOn
+    version eventVersion
 
-    string toWhom;
-    string text;
+    // string toWhom
+    // string text
 }

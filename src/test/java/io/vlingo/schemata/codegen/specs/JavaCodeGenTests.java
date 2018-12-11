@@ -6,6 +6,8 @@ import io.vlingo.schemata.codegen.backends.JavaCodeGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.assertTrue;
 
 public class JavaCodeGenTests extends CodeGenTests {
@@ -17,13 +19,14 @@ public class JavaCodeGenTests extends CodeGenTests {
     }
 
     @Test
-    public void testThatGeneratesAnIntrinsicType() {
+    public void testThatGeneratesAnIntrinsicType() throws IOException {
         final String result = compiler.compile(typeDefinition("intrinsic"));
 
+        System.out.println(result);
         assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
         assertTrue(result.contains("public final String eventType;"));
-        assertTrue(result.contains("public final long occurredOn;"));
-        assertTrue(result.contains("public final int eventVersion;"));
+        assertTrue(result.contains("public final Long occurredOn;"));
+        assertTrue(result.contains("public final Integer eventVersion;"));
         assertTrue(result.contains("public final String toWhom;"));
         assertTrue(result.contains("public final String text;"));
         assertTrue(result.contains("public SalutationHappened(String toWhom, String text) {"));
