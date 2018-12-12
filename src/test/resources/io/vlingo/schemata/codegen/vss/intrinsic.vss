@@ -3,6 +3,6 @@ event SalutationHappened {
     timestamp occurredOn
     version eventVersion
 
-    // string toWhom
-    // string text
+    string toWhom
+    string text
 }

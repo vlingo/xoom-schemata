@@ -1,8 +1,6 @@
 package io.vlingo.schemata.codegen.backends;
 
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.*;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.schemata.codegen.Backend;
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
@@ -11,23 +9,36 @@ import javax.lang.model.element.Modifier;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JavaCodeGenerator implements Backend {
     @Override
-    public String generateFrom(SchemaVersionDefinitionParser parser) {
-        final SchemaVersionDefinitionParser.TypeDeclarationContext typeDeclaration = parser.typeDeclaration();
-
+    public String generateFrom(SchemaVersionDefinitionParser.TypeDeclarationContext typeDeclaration) {
         final Class<?> baseClass = baseClassOf(typeDeclaration);
         final String typeName = typeNameOf(typeDeclaration);
 
+        final List<ParameterSpec> constructorParams = new ArrayList<>();
+        final List<FieldSpec> fields = fieldsOf(typeDeclaration, constructorParams).collect(Collectors.toList());
+
+        final List<CodeBlock> initializers = constructorParams.stream()
+                .map(param -> CodeBlock.of(String.format("this.%s = %s;\n", param.name, param.name)))
+                .collect(Collectors.toList());
+
+        final MethodSpec constructor = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
+                .addParameters(constructorParams)
+                .addCode(CodeBlock.join(initializers, ""))
+                .build();
+
         final TypeSpec.Builder spec = TypeSpec.classBuilder(typeName)
                 .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
+                .addMethod(constructor)
                 .superclass(baseClass);
 
-        final Stream<FieldSpec> fields = fieldsOf(parser);
-        final TypeSpec eventClass = spec.addFields(fields.collect(Collectors.toList())).build();
+        final TypeSpec eventClass = spec.addFields(fields).build();
 
         JavaFile javaFile = JavaFile.builder("my.package", eventClass)
                 .build();
@@ -51,22 +62,32 @@ public class JavaCodeGenerator implements Backend {
         return typeDeclarationContext.typeName().TYPE_IDENTIFIER().getSymbol().getText();
     }
 
-    private Stream<FieldSpec> fieldsOf(SchemaVersionDefinitionParser parser) {
-        return parser.typeDeclaration().typeBody().attributes().attribute().stream()
-                .map(this::toFieldSpec);
+    private Stream<FieldSpec> fieldsOf(SchemaVersionDefinitionParser.TypeDeclarationContext typeDeclarationContext, List<ParameterSpec> constructorParams) {
+        return typeDeclarationContext.typeBody().attributes().attribute().stream()
+                .map(field -> toFieldSpec(field, constructorParams));
     }
 
-    private FieldSpec toFieldSpec(SchemaVersionDefinitionParser.AttributeContext context) {
+    private FieldSpec toFieldSpec(SchemaVersionDefinitionParser.AttributeContext context, List<ParameterSpec> constructorParams) {
         if (context.specialTypeAttribute() != null) {
             final SchemaVersionDefinitionParser.SpecialTypeAttributeContext field = context.specialTypeAttribute();
             return FieldSpec.builder(classOfSpecialType(field), field.IDENTIFIER().getSymbol().getText())
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .build();
         } else if (context.basicTypeAttribute() != null) {
-            return null;
+            final SchemaVersionDefinitionParser.BasicTypeAttributeContext field = context.basicTypeAttribute();
+
+            constructorParams.add(ParameterSpec.builder(classOfBasicType(field), field.IDENTIFIER().getSymbol().getText()).build());
+
+            return FieldSpec.builder(classOfBasicType(field), field.IDENTIFIER().getSymbol().getText())
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .build();
         }
 
         return null;
+    }
+
+    private Class<?> classOfBasicType(SchemaVersionDefinitionParser.BasicTypeAttributeContext field) {
+        return String.class;
     }
 
     private Class<?> classOfSpecialType(SchemaVersionDefinitionParser.SpecialTypeAttributeContext context) {

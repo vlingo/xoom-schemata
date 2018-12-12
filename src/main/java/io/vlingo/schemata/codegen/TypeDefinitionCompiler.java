@@ -26,6 +26,6 @@ public class TypeDefinitionCompiler {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         SchemaVersionDefinitionParser parser = new SchemaVersionDefinitionParser(tokens);
 
-        return backend.generateFrom(parser);
+        return backend.generateFrom(parser.typeDeclaration());
     }
 }

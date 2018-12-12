@@ -10,7 +10,7 @@ parser grammar SchemaVersionDefinitionParser;
 options { tokenVocab=SchemaVersionDefinitionLexer; }
 
 typeDeclaration
-  : type typeName typeBody
+  : (type typeName typeBody) EOF
   ;
 
 type

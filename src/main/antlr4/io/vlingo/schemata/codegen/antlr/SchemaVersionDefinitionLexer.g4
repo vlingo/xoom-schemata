@@ -123,12 +123,14 @@ NULL_LITERAL
 // identifiers
 ///////////////////////////////
 
-IDENTIFIER
-  : Letter LetterOrDigit*
-  ;
 
 TYPE_IDENTIFIER
   : CapitalLetter LetterOrDigit*
+  ;
+
+
+IDENTIFIER
+  : Letter LetterOrDigit*
   ;
 
 ///////////////////////////////

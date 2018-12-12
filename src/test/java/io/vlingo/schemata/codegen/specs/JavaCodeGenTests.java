@@ -20,7 +20,8 @@ public class JavaCodeGenTests extends CodeGenTests {
 
     @Test
     public void testThatGeneratesAnIntrinsicType() throws IOException {
-        final String result = compiler.compile(typeDefinition("intrinsic"));
+        final String lol = typeDefinition("intrinsic");
+        final String result = compiler.compile(lol);
 
         System.out.println(result);
         assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
@@ -29,7 +30,7 @@ public class JavaCodeGenTests extends CodeGenTests {
         assertTrue(result.contains("public final Integer eventVersion;"));
         assertTrue(result.contains("public final String toWhom;"));
         assertTrue(result.contains("public final String text;"));
-        assertTrue(result.contains("public SalutationHappened(String toWhom, String text) {"));
+        assertTrue(result.contains("public final SalutationHappened(String toWhom, String text) {"));
         assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
         assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
         assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(0, 0, 1);"));
