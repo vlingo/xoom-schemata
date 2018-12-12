@@ -20,10 +20,8 @@ public class JavaCodeGenTests extends CodeGenTests {
 
     @Test
     public void testThatGeneratesAnIntrinsicType() throws IOException {
-        final String lol = typeDefinition("intrinsic");
-        final String result = compiler.compile(lol);
+        final String result = compiler.compile(typeDefinition("intrinsic"));
 
-        System.out.println(result);
         assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
         assertTrue(result.contains("public final String eventType;"));
         assertTrue(result.contains("public final Long occurredOn;"));
