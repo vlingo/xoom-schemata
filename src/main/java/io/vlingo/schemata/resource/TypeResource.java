@@ -5,8 +5,7 @@ import io.vlingo.http.Response;
 import io.vlingo.http.resource.Resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.resource.ResourceBuilder.post;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
+import static io.vlingo.http.resource.ResourceBuilder.*;
 
 public final class TypeResource {
     public Resource resources(int threadPool) {
@@ -17,12 +16,51 @@ public final class TypeResource {
                         .param(String.class)
                         .param(String.class)
                         .body(String.class)
-                        .handle(this::pushType));
+                        .handle(this::pushType),
+                put("/{organization}/{unit}/{context}/{schemaVersion}/{typeName}")
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .handle(this::publishType),
+                get("/{organization}/{unit}/{context}/{schemaVersion}/{typeName}")
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .handle(this::pullType),
+                delete("/{organization}/{unit}/{context}/{schemaVersion}/{typeName}")
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .handle(this::deleteType));
     }
 
     private Completes<Response> pushType(String organization, String unit, String context, String schemaVersion, String body) {
         return Completes.withSuccess(
                 Response.of(Response.Status.Created, serialized(body))
+        );
+    }
+
+    private Completes<Response> publishType(String organization, String unit, String context, String schemaVersion, String typeName) {
+        return Completes.withSuccess(
+                Response.of(Response.Status.Ok, serialized("x"))
+        );
+    }
+
+    private Completes<Response> pullType(String organization, String unit, String context, String schemaVersion, String typeName) {
+        return Completes.withSuccess(
+                Response.of(Response.Status.Ok, serialized("x"))
+        );
+    }
+
+    private Completes<Response> deleteType(String organization, String unit, String context, String schemaVersion, String typeName) {
+        return Completes.withSuccess(
+                Response.of(Response.Status.Ok, serialized("x"))
         );
     }
 }
