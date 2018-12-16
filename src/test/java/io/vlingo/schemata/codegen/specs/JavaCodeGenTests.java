@@ -14,7 +14,7 @@ public class JavaCodeGenTests extends CodeGenTests {
     private TypeDefinitionCompiler compiler;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         compiler = TypeDefinitionCompiler.backedBy(new JavaCodeGenerator());
     }
 
