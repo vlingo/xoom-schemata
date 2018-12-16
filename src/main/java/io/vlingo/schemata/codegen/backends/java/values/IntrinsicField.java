@@ -40,7 +40,7 @@ public final class IntrinsicField extends EventField {
             case "timestamp":
                 return String.format("this.%s = System.currentTimeMillis();", fieldName);
             case "version":
-                return String.format("this.%s = SemanticVersion.toValue(0, 0, 1);", fieldName);
+                return String.format("this.%s = toValue(0, 0, 1);", fieldName);
         }
         return "// " + typeName;
     }

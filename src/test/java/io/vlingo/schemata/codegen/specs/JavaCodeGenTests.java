@@ -1,5 +1,6 @@
 package io.vlingo.schemata.codegen.specs;
 
+import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.schemata.codegen.CodeGenTests;
 import io.vlingo.schemata.codegen.TypeDefinitionCompiler;
 import io.vlingo.schemata.codegen.backends.java.JavaCodeGenerator;
@@ -22,6 +23,7 @@ public class JavaCodeGenTests extends CodeGenTests {
     public void testThatGeneratesABasicType() throws IOException {
         final String result = compiler.compile(typeDefinition("basic"));
 
+        assertTrue(result.contains("import static io.vlingo.common.version.SemanticVersion.toValue;"));
         assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
         assertTrue(result.contains("public final String eventType;"));
         assertTrue(result.contains("public final Long occurredOn;"));
@@ -31,7 +33,7 @@ public class JavaCodeGenTests extends CodeGenTests {
         assertTrue(result.contains("public final SalutationHappened(final String toWhom, final String text) {"));
         assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
         assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-        assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(0, 0, 1);"));
+        assertTrue(result.contains("this.eventVersion = toValue(0, 0, 1);"));
         assertTrue(result.contains("this.toWhom = toWhom;"));
         assertTrue(result.contains("this.text = text;"));
     }
