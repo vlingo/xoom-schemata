@@ -2,7 +2,7 @@ package io.vlingo.schemata.codegen.specs;
 
 import io.vlingo.schemata.codegen.CodeGenTests;
 import io.vlingo.schemata.codegen.TypeDefinitionCompiler;
-import io.vlingo.schemata.codegen.backends.JavaCodeGenerator;
+import io.vlingo.schemata.codegen.backends.java.JavaCodeGenerator;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class JavaCodeGenTests extends CodeGenTests {
         assertTrue(result.contains("public final Integer eventVersion;"));
         assertTrue(result.contains("public final String toWhom;"));
         assertTrue(result.contains("public final String text;"));
-        assertTrue(result.contains("public final SalutationHappened(String toWhom, String text) {"));
+        assertTrue(result.contains("public final SalutationHappened(final String toWhom, final String text) {"));
         assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
         assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
         assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(0, 0, 1);"));
