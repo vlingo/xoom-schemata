@@ -105,6 +105,7 @@ public class JavaCodeGenerator implements Backend {
                             field.basicTypeAttribute().DOUBLE(),
                             field.basicTypeAttribute().FLOAT(),
                             field.basicTypeAttribute().INT(),
+                            field.basicTypeAttribute().LONG(),
                             field.basicTypeAttribute().SHORT(),
                             field.basicTypeAttribute().STRING()
                     ),

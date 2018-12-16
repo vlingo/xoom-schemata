@@ -18,13 +18,13 @@ public final class RuntimeSingleField extends EventField {
 
     @Override
     public Tuple2<Class<?>, String> fieldDefinition() {
-        return Tuple2.from(String.class, fieldName);
+        return Tuple2.from(JavaTypeDictionary.typeOf(typeName), fieldName);
     }
 
     @Override
     public Optional<Tuple2<Class<?>, String>> parameterDefinition() {
         if (defaultValue == null) {
-            return Optional.of(Tuple2.from(String.class, fieldName));
+            return Optional.of(Tuple2.from(JavaTypeDictionary.typeOf(typeName), fieldName));
         }
 
         return Optional.empty();

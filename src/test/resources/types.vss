@@ -33,5 +33,5 @@ type TypeName {
   TypeName typeNameAttribute1							// null or no default
   category.TypeName typeNameAttribute2					// tip version
   category.TypeName:1.2.1 typeNameAttribute1				// specific version
-  category.TypeName:1.2.1[] typeNameArrayAttribute1 		// no default
+  category.TypeName:1.2.1[] typeNameArrayAttr   ibute1 		// no default
 }
