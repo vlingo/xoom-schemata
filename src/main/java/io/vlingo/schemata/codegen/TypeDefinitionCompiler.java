@@ -2,12 +2,11 @@ package io.vlingo.schemata.codegen;
 
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
-import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CodePointBuffer;
+import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.UnbufferedCharStream;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class TypeDefinitionCompiler {
     private final Backend backend;
@@ -20,8 +19,9 @@ public class TypeDefinitionCompiler {
         return new TypeDefinitionCompiler(backend);
     }
 
-    public String compile(final String typeDefinition) throws IOException {
-        ANTLRInputStream in = new ANTLRInputStream(new ByteArrayInputStream(typeDefinition.getBytes()));
+    public String compile(final String typeDefinition) {
+        CodePointBuffer buffer = CodePointBuffer.withBytes(ByteBuffer.wrap(typeDefinition.getBytes()));
+        CodePointCharStream in = CodePointCharStream.fromBuffer(buffer);
         SchemaVersionDefinitionLexer lexer = new SchemaVersionDefinitionLexer(in);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         SchemaVersionDefinitionParser parser = new SchemaVersionDefinitionParser(tokens);
