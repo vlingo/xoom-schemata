@@ -9,7 +9,6 @@ package io.vlingo.schemata.model;
 
 import java.util.function.BiConsumer;
 
-import io.vlingo.actors.testkit.TestState;
 import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.SchemaVersionAssignedVersion;
 import io.vlingo.schemata.model.Events.SchemaVersionDefined;
@@ -22,13 +21,17 @@ import io.vlingo.schemata.model.Id.SchemaVersionId;
 public final class SchemaVersionEntity extends EventSourced implements SchemaVersion {
   private State state;
 
-  public SchemaVersionEntity(
-          final SchemaVersionId schemaVersionId,
+  public SchemaVersionEntity(final SchemaVersionId schemaVersionId) {
+    state = new State(schemaVersionId);
+  }
+
+  @Override
+  public void defineWith(
           final String description,
           final Specification specification,
           final Version version) {
     assert (description != null && !description.isEmpty());
-    apply(SchemaVersionDefined.with(schemaVersionId, description, specification, Status.Draft, version));
+    apply(SchemaVersionDefined.with(state.schemaVersionId, description, specification, Status.Draft, version));
   }
 
   @Override
@@ -62,12 +65,21 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
     apply(SchemaVersionSpecified.with(state.schemaVersionId, specification));
   }
 
+  @Override
+  protected String streamName() {
+    return state.schemaVersionId.value;
+  }
+
   public class State {
     public final SchemaVersionId schemaVersionId;
     public final String description;
     public final Specification specification;
     public final Status status;
     public final Version version;
+
+    public State(final SchemaVersionId schemaVersionId) {
+      this(schemaVersionId, "", new Specification("unknown"), Status.Draft, new Version("0.0.0"));
+    }
 
     public State(
             final SchemaVersionId schemaVersionId,
@@ -101,13 +113,6 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
     public State withVersion(final Version version) {
       return new State(this.schemaVersionId, this.description, this.specification, this.status, version);
     }
-  }
-
-  @Override
-  public TestState viewTestState() {
-    TestState testState = new TestState();
-    testState.putValue("sourced", this);
-    return testState;
   }
 
   static {

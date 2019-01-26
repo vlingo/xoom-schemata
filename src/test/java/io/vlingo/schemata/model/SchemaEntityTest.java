@@ -9,14 +9,18 @@ package io.vlingo.schemata.model;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vlingo.actors.Definition;
 import io.vlingo.actors.testkit.TestActor;
 import io.vlingo.actors.testkit.TestWorld;
-import io.vlingo.lattice.model.sourcing.Sourced;
+import io.vlingo.lattice.model.DomainEvent;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
+import io.vlingo.schemata.MockJournalListener;
+import io.vlingo.schemata.infra.persistence.EntryAdapters;
 import io.vlingo.schemata.model.Events.SchemaDefined;
 import io.vlingo.schemata.model.Events.SchemaDescribed;
 import io.vlingo.schemata.model.Events.SchemaRecategorized;
@@ -25,15 +29,32 @@ import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.symbio.store.journal.Journal;
+import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 
 public class SchemaEntityTest {
   private TestWorld world;
   private TestActor<Schema> schema;
+  private Journal<String> journal;
+  private MockJournalListener listener;
+  private SourcedTypeRegistry registry;
 
   @Before
+  @SuppressWarnings("unchecked")
   public void setUp() throws Exception {
     world = TestWorld.start("schema-test");
-    schema = world.actorFor(Definition.has(SchemaEntity.class, Definition.parameters(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))), Category.Event, "name", "description")), Schema.class);
+
+    listener = new MockJournalListener();
+
+    journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
+
+    registry = new SourcedTypeRegistry(world.world());
+
+    EntryAdapters.register(registry, journal);
+
+    schema = world.actorFor(Schema.class, SchemaEntity.class, SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
+    schema.context().until.resetHappeningsTo(1);
+    schema.actor().defineWith(Category.Event, "name", "description");
   }
 
   @After
@@ -43,8 +64,10 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaDefinedIsEquals() throws Exception {
-    final SchemaDefined schemaDefined = (SchemaDefined) sourced().appliedEvent(0);
-    assertEquals(1, sourced().appliedCount());
+    schema.context().until.completes(); // see setUp()
+    final List<DomainEvent> applied = schema.viewTestState().valueOf("applied");
+    final SchemaDefined schemaDefined = (SchemaDefined) applied.get(0);
+    assertEquals(1, applied.size());
     assertEquals(Category.Event.name(), schemaDefined.category);
     assertEquals("name", schemaDefined.name);
     assertEquals("description", schemaDefined.description);
@@ -52,30 +75,37 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaIsDescribed() throws Exception {
+    schema.context().until.completes(); // see setUp()
+    schema.context().until.resetHappeningsTo(1);
     schema.actor().describeAs("new description");
-    final SchemaDescribed schemaDescribed = (SchemaDescribed) sourced().appliedEvent(1);
-    assertEquals(2, sourced().appliedCount());
+    schema.context().until.completes();
+    final List<DomainEvent> applied = schema.viewTestState().valueOf("applied");
+    assertEquals(2, applied.size());
+    final SchemaDescribed schemaDescribed = (SchemaDescribed) applied.get(1);
     assertEquals("new description", schemaDescribed.description);
   }
 
   @Test
   public void testThatSchemaRecategorised() throws Exception {
+    schema.context().until.completes(); // see setUp()
+    schema.context().until.resetHappeningsTo(1);
     schema.actor().recategorizedAs(Category.Document);
-    final SchemaRecategorized schemaRecategorized = (SchemaRecategorized) sourced().appliedEvent(1);
-    assertEquals(2, sourced().appliedCount());
+    schema.context().until.completes();
+    final List<DomainEvent> applied = schema.viewTestState().valueOf("applied");
+    assertEquals(2, applied.size());
+    final SchemaRecategorized schemaRecategorized = (SchemaRecategorized) applied.get(1);
     assertEquals(Category.Document.name(), schemaRecategorized.category);
   }
 
   @Test
   public void testThatSchemaRenamed() throws Exception {
+    schema.context().until.completes(); // see setUp()
+    schema.context().until.resetHappeningsTo(1);
     schema.actor().renameTo("new name");
-    final SchemaRenamed schemaRenamed = (SchemaRenamed) sourced().appliedEvent(1);
-    assertEquals(2, sourced().appliedCount());
+    schema.context().until.completes();
+    final List<DomainEvent> applied = schema.viewTestState().valueOf("applied");
+    assertEquals(2, applied.size());
+    final SchemaRenamed schemaRenamed = (SchemaRenamed) applied.get(1);
     assertEquals("new name", schemaRenamed.name);
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> Sourced<T> sourced() {
-    return (Sourced<T>) schema.actorInside();
   }
 }

@@ -12,5 +12,6 @@ public enum Category {
   Data,
   Document,
   Envelope,
-  Event
+  Event,
+  Unknown
 }

@@ -9,7 +9,6 @@ package io.vlingo.schemata.model;
 
 import java.util.function.BiConsumer;
 
-import io.vlingo.actors.testkit.TestState;
 import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.ContextDefined;
 import io.vlingo.schemata.model.Events.ContextDescribed;
@@ -19,28 +18,44 @@ import io.vlingo.schemata.model.Id.ContextId;
 public class ContextEntity extends EventSourced implements Context {
   private State state;
 
-  public ContextEntity(final ContextId contextId, final String namespace, final String description) {
-    assert (namespace != null && !namespace.isEmpty());
+  public ContextEntity(final ContextId contextId) {
+    this.state = new State(contextId);
+  }
+
+  @Override
+  public void defineWith(final String name, final String description) {
+    assert (name != null && !name.isEmpty());
     assert (description != null && !description.isEmpty());
-    apply(ContextDefined.with(contextId, namespace, description));
+    apply(ContextDefined.with(state.contextId, name, description));
   }
 
   @Override
   public void changeNamespaceTo(final String namespace) {
     assert (namespace != null && !namespace.isEmpty());
-    this.apply(ContextRenamed.with(state.contextId, namespace));
+    apply(ContextRenamed.with(state.contextId, namespace));
   }
 
   @Override
   public void describeAs(final String description) {
     assert (description != null && !description.isEmpty());
-    this.apply(ContextDescribed.with(state.contextId, description));
+    apply(ContextDescribed.with(state.contextId, description));
+  }
+
+  @Override
+  protected String streamName() {
+    return state.contextId.value;
   }
 
   public class State {
     public final ContextId contextId;
     public final String description;
     public final String namespace;
+
+    public State(final ContextId contextId) {
+      this.contextId = contextId;
+      this.namespace = "";
+      this.description = "";
+    }
 
     public State(final ContextId contextId, final String namespace, final String description) {
       this.contextId = contextId;
@@ -57,13 +72,6 @@ public class ContextEntity extends EventSourced implements Context {
     }
   }
 
-  @Override
-  public TestState viewTestState() {
-    TestState testState = new TestState();
-    testState.putValue("sourced", this);
-    return testState;
-  }
-
   static {
     BiConsumer<ContextEntity, ContextDefined> applyContextDefinedFn = ContextEntity::applyDefined;
     EventSourced.registerConsumer(ContextEntity.class, ContextDefined.class, applyContextDefinedFn);
@@ -74,7 +82,7 @@ public class ContextEntity extends EventSourced implements Context {
   }
 
   private void applyDefined(final ContextDefined e) {
-    this.state = new State(ContextId.existing(e.contextId), e.namespace, e.description);
+    this.state = new State(ContextId.existing(e.contextId), e.name, e.description);
   }
 
   private void applyDescribed(final ContextDescribed e) {

@@ -7,7 +7,6 @@
 
 package io.vlingo.schemata.model;
 
-import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.UnitId;
@@ -30,8 +29,12 @@ public interface Context {
           final ContextId contextId,
           final String name,
           final String description) {
-    return stage.actorFor(Definition.has(ContextEntity.class, Definition.parameters(contextId, name, description)), Context.class);
+    final Context context = stage.actorFor(Context.class, ContextEntity.class, contextId);
+    context.defineWith(name, name);
+    return context;
   }
+
+  void defineWith(final String name, final String description);
 
   void changeNamespaceTo(final String namespace);
 

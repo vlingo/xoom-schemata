@@ -7,20 +7,24 @@
 
 package io.vlingo.schemata.model;
 
-import io.vlingo.actors.testkit.TestState;
+import java.util.function.BiConsumer;
+
 import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.OrganizationDefined;
 import io.vlingo.schemata.model.Events.OrganizationDescribed;
 import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.schemata.model.Id.OrganizationId;
 
-import java.util.function.BiConsumer;
-
 public class OrganizationEntity extends EventSourced implements Organization {
   private State state;
 
-  public OrganizationEntity(final OrganizationId organizationId, final String name, final String description) {
-    apply(new OrganizationDefined(organizationId, name, description));
+  public OrganizationEntity(final OrganizationId organizationId) {
+    this.state = new State(organizationId);
+  }
+
+  @Override
+  public void defineWith(final String name, final String description) {
+    apply(new OrganizationDefined(state.organizationId, name, description));
   }
 
   @Override
@@ -31,6 +35,11 @@ public class OrganizationEntity extends EventSourced implements Organization {
   @Override
   public void renameTo(final String name) {
     apply(new OrganizationRenamed(state.organizationId, name));
+  }
+
+  @Override
+  protected String streamName() {
+    return state.organizationId.value;
   }
 
   public class State {
@@ -46,18 +55,15 @@ public class OrganizationEntity extends EventSourced implements Organization {
       return new State(this.organizationId, name, this.description);
     }
 
+    public State(OrganizationId organizationId) {
+      this(organizationId, "", "");
+    }
+
     public State(final OrganizationId organizationId, final String name, final String description) {
       this.organizationId = organizationId;
       this.name = name;
       this.description = description;
     }
-  }
-
-  @Override
-  public TestState viewTestState() {
-    TestState testState = new TestState();
-    testState.putValue("sourced", this);
-    return testState;
   }
 
   static {

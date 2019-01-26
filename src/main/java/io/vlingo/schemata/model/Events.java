@@ -17,16 +17,16 @@ import io.vlingo.schemata.model.Id.UnitId;
 public final class Events {
   public static final class ContextDefined extends DomainEvent {
     public final String contextId;
-    public final String namespace;
+    public final String name;
     public final String description;
 
     public static ContextDefined with(final ContextId contextId, final String namespace, final String description) {
       return new ContextDefined(contextId, namespace, description);
     }
 
-    public ContextDefined(final ContextId contextId, final String namespace, final String description) {
+    public ContextDefined(final ContextId contextId, final String name, final String description) {
       this.contextId = contextId.value;
-      this.namespace = namespace;
+      this.name = name;
       this.description = description;
     }
   }

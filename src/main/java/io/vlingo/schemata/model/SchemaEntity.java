@@ -9,7 +9,6 @@ package io.vlingo.schemata.model;
 
 import java.util.function.BiConsumer;
 
-import io.vlingo.actors.testkit.TestState;
 import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.SchemaDefined;
 import io.vlingo.schemata.model.Events.SchemaDescribed;
@@ -20,8 +19,13 @@ import io.vlingo.schemata.model.Id.SchemaId;
 public class SchemaEntity extends EventSourced implements Schema {
   private State state;
 
-  public SchemaEntity(final SchemaId schemaId, final Category category, final String name, final String description) {
-    apply(SchemaDefined.with(schemaId, category, name, description));
+  public SchemaEntity(final SchemaId schemaId) {
+    this.state = new State(schemaId);
+  }
+
+  @Override
+  public void defineWith(final Category category, final String name, final String description) {
+    apply(SchemaDefined.with(state.schemaId, category, name, description));
   }
 
   @Override
@@ -37,6 +41,11 @@ public class SchemaEntity extends EventSourced implements Schema {
   @Override
   public void renameTo(String name) {
     apply(SchemaRenamed.with(state.schemaId, name));
+  }
+
+  @Override
+  protected String streamName() {
+    return state.schemaId.value;
   }
 
   public class State {
@@ -57,19 +66,16 @@ public class SchemaEntity extends EventSourced implements Schema {
       return new State(this.schemaId, this.category, name, this.description);
     }
 
+    public State(SchemaId schemaId) {
+      this(schemaId, Category.Unknown, "", "");
+    }
+
     public State(final SchemaId schemaId, final Category category, final String name, final String description) {
       this.schemaId = schemaId;
       this.category = category;
       this.name = name;
       this.description = description;
     }
-  }
-
-  @Override
-  public TestState viewTestState() {
-    TestState testState = new TestState();
-    testState.putValue("sourced", this);
-    return testState;
   }
 
   static {

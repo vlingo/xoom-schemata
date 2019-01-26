@@ -27,10 +27,10 @@ public interface SchemaVersion {
 
   static SchemaVersion with(final Stage stage, final SchemaVersionId previousSchemaVersionId,
           final String description, final Specification definition, final Status status, final Version version) {
-    return stage.actorFor(io.vlingo.actors.Definition.has(SchemaVersionEntity.class,
-            io.vlingo.actors.Definition.parameters(uniqueId(previousSchemaVersionId), description, definition, status, version)),
-            SchemaVersion.class);
+    return stage.actorFor(SchemaVersion.class, SchemaVersionEntity.class, uniqueId(previousSchemaVersionId), description, definition, status, version);
   }
+
+  void defineWith(final String description, final Specification specification, final Version version);
 
   void assignVersionOf(final Version version);
 

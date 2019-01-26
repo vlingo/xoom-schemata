@@ -7,7 +7,6 @@
 
 package io.vlingo.schemata.model;
 
-import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
@@ -22,8 +21,10 @@ public interface Unit {
     }
 
     static Unit with(final Stage stage, final UnitId unitId, final String name, final String description) {
-        return stage.actorFor(Definition.has(UnitEntity.class, Definition.parameters(unitId, name, description)), Unit.class);
+        return stage.actorFor(Unit.class, UnitEntity.class, unitId, name, description);
     }
+
+    void defineWith(final String name, final String description);
 
     void describeAs(final String description);
 

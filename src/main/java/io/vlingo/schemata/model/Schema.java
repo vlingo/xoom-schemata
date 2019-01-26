@@ -7,7 +7,6 @@
 
 package io.vlingo.schemata.model;
 
-import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.SchemaId;
@@ -22,9 +21,10 @@ public interface Schema {
   }
 
   static Schema with(final Stage stage, final SchemaId schemaId, final String name, final String description) {
-    return stage.actorFor(Definition.has(SchemaEntity.class, Definition.parameters(schemaId, name, description)),
-            Schema.class);
+    return stage.actorFor(Schema.class, SchemaEntity.class, schemaId, name, description);
   }
+
+  void defineWith(final Category category, final String name, final String description);
 
   void describeAs(final String description);
 

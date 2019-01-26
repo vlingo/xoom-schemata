@@ -9,7 +9,6 @@ package io.vlingo.schemata.model;
 
 import java.util.function.BiConsumer;
 
-import io.vlingo.actors.testkit.TestState;
 import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.UnitDefined;
 import io.vlingo.schemata.model.Events.UnitDescribed;
@@ -19,8 +18,13 @@ import io.vlingo.schemata.model.Id.UnitId;
 public class UnitEntity extends EventSourced implements Unit {
   private UnitEntity.State state;
 
-  public UnitEntity(final UnitId unitId, final String name, final String description) {
-    apply(new UnitDefined(unitId, name, description));
+  public UnitEntity(final UnitId unitId) {
+    this.state = new State(unitId);
+  }
+
+  @Override
+  public void defineWith(final String name, final String description) {
+    apply(new UnitDefined(state.unitId, name, description));
   }
 
   @Override
@@ -31,6 +35,11 @@ public class UnitEntity extends EventSourced implements Unit {
   @Override
   public void renameTo(final String name) {
     apply(new UnitRenamed(state.unitId, name));
+  }
+
+  @Override
+  protected String streamName() {
+    return state.unitId.value;
   }
 
   public class State {
@@ -46,18 +55,15 @@ public class UnitEntity extends EventSourced implements Unit {
       return new State(this.unitId, name, this.description);
     }
 
+    public State(final UnitId unitId) {
+      this(unitId, "", "");
+    }
+
     public State(final UnitId unitId, final String name, final String description) {
       this.unitId = unitId;
       this.name = name;
       this.description = description;
     }
-  }
-
-  @Override
-  public TestState viewTestState() {
-    TestState testState = new TestState();
-    testState.putValue("sourced", this);
-    return testState;
   }
 
   static {
