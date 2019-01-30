@@ -15,25 +15,40 @@ import io.vlingo.symbio.State;
 import io.vlingo.symbio.store.journal.JournalListener;
 
 public final class MockJournalListener implements JournalListener<String> {
-  public List<Entry<String>> entries = new ArrayList<>();
+  private final List<Entry<String>> entries = new ArrayList<>();
+  private final Object lock = new Object();
+
+  public Entry<String> get(final int index) {
+    synchronized (lock) {
+      return entries.get(index);
+    }
+  }
 
   @Override
   public void appended(Entry<String> entry) {
-    this.entries.add(entry);
+    synchronized (lock) {
+      entries.add(entry);
+    }
   }
 
   @Override
   public void appendedWith(Entry<String> entry, State<String> snapshot) {
-    this.entries.add(entry);
+    synchronized (lock) {
+      entries.add(entry);
+    }
   }
 
   @Override
   public void appendedAll(List<Entry<String>> entries) {
-    this.entries.addAll(entries);
+    synchronized (lock) {
+      entries.addAll(entries);
+    }
   }
 
   @Override
   public void appendedAllWith(List<Entry<String>> entries, State<String> snapshot) {
-    this.entries.addAll(entries);
+    synchronized (lock) {
+      entries.addAll(entries);
+    }
   }
 }
