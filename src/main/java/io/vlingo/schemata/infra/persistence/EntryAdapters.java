@@ -110,8 +110,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final OrganizationDefined source) {
+      return toEntry(source, source.organizationId);
+    }
+
+    @Override
+    public TextEntry toEntry(final OrganizationDefined source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(OrganizationDefined.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, OrganizationDefined.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -123,8 +128,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final OrganizationDescribed source) {
+      return toEntry(source, source.organizationId);
+    }
+
+    @Override
+    public TextEntry toEntry(final OrganizationDescribed source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(OrganizationDescribed.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, OrganizationDescribed.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -136,8 +146,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final OrganizationRenamed source) {
+      return toEntry(source, source.organizationId);
+    }
+
+    @Override
+    public TextEntry toEntry(final OrganizationRenamed source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(OrganizationRenamed.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, OrganizationRenamed.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -153,8 +168,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final UnitDefined source) {
+      return toEntry(source, source.unitId);
+    }
+
+    @Override
+    public TextEntry toEntry(final UnitDefined source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(UnitDefined.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, UnitDefined.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -166,8 +186,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final UnitDescribed source) {
+      return toEntry(source, source.unitId);
+    }
+
+    @Override
+    public TextEntry toEntry(final UnitDescribed source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(UnitDescribed.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, UnitDescribed.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -179,8 +204,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final UnitRenamed source) {
+      return toEntry(source, source.unitId);
+    }
+
+    @Override
+    public TextEntry toEntry(final UnitRenamed source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(UnitRenamed.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, UnitRenamed.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -196,8 +226,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final ContextDefined source) {
+      return toEntry(source, source.contextId);
+    }
+
+    @Override
+    public TextEntry toEntry(final ContextDefined source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(ContextDefined.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, ContextDefined.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -209,8 +244,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final ContextRenamed source) {
+      return toEntry(source, source.contextId);
+    }
+
+    @Override
+    public TextEntry toEntry(final ContextRenamed source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(ContextRenamed.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, ContextRenamed.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -222,8 +262,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final ContextDescribed source) {
+      return toEntry(source, source.contextId);
+    }
+
+    @Override
+    public TextEntry toEntry(final ContextDescribed source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(ContextDescribed.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, ContextDescribed.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -239,8 +284,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final SchemaDefined source) {
+      return toEntry(source, source.schemaId);
+    }
+
+    @Override
+    public TextEntry toEntry(final SchemaDefined source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(SchemaDefined.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, SchemaDefined.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -252,8 +302,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final SchemaDescribed source) {
+      return toEntry(source, source.schemaId);
+    }
+
+    @Override
+    public TextEntry toEntry(final SchemaDescribed source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(SchemaDescribed.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, SchemaDescribed.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -265,8 +320,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final SchemaRecategorized source) {
+      return toEntry(source, source.schemaId);
+    }
+
+    @Override
+    public TextEntry toEntry(final SchemaRecategorized source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(SchemaRecategorized.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, SchemaRecategorized.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -278,8 +338,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final SchemaRenamed source) {
+      return toEntry(source, source.schemaId);
+    }
+
+    @Override
+    public TextEntry toEntry(final SchemaRenamed source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(SchemaRenamed.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, SchemaRenamed.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -295,8 +360,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final SchemaVersionDefined source) {
+      return toEntry(source, source.schemaVersionId);
+    }
+
+    @Override
+    public TextEntry toEntry(final SchemaVersionDefined source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(SchemaVersionDefined.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, SchemaVersionDefined.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -308,8 +378,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final SchemaVersionAssignedVersion source) {
+      return toEntry(source, source.schemaVersionId);
+    }
+
+    @Override
+    public TextEntry toEntry(final SchemaVersionAssignedVersion source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(SchemaVersionAssignedVersion.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, SchemaVersionAssignedVersion.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -321,8 +396,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final SchemaVersionDescribed source) {
+      return toEntry(source, source.schemaVersionId);
+    }
+
+    @Override
+    public TextEntry toEntry(final SchemaVersionDescribed source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(SchemaVersionDescribed.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, SchemaVersionDescribed.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -334,8 +414,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final SchemaVersionPublished source) {
+      return toEntry(source, source.schemaVersionId);
+    }
+
+    @Override
+    public TextEntry toEntry(final SchemaVersionPublished source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(SchemaVersionPublished.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, SchemaVersionPublished.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -347,8 +432,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final SchemaVersionRemoved source) {
+      return toEntry(source, source.schemaVersionId);
+    }
+
+    @Override
+    public TextEntry toEntry(final SchemaVersionRemoved source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(SchemaVersionRemoved.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, SchemaVersionRemoved.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 
@@ -360,8 +450,13 @@ public class EntryAdapters {
 
     @Override
     public TextEntry toEntry(final SchemaVersionSpecified source) {
+      return toEntry(source, source.schemaVersionId);
+    }
+
+    @Override
+    public TextEntry toEntry(final SchemaVersionSpecified source, final String id) {
       final String serialization = JsonSerialization.serialized(source);
-      return new TextEntry(SchemaVersionSpecified.class, 1, serialization, Metadata.nullMetadata());
+      return new TextEntry(id, SchemaVersionSpecified.class, 1, serialization, Metadata.nullMetadata());
     }
   }
 }
