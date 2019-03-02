@@ -19,7 +19,7 @@ import io.vlingo.actors.testkit.TestActor;
 import io.vlingo.actors.testkit.TestWorld;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.MockJournalListener;
+import io.vlingo.schemata.NoopJournalListener;
 import io.vlingo.schemata.infra.persistence.EntryAdapters;
 import io.vlingo.schemata.model.Events.SchemaDefined;
 import io.vlingo.schemata.model.Events.SchemaDescribed;
@@ -36,7 +36,7 @@ public class SchemaEntityTest {
   private TestWorld world;
   private TestActor<Schema> schema;
   private Journal<String> journal;
-  private MockJournalListener listener;
+  private NoopJournalListener listener;
   private SourcedTypeRegistry registry;
 
   @Before
@@ -44,7 +44,7 @@ public class SchemaEntityTest {
   public void setUp() throws Exception {
     world = TestWorld.start("schema-test");
 
-    listener = new MockJournalListener();
+    listener = new NoopJournalListener();
 
     journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
 
