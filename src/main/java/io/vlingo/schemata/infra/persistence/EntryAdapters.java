@@ -51,51 +51,51 @@ public class EntryAdapters {
 
     registry.info(OrganizationEntity.class)
       .registerEntryAdapter(OrganizationDefined.class, new OrganizationDefinedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(OrganizationDescribed.class, new OrganizationDescribedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(OrganizationRenamed.class, new OrganizationRenamedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter));
+              journal::registerEntryAdapter);
 
     registry.info(UnitEntity.class)
       .registerEntryAdapter(UnitDefined.class, new UnitDefinedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(UnitDescribed.class, new UnitDescribedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(UnitRenamed.class, new UnitRenamedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter));
+              journal::registerEntryAdapter);
 
     registry.info(ContextEntity.class)
       .registerEntryAdapter(ContextDefined.class, new ContextDefinedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(ContextRenamed.class, new ContextRenamedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(ContextDescribed.class, new ContextDescribedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter));
+              journal::registerEntryAdapter);
 
     registry.info(SchemaEntity.class)
       .registerEntryAdapter(SchemaDefined.class, new SchemaDefinedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(SchemaDescribed.class, new SchemaDescribedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(SchemaRecategorized.class, new SchemaRecategorizedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(SchemaRenamed.class, new SchemaRenamedAdapter(),
-            (type, adapter) -> journal.registerEntryAdapter(type, adapter));
+            journal::registerEntryAdapter);
 
     registry.info(SchemaVersionEntity.class)
       .registerEntryAdapter(SchemaVersionDefined.class, new SchemaVersionDefinedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(SchemaVersionAssignedVersion.class, new SchemaVersionAssignedVersionAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(SchemaVersionDescribed.class, new SchemaVersionDescribedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(SchemaVersionPublished.class, new SchemaVersionPublishedAdapter(),
-            (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+            journal::registerEntryAdapter)
       .registerEntryAdapter(SchemaVersionRemoved.class, new SchemaVersionRemovedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter))
+              journal::registerEntryAdapter)
       .registerEntryAdapter(SchemaVersionSpecified.class, new SchemaVersionSpecifiedAdapter(),
-              (type, adapter) -> journal.registerEntryAdapter(type, adapter));
+              journal::registerEntryAdapter);
   }
 
   //================================
