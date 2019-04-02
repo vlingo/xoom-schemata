@@ -34,7 +34,7 @@ import io.vlingo.schemata.model.OrganizationEntity;
 import io.vlingo.schemata.model.SchemaEntity;
 import io.vlingo.schemata.model.SchemaVersionEntity;
 import io.vlingo.schemata.model.UnitEntity;
-import io.vlingo.symbio.Entry.TextEntry;
+import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.EntryAdapter;
 import io.vlingo.symbio.Metadata;
 import io.vlingo.symbio.store.journal.Journal;
@@ -105,7 +105,7 @@ public class EntryAdapters {
   public static final class OrganizationDefinedAdapter implements EntryAdapter<OrganizationDefined,TextEntry> {
     @Override
     public OrganizationDefined fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, OrganizationDefined.class);
+      return JsonSerialization.deserialized(entry.entryData(), OrganizationDefined.class);
     }
 
     @Override
@@ -123,7 +123,7 @@ public class EntryAdapters {
   public static final class OrganizationDescribedAdapter implements EntryAdapter<OrganizationDescribed,TextEntry> {
     @Override
     public OrganizationDescribed fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, OrganizationDescribed.class);
+      return JsonSerialization.deserialized(entry.entryData(), OrganizationDescribed.class);
     }
 
     @Override
@@ -141,7 +141,7 @@ public class EntryAdapters {
   public static final class OrganizationRenamedAdapter implements EntryAdapter<OrganizationRenamed,TextEntry> {
     @Override
     public OrganizationRenamed fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, OrganizationRenamed.class);
+      return JsonSerialization.deserialized(entry.entryData(), OrganizationRenamed.class);
     }
 
     @Override
@@ -163,7 +163,7 @@ public class EntryAdapters {
   public static final class UnitDefinedAdapter implements EntryAdapter<UnitDefined,TextEntry> {
     @Override
     public UnitDefined fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, UnitDefined.class);
+      return JsonSerialization.deserialized(entry.entryData(), UnitDefined.class);
     }
 
     @Override
@@ -181,7 +181,7 @@ public class EntryAdapters {
   public static final class UnitDescribedAdapter implements EntryAdapter<UnitDescribed,TextEntry> {
     @Override
     public UnitDescribed fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, UnitDescribed.class);
+      return JsonSerialization.deserialized(entry.entryData(), UnitDescribed.class);
     }
 
     @Override
@@ -199,7 +199,7 @@ public class EntryAdapters {
   public static final class UnitRenamedAdapter implements EntryAdapter<UnitRenamed,TextEntry> {
     @Override
     public UnitRenamed fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, UnitRenamed.class);
+      return JsonSerialization.deserialized(entry.entryData(), UnitRenamed.class);
     }
 
     @Override
@@ -221,7 +221,7 @@ public class EntryAdapters {
   public static final class ContextDefinedAdapter implements EntryAdapter<ContextDefined,TextEntry> {
     @Override
     public ContextDefined fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, ContextDefined.class);
+      return JsonSerialization.deserialized(entry.entryData(), ContextDefined.class);
     }
 
     @Override
@@ -239,7 +239,7 @@ public class EntryAdapters {
   public static final class ContextRenamedAdapter implements EntryAdapter<ContextRenamed,TextEntry> {
     @Override
     public ContextRenamed fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, ContextRenamed.class);
+      return JsonSerialization.deserialized(entry.entryData(), ContextRenamed.class);
     }
 
     @Override
@@ -257,7 +257,7 @@ public class EntryAdapters {
   public static final class ContextDescribedAdapter implements EntryAdapter<ContextDescribed,TextEntry> {
     @Override
     public ContextDescribed fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, ContextDescribed.class);
+      return JsonSerialization.deserialized(entry.entryData(), ContextDescribed.class);
     }
 
     @Override
@@ -279,7 +279,7 @@ public class EntryAdapters {
   public static final class SchemaDefinedAdapter implements EntryAdapter<SchemaDefined,TextEntry> {
     @Override
     public SchemaDefined fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, SchemaDefined.class);
+      return JsonSerialization.deserialized(entry.entryData(), SchemaDefined.class);
     }
 
     @Override
@@ -297,7 +297,7 @@ public class EntryAdapters {
   public static final class SchemaDescribedAdapter implements EntryAdapter<SchemaDescribed,TextEntry> {
     @Override
     public SchemaDescribed fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, SchemaDescribed.class);
+      return JsonSerialization.deserialized(entry.entryData(), SchemaDescribed.class);
     }
 
     @Override
@@ -315,7 +315,7 @@ public class EntryAdapters {
   public static final class SchemaRecategorizedAdapter implements EntryAdapter<SchemaRecategorized,TextEntry> {
     @Override
     public SchemaRecategorized fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, SchemaRecategorized.class);
+      return JsonSerialization.deserialized(entry.entryData(), SchemaRecategorized.class);
     }
 
     @Override
@@ -333,7 +333,7 @@ public class EntryAdapters {
   public static final class SchemaRenamedAdapter implements EntryAdapter<SchemaRenamed,TextEntry> {
     @Override
     public SchemaRenamed fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, SchemaRenamed.class);
+      return JsonSerialization.deserialized(entry.entryData(), SchemaRenamed.class);
     }
 
     @Override
@@ -355,7 +355,7 @@ public class EntryAdapters {
   public static final class SchemaVersionDefinedAdapter implements EntryAdapter<SchemaVersionDefined,TextEntry> {
     @Override
     public SchemaVersionDefined fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, SchemaVersionDefined.class);
+      return JsonSerialization.deserialized(entry.entryData(), SchemaVersionDefined.class);
     }
 
     @Override
@@ -373,7 +373,7 @@ public class EntryAdapters {
   public static final class SchemaVersionAssignedVersionAdapter implements EntryAdapter<SchemaVersionAssignedVersion,TextEntry> {
     @Override
     public SchemaVersionAssignedVersion fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, SchemaVersionAssignedVersion.class);
+      return JsonSerialization.deserialized(entry.entryData(), SchemaVersionAssignedVersion.class);
     }
 
     @Override
@@ -391,7 +391,7 @@ public class EntryAdapters {
   public static final class SchemaVersionDescribedAdapter implements EntryAdapter<SchemaVersionDescribed,TextEntry> {
     @Override
     public SchemaVersionDescribed fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, SchemaVersionDescribed.class);
+      return JsonSerialization.deserialized(entry.entryData(), SchemaVersionDescribed.class);
     }
 
     @Override
@@ -409,7 +409,7 @@ public class EntryAdapters {
   public static final class SchemaVersionPublishedAdapter implements EntryAdapter<SchemaVersionPublished,TextEntry> {
     @Override
     public SchemaVersionPublished fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, SchemaVersionPublished.class);
+      return JsonSerialization.deserialized(entry.entryData(), SchemaVersionPublished.class);
     }
 
     @Override
@@ -427,7 +427,7 @@ public class EntryAdapters {
   public static final class SchemaVersionRemovedAdapter implements EntryAdapter<SchemaVersionRemoved,TextEntry> {
     @Override
     public SchemaVersionRemoved fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, SchemaVersionRemoved.class);
+      return JsonSerialization.deserialized(entry.entryData(), SchemaVersionRemoved.class);
     }
 
     @Override
@@ -445,7 +445,7 @@ public class EntryAdapters {
   public static final class SchemaVersionSpecifiedAdapter implements EntryAdapter<SchemaVersionSpecified,TextEntry> {
     @Override
     public SchemaVersionSpecified fromEntry(final TextEntry entry) {
-      return JsonSerialization.deserialized(entry.entryData, SchemaVersionSpecified.class);
+      return JsonSerialization.deserialized(entry.entryData(), SchemaVersionSpecified.class);
     }
 
     @Override

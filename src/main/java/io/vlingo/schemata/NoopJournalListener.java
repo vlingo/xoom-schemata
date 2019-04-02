@@ -1,10 +1,10 @@
 package io.vlingo.schemata;
 
+import java.util.List;
+
 import io.vlingo.symbio.Entry;
 import io.vlingo.symbio.State;
 import io.vlingo.symbio.store.journal.JournalListener;
-
-import java.util.List;
 
 public class NoopJournalListener implements JournalListener<String> {
     @Override
