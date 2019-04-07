@@ -15,12 +15,12 @@ public interface Organization {
     return OrganizationId.unique();
   }
 
-  static Organization with(final Stage stage, final String name, final String description) {
-    return with(stage, uniqueId(), name, description);
+  static Organization with(final Stage stage) {
+    return with(stage, uniqueId());
   }
 
-  static Organization with(final Stage stage, final OrganizationId organizationId, final String name, final String description) {
-    return stage.actorFor(Organization.class, OrganizationEntity.class, organizationId, name, description);
+  static Organization with(final Stage stage, final OrganizationId organizationId) {
+    return stage.actorFor(Organization.class, OrganizationEntity.class, organizationId);
   }
 
   void defineWith(final String name, final String description);
