@@ -1,5 +1,9 @@
 package io.vlingo.schemata.resource;
 
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.put;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
+
 import io.vlingo.common.Completes;
 import io.vlingo.http.Header;
 import io.vlingo.http.Response;
@@ -8,9 +12,8 @@ import io.vlingo.http.resource.Resource;
 import io.vlingo.schemata.codegen.TypeDefinitionCompiler;
 import io.vlingo.schemata.codegen.backends.java.JavaCodeGenerator;
 
-import static io.vlingo.http.resource.ResourceBuilder.*;
-
 public class SchemaResource {
+    @SuppressWarnings("rawtypes")
     public static Resource asResource() {
         SchemaResource impl = new SchemaResource();
 
