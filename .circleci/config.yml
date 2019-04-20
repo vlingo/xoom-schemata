@@ -1,28 +1,39 @@
 version: 2
 jobs:
-  build:
+  build-ui:
     docker:
       - image: circleci/node:10.5
-    working_directory: ~/repo
+    working_directory: ~/repo/src/main/frontend
     steps:
       - checkout
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "package.json" }}
             - v1-dependencies-
-
       - run: npm i
       - run: npm run build
-      - run:
-          name: deploy
-          command: |
-            cp now.json dist/
-            cd dist
-            ../node_modules/.bin/now -t ${NOW_TOKEN} alias rm vlingo-schemata-ui.now.sh --yes
-            ../node_modules/.bin/now -t ${NOW_TOKEN} -C --public
-            ../node_modules/.bin/now -t ${NOW_TOKEN} alias
-
+      - run: cp now.json dist/
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
+      - persist_to_workspace:
+          root: ~/workspace
+          paths:
+            - repo/repo/src/main/frontend/dist
+
+  deploy-ui:
+    docker:
+      - image: circleci/node:10.5
+    working_directory: ~/repo/src/main/frontend
+    steps:
+      - attach_workspace:
+          at: ~/workspace
+      - run: npm i
+      - run:
+          name: deploy
+          command: |
+            cd dist
+            ../node_modules/.bin/now -t ${NOW_TOKEN} alias rm vlingo-schemata-ui.now.sh --yes
+            ../node_modules/.bin/now -t ${NOW_TOKEN} -C --public
+            ../node_modules/.bin/now -t ${NOW_TOKEN} alias
