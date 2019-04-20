@@ -43,6 +43,6 @@ workflows:
   default-workflow:
     jobs:
       - build-ui
-      - deploy-ui
+      - deploy-ui:
           requires:
             - build-ui
