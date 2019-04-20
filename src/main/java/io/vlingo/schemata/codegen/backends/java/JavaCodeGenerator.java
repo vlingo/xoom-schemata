@@ -1,7 +1,6 @@
 package io.vlingo.schemata.codegen.backends.java;
 
 import com.squareup.javapoet.*;
-import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.schemata.codegen.Backend;
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
@@ -40,13 +39,9 @@ public class JavaCodeGenerator implements Backend {
                 .addMethod(constructor)
                 .superclass(baseClass);
 
-        final TypeSpec eventClass = spec
-                .addFields(toFieldSpecs(foundEventFields))
-                .build();
+        final TypeSpec eventClass = spec.addFields(toFieldSpecs(foundEventFields)).build();
 
         JavaFile javaFile = JavaFile.builder("my.package", eventClass)
-                .skipJavaLangImports(true)
-                .addStaticImport(SemanticVersion.class, "toValue")
                 .build();
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
