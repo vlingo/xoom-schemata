@@ -1,5 +1,24 @@
 version: 2
 jobs:
+  build-backend:
+    docker:
+      - image: circleci/circleci/openjdk:8u151-jdk
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-mvn-dependencies-{{ checksum "pom.xml" }}
+            - v1-mvn-dependencies-
+      - run: mvn -B package site
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - target/
+      - store_test_results:
+          path: target/surefire-reports
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-mvn-dependencies-{{ checksum "pom.xml" }}
   build-ui:
     docker:
       - image: circleci/node:10.5
@@ -46,6 +65,7 @@ workflows:
   version: 2
   default-workflow:
     jobs:
+      - build-backend
       - build-ui
       - deploy-ui:
           requires:
