@@ -23,6 +23,7 @@ jobs:
       - persist_to_workspace:
           root: ~/project
           paths:
+            - src/main/frontend/package.json
             - src/main/frontend/dist
 
   deploy-ui:
