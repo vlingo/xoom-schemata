@@ -2,7 +2,7 @@ version: 2
 jobs:
   build-backend:
     docker:
-      - image: circleci/circleci/openjdk:8u151-jdk
+      - image: circleci/openjdk:8u151-jdk
     steps:
       - checkout
       - restore_cache:
