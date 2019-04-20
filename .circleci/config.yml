@@ -37,3 +37,10 @@ jobs:
             ../node_modules/.bin/now -t ${NOW_TOKEN} alias rm vlingo-schemata.now.sh --yes
             ../node_modules/.bin/now -t ${NOW_TOKEN} -C --public
             ../node_modules/.bin/now -t ${NOW_TOKEN} alias
+
+workflows:
+  version: 2
+  default-workflow:
+    jobs:
+      - build-ui
+      - deploy-ui
