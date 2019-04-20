@@ -34,6 +34,6 @@ jobs:
           name: deploy
           command: |
             cd dist
-            ../node_modules/.bin/now -t ${NOW_TOKEN} alias rm vlingo-schemata-ui.now.sh --yes
+            ../node_modules/.bin/now -t ${NOW_TOKEN} alias rm vlingo-schemata.now.sh --yes
             ../node_modules/.bin/now -t ${NOW_TOKEN} -C --public
             ../node_modules/.bin/now -t ${NOW_TOKEN} alias
