@@ -27,3 +27,5 @@ The UI is built using Vue.js and Vuetify.
 * Lints and fixes files `npm run lint`
 * Webpack bundle report `npm run report`
 * Deploy to `npm run deploy`
+* The npm build can also be called via Maven using the `frontend` profile, e.g. `mvn install -Pfrontend`. 
+In this case, Maven downloads node/npm and builds into `target/frontend`.
