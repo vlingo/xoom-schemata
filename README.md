@@ -20,12 +20,18 @@ Build runs on CircleCI: https://circleci.com/gh/wwerner/vlingo-schemata/
 
 The UI is built using Vue.js and Vuetify.
 
+### UI Development
 * Project setup `npm install`
 * Compiles and hot-reloads for development `npm run serve`
-* Compiles and minifies for production `npm run build`
 * Run your tests `npm run test`
 * Lints and fixes files `npm run lint`
 * Webpack bundle report `npm run report`
-* Deploy to `npm run deploy`
-* The npm build can also be called via Maven using the `frontend` profile, e.g. `mvn install -Pfrontend`. 
-In this case, Maven downloads node/npm and builds into `target/frontend`.
+
+### UI Build
+
+* Compiles and minifies for production `npm run build`
+* Deploy to Zeit now `npm run deploy`
+
+The npm build can also be called via Maven using the `frontend` profile, e.g. `mvn install -Pfrontend`. 
+In this case, Maven downloads node/npm and builds into `target/classes/static`, so the UI
+files can be picked up from the jar's classpath.
