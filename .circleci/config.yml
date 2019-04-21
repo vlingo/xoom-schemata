@@ -47,9 +47,7 @@ jobs:
             npm i
             cp now.json ../../../target/classes/static/
             cd ../../../target/classes/static
-            ../../../src/main/frontend/node_modules/.bin/now -t ${NOW_TOKEN} alias rm vlingo-schemata.now.sh --yes
-            ../../../src/main/frontend/node_modules/.bin/now -t ${NOW_TOKEN} -C --public
-            ../../../src/main/frontend/node_modules/.bin/now -t ${NOW_TOKEN} alias
+            ../../../src/main/frontend/node_modules/.bin/now -t ${NOW_TOKEN} -C --public --target production
 
 workflows:
   version: 2
