@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build:mvn": "vue-cli-service build --dest ../../../target/frontend",
     "lint": "vue-cli-service lint",
     "report": "vue-cli-service build --report",
     "deploy": "vue-cli-service build && cp now.json dist/ && cd dist && ../node_modules/.bin/now"
