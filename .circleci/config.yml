@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build-backend:
+  build:
     docker:
       - image: circleci/openjdk:8u151-jdk
     steps:
@@ -9,7 +9,11 @@ jobs:
           keys:
             - v1-mvn-dependencies-{{ checksum "pom.xml" }}
             - v1-mvn-dependencies-
-      - run: mvn -B package site
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
+            - v1-dependencies-
+      - run: mvn -B -Pfrontend -DskipTests package site
       - persist_to_workspace:
           root: ~/project
           paths:
@@ -18,56 +22,38 @@ jobs:
           path: target/surefire-reports
       - save_cache:
           paths:
-            - ~/.m2
-          key: v1-mvn-dependencies-{{ checksum "pom.xml" }}
-  build-ui:
-    docker:
-      - image: circleci/node:10.5
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
-            - v1-dependencies-
-      - run:
-          name: Build UI
-          command: |
-            cd src/main/frontend
-            npm i
-            npm run build
-            cp now.json dist/
+            - target/node
+            - src/main/frontend/node_modules
+          key: v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
       - save_cache:
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
-      - persist_to_workspace:
-          root: ~/project
-          paths:
-            - src/main/frontend/package.json
-            - src/main/frontend/dist
-
+            - ~/.m2
+          key: v1-mvn-dependencies-{{ checksum "pom.xml" }}
   deploy-ui:
     docker:
       - image: circleci/node:10.5
     steps:
       - attach_workspace:
           at: ~/project
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
+            - v1-dependencies-
       - run:
           name: Deploy UI Sample
           command: |
             cd src/main/frontend
             npm i
-            cd dist
-            ../node_modules/.bin/now -t ${NOW_TOKEN} alias rm vlingo-schemata.now.sh --yes
-            ../node_modules/.bin/now -t ${NOW_TOKEN} -C --public
-            ../node_modules/.bin/now -t ${NOW_TOKEN} alias
+            cd ../../../target/classes/static
+            ../../../src/main/frontend/node_modules/.bin/now -t ${NOW_TOKEN} alias rm vlingo-schemata.now.sh --yes
+            ../../../src/main/frontend/node_modules/.bin/now -t ${NOW_TOKEN} -C --public
+            ../../../src/main/frontend/node_modules/.bin/now -t ${NOW_TOKEN} alias
 
 workflows:
   version: 2
   default-workflow:
     jobs:
-      - build-backend
-      - build-ui
+      - build
       - deploy-ui:
           requires:
-            - build-ui
+            - build
