@@ -18,6 +18,7 @@ jobs:
           root: ~/project
           paths:
             - target/
+            - src/main/frontend/
       - store_test_results:
           path: target/surefire-reports
       - save_cache:
@@ -44,6 +45,7 @@ jobs:
           command: |
             cd src/main/frontend
             npm i
+            cp now.json ../../../target/classes/static/
             cd ../../../target/classes/static
             ../../../src/main/frontend/node_modules/.bin/now -t ${NOW_TOKEN} alias rm vlingo-schemata.now.sh --yes
             ../../../src/main/frontend/node_modules/.bin/now -t ${NOW_TOKEN} -C --public
