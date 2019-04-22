@@ -38,6 +38,8 @@ public class UiResource extends ResourceHandler {
     UiResource impl = new UiResource();
 
     return resource("ui", 10,
+      get("/app/")
+        .handle(impl::serve),
       get("/app/{file}")
         .param(String.class)
         .handle(impl::serve),
@@ -60,19 +62,19 @@ public class UiResource extends ResourceHandler {
   }
 
   private Completes<Response> serve(final String... pathSegments) {
+    if (pathSegments.length == 0)
+      return serve("index.html");
+
     String path = pathFrom(pathSegments);
     try {
-      String contentType = Files.probeContentType(Paths.get(path));
-      contentType = (contentType != null) ? contentType : "application/octet-stream";
-
       byte[] content = readFileFromClasspath(path);
       return Completes.withSuccess(
         Response.of(Ok,
           Header.Headers.of(
-            ResponseHeader.of(ContentType, contentType),
+            ResponseHeader.of(ContentType, guessContentType(path)),
             ResponseHeader.of(ContentLength, content.length)
           ),
-          Body.from(content, Body.Encoding.UTF8) //FIXME: This will not work for binary files; rather find out how to send a plain byte[]
+          Body.from(content, Body.Encoding.UTF8).content //FIXME: This will not work for binary files; rather find out how to send a plain byte[]
         ));
     } catch (URISyntaxException e) {
       return Completes.withSuccess(Response.of(BadRequest));
@@ -83,11 +85,21 @@ public class UiResource extends ResourceHandler {
     }
   }
 
+  private String guessContentType(String path) throws IOException {
+    String contentType = Files.probeContentType(Paths.get(path));
+    contentType = (contentType != null) ? contentType : "application/octet-stream";
+    if (contentType.equals("application/octet-stream")) {
+      if (path.endsWith(".js")) contentType = "text/javascript";
+      else if (path.endsWith(".css")) contentType = "text/css";
+    }
+    return contentType;
+  }
+
   private String pathFrom(String[] pathSegments) {
     return Stream.of(pathSegments)
       .map(p -> p.startsWith("/") ? p.substring(1) : p)
       .map(p -> p.endsWith("/") ? p.substring(0, p.length() - 1) : p)
-      .collect(Collectors.joining("/"));
+      .collect(Collectors.joining("/", "frontend/", ""));
   }
 
   private byte[] readFileFromClasspath(final String path) throws URISyntaxException, IOException {
