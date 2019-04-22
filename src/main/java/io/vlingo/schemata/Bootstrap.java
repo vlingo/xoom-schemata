@@ -1,13 +1,11 @@
 package io.vlingo.schemata;
 
 import io.vlingo.actors.World;
-import io.vlingo.http.resource.Configuration;
-import io.vlingo.http.resource.Resource;
-import io.vlingo.http.resource.Resources;
-import io.vlingo.http.resource.Server;
+import io.vlingo.http.resource.*;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
 import io.vlingo.schemata.infra.persistence.EntryAdapters;
 import io.vlingo.schemata.resource.SchemaResource;
+import io.vlingo.schemata.resource.UiResource;
 import io.vlingo.symbio.store.journal.Journal;
 import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 
@@ -29,7 +27,8 @@ public class Bootstrap {
         EntryAdapters.register(registry, journal);
 
         Resource schemaResource = SchemaResource.asResource();
-        Resources allResources = Resources.are(schemaResource);
+        Resource uiResource = UiResource.asResource();
+        Resources allResources = Resources.are(schemaResource, uiResource);
 
         server = Server.startWith(world.stage(),
                 allResources,
