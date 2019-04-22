@@ -37,7 +37,6 @@ public class UiResource extends ResourceHandler {
   public static Resource asResource() {
     UiResource impl = new UiResource();
 
-    // CAVEAT: We handle only resources nested up until three levels deep.
     return resource("ui", 10,
       get("/app/{file}")
         .param(String.class)
@@ -64,6 +63,8 @@ public class UiResource extends ResourceHandler {
     String path = pathFrom(pathSegments);
     try {
       String contentType = Files.probeContentType(Paths.get(path));
+      contentType = (contentType != null) ? contentType : "application/octet-stream";
+
       byte[] content = readFileFromClasspath(path);
 
       return Completes.withSuccess(
@@ -75,11 +76,11 @@ public class UiResource extends ResourceHandler {
           Body.from(content).content
         ));
     } catch (URISyntaxException e) {
-      return Completes.withFailure(Response.of(BadRequest));
+      return Completes.withSuccess(Response.of(BadRequest));
     } catch (FileNotFoundException e) {
-      return Completes.withFailure(Response.of(NotFound, path));
+      return Completes.withSuccess(Response.of(NotFound, path));
     } catch (IOException e) {
-      return Completes.withFailure(Response.of(InternalServerError));
+      return Completes.withSuccess(Response.of(InternalServerError));
     }
   }
 
@@ -90,7 +91,7 @@ public class UiResource extends ResourceHandler {
       .collect(Collectors.joining("/"));
   }
 
-  public byte[] readFileFromClasspath(final String path) throws URISyntaxException, FileNotFoundException, IOException {
+  private byte[] readFileFromClasspath(final String path) throws URISyntaxException, FileNotFoundException, IOException {
     URL resource = getClass().getClassLoader().getResource(path);
 
     if (resource == null)
