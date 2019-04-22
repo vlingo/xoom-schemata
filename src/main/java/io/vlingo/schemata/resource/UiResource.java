@@ -78,7 +78,7 @@ public class UiResource extends ResourceHandler {
     } catch (URISyntaxException e) {
       return Completes.withSuccess(Response.of(BadRequest));
     } catch (FileNotFoundException e) {
-      return Completes.withSuccess(Response.of(NotFound, path));
+      return Completes.withSuccess(Response.of(NotFound, path + " not found."));
     } catch (IOException e) {
       return Completes.withSuccess(Response.of(InternalServerError));
     }
