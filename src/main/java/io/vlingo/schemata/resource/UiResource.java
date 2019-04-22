@@ -12,7 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
@@ -77,8 +76,6 @@ public class UiResource extends ResourceHandler {
           ),
           Body.from(content, Body.Encoding.UTF8).content //FIXME: This will not work for binary files; rather find out how to send a plain byte[]
         ));
-    } catch (URISyntaxException e) {
-      return Completes.withSuccess(Response.of(BadRequest));
     } catch (FileNotFoundException e) {
       return Completes.withSuccess(Response.of(NotFound, path + " not found."));
     } catch (IOException e) {
@@ -103,7 +100,7 @@ public class UiResource extends ResourceHandler {
       .collect(Collectors.joining("/", "frontend/", ""));
   }
 
-  private byte[] readFileFromClasspath(final String path) throws URISyntaxException, IOException {
+  private byte[] readFileFromClasspath(final String path) throws IOException {
     InputStream is = getClass().getClassLoader().getResourceAsStream(path);
 
     if (is == null)
@@ -112,28 +109,23 @@ public class UiResource extends ResourceHandler {
     return read(is);
   }
 
-  private static byte[] read(InputStream ins) {
+  private static byte[] read(InputStream ins) throws IOException {
 
-    byte[] availableBytes = new byte[0];
+    byte[] readBytes = new byte[0];
 
-    try {
-      byte[] buffer = new byte[4096];
-      ByteArrayOutputStream outs = new ByteArrayOutputStream();
+    byte[] buffer = new byte[4096];
+    ByteArrayOutputStream outs = new ByteArrayOutputStream();
 
-      int read = 0;
-      while ((read = ins.read(buffer)) != -1) {
-        outs.write(buffer, 0, read);
-      }
-
-      ins.close();
-      outs.close();
-      availableBytes = outs.toByteArray();
-
-    } catch (Exception e) {
-      e.printStackTrace();
+    int read = 0;
+    while ((read = ins.read(buffer)) != -1) {
+      outs.write(buffer, 0, read);
     }
 
-    return availableBytes;
+    ins.close();
+    outs.close();
+    readBytes = outs.toByteArray();
+
+    return readBytes;
   }
 
 
