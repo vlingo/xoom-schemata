@@ -8,10 +8,11 @@ import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
@@ -103,12 +104,36 @@ public class UiResource extends ResourceHandler {
   }
 
   private byte[] readFileFromClasspath(final String path) throws URISyntaxException, IOException {
-    URL resource = getClass().getClassLoader().getResource(path);
+    InputStream is = getClass().getClassLoader().getResourceAsStream(path);
 
-    if (resource == null)
+    if (is == null)
       throw new FileNotFoundException();
 
-    return Files.readAllBytes(Paths.get(resource.toURI()));
+    return read(is);
+  }
+
+  private static byte[] read(InputStream ins) {
+
+    byte[] availableBytes = new byte[0];
+
+    try {
+      byte[] buffer = new byte[4096];
+      ByteArrayOutputStream outs = new ByteArrayOutputStream();
+
+      int read = 0;
+      while ((read = ins.read(buffer)) != -1) {
+        outs.write(buffer, 0, read);
+      }
+
+      ins.close();
+      outs.close();
+      availableBytes = outs.toByteArray();
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    return availableBytes;
   }
 
 
