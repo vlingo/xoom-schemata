@@ -24,8 +24,14 @@ import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
 
 /**
- * NOTES: UTF-8; nested only 3 levels deep
- * TODO: guess content header & send back byte[]
+ * Serves the files making up the UI from the classpath.
+ * Assumes the generated UI resources to be present in
+ * {@code static/} with in the jar or {@code resources/}.
+ *
+ * <em>WARNING:</em> Note that the current implementation is only able to handle resource
+ * directory trees up to three levels deep.
+ * <p>
+ * FIXME: This leaves the server wide open for read access. We should constrain access to the resources we actually provide.
  */
 public class UiResource extends ResourceHandler {
   public static Resource asResource() {
@@ -55,13 +61,16 @@ public class UiResource extends ResourceHandler {
   }
 
   private Completes<Response> serve(final String... pathSegments) {
+    if (1 == 1)
+      return Completes.withFailure(Response.of(ServiceUnavailable));
+
     String path = pathFrom(pathSegments);
     try {
       String contentType = Files.probeContentType(Paths.get(path));
       byte[] content = readFileFromClasspath(path);
 
       return Completes.withSuccess(
-        Response.of(Response.Status.Ok,
+        Response.of(Ok,
           Header.Headers.of(
             ResponseHeader.of(ContentType, contentType),
             ResponseHeader.of(ContentLength, content.length)
@@ -69,11 +78,11 @@ public class UiResource extends ResourceHandler {
           Body.from(content).content
         ));
     } catch (URISyntaxException e) {
-      return Completes.withFailure(Response.of(BadRequest, e.getMessage()));
+      return Completes.withFailure(Response.of(BadRequest));
     } catch (FileNotFoundException e) {
       return Completes.withFailure(Response.of(NotFound, path));
     } catch (IOException e) {
-      return Completes.withFailure(Response.of(InternalServerError, e.getMessage()));
+      return Completes.withFailure(Response.of(InternalServerError));
     }
   }
 
@@ -88,7 +97,7 @@ public class UiResource extends ResourceHandler {
     URL resource = getClass().getClassLoader().getResource(path);
 
     if (resource == null)
-      throw new FileNotFoundException(path + " not found in classpath.");
+      throw new FileNotFoundException();
 
     return Files.readAllBytes(Paths.get(resource.toURI()));
   }
