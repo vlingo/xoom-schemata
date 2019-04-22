@@ -66,14 +66,13 @@ public class UiResource extends ResourceHandler {
       contentType = (contentType != null) ? contentType : "application/octet-stream";
 
       byte[] content = readFileFromClasspath(path);
-
       return Completes.withSuccess(
         Response.of(Ok,
           Header.Headers.of(
             ResponseHeader.of(ContentType, contentType),
             ResponseHeader.of(ContentLength, content.length)
           ),
-          Body.from(content).content
+          Body.from(content, Body.Encoding.UTF8) //FIXME: This will not work for binary files; rather find out how to send a plain byte[]
         ));
     } catch (URISyntaxException e) {
       return Completes.withSuccess(Response.of(BadRequest));
