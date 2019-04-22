@@ -18,13 +18,13 @@ public class SchemaResource {
         SchemaResource impl = new SchemaResource();
 
         return resource("schema", 10,
-                put("/{organization}/{context}/{unit}")
+                put("/api/{organization}/{context}/{unit}")
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
                         .body(String.class)
                         .handle(impl::createSchema),
-                get("/{organization}/{context}/{unit}/{qualifiedName}")
+                get("/api/{organization}/{context}/{unit}/{qualifiedName}")
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
