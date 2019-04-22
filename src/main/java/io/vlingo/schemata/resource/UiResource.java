@@ -91,7 +91,7 @@ public class UiResource extends ResourceHandler {
       .collect(Collectors.joining("/"));
   }
 
-  private byte[] readFileFromClasspath(final String path) throws URISyntaxException, FileNotFoundException, IOException {
+  private byte[] readFileFromClasspath(final String path) throws URISyntaxException, IOException {
     URL resource = getClass().getClassLoader().getResource(path);
 
     if (resource == null)

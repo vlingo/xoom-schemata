@@ -45,8 +45,8 @@ jobs:
           command: |
             cd src/main/frontend
             npm i
-            cp now.json ../../../target/classes/static/
-            cd ../../../target/classes/static
+            cp now.json ../../../target/classes/frontend/
+            cd ../../../target/classes/frontend
             ../../../src/main/frontend/node_modules/.bin/now -t ${NOW_TOKEN} -C --public --target production
 
 workflows:
