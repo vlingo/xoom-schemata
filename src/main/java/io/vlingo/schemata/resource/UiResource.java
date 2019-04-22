@@ -109,22 +109,19 @@ public class UiResource extends ResourceHandler {
     return read(is);
   }
 
-  private static byte[] read(InputStream ins) throws IOException {
-
-    byte[] readBytes = new byte[0];
-
+  private static byte[] read(InputStream is) throws IOException {
+    byte[] readBytes;
     byte[] buffer = new byte[4096];
-    ByteArrayOutputStream outs = new ByteArrayOutputStream();
 
-    int read = 0;
-    while ((read = ins.read(buffer)) != -1) {
-      outs.write(buffer, 0, read);
+    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      int read;
+      while ((read = is.read(buffer)) != -1) {
+        baos.write(buffer, 0, read);
+      }
+      readBytes = baos.toByteArray();
+    } finally {
+      is.close();
     }
-
-    ins.close();
-    outs.close();
-    readBytes = outs.toByteArray();
-
     return readBytes;
   }
 
