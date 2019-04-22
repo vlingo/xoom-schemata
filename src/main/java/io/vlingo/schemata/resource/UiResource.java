@@ -61,9 +61,6 @@ public class UiResource extends ResourceHandler {
   }
 
   private Completes<Response> serve(final String... pathSegments) {
-    if (1 == 1)
-      return Completes.withFailure(Response.of(ServiceUnavailable));
-
     String path = pathFrom(pathSegments);
     try {
       String contentType = Files.probeContentType(Paths.get(path));
