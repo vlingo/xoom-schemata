@@ -5,6 +5,7 @@
       v-model="search"
       label="Search"
       clearable
+      hide-details
       clear-icon="close"
     ></v-text-field>
     </v-card-title>

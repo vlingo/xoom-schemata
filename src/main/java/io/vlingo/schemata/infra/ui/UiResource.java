@@ -1,4 +1,4 @@
-package io.vlingo.schemata.resource;
+package io.vlingo.schemata.infra.ui;
 
 import io.vlingo.common.Completes;
 import io.vlingo.http.Body;
