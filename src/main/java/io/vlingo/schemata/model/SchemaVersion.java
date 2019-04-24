@@ -45,6 +45,10 @@ public interface SchemaVersion {
   class Specification {
     public final String value;
 
+    public static Specification of(final String value) {
+      return new Specification(value);
+    }
+
     public Specification(final String value) {
       assert(value != null && !value.trim().isEmpty());
       this.value = value;
@@ -53,12 +57,15 @@ public interface SchemaVersion {
 
   enum Status {
     Draft {
+      @Override
       public boolean isDraft() { return true; }
     },
     Published {
+      @Override
       public boolean isPublished() { return true; }
     },
     Removed {
+      @Override
       public boolean isRemoved() { return true; }
     };
 
@@ -69,6 +76,10 @@ public interface SchemaVersion {
 
   class Version {
     public final String value;
+
+    public static Version of(final String value) {
+      return new Version(value);
+    }
 
     public Version(final String value) {
       this.value = value;
