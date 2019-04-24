@@ -7,6 +7,7 @@ import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.http.resource.serialization.JsonSerialization;
 import io.vlingo.schemata.infra.http.model.*;
 import io.vlingo.schemata.model.Category;
+import io.vlingo.schemata.model.SchemaVersion.Status;
 
 import java.util.*;
 
@@ -23,10 +24,13 @@ public class MockApiResource extends ResourceHandler {
     MockApiResource impl = new MockApiResource();
 
     return resource("mock-api", 10,
+      get("/api/organizations/{organization}/{unit}/{context}")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .handle(impl::schemata),
       get("/api/organizations")
-        .handle(impl::organizations),
-      get("/api/foo")
-        .handle(impl::schemata)
+        .handle(impl::organizations)
     );
   }
 
@@ -72,7 +76,7 @@ public class MockApiResource extends ResourceHandler {
       )));
   }
 
-  private Completes<Response> schemata() {
+  private Completes<Response> schemata(String organizationId, String unitId, String contextId) {
     Map<Category, List<SchemaMetaData>> schemataMap = new HashMap<>();
     String[] tlds = {"io", "com", "org", "net", "gov", "info", "audio"};
     String[] domains = {"vlingo", "kalele", "pluto", "jupiter", "uranus", "mars", "venus", "earth", "titan", "ganymede", "tyco"};
@@ -121,7 +125,8 @@ public class MockApiResource extends ResourceHandler {
           random.nextInt(10),
           random.nextInt(10),
           random.nextInt(42)
-        )));
+        ),
+        randomElement(Status.values()).name()));
       noOfVersions--;
     }
 

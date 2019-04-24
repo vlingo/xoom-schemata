@@ -4,10 +4,12 @@ import io.vlingo.schemata.model.SchemaVersionEntity;
 
 public class SchemaVersion {
   public final String id;
+  public final String status;
 
 
-  private SchemaVersion(String id) {
+  private SchemaVersion(String id, String status) {
     this.id = id;
+    this.status = status;
   }
 
   public static SchemaVersion from(SchemaVersionEntity ue) {
@@ -15,7 +17,7 @@ public class SchemaVersion {
     throw new UnsupportedOperationException();
   }
 
-  public static SchemaVersion from(String id) {
-    return new SchemaVersion(id);
+  public static SchemaVersion from(String id, String status) {
+    return new SchemaVersion(id, status);
   }
 }
