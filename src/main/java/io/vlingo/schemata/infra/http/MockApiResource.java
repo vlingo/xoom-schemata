@@ -24,7 +24,7 @@ public class MockApiResource extends ResourceHandler {
     MockApiResource impl = new MockApiResource();
 
     return resource("mock-api", 10,
-      get("/api/organizations/{organization}/{unit}/{context}")
+      get("/api/schemata/{organization}/{unit}/{context}")
         .param(String.class)
         .param(String.class)
         .param(String.class)

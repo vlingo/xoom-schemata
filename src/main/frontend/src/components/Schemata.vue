@@ -15,7 +15,10 @@
                     :search="search"
                     :filter="filter"
                     :open.sync="open"
+                    :load-children="loadChildren"
                     activatable
+                    open-on-click
+                    transition
                     :active.sync="selected"
                     @update:active="$emit('input', $event[0])"
             >
@@ -34,14 +37,13 @@
     export default {
         data: () => ({
             items: [],
-            open: [1, 2, 205],
             search: null,
             selected: [],
         }),
         computed: {
             filter() {
                 return (item, search, textKey) => item[textKey].indexOf(search) > -1
-            }
+            },
         },
         created() {
             this.loadSchemata()
@@ -60,24 +62,67 @@
                             }
 
                             response.json().then(function (data) {
-                                console.log(data);
-                                for (let schema of data) {
-                                    console.log(schema)
+                                for (let item of data) {
+                                    console.log(item)
                                     vm.items.push({
-                                        id: schema.id,
-                                        name: schema.name,
-                                        children: schema.units.map(u => {
+                                        id: item.id,
+                                        name: item.name,
+                                        type: 'organization',
+                                        children: item.units.map(u => {
                                             return {
                                                 id: u.id,
                                                 name: u.name,
+                                                type: 'unit',
                                                 children: u.contexts.map(c => {
                                                     return {
-                                                        id: c.id,
+                                                        id: u.id + "-" + c.id,
                                                         name: c.name,
+                                                        type: 'context',
+                                                        children: []
                                                     }
                                                 })
                                             }
                                         }),
+                                    })
+                                }
+                            });
+                        }
+                    )
+                    .catch(function (err) {
+                        console.log('Error: ', err);
+                    });
+            },
+            async loadChildren(item) {
+                if (item.type !== 'context')
+                    return // only load additional items when a context is selected
+
+                let vm = this
+                return fetch('/api/organizations/o/u/c') // FIXME: use parents in tree to construct path
+                    .then(
+                        function (response) {
+                            if (response.status !== 200) {
+                                console.log('Looks like there was a problem. Status Code: ' +
+                                    response.status);
+                                console.log(response);
+                                return;
+                            }
+
+                            response.json().then(function (data) {
+                                console.log(data)
+                                for (let schemaType of Object.keys(data)) {
+                                    console.log(schemaType)
+                                    item.children.push({
+                                        id: schemaType,
+                                        name: schemaType,
+                                        type: 'schemaType',
+                                        children: data[schemaType].map(s => {
+                                            return {
+                                                id: vm.selected + "-" + s.id,
+                                                name: s.id,
+                                                type: 'schema',
+                                                versions: s.versions
+                                            }
+                                        })
                                     })
                                 }
                             });
