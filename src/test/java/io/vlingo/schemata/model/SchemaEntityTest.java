@@ -15,11 +15,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vlingo.actors.testkit.TestActor;
-import io.vlingo.actors.testkit.TestWorld;
+import io.vlingo.actors.World;
+import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.NoopJournalListener;
+import io.vlingo.schemata.MockJournalListener;
 import io.vlingo.schemata.infra.persistence.EntryAdapters;
 import io.vlingo.schemata.model.Events.SchemaDefined;
 import io.vlingo.schemata.model.Events.SchemaDescribed;
@@ -29,22 +29,24 @@ import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.symbio.EntryAdapterProvider;
 import io.vlingo.symbio.store.journal.Journal;
 import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 
 public class SchemaEntityTest {
-  private TestWorld world;
-  private TestActor<Schema> schema;
+  private AccessSafely access;
   private Journal<String> journal;
-  private NoopJournalListener listener;
+  private MockJournalListener listener;
   private SourcedTypeRegistry registry;
+  private Schema schema;
+  private World world;
 
   @Before
   @SuppressWarnings("unchecked")
   public void setUp() throws Exception {
-    world = TestWorld.start("schema-test");
+    world = World.start("schema-test");
 
-    listener = new NoopJournalListener();
+    listener = new MockJournalListener(EntryAdapterProvider.instance(world));
 
     journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
 
@@ -53,8 +55,8 @@ public class SchemaEntityTest {
     EntryAdapters.register(registry, journal);
 
     schema = world.actorFor(Schema.class, SchemaEntity.class, SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
-    schema.context().until.resetHappeningsTo(1);
-    schema.actor().defineWith(Category.Event, "name", "description");
+    access = listener.afterCompleting(1);
+    schema.defineWith(Category.Event, "name", "description");
   }
 
   @After
@@ -64,8 +66,7 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaDefinedIsEquals() throws Exception {
-    schema.context().until.completes(); // see setUp()
-    final List<DomainEvent> applied = schema.viewTestState().valueOf("applied");
+    final List<DomainEvent> applied = access.readFrom("entries"); // see setUp()
     final SchemaDefined schemaDefined = (SchemaDefined) applied.get(0);
     assertEquals(1, applied.size());
     assertEquals(Category.Event.name(), schemaDefined.category);
@@ -75,11 +76,10 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaIsDescribed() throws Exception {
-    schema.context().until.completes(); // see setUp()
-    schema.context().until.resetHappeningsTo(1);
-    schema.actor().describeAs("new description");
-    schema.context().until.completes();
-    final List<DomainEvent> applied = schema.viewTestState().valueOf("applied");
+    access.readFrom("entries"); // see setUp()
+    access = listener.afterCompleting(1);
+    schema.describeAs("new description");
+    final List<DomainEvent> applied = access.readFrom("entries");
     assertEquals(2, applied.size());
     final SchemaDescribed schemaDescribed = (SchemaDescribed) applied.get(1);
     assertEquals("new description", schemaDescribed.description);
@@ -87,11 +87,10 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaRecategorised() throws Exception {
-    schema.context().until.completes(); // see setUp()
-    schema.context().until.resetHappeningsTo(1);
-    schema.actor().recategorizedAs(Category.Document);
-    schema.context().until.completes();
-    final List<DomainEvent> applied = schema.viewTestState().valueOf("applied");
+    access.readFrom("entries"); // see setUp()
+    access = listener.afterCompleting(1);
+    schema.recategorizedAs(Category.Document);
+    final List<DomainEvent> applied = access.readFrom("entries");
     assertEquals(2, applied.size());
     final SchemaRecategorized schemaRecategorized = (SchemaRecategorized) applied.get(1);
     assertEquals(Category.Document.name(), schemaRecategorized.category);
@@ -99,11 +98,10 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaRenamed() throws Exception {
-    schema.context().until.completes(); // see setUp()
-    schema.context().until.resetHappeningsTo(1);
-    schema.actor().renameTo("new name");
-    schema.context().until.completes();
-    final List<DomainEvent> applied = schema.viewTestState().valueOf("applied");
+    access.readFrom("entries"); // see setUp()
+    access = listener.afterCompleting(1);
+    schema.renameTo("new name");
+    final List<DomainEvent> applied = access.readFrom("entries");
     assertEquals(2, applied.size());
     final SchemaRenamed schemaRenamed = (SchemaRenamed) applied.get(1);
     assertEquals("new name", schemaRenamed.name);

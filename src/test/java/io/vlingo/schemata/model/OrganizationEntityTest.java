@@ -14,32 +14,34 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vlingo.actors.testkit.TestActor;
-import io.vlingo.actors.testkit.TestWorld;
+import io.vlingo.actors.World;
+import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.NoopJournalListener;
+import io.vlingo.schemata.MockJournalListener;
 import io.vlingo.schemata.infra.persistence.EntryAdapters;
 import io.vlingo.schemata.model.Events.OrganizationDefined;
 import io.vlingo.schemata.model.Events.OrganizationDescribed;
 import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.symbio.EntryAdapterProvider;
 import io.vlingo.symbio.store.journal.Journal;
 import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 
 public class OrganizationEntityTest {
-  private TestWorld world;
-  private TestActor<Organization> organizationTestActor;
+  private AccessSafely access;
   private Journal<String> journal;
-  private NoopJournalListener listener;
+  private MockJournalListener listener;
+  private Organization organization;
   private SourcedTypeRegistry registry;
+  private World world;
 
   @Before
   @SuppressWarnings("unchecked")
   public void setUp() throws Exception {
-    world = TestWorld.start("organization-test");
-    
-    listener = new NoopJournalListener();
+    world = World.start("organization-test");
+
+    listener = new MockJournalListener(EntryAdapterProvider.instance(world));
 
     journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
 
@@ -47,9 +49,9 @@ public class OrganizationEntityTest {
 
     EntryAdapters.register(registry, journal);
 
-    organizationTestActor = world.actorFor(Organization.class, OrganizationEntity.class, OrganizationId.unique());
-    organizationTestActor.context().until.resetHappeningsTo(1);
-    organizationTestActor.actor().defineWith("name", "description");
+    organization = world.actorFor(Organization.class, OrganizationEntity.class, OrganizationId.unique());
+    access = listener.afterCompleting(1);
+    organization.defineWith("name", "description");
   }
 
   @After
@@ -59,8 +61,7 @@ public class OrganizationEntityTest {
 
   @Test
   public void testThatOrganizationDefinedIsEquals() throws Exception {
-    organizationTestActor.context().until.completes(); // see setUp()
-    final List<DomainEvent> applied = organizationTestActor.viewTestState().valueOf("applied");
+    final List<DomainEvent> applied = access.readFrom("entries"); // see setUp()
     final OrganizationDefined organizationDefined = (OrganizationDefined) applied.get(0);
     Assert.assertEquals("name", organizationDefined.name);
     Assert.assertEquals("description", organizationDefined.description);
@@ -68,22 +69,20 @@ public class OrganizationEntityTest {
 
   @Test
   public void testThatOrganizationRenamed() throws Exception {
-    organizationTestActor.context().until.completes(); // see setUp()
-    organizationTestActor.context().until.resetHappeningsTo(1);
-    organizationTestActor.actor().renameTo("new name");
-    organizationTestActor.context().until.completes();
-    final List<DomainEvent> applied = organizationTestActor.viewTestState().valueOf("applied");
+    access.readFrom("entries"); // see setUp()
+    access = listener.afterCompleting(1);
+    organization.renameTo("new name");
+    final List<DomainEvent> applied = access.readFrom("entries");;
     final OrganizationRenamed organizationRenamed = (OrganizationRenamed) applied.get(1);
     Assert.assertEquals("new name", organizationRenamed.name);
   }
 
   @Test
   public void testThatOrganizationIsDescribed() throws Exception {
-    organizationTestActor.context().until.completes(); // see setUp()
-    organizationTestActor.context().until.resetHappeningsTo(1);
-    organizationTestActor.actor().describeAs("new description");
-    organizationTestActor.context().until.completes();
-    final List<DomainEvent> applied = organizationTestActor.viewTestState().valueOf("applied");
+    access.readFrom("entries"); // see setUp()
+    access = listener.afterCompleting(1);
+    organization.describeAs("new description");
+    final List<DomainEvent> applied = access.readFrom("entries");;
     final OrganizationDescribed organizationDescribed = (OrganizationDescribed) applied.get(1);
     Assert.assertEquals("new description", organizationDescribed.description);
   }
