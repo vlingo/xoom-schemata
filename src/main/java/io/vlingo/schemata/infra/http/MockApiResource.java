@@ -5,6 +5,7 @@ import io.vlingo.http.Response;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.http.resource.serialization.JsonSerialization;
+import io.vlingo.schemata.infra.http.model.Context;
 import io.vlingo.schemata.infra.http.model.Organization;
 import io.vlingo.schemata.infra.http.model.Unit;
 
@@ -41,16 +42,37 @@ public class MockApiResource extends ResourceHandler {
         Arrays.asList(
           Organization.from("o1", "Orga 1", "Orga 1 Description",
             Arrays.asList(
-              Unit.from("o1-u1", "Orga 1 Unit 1"),
-              Unit.from("o1-u2", "Orga 1 Unit 2"),
-              Unit.from("o1-u3", "Orga 1 Unit 3")
+              Unit.from("o1-u1", "Orga 1 Unit 1",
+                Arrays.asList(
+                  Context.from("o1-u1-c1", "Orga 1 Unit 1 Context 1"),
+                  Context.from("o1-u1-c2", "Orga 1 Unit 1 Context 2"),
+                  Context.from("o1-u1-c3", "Orga 1 Unit 1 Context 3")
+                )),
+              Unit.from("o1-u2", "Orga 1 Unit 2",
+                Arrays.asList(
+                  Context.from("o1-u1-c1", "Orga 1 Unit 1 Context 1")
+                )),
+              Unit.from("o1-u3", "Orga 1 Unit 3",
+                Arrays.asList(
+                  Context.from("o1-u1-c1", "Orga 1 Unit 3 Context 1"),
+                  Context.from("o1-u1-c2", "Orga 1 Unit 3 Context 2")
+                ))
             )
           ),
           Organization.from("o2", "Orga 2", "Orga 2 Description",
             Arrays.asList(
-              Unit.from("o2-u1", "Orga 2 Unit 1"),
-              Unit.from("o2-u2", "Orga 2 Unit 2"),
-              Unit.from("o2-u3", "Orga 2 Unit 3")
+              Unit.from("o2-u1", "Orga 2 Unit 1",
+                Arrays.asList()),
+              Unit.from("o2-u2", "Orga 2 Unit 2",
+                Arrays.asList(
+                  Context.from("o2-u2-c1", "Orga 2 Unit 2 Context 1"),
+                  Context.from("o2-u2-c2", "Orga 2 Unit 2 Context 2"),
+                  Context.from("o2-u2-c3", "Orga 2 Unit 2 Context 3")
+                )),
+              Unit.from("o2-u3", "Orga 2 Unit 3",
+                Arrays.asList(
+                  Context.from("o2-u3-c1", "Orga 2 Unit 3 Context 1")
+                ))
             ))
         )
       )));
