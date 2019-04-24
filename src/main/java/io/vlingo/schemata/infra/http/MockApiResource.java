@@ -5,25 +5,18 @@ import io.vlingo.http.Response;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.http.resource.serialization.JsonSerialization;
-import io.vlingo.schemata.infra.http.model.Context;
-import io.vlingo.schemata.infra.http.model.Organization;
-import io.vlingo.schemata.infra.http.model.Unit;
+import io.vlingo.schemata.infra.http.model.*;
+import io.vlingo.schemata.model.Category;
 
-import java.util.Arrays;
+import java.util.*;
 
 import static io.vlingo.http.Response.Status.Ok;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
 
 /**
- * Serves the files making up the UI from the classpath.
- * Assumes the generated UI resources to be present in
- * {@code static/} with in the jar or {@code resources/}.
- *
- * <em>WARNING:</em> Note that the current implementation is only able to handle resource
- * directory trees up to three levels deep.
- * <p>
- * FIXME: This leaves the server wide open for read access. We should constrain access to the resources we actually provide.
+ * Serves randomized mock API model formatted data
+ * for consumption in the UI.
  */
 public class MockApiResource extends ResourceHandler {
   public static Resource asResource() {
@@ -31,12 +24,13 @@ public class MockApiResource extends ResourceHandler {
 
     return resource("mock-api", 10,
       get("/api/organizations")
-        .handle(impl::organizations)
+        .handle(impl::organizations),
+      get("/api/foo")
+        .handle(impl::schemata)
     );
   }
 
   private Completes<Response> organizations() {
-
     return Completes.withSuccess(Response.of(Ok,
       JsonSerialization.serialized(
         Arrays.asList(
@@ -76,6 +70,63 @@ public class MockApiResource extends ResourceHandler {
             ))
         )
       )));
+  }
+
+  private Completes<Response> schemata() {
+    Map<Category, List<SchemaMetaData>> schemataMap = new HashMap<>();
+    String[] tlds = {"io", "com", "org", "net", "gov", "info", "audio"};
+    String[] domains = {"vlingo", "kalele", "pluto", "jupiter", "uranus", "mars", "venus", "earth", "titan", "ganymede", "tyco"};
+    String[] names = {"foo", "bar", "baz", "qux", "quux", "quuz", "corge", "grault", "garply"};
+
+    Random random = new Random();
+    int noOfSchemata = random.nextInt(10);
+    while (noOfSchemata > 0) {
+      Category category = randomElement(Category.values());
+      String name = randomElement(names);
+
+      schemataMap.computeIfAbsent(category, k -> new ArrayList<>());
+
+      schemataMap.get(category).add(SchemaMetaData.from(
+        String.format("%s.%s.%s.%s",
+          randomElement(tlds),
+          randomElement(domains),
+          category.name().toLowerCase(),
+          name
+        ),
+        String.format("%s%s", category.name().toLowerCase(), name.substring(0, 1).toUpperCase() + name.substring(1)),
+        randomVersions()));
+      noOfSchemata--;
+    }
+
+    return Completes.withSuccess(Response.of(Ok,
+      JsonSerialization.serialized(
+        schemataMap
+      )));
+
+  }
+
+  private <T> T randomElement(T[] elements) {
+    Random random = new Random();
+    return elements[random.nextInt(elements.length)];
+  }
+
+  private List<SchemaVersion> randomVersions() {
+    List<SchemaVersion> versions = new ArrayList<>();
+    Random random = new Random();
+
+    int noOfVersions = random.nextInt(10);
+    while (noOfVersions > 0) {
+      versions.add(SchemaVersion.from(
+        String.format("%s.%s.%s",
+          random.nextInt(10),
+          random.nextInt(10),
+          random.nextInt(42)
+        )));
+      noOfVersions--;
+    }
+
+    versions.sort(Comparator.comparing(v -> v.id));
+    return versions;
   }
 
 
