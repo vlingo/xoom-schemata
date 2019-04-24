@@ -48,12 +48,12 @@ public class MockApiResource extends ResourceHandler {
                 )),
               Unit.from("o1-u2", "Orga 1 Unit 2",
                 Arrays.asList(
-                  Context.from("o1-u1-c1", "Orga 1 Unit 2 Context 1")
+                  Context.from("o1-u2-c1", "Orga 1 Unit 2 Context 1")
                 )),
               Unit.from("o1-u3", "Orga 1 Unit 3",
                 Arrays.asList(
-                  Context.from("o1-u1-c1", "Orga 1 Unit 3 Context 1"),
-                  Context.from("o1-u1-c2", "Orga 1 Unit 3 Context 2")
+                  Context.from("o1-u3-c1", "Orga 1 Unit 3 Context 1"),
+                  Context.from("o1-u3-c2", "Orga 1 Unit 3 Context 2")
                 ))
             )
           ),
