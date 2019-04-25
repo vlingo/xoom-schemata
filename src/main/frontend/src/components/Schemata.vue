@@ -14,10 +14,9 @@
                     :items="items"
                     :search="search"
                     :filter="filter"
-                    :open.sync="open"
                     :load-children="loadChildren"
+                    return-object
                     activatable
-                    open-on-click
                     transition
                     :active.sync="selected"
                     @update:active="$emit('input', $event[0])"
@@ -117,7 +116,7 @@
                                         type: 'schemaType',
                                         children: data[schemaType].map(s => {
                                             return {
-                                                id: vm.selected + "-" + s.id,
+                                                id: s.id,
                                                 name: s.id,
                                                 type: 'schema',
                                                 versions: s.versions
