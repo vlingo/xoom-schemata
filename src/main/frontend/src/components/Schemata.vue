@@ -54,9 +54,7 @@
                     .then(
                         function (response) {
                             if (response.status !== 200) {
-                                console.log('Looks like there was a problem. Status Code: ' +
-                                    response.status);
-                                console.log(response);
+                                vm.$emit('vs-error', {status: response.status, message: response.text()})
                                 return;
                             }
 
@@ -87,7 +85,7 @@
                         }
                     )
                     .catch(function (err) {
-                        console.log('Error: ', err);
+                        vm.$emit('vs-error', {status: 0, message: err})
                     });
             },
             async loadChildren(item) {
@@ -95,19 +93,16 @@
                     return // only load additional items when a context is selected
 
                 let vm = this
-                return fetch('/api/organizations/o/u/c') // FIXME: use parents in tree to construct path
+                return fetch('/api/schemata/o/u/c') // FIXME: use parents in tree to construct path
                     .then(
                         function (response) {
                             if (response.status !== 200) {
-                                console.log('Looks like there was a problem. Status Code: ' +
-                                    response.status);
-                                console.log(response);
+                                vm.$emit('vs-error', {status: response.status, message: response.text()})
                                 return;
                             }
 
                             response.json().then(function (data) {
                                 for (let schemaType of Object.keys(data)) {
-                                    console.log(schemaType)
                                     item.children.push({
                                         id: schemaType,
                                         name: schemaType,
@@ -126,7 +121,7 @@
                         }
                     )
                     .catch(function (err) {
-                        console.log('Error: ', err);
+                        vm.$emit('vs-error', {status: 0, message: err})
                     });
             }
         }
