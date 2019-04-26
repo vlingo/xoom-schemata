@@ -1,5 +1,5 @@
 {
-  "version": 2,
-  "name": "vlingo-schemata",
-  "alias": "vlingo-schemata.now.sh"
+  "version": 1,
+  "name": "vlingo-schemata-demo",
+  "alias": "vlingo-schemata-demo.now.sh"
 }

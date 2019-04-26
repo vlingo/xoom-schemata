@@ -18,3 +18,6 @@ build/
 *.ipr
 .gradle/
 out/
+
+# Node
+node_modules/
