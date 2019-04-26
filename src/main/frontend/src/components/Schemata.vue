@@ -115,6 +115,9 @@
                                                 id: s.id,
                                                 name: s.id,
                                                 type: 'schema',
+                                                organizationId: item.organizationId,
+                                                unitId:item.unitId,
+                                                contextId: item.contextId,
                                                 versions: s.versions
                                             }
                                         })

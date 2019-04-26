@@ -10,7 +10,7 @@
                 <Versions :schema="schema" v-model="version"/>
             </v-flex>
             <v-flex class="xs12 md9">
-                <Properties :schema="schema" :version="version"/>
+                <Properties :schema="schema" :version="version" v-on:vs-error="onError"/>
             </v-flex>
         </v-layout>
     </v-container>

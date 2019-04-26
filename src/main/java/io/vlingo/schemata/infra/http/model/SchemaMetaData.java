@@ -7,10 +7,10 @@ import java.util.List;
 public class SchemaMetaData {
   public final String id;
   public final String name;
-  public final List<SchemaVersion> versions;
+  public final List<Schema> versions;
 
 
-  private SchemaMetaData(String id, String name, List<SchemaVersion> versions) {
+  private SchemaMetaData(String id, String name, List<Schema> versions) {
     this.id = id;
     this.name = name;
     this.versions = versions;
@@ -21,7 +21,7 @@ public class SchemaMetaData {
     throw new UnsupportedOperationException();
   }
 
-  public static SchemaMetaData from(String id, String name, List<SchemaVersion> versions) {
+  public static SchemaMetaData from(String id, String name, List<Schema> versions) {
     return new SchemaMetaData(id, name, versions);
   }
 }

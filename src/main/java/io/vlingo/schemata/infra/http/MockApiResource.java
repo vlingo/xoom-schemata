@@ -24,6 +24,13 @@ public class MockApiResource extends ResourceHandler {
     MockApiResource impl = new MockApiResource();
 
     return resource("mock-api", 10,
+      get("/api/schemata/{organization}/{unit}/{context}/{schema}/{version}")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .handle(impl::schema),
       get("/api/schemata/{organization}/{unit}/{context}")
         .param(String.class)
         .param(String.class)
@@ -106,7 +113,44 @@ public class MockApiResource extends ResourceHandler {
       JsonSerialization.serialized(
         schemataMap
       )));
+  }
 
+  private Completes<Response> schema(String organizationId, String unitId, String contextId, String schema, String version) {
+
+    String specification = "event SalutationHappened {\n" +
+      "    type eventType\n" +
+      "    timestamp occurredOn\n" +
+      "    version eventVersion\n" +
+      "\n" +
+      "    string toWhom\n" +
+      "    string text\n" +
+      "}";
+
+    String description = ("# " + schema) + "\n" +
+      "This schema describes blah blubb." + "\n" + "\n" +
+      "It is used whenever something _significant_ happens or should be *done*." + "\n" + "\n" +
+      "Oh, a list: " + "\n" +
+      "* Item 1" + "\n" +
+      "* Item 2" + "\n" +
+      "* Item 3" + "\n" +
+      "\n" +
+      "---" +
+      "\n" +
+      "Organisation: " + organizationId + "\n" +
+      "Unit: " + unitId + "\n" +
+      "Context: " + contextId + "\n";
+
+    SchemaVersion result = SchemaVersion.from(
+      description,
+      specification,
+      randomElement(Status.values()).name(),
+      version
+    );
+
+    return Completes.withSuccess(Response.of(Ok,
+      JsonSerialization.serialized(
+        result
+      )));
   }
 
   private <T> T randomElement(T[] elements) {
@@ -114,13 +158,13 @@ public class MockApiResource extends ResourceHandler {
     return elements[random.nextInt(elements.length)];
   }
 
-  private List<SchemaVersion> randomVersions() {
-    List<SchemaVersion> versions = new ArrayList<>();
+  private List<Schema> randomVersions() {
+    List<Schema> versions = new ArrayList<>();
     Random random = new Random();
 
     int noOfVersions = random.nextInt(10);
     while (noOfVersions > 0) {
-      versions.add(SchemaVersion.from(
+      versions.add(Schema.from(
         String.format("%s.%s.%s",
           random.nextInt(10),
           random.nextInt(10),
