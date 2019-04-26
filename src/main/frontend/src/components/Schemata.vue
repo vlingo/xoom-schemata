@@ -59,12 +59,12 @@
                             }
 
                             response.json().then(function (data) {
-                                for (let item of data) {
+                                for (let organization of data) {
                                     vm.items.push({
-                                        id: item.id,
-                                        name: item.name,
+                                        id: organization.id,
+                                        name: organization.name,
                                         type: 'organization',
-                                        children: item.units.map(u => {
+                                        children: organization.units.map(u => {
                                             return {
                                                 id: u.id,
                                                 name: u.name,
@@ -74,6 +74,9 @@
                                                         id: u.id + "-" + c.id,
                                                         name: c.name,
                                                         type: 'context',
+                                                        contextId: c.id,
+                                                        organizationId: organization.id,
+                                                        unitId: u.id,
                                                         children: []
                                                     }
                                                 })
@@ -93,7 +96,7 @@
                     return // only load additional items when a context is selected
 
                 let vm = this
-                return fetch('/api/schemata/o/u/c') // FIXME: use parents in tree to construct path
+                return fetch(`/api/schemata/${item.organizationId}/${item.unitId}/${item.contextId}`)
                     .then(
                         function (response) {
                             if (response.status !== 200) {
