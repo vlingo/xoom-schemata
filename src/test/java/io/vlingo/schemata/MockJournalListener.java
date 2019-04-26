@@ -10,45 +10,51 @@ package io.vlingo.schemata;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.symbio.Entry;
+import io.vlingo.symbio.EntryAdapterProvider;
+import io.vlingo.symbio.Source;
 import io.vlingo.symbio.State;
 import io.vlingo.symbio.store.journal.JournalListener;
 
-public final class MockJournalListener implements JournalListener<String> {
-  private final List<Entry<String>> entries = new ArrayList<>();
-  private final Object lock = new Object();
+public class MockJournalListener implements JournalListener<String> {
+    private AccessSafely access = AccessSafely.afterCompleting(0);
 
-  public Entry<String> get(final int index) {
-    synchronized (lock) {
-      return entries.get(index);
-    }
-  }
+    private final List<Source<?>> sources;
+    private final EntryAdapterProvider entryAdapterProvider;
 
-  @Override
-  public void appended(Entry<String> entry) {
-    synchronized (lock) {
-      entries.add(entry);
+    public MockJournalListener(final EntryAdapterProvider entryAdapterProvider) {
+      this.entryAdapterProvider = entryAdapterProvider;
+      this.sources = new ArrayList<>();
     }
-  }
 
-  @Override
-  public void appendedWith(Entry<String> entry, State<String> snapshot) {
-    synchronized (lock) {
-      entries.add(entry);
+    @Override
+    public void appended(final Entry<String> entry) {
+      access.writeUsing("entry", entry);
     }
-  }
 
-  @Override
-  public void appendedAll(List<Entry<String>> entries) {
-    synchronized (lock) {
-      entries.addAll(entries);
+    @Override
+    public void appendedWith(final Entry<String> entry, final State<String> snapshot) {
+      access.writeUsing("entry", entry);
     }
-  }
 
-  @Override
-  public void appendedAllWith(List<Entry<String>> entries, State<String> snapshot) {
-    synchronized (lock) {
-      entries.addAll(entries);
+    @Override
+    public void appendedAll(final List<Entry<String>> entries) {
+      access.writeUsing("entries", entries);
     }
-  }
+
+    @Override
+    public void appendedAllWith(final List<Entry<String>> entries, final State<String> snapshot) {
+      access.writeUsing("entries", entries);
+    }
+
+    public AccessSafely afterCompleting(final int happenings) {
+      access = AccessSafely.afterCompleting(happenings);
+
+      access.writingWith("entries", (List<Entry<String>> all) -> sources.addAll(entryAdapterProvider.asSources(all)));
+      access.writingWith("entry", (Entry<String> one) -> sources.add(entryAdapterProvider.asSource(one)));
+      access.readingWith("entries", () -> sources);
+
+      return access;
+    }
 }

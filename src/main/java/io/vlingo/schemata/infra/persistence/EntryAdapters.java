@@ -50,52 +50,33 @@ public class EntryAdapters {
     registry.register(new Info(journal, SchemaVersionEntity.class, SchemaVersionEntity.class.getSimpleName()));
 
     registry.info(OrganizationEntity.class)
-      .registerEntryAdapter(OrganizationDefined.class, new OrganizationDefinedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(OrganizationDescribed.class, new OrganizationDescribedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(OrganizationRenamed.class, new OrganizationRenamedAdapter(),
-              journal::registerEntryAdapter);
+      .registerEntryAdapter(OrganizationDefined.class, new OrganizationDefinedAdapter())
+      .registerEntryAdapter(OrganizationDescribed.class, new OrganizationDescribedAdapter())
+      .registerEntryAdapter(OrganizationRenamed.class, new OrganizationRenamedAdapter());
 
     registry.info(UnitEntity.class)
-      .registerEntryAdapter(UnitDefined.class, new UnitDefinedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(UnitDescribed.class, new UnitDescribedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(UnitRenamed.class, new UnitRenamedAdapter(),
-              journal::registerEntryAdapter);
+      .registerEntryAdapter(UnitDefined.class, new UnitDefinedAdapter())
+      .registerEntryAdapter(UnitDescribed.class, new UnitDescribedAdapter())
+      .registerEntryAdapter(UnitRenamed.class, new UnitRenamedAdapter());
 
     registry.info(ContextEntity.class)
-      .registerEntryAdapter(ContextDefined.class, new ContextDefinedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(ContextRenamed.class, new ContextRenamedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(ContextDescribed.class, new ContextDescribedAdapter(),
-              journal::registerEntryAdapter);
+      .registerEntryAdapter(ContextDefined.class, new ContextDefinedAdapter())
+      .registerEntryAdapter(ContextRenamed.class, new ContextRenamedAdapter())
+      .registerEntryAdapter(ContextDescribed.class, new ContextDescribedAdapter());
 
     registry.info(SchemaEntity.class)
-      .registerEntryAdapter(SchemaDefined.class, new SchemaDefinedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(SchemaDescribed.class, new SchemaDescribedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(SchemaRecategorized.class, new SchemaRecategorizedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(SchemaRenamed.class, new SchemaRenamedAdapter(),
-            journal::registerEntryAdapter);
+      .registerEntryAdapter(SchemaDefined.class, new SchemaDefinedAdapter())
+      .registerEntryAdapter(SchemaDescribed.class, new SchemaDescribedAdapter())
+      .registerEntryAdapter(SchemaRecategorized.class, new SchemaRecategorizedAdapter())
+      .registerEntryAdapter(SchemaRenamed.class, new SchemaRenamedAdapter());
 
     registry.info(SchemaVersionEntity.class)
-      .registerEntryAdapter(SchemaVersionDefined.class, new SchemaVersionDefinedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(SchemaVersionAssignedVersion.class, new SchemaVersionAssignedVersionAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(SchemaVersionDescribed.class, new SchemaVersionDescribedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(SchemaVersionPublished.class, new SchemaVersionPublishedAdapter(),
-            journal::registerEntryAdapter)
-      .registerEntryAdapter(SchemaVersionRemoved.class, new SchemaVersionRemovedAdapter(),
-              journal::registerEntryAdapter)
-      .registerEntryAdapter(SchemaVersionSpecified.class, new SchemaVersionSpecifiedAdapter(),
-              journal::registerEntryAdapter);
+      .registerEntryAdapter(SchemaVersionDefined.class, new SchemaVersionDefinedAdapter())
+      .registerEntryAdapter(SchemaVersionAssignedVersion.class, new SchemaVersionAssignedVersionAdapter())
+      .registerEntryAdapter(SchemaVersionDescribed.class, new SchemaVersionDescribedAdapter())
+      .registerEntryAdapter(SchemaVersionPublished.class, new SchemaVersionPublishedAdapter())
+      .registerEntryAdapter(SchemaVersionRemoved.class, new SchemaVersionRemovedAdapter())
+      .registerEntryAdapter(SchemaVersionSpecified.class, new SchemaVersionSpecifiedAdapter());
   }
 
   //================================

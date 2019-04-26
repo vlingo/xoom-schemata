@@ -14,11 +14,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vlingo.actors.testkit.TestActor;
-import io.vlingo.actors.testkit.TestWorld;
+import io.vlingo.actors.World;
+import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.NoopJournalListener;
+import io.vlingo.schemata.MockJournalListener;
 import io.vlingo.schemata.infra.persistence.EntryAdapters;
 import io.vlingo.schemata.model.Events.ContextDefined;
 import io.vlingo.schemata.model.Events.ContextDescribed;
@@ -26,22 +26,24 @@ import io.vlingo.schemata.model.Events.ContextRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.symbio.EntryAdapterProvider;
 import io.vlingo.symbio.store.journal.Journal;
 import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 
 public class ContextEntityTest {
-  private TestWorld world;
-  private TestActor<Context> contextTestActor;
+  private AccessSafely access;
+  private Context context;
   private Journal<String> journal;
-  private NoopJournalListener listener;
+  private MockJournalListener listener;
   private SourcedTypeRegistry registry;
+  private World world;
 
   @Before
   @SuppressWarnings({ "unchecked" })
   public void setUp() throws Exception {
-    world = TestWorld.start("context-test");
+    world = World.start("context-test");
 
-    listener = new NoopJournalListener();
+    listener = new MockJournalListener(EntryAdapterProvider.instance(world));
 
     journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
 
@@ -49,9 +51,9 @@ public class ContextEntityTest {
 
     EntryAdapters.register(registry, journal);
 
-    contextTestActor = world.actorFor(Context.class, ContextEntity.class, ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique())));
-    contextTestActor.context().until.resetHappeningsTo(1);
-    contextTestActor.actor().defineWith("namespace", "description");
+    context = world.actorFor(Context.class, ContextEntity.class, ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique())));
+    access = listener.afterCompleting(1);
+    context.defineWith("namespace", "description");
   }
 
   @After
@@ -61,8 +63,7 @@ public class ContextEntityTest {
 
   @Test
   public void testThatContextIsDefined() throws Exception {
-    contextTestActor.context().until.completes(); // see setUp()
-    final List<DomainEvent> applied = contextTestActor.viewTestState().valueOf("applied");
+    final List<DomainEvent> applied = access.readFrom("entries"); // see setUp()
     final ContextDefined contextDefined = (ContextDefined) applied.get(0);
     Assert.assertEquals("namespace", contextDefined.name);
     Assert.assertEquals("description", contextDefined.description);
@@ -70,22 +71,20 @@ public class ContextEntityTest {
 
   @Test
   public void testThatContextRenamed() throws Exception {
-    contextTestActor.context().until.completes(); // see setUp()
-    contextTestActor.context().until.resetHappeningsTo(1);
-    contextTestActor.actor().changeNamespaceTo("new namespace");
-    contextTestActor.context().until.completes();
-    final List<DomainEvent> applied = contextTestActor.viewTestState().valueOf("applied");
+    access.readFrom("entries"); // see setUp
+    access = listener.afterCompleting(1);
+    context.changeNamespaceTo("new namespace");
+    final List<DomainEvent> applied = access.readFrom("entries");
     final ContextRenamed contextRenamed = (ContextRenamed) applied.get(1);
     Assert.assertEquals("new namespace", contextRenamed.namespace);
   }
 
   @Test
   public void testThatContextIsDescribed() throws Exception {
-    contextTestActor.context().until.completes(); // see setUp()
-    contextTestActor.context().until.resetHappeningsTo(1);
-    contextTestActor.actor().describeAs("new description");
-    contextTestActor.context().until.completes();
-    final List<DomainEvent> applied = contextTestActor.viewTestState().valueOf("applied");
+    access.readFrom("entries"); // see setUp()
+    access = listener.afterCompleting(1);
+    context.describeAs("new description");
+    final List<DomainEvent> applied = access.readFrom("entries");
     final ContextDescribed contextDescribed = (ContextDescribed) applied.get(1);
     Assert.assertEquals("new description", contextDescribed.description);
   }
