@@ -62,7 +62,6 @@
 
                             response.json().then(function (data) {
                                 for (let item of data) {
-                                    console.log(item)
                                     vm.items.push({
                                         id: item.id,
                                         name: item.name,
@@ -107,7 +106,6 @@
                             }
 
                             response.json().then(function (data) {
-                                console.log(data)
                                 for (let schemaType of Object.keys(data)) {
                                     console.log(schemaType)
                                     item.children.push({
