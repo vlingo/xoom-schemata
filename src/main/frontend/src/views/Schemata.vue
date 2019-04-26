@@ -30,22 +30,21 @@
         data: () => ({
             schema: [],
             version: undefined,
-            error: null,
+            error: false,
         }),
         computed: {
             hasError: {
                 get: function () {
-                    return this.error !== null
+                    return this.error !== false
                 },
                 set: function (value) {
                     // only used to reset the error state when alert is dismissed
-                    this.error = null
+                    this.error = value
                 }
             }
         },
         methods: {
             async onError(event) {
-                console.log(event)
                 this.error = await event.message + ` (HTTP ${event.status})`
             }
         }
