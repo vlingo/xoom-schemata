@@ -4,30 +4,11 @@
   <v-card-text>
   <v-tabs>
     <v-tab>Specification</v-tab>
-    <v-tab>Status</v-tab>
     <v-tab>Description</v-tab>
-
-    <!-- TODO: Factor out tab contents in separate components-->
-
+    
     <v-tab-item>
       <code>{{ specification }}</code>
       <v-chip class="right">Specification for {{ schema }} <span v-if="version">v{{ version }}</span></v-chip>
-    </v-tab-item>
-
-    <v-tab-item>
-      <v-list dense>
-        <v-list-tile
-          v-for="s in status" :key="s"
-        >
-          <v-list-tile-action>
-            <v-icon :color="s === 'Published' ? 'primary' : ''">label</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>{{ s }}</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list>
-      <v-chip class="right">Status for {{ schema }}<span v-if="version">v{{ version }}</span></v-chip>
     </v-tab-item>
 
     <v-tab-item>
@@ -48,7 +29,6 @@ import marked from 'marked'
 export default {
   props: ['schema', 'version'],
   data: () => ({
-    status: [],
     specification: '',
     description: ''
   }),
