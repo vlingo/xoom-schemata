@@ -26,7 +26,7 @@ RUN jlink \
     --output "$JAVA_MINIMAL"
 
 ADD . /home/project
-RUN cd /home/project && ./mvnw clean package -Pfrontend
+RUN cd /home/project && mvn -Pfrontend clean package
 
 # Second stage: Create runtime image w/ minimal JRE + app.
 FROM debian:stable-slim
