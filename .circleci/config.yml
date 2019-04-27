@@ -13,7 +13,7 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
             - v1-dependencies-
-      - run: mvn -B -Pfrontend -DskipTests package
+      - run: mvn -B -Pfrontend package
       - persist_to_workspace:
           root: ~/project
           paths:
@@ -30,27 +30,9 @@ jobs:
           paths:
             - ~/.m2
           key: v1-mvn-dependencies-{{ checksum "pom.xml" }}
-  deploy-ui:
-    docker:
-      - image: circleci/node:10.5
-    steps:
-      - attach_workspace:
-          at: ~/project
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
-            - v1-dependencies-
-      - run:
-          name: Deploy UI Sample
-          command: |
-            npm i
-            /node_modules/.bin/now -t ${NOW_TOKEN} -C --public --target production
 
 workflows:
   version: 2
   default-workflow:
     jobs:
       - build
-      - deploy-ui:
-          requires:
-            - build

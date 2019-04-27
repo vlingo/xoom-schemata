@@ -1,4 +1,4 @@
-# First stage, build minimal jre distribution
+# First stage: Build application and minimal jre distribution
 FROM maven:3.6.1-jdk-11-slim as packager
 
 RUN { \
@@ -25,16 +25,16 @@ RUN jlink \
     --no-man-pages \
     --output "$JAVA_MINIMAL"
 ADD . /home/src
-RUN cd /home/src && mvn clean package -DskipTests -Pfrontend
+RUN cd /home/src && mvn clean package -Pfrontend
 
-# Second stage, add only our minimal "JRE" distr and our app
-FROM alpine
+# Second stage: Create runtime image w/ minimal JRE + app.
+FROM debian:stable-slim
 
 ENV JAVA_MINIMAL=/opt/jre
 ENV PATH="$PATH:$JAVA_MINIMAL/bin"
 ENV JAVA_OPTS=""
 
 COPY --from=packager "$JAVA_MINIMAL" "$JAVA_MINIMAL"
-COPY --from=packager "target/vlingo-schemata-*-jar-with-dependencies.jar" "/app.jar"
+COPY --from=packager "/home/src/target/vlingo-schemata-*-jar-with-dependencies.jar" "/app.jar"
 
 ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar
