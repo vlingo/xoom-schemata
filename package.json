@@ -1,8 +1,0 @@
-{
-  "name": "vlingo-schemata-ui",
-  "version": "0.1.0",
-  "private": true,
-  "devDependencies": {
-    "now": "^15.0.6"
-  }
-}
