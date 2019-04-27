@@ -38,6 +38,8 @@ public class UiResource extends ResourceHandler {
     UiResource impl = new UiResource();
 
     return resource("ui", 10,
+      get("/")
+        .handle(impl::redirectToApp),
       get("/app/")
         .handle(impl::serve),
       get("/app/{file}")
@@ -59,6 +61,13 @@ public class UiResource extends ResourceHandler {
         .param(String.class)
         .handle(impl::serve)
     );
+  }
+
+  private Completes<Response> redirectToApp() {
+    return Completes.withSuccess(
+      Response.of(MovedPermanently,
+        Header.Headers.of(
+          ResponseHeader.of("Location", "/app/"))));
   }
 
   private Completes<Response> serve(final String... pathSegments) {
