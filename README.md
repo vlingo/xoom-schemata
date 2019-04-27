@@ -6,7 +6,7 @@ The schema registry for the vlingo/platform.
  
 ## Run
 
-You can run the registry with demo data within docker using `docker run -p 9019:9019 wernerw/vlingo-schemata-demo`.
+You can run the registry with demo data within docker using `docker run -p 9019:9019 wernerw/vlingo-schemata:demo`.
 
 After building the fat jar, you can also simply execute it via `java -jar vlingo-schemata-<version>-jar-with-dependencies.jar`
 
@@ -18,7 +18,7 @@ Afterwards, you can build the docker container with `docker build . -t vlingo-sc
 
 CI build runs on CircleCI: https://circleci.com/gh/wwerner/vlingo-schemata/.
 
-A docker image containing mock data is published to https://hub.docker.com/r/wernerw/vlingo-schemata-demo.
+A docker image containing mock data is published to https://hub.docker.com/r/wernerw/vlingo-schemata.
 
 
 The maven build takes care of the following:
@@ -65,5 +65,5 @@ You can run the backend ...
 * ... from the jar, in case you just need the current backend state and do not want to delve into the backend code: 
 `java -jar vlingo-schemata-<version>-jar-with-dependencies.jar`
 * ... from Docker, in case you don't want bother w/ Java at all: 
-`docker run -p 9019:9019 wernerw/vlingo-schemata-demo`. 
+`docker run -p 9019:9019 wernerw/vlingo-schemata:demo`. 
 Note that this also pulls in the current UI, so don't get confused.
