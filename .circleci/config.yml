@@ -7,8 +7,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-mvn-dependencies-{{ checksum "pom.xml" }}
-            - v1-mvn-dependencies-
+            - v2-mvn-dependencies-{{ checksum "pom.xml" }}
+            - v2-mvn-dependencies-
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
@@ -29,7 +29,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
-          key: v1-mvn-dependencies-{{ checksum "pom.xml" }}
+          key: v2-mvn-dependencies-{{ checksum "pom.xml" }}
 
 workflows:
   version: 2
