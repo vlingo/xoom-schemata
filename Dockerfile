@@ -24,8 +24,9 @@ RUN jlink \
     --no-header-files \
     --no-man-pages \
     --output "$JAVA_MINIMAL"
-ADD . /home/src
-RUN cd /home/src && mvn clean package -Pfrontend
+
+ADD . /home/project
+RUN cd /home/project && ./mvnw clean package -Pfrontend
 
 # Second stage: Create runtime image w/ minimal JRE + app.
 FROM debian:stable-slim
@@ -35,6 +36,6 @@ ENV PATH="$PATH:$JAVA_MINIMAL/bin"
 ENV JAVA_OPTS=""
 
 COPY --from=packager "$JAVA_MINIMAL" "$JAVA_MINIMAL"
-COPY --from=packager "/home/src/target/vlingo-schemata-*-jar-with-dependencies.jar" "/app.jar"
+COPY --from=packager "/home/project/target/target/vlingo-schemata-*-jar-with-dependencies.jar" "/app.jar"
 
 ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar
