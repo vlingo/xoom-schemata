@@ -1,0 +1,38 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8u151-jdk
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v2-mvn-dependencies-{{ checksum "pom.xml" }}
+            - v2-mvn-dependencies-
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
+            - v1-dependencies-
+      - run: mvn -B -Pfrontend package
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - target/
+            - src/main/frontend/
+      - store_test_results:
+          path: target/surefire-reports
+      - save_cache:
+          paths:
+            - target/node
+            - src/main/frontend/node_modules
+          key: v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v2-mvn-dependencies-{{ checksum "pom.xml" }}
+
+workflows:
+  version: 2
+  default-workflow:
+    jobs:
+      - build
