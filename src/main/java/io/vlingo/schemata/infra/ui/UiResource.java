@@ -5,8 +5,11 @@ import io.vlingo.http.Body;
 import io.vlingo.http.Header;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
-import io.vlingo.http.resource.Resource;
-import io.vlingo.http.resource.ResourceHandler;
+import io.vlingo.http.resource.*;
+import io.vlingo.http.resource.RequestHandler0.Handler0;
+import io.vlingo.http.resource.RequestHandler1.Handler1;
+import io.vlingo.http.resource.RequestHandler2.Handler2;
+import io.vlingo.http.resource.RequestHandler3.Handler3;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -41,25 +44,25 @@ public class UiResource extends ResourceHandler {
       get("/")
         .handle(impl::redirectToApp),
       get("/app/")
-        .handle(impl::serve),
+        .handle((Handler0) impl::serve),
       get("/app/{file}")
         .param(String.class)
-        .handle(impl::serve),
+        .handle((Handler1<String>) impl::serve),
       get("/app/{path1}/{file}")
         .param(String.class)
         .param(String.class)
-        .handle(impl::serve),
+        .handle((Handler2<String, String>) impl::serve),
       get("/app/{path1}/{path2}/{file}")
         .param(String.class)
         .param(String.class)
         .param(String.class)
-        .handle(impl::serve),
+        .handle((Handler3<String, String, String>) impl::serve),
       get("/app/{path1}/{path2}/{path3}/{file}")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .param(String.class)
-        .handle(impl::serve)
+        .handle((RequestHandler4.Handler4<String, String, String, String>) impl::serve)
     );
   }
 
