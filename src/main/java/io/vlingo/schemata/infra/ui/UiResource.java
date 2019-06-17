@@ -1,15 +1,20 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.infra.ui;
 
-import io.vlingo.common.Completes;
-import io.vlingo.http.Body;
-import io.vlingo.http.Header;
-import io.vlingo.http.Response;
-import io.vlingo.http.ResponseHeader;
-import io.vlingo.http.resource.*;
-import io.vlingo.http.resource.RequestHandler0.Handler0;
-import io.vlingo.http.resource.RequestHandler1.Handler1;
-import io.vlingo.http.resource.RequestHandler2.Handler2;
-import io.vlingo.http.resource.RequestHandler3.Handler3;
+import static io.vlingo.http.Response.Status.InternalServerError;
+import static io.vlingo.http.Response.Status.MovedPermanently;
+import static io.vlingo.http.Response.Status.NotFound;
+import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.ResponseHeader.ContentLength;
+import static io.vlingo.http.ResponseHeader.ContentType;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -20,11 +25,18 @@ import java.nio.file.Paths;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.vlingo.http.Response.Status.*;
-import static io.vlingo.http.ResponseHeader.ContentLength;
-import static io.vlingo.http.ResponseHeader.ContentType;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
+import io.vlingo.common.Completes;
+import io.vlingo.http.Body;
+import io.vlingo.http.Header;
+import io.vlingo.http.Response;
+import io.vlingo.http.ResponseHeader;
+import io.vlingo.http.resource.RequestHandler0.Handler0;
+import io.vlingo.http.resource.RequestHandler1.Handler1;
+import io.vlingo.http.resource.RequestHandler2.Handler2;
+import io.vlingo.http.resource.RequestHandler3.Handler3;
+import io.vlingo.http.resource.RequestHandler4.Handler4;
+import io.vlingo.http.resource.Resource;
+import io.vlingo.http.resource.ResourceHandler;
 
 /**
  * Serves the files making up the UI from the classpath.
@@ -37,32 +49,37 @@ import static io.vlingo.http.resource.ResourceBuilder.resource;
  * FIXME: This leaves the server wide open for read access. We should constrain access to the resources we actually provide.
  */
 public class UiResource extends ResourceHandler {
-  public static Resource asResource() {
+  public static Resource<?> asResource() {
     UiResource impl = new UiResource();
+    final Handler0 serve0 = impl::serve;
+    final Handler1<String> serve1 = impl::serve;
+    final Handler2<String, String> serve2 = impl::serve;
+    final Handler3<String, String, String> serve3 = impl::serve;
+    final Handler4<String, String, String, String> serve4 = impl::serve;
 
     return resource("ui", 10,
       get("/")
         .handle(impl::redirectToApp),
       get("/app/")
-        .handle((Handler0) impl::serve),
+        .handle(serve0),
       get("/app/{file}")
         .param(String.class)
-        .handle((Handler1<String>) impl::serve),
+        .handle(serve1),
       get("/app/{path1}/{file}")
         .param(String.class)
         .param(String.class)
-        .handle((Handler2<String, String>) impl::serve),
+        .handle(serve2),
       get("/app/{path1}/{path2}/{file}")
         .param(String.class)
         .param(String.class)
         .param(String.class)
-        .handle((Handler3<String, String, String>) impl::serve),
+        .handle(serve3),
       get("/app/{path1}/{path2}/{path3}/{file}")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .param(String.class)
-        .handle((RequestHandler4.Handler4<String, String, String, String>) impl::serve)
+        .handle(serve4)
     );
   }
 
@@ -95,7 +112,7 @@ public class UiResource extends ResourceHandler {
     }
   }
 
-  private String guessContentType(String path) throws IOException {
+  private String guessContentType(final String path) throws IOException {
     String contentType = Files.probeContentType(Paths.get(path));
     contentType = (contentType != null) ? contentType : "application/octet-stream";
     if (contentType.equals("application/octet-stream")) {
@@ -105,7 +122,7 @@ public class UiResource extends ResourceHandler {
     return contentType;
   }
 
-  private String pathFrom(String[] pathSegments) {
+  private String pathFrom(final String[] pathSegments) {
     return Stream.of(pathSegments)
       .map(p -> p.startsWith("/") ? p.substring(1) : p)
       .map(p -> p.endsWith("/") ? p.substring(0, p.length() - 1) : p)
@@ -121,7 +138,7 @@ public class UiResource extends ResourceHandler {
     return read(is);
   }
 
-  private static byte[] read(InputStream is) throws IOException {
+  private static byte[] read(final InputStream is) throws IOException {
     byte[] readBytes;
     byte[] buffer = new byte[4096];
 
@@ -136,6 +153,4 @@ public class UiResource extends ResourceHandler {
     }
     return readBytes;
   }
-
-
 }
