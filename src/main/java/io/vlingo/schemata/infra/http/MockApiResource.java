@@ -1,26 +1,44 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.infra.http;
+
+import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import io.vlingo.common.Completes;
 import io.vlingo.http.Response;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.http.resource.serialization.JsonSerialization;
-import io.vlingo.schemata.infra.http.model.*;
+import io.vlingo.schemata.infra.http.model.Context;
+import io.vlingo.schemata.infra.http.model.Organization;
+import io.vlingo.schemata.infra.http.model.Schema;
+import io.vlingo.schemata.infra.http.model.SchemaMetadata;
+import io.vlingo.schemata.infra.http.model.SchemaVersion;
+import io.vlingo.schemata.infra.http.model.Unit;
 import io.vlingo.schemata.model.Category;
 import io.vlingo.schemata.model.SchemaVersion.Status;
-
-import java.util.*;
-
-import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
 
 /**
  * Serves randomized mock API model formatted data
  * for consumption in the UI.
  */
 public class MockApiResource extends ResourceHandler {
-  public static Resource asResource() {
+  public static Resource<?> asResource() {
     MockApiResource impl = new MockApiResource();
 
     return resource("mock-api", 10,
@@ -83,8 +101,8 @@ public class MockApiResource extends ResourceHandler {
       )));
   }
 
-  private Completes<Response> schemata(String organizationId, String unitId, String contextId) {
-    Map<Category, List<SchemaMetaData>> schemataMap = new HashMap<>();
+  private Completes<Response> schemata(final String organizationId, final String unitId, final String contextId) {
+    Map<Category, List<SchemaMetadata>> schemataMap = new HashMap<>();
     String[] tlds = {"io", "com", "org", "net", "gov", "info", "audio"};
     String[] domains = {"vlingo", "kalele", "pluto", "jupiter", "uranus", "mars", "venus", "earth", "titan", "ganymede", "tyco"};
     String[] names = {"foo", "bar", "baz", "qux", "quux", "quuz", "corge", "grault", "garply"};
@@ -97,7 +115,7 @@ public class MockApiResource extends ResourceHandler {
 
       schemataMap.computeIfAbsent(category, k -> new ArrayList<>());
 
-      schemataMap.get(category).add(SchemaMetaData.from(
+      schemataMap.get(category).add(SchemaMetadata.from(
         String.format("%s.%s.%s.%s",
           randomElement(tlds),
           randomElement(domains),
@@ -115,7 +133,7 @@ public class MockApiResource extends ResourceHandler {
       )));
   }
 
-  private Completes<Response> schema(String organizationId, String unitId, String contextId, String schema, String version) {
+  private Completes<Response> schema(final String organizationId, final String unitId, final String contextId, final String schema, final String version) {
 
     String specification = "event SalutationHappened {\n" +
       "    type eventType\n" +
@@ -153,7 +171,7 @@ public class MockApiResource extends ResourceHandler {
       )));
   }
 
-  private <T> T randomElement(T[] elements) {
+  private <T> T randomElement(final T[] elements) {
     Random random = new Random();
     return elements[random.nextInt(elements.length)];
   }
@@ -177,6 +195,4 @@ public class MockApiResource extends ResourceHandler {
     versions.sort(Comparator.comparing(v -> v.id));
     return versions;
   }
-
-
 }
