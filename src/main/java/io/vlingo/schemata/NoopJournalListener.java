@@ -14,19 +14,19 @@ import io.vlingo.symbio.State;
 import io.vlingo.symbio.store.journal.JournalListener;
 
 public class NoopJournalListener implements JournalListener<String> {
-    @Override
-    public void appended(Entry<String> entry) {
-    }
+  @Override
+  public void appended(final Entry<String> entry) {
+  }
 
-    @Override
-    public void appendedWith(Entry<String> entry, State<String> snapshot) {
-    }
+  @Override
+  public void appendedWith(final Entry<String> entry, final State<String> snapshot) {
+  }
 
-    @Override
-    public void appendedAll(List<Entry<String>> entries) {
-    }
+  @Override
+  public void appendedAll(final List<Entry<String>> entries) {
+  }
 
-    @Override
-    public void appendedAllWith(List<Entry<String>> entries, State<String> snapshot) {
-    }
+  @Override
+  public void appendedAllWith(final List<Entry<String>> entries, final State<String> snapshot) {
+  }
 }
