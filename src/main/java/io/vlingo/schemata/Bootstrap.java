@@ -26,7 +26,6 @@ public class Bootstrap {
   private final Server server;
   private final World world;
 
-  @SuppressWarnings("rawtypes")
   public Bootstrap() {
     world = World.startWithDefaults("vlingo-schemata");
 
