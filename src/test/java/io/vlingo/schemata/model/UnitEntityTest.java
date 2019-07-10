@@ -18,7 +18,7 @@ import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.MockJournalListener;
+import io.vlingo.schemata.MockJournalDispatcher;
 import io.vlingo.schemata.infra.persistence.EntryAdapters;
 import io.vlingo.schemata.model.Events.UnitDefined;
 import io.vlingo.schemata.model.Events.UnitDescribed;
@@ -30,7 +30,7 @@ import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 public class UnitEntityTest {
   private AccessSafely access;
   private Journal<String> journal;
-  private MockJournalListener listener;
+  private MockJournalDispatcher listener;
   private SourcedTypeRegistry registry;
   private Unit unit;
   private World world;
@@ -40,7 +40,7 @@ public class UnitEntityTest {
   public void setUp() throws Exception {
     world = World.start("unit-entity-test");
 
-    listener = new MockJournalListener(EntryAdapterProvider.instance(world));
+    listener = new MockJournalDispatcher(EntryAdapterProvider.instance(world));
 
     journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
 

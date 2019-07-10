@@ -7,45 +7,27 @@
 
 package io.vlingo.schemata;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.symbio.Entry;
 import io.vlingo.symbio.EntryAdapterProvider;
 import io.vlingo.symbio.Source;
 import io.vlingo.symbio.State;
-import io.vlingo.symbio.store.journal.JournalListener;
+import io.vlingo.symbio.store.dispatch.Dispatchable;
+import io.vlingo.symbio.store.dispatch.Dispatcher;
+import io.vlingo.symbio.store.dispatch.DispatcherControl;
 
-public class MockJournalListener implements JournalListener<String> {
+import java.util.ArrayList;
+import java.util.List;
+
+public class MockJournalDispatcher implements Dispatcher<Dispatchable<Entry<String>, State<?>>> {
   private AccessSafely access = AccessSafely.afterCompleting(0);
 
   private final List<Source<?>> sources;
   private final EntryAdapterProvider entryAdapterProvider;
 
-  public MockJournalListener(final EntryAdapterProvider entryAdapterProvider) {
+  public MockJournalDispatcher(final EntryAdapterProvider entryAdapterProvider) {
     this.entryAdapterProvider = entryAdapterProvider;
     this.sources = new ArrayList<>();
-  }
-
-  @Override
-  public void appended(final Entry<String> entry) {
-    access.writeUsing("entry", entry);
-  }
-
-  @Override
-  public void appendedWith(final Entry<String> entry, final State<String> snapshot) {
-    access.writeUsing("entry", entry);
-  }
-
-  @Override
-  public void appendedAll(final List<Entry<String>> entries) {
-    access.writeUsing("entries", entries);
-  }
-
-  @Override
-  public void appendedAllWith(final List<Entry<String>> entries, final State<String> snapshot) {
-    access.writeUsing("entries", entries);
   }
 
   public AccessSafely afterCompleting(final int happenings) {
@@ -56,5 +38,15 @@ public class MockJournalListener implements JournalListener<String> {
     access.readingWith("entries", () -> sources);
 
     return access;
+  }
+
+  @Override
+  public void controlWith(final DispatcherControl control) {
+
+  }
+
+  @Override
+  public void dispatch(final Dispatchable<Entry<String>, State<?>> dispatchable) {
+    access.writeUsing("entries", dispatchable.entries());
   }
 }

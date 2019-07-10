@@ -18,7 +18,7 @@ import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.MockJournalListener;
+import io.vlingo.schemata.MockJournalDispatcher;
 import io.vlingo.schemata.infra.persistence.EntryAdapters;
 import io.vlingo.schemata.model.Events.SchemaVersionAssignedVersion;
 import io.vlingo.schemata.model.Events.SchemaVersionDefined;
@@ -40,7 +40,7 @@ import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 public class SchemaVersionEntityTest {
   private AccessSafely access;
   private Journal<String> journal;
-  private MockJournalListener listener;
+  private MockJournalDispatcher listener;
   private SourcedTypeRegistry registry;
   private SchemaVersion schemaVersion;
   private World world;
@@ -50,7 +50,7 @@ public class SchemaVersionEntityTest {
   public void setUp() throws Exception {
     world = World.start("schema-version-test");
 
-    listener = new MockJournalListener(EntryAdapterProvider.instance(world));
+    listener = new MockJournalDispatcher(EntryAdapterProvider.instance(world));
 
     journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
 

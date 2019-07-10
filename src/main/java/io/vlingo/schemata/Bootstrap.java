@@ -29,8 +29,8 @@ public class Bootstrap {
   public Bootstrap() {
     world = World.startWithDefaults("vlingo-schemata");
 
-    NoopJournalListener listener = new NoopJournalListener();
-    Journal<String> journal = Journal.using(world.stage(), InMemoryJournalActor.class, listener);
+    NoopDispatcher dispatcher = new NoopDispatcher();
+    Journal<String> journal = Journal.using(world.stage(), InMemoryJournalActor.class, dispatcher);
 
     SourcedTypeRegistry registry = new SourcedTypeRegistry(world);
     EntryAdapters.register(registry, journal);
