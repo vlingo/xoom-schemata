@@ -7,27 +7,27 @@
 
 package io.vlingo.schemata.infra.http.model;
 
-import java.util.List;
-
 import io.vlingo.schemata.model.SchemaEntity;
 
-public class SchemaMetadata {
+import java.util.List;
+
+public class SchemaMetaData {
   public final String id;
   public final String name;
   public final List<Schema> versions;
 
-  private SchemaMetadata(final String id, final String name, final List<Schema> versions) {
+  private SchemaMetaData(final String id, final String name, final List<Schema> versions) {
     this.id = id;
     this.name = name;
     this.versions = versions;
   }
 
-  public static SchemaMetadata from(final SchemaEntity ve) {
+  public static SchemaMetaData from(final SchemaEntity ve) {
     // TODO: Adapt from domain model to API model
     throw new UnsupportedOperationException();
   }
 
-  public static SchemaMetadata from(final String id, final String name, final List<Schema> versions) {
-    return new SchemaMetadata(id, name, versions);
+  public static SchemaMetaData from(final String id, final String name, final List<Schema> versions) {
+    return new SchemaMetaData(id, name, versions);
   }
 }

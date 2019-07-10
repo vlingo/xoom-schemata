@@ -7,9 +7,19 @@
 
 package io.vlingo.schemata.infra.http;
 
-import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
+import io.vlingo.common.Completes;
+import io.vlingo.http.Response;
+import io.vlingo.http.resource.Resource;
+import io.vlingo.http.resource.ResourceHandler;
+import io.vlingo.http.resource.serialization.JsonSerialization;
+import io.vlingo.schemata.infra.http.model.Context;
+import io.vlingo.schemata.infra.http.model.Organization;
+import io.vlingo.schemata.infra.http.model.Schema;
+import io.vlingo.schemata.infra.http.model.SchemaMetaData;
+import io.vlingo.schemata.infra.http.model.SchemaVersion;
+import io.vlingo.schemata.infra.http.model.Unit;
+import io.vlingo.schemata.model.Category;
+import io.vlingo.schemata.model.SchemaVersion.Status;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,19 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import io.vlingo.common.Completes;
-import io.vlingo.http.Response;
-import io.vlingo.http.resource.Resource;
-import io.vlingo.http.resource.ResourceHandler;
-import io.vlingo.http.resource.serialization.JsonSerialization;
-import io.vlingo.schemata.infra.http.model.Context;
-import io.vlingo.schemata.infra.http.model.Organization;
-import io.vlingo.schemata.infra.http.model.Schema;
-import io.vlingo.schemata.infra.http.model.SchemaMetadata;
-import io.vlingo.schemata.infra.http.model.SchemaVersion;
-import io.vlingo.schemata.infra.http.model.Unit;
-import io.vlingo.schemata.model.Category;
-import io.vlingo.schemata.model.SchemaVersion.Status;
+import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
 
 /**
  * Serves randomized mock API model formatted data
@@ -102,7 +102,7 @@ public class MockApiResource extends ResourceHandler {
   }
 
   private Completes<Response> schemata(final String organizationId, final String unitId, final String contextId) {
-    Map<Category, List<SchemaMetadata>> schemataMap = new HashMap<>();
+    Map<Category, List<SchemaMetaData>> schemataMap = new HashMap<>();
     String[] tlds = {"io", "com", "org", "net", "gov", "info", "audio"};
     String[] domains = {"vlingo", "kalele", "pluto", "jupiter", "uranus", "mars", "venus", "earth", "titan", "ganymede", "tyco"};
     String[] names = {"foo", "bar", "baz", "qux", "quux", "quuz", "corge", "grault", "garply"};
@@ -115,7 +115,7 @@ public class MockApiResource extends ResourceHandler {
 
       schemataMap.computeIfAbsent(category, k -> new ArrayList<>());
 
-      schemataMap.get(category).add(SchemaMetadata.from(
+      schemataMap.get(category).add(SchemaMetaData.from(
         String.format("%s.%s.%s.%s",
           randomElement(tlds),
           randomElement(domains),
