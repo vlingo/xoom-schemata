@@ -103,7 +103,7 @@ public class UiResource extends ResourceHandler {
             ResponseHeader.of(ContentType, guessContentType(path)),
             ResponseHeader.of(ContentLength, content.length)
           ),
-          Body.from(content, Body.Encoding.UTF8).content //FIXME: This will not work for binary files; rather find out how to send a plain byte[]
+          Body.from(content, Body.Encoding.UTF8).content() //FIXME: This will not work for binary files; rather find out how to send a plain byte[]
         ));
     } catch (FileNotFoundException e) {
       return Completes.withSuccess(Response.of(NotFound, path + " not found."));
