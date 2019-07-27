@@ -8,7 +8,6 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.actors.World;
-import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
@@ -27,7 +26,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 public class ContextEntityTest {
-  private AccessSafely access;
   private Context context;
   private ObjectTypeRegistry registry;
   private ObjectStore objectStore;

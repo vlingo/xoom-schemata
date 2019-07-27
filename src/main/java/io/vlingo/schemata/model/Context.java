@@ -31,7 +31,7 @@ public interface Context {
           final String name,
           final String description) {
     final Context context = stage.actorFor(Context.class, ContextEntity.class);
-    context.defineWith(contextId, name, name);
+    context.defineWith(contextId, name, description);
     return context;
   }
 
