@@ -28,12 +28,12 @@ public interface Organization {
           final OrganizationId organizationId,
           final String name,
           final String description) {
-    final Organization organization = stage.actorFor(Organization.class, OrganizationEntity.class);
-    organization.defineWith(organizationId, name, description);
+    final Organization organization = stage.actorFor(Organization.class, OrganizationEntity.class, organizationId);
+    organization.defineWith(name, description);
     return organization;
   }
 
-  Completes<OrganizationState> defineWith(final OrganizationId organizationId, final String name, final String description);
+  Completes<OrganizationState> defineWith(final String name, final String description);
 
   Completes<OrganizationState> describeAs(final String description);
 

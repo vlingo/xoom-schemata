@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 public class OrganizationEntityTest {
   private ObjectTypeRegistry registry;
   private Organization organization;
+  private OrganizationId organizationId;
   private ObjectStore objectStore;
   private World world;
 
@@ -48,8 +49,8 @@ public class OrganizationEntityTest {
                     PersistentObjectMapper.with(Organization.class, new Object(), new Object()));
 
     registry.register(organizationInfo);
-
-    organization = world.actorFor(Organization.class, OrganizationEntity.class);
+    organizationId = OrganizationId.unique();
+    organization = world.actorFor(Organization.class, OrganizationEntity.class, organizationId);
   }
 
   @After
@@ -58,9 +59,8 @@ public class OrganizationEntityTest {
   }
 
   @Test
-  public void testThatOrganizationDefinedIsEquals() throws Exception {
-    final OrganizationId organizationId = OrganizationId.unique();
-    final OrganizationState state = organization.defineWith(organizationId,"name", "description").await();
+  public void testThatOrganizationDefinedIsEquals() {
+    final OrganizationState state = organization.defineWith("name", "description").await();
     assertTrue(state.persistenceId() > 0);
     Assert.assertEquals(organizationId.value, state.organizationId.value);
     Assert.assertEquals("name", state.name);
@@ -68,13 +68,13 @@ public class OrganizationEntityTest {
   }
 
   @Test
-  public void testThatOrganizationRenamed() throws Exception {
+  public void testThatOrganizationRenamed() {
     final OrganizationState state = organization.renameTo("new name").await();
     Assert.assertEquals("new name", state.name);
   }
 
   @Test
-  public void testThatOrganizationIsDescribed() throws Exception {
+  public void testThatOrganizationIsDescribed() {
     final OrganizationState state = organization.describeAs("new description").await();
     Assert.assertEquals("new description", state.description);
   }

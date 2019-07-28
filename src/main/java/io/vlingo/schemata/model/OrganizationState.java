@@ -12,8 +12,8 @@ public class OrganizationState extends PersistentObject implements Comparable<Or
 
   private static final AtomicLong identityGenerator = new AtomicLong(0);
 
-  public OrganizationState define(final OrganizationId organizationId, final String name, final String description) {
-    return new OrganizationState(this.persistenceId(), organizationId, name, description);
+  public OrganizationState define(final String name, final String description) {
+    return new OrganizationState(this.persistenceId(), this.organizationId, name, description);
   }
 
   public OrganizationState withDescription(final String description) {
@@ -24,8 +24,8 @@ public class OrganizationState extends PersistentObject implements Comparable<Or
     return new OrganizationState(this.persistenceId(), this.organizationId, name, this.description);
   }
 
-  public OrganizationState() {
-    this(identityGenerator.incrementAndGet(), OrganizationId.undefined(), "", "");
+  public OrganizationState(OrganizationId organizationId) {
+    this(identityGenerator.incrementAndGet(), organizationId, "", "");
   }
 
   public OrganizationState(final long id, final OrganizationId organizationId, final String name, final String description) {

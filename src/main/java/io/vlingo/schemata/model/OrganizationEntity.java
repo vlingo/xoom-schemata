@@ -8,22 +8,28 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.common.Completes;
+import io.vlingo.common.Tuple2;
+import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.OrganizationDefined;
 import io.vlingo.schemata.model.Events.OrganizationDescribed;
 import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.symbio.Source;
+
+import java.util.Collections;
+import java.util.List;
 
 public class OrganizationEntity extends ObjectEntity<OrganizationState> implements Organization {
   private OrganizationState state;
 
-  public OrganizationEntity() {
-    this.state = new OrganizationState();
+  public OrganizationEntity(OrganizationId organizationId) {
+    this.state = new OrganizationState(organizationId);
   }
 
   @Override
-  public Completes<OrganizationState> defineWith(final OrganizationId organizationId, final String name, final String description) {
-    apply(state.define(organizationId, name, description), new OrganizationDefined(organizationId, name, description), () -> state);
+  public Completes<OrganizationState> defineWith(final String name, final String description) {
+    apply(state.define(name, description), new OrganizationDefined(this.state.organizationId, name, description), () -> state);
     return completes();
   }
 
@@ -37,6 +43,12 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   public Completes<OrganizationState> renameTo(final String name) {
     apply(state.withName(name), new OrganizationRenamed(state.organizationId, name), () -> state);
     return completes();
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  protected Tuple2<OrganizationState, List<Source<DomainEvent>>> whenNewState() {
+    return Tuple2.from(this.state, Collections.emptyList());
   }
 
   @Override
