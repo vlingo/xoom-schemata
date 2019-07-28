@@ -7,101 +7,71 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.function.BiConsumer;
-
-import io.vlingo.lattice.model.sourcing.EventSourced;
+import io.vlingo.common.Completes;
+import io.vlingo.common.Tuple2;
+import io.vlingo.lattice.model.DomainEvent;
+import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.SchemaDefined;
 import io.vlingo.schemata.model.Events.SchemaDescribed;
 import io.vlingo.schemata.model.Events.SchemaRecategorized;
 import io.vlingo.schemata.model.Events.SchemaRenamed;
 import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.symbio.Source;
 
-public class SchemaEntity extends EventSourced implements Schema {
-  private State state;
+import java.util.Collections;
+import java.util.List;
+
+public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
+  private SchemaState state;
 
   public SchemaEntity(final SchemaId schemaId) {
-    this.state = new State(schemaId);
+    this.state = new SchemaState(schemaId);
   }
 
   @Override
-  public void defineWith(final Category category, final String name, final String description) {
-    apply(SchemaDefined.with(state.schemaId, category, name, description));
+  public Completes<SchemaState> defineWith(final Category category, final String name, final String description) {
+    apply(
+      this.state.defineWith(category, name, description),
+      SchemaDefined.with(state.schemaId, category, name, description),
+      () -> this.state);
+    return completes();
   }
 
   @Override
-  public void describeAs(String description) {
-    apply(SchemaDescribed.with(state.schemaId, description));
+  public Completes<SchemaState> describeAs(String description) {
+    apply(this.state.withDescription(description), SchemaDescribed.with(state.schemaId, description), () -> this.state);
+    return completes();
   }
 
   @Override
-  public void recategorizedAs(final Category category) {
-    apply(SchemaRecategorized.with(state.schemaId, category));
+  public Completes<SchemaState> recategorizedAs(final Category category) {
+    apply(this.state.withCategory(category), SchemaRecategorized.with(state.schemaId, category), () -> this.state);
+    return completes();
   }
 
   @Override
-  public void renameTo(String name) {
-    apply(SchemaRenamed.with(state.schemaId, name));
+  public Completes<SchemaState> renameTo(String name) {
+    apply(this.state.withName(name), SchemaRenamed.with(state.schemaId, name), () -> this.state);
+    return completes();
+  }
+  @Override
+  @SuppressWarnings("unchecked")
+  protected Tuple2<SchemaState, List<Source<DomainEvent>>> whenNewState() {
+    return Tuple2.from(this.state, Collections.emptyList());
   }
 
   @Override
-  protected String streamName() {
-    return state.schemaId.value;
+  protected String id() {
+    return String.valueOf(state.persistenceId());
   }
 
-  public class State {
-    public final SchemaId schemaId;
-    public final Category category;
-    public final String description;
-    public final String name;
-
-    public State withCategory(final Category category) {
-      return new State(this.schemaId, category, this.name, this.description);
-    }
-
-    public State withDescription(final String description) {
-      return new State(this.schemaId, this.category, this.name, description);
-    }
-
-    public State withName(final String name) {
-      return new State(this.schemaId, this.category, name, this.description);
-    }
-
-    public State(SchemaId schemaId) {
-      this(schemaId, Category.Unknown, "", "");
-    }
-
-    public State(final SchemaId schemaId, final Category category, final String name, final String description) {
-      this.schemaId = schemaId;
-      this.category = category;
-      this.name = name;
-      this.description = description;
-    }
+  @Override
+  protected void persistentObject(final SchemaState persistentObject) {
+    this.state = persistentObject;
   }
 
-  static {
-    BiConsumer<SchemaEntity, SchemaDefined> applySchemaDefinedFn = SchemaEntity::applyDefined;
-    EventSourced.registerConsumer(SchemaEntity.class, SchemaDefined.class, applySchemaDefinedFn);
-    BiConsumer<SchemaEntity, SchemaRecategorized> applySchemaRecategorizedFn = SchemaEntity::applyRecategorized;
-    EventSourced.registerConsumer(SchemaEntity.class, SchemaRecategorized.class, applySchemaRecategorizedFn);
-    BiConsumer<SchemaEntity, SchemaDescribed> applySchemaDescribedFn = SchemaEntity::applyDescribed;
-    EventSourced.registerConsumer(SchemaEntity.class, SchemaDescribed.class, applySchemaDescribedFn);
-    BiConsumer<SchemaEntity, SchemaRenamed> applySchemaRenamedFn = SchemaEntity::applyRenamed;
-    EventSourced.registerConsumer(SchemaEntity.class, SchemaRenamed.class, applySchemaRenamedFn);
-  }
-
-  private void applyDefined(final SchemaDefined e) {
-    state = new State(SchemaId.existing(e.schemaId), Category.valueOf(e.category), e.name, e.description);
-  }
-
-  private void applyDescribed(final SchemaDescribed e) {
-    state = state.withDescription(e.description);
-  }
-
-  private void applyRecategorized(final SchemaRecategorized e) {
-    state = state.withCategory(Category.valueOf(e.category));
-  }
-
-  private void applyRenamed(final SchemaRenamed event) {
-    state = state.withName(event.name);
+  @Override
+  protected Class<SchemaState> persistentObjectType() {
+    return SchemaState.class;
   }
 }

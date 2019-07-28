@@ -7,56 +7,54 @@
 
 package io.vlingo.schemata.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.util.List;
-
+import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.object.ObjectStore;
+import io.vlingo.symbio.store.object.PersistentObjectMapper;
+import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import io.vlingo.actors.World;
-import io.vlingo.actors.testkit.AccessSafely;
-import io.vlingo.lattice.model.DomainEvent;
-import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.MockJournalDispatcher;
-import io.vlingo.schemata.infra.persistence.EntryAdapters;
-import io.vlingo.schemata.model.Events.SchemaDefined;
-import io.vlingo.schemata.model.Events.SchemaDescribed;
-import io.vlingo.schemata.model.Events.SchemaRecategorized;
-import io.vlingo.schemata.model.Events.SchemaRenamed;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.symbio.EntryAdapterProvider;
-import io.vlingo.symbio.store.journal.Journal;
-import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 
 public class SchemaEntityTest {
-  private AccessSafely access;
-  private Journal<String> journal;
-  private MockJournalDispatcher listener;
-  private SourcedTypeRegistry registry;
+  private ObjectTypeRegistry registry;
   private Schema schema;
+  private SchemaId schemaId;
+  private ObjectStore objectStore;
   private World world;
 
   @Before
   @SuppressWarnings("unchecked")
-  public void setUp() throws Exception {
+  public void setUp() {
     world = World.start("schema-test");
 
-    listener = new MockJournalDispatcher(EntryAdapterProvider.instance(world));
+    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
 
-    journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
+    registry = new ObjectTypeRegistry(world);
 
-    registry = new SourcedTypeRegistry(world.world());
+    final Info<Schema> schemaInfo =
+            new Info(
+                  objectStore,
+                  SchemaState.class,
+                  "HR-Database",
+                  MapQueryExpression.using(Schema.class, "find", MapQueryExpression.map("id", "id")),
+                  PersistentObjectMapper.with(Schema.class, new Object(), new Object()));
 
-    EntryAdapters.register(registry, journal);
+    registry.register(schemaInfo);
 
-    schema = world.actorFor(Schema.class, SchemaEntity.class, SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
-    access = listener.afterCompleting(1);
-    schema.defineWith(Category.Event, "name", "description");
+    schemaId = SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique())));
+    schema = world.actorFor(Schema.class, SchemaEntity.class, schemaId);
   }
 
   @After
@@ -65,45 +63,30 @@ public class SchemaEntityTest {
   }
 
   @Test
-  public void testThatSchemaDefinedIsEquals() throws Exception {
-    final List<DomainEvent> applied = access.readFrom("entries"); // see setUp()
-    final SchemaDefined schemaDefined = (SchemaDefined) applied.get(0);
-    assertEquals(1, applied.size());
-    assertEquals(Category.Event.name(), schemaDefined.category);
-    assertEquals("name", schemaDefined.name);
-    assertEquals("description", schemaDefined.description);
+  public void testThatSchemaDefinedIsEquals() {
+    final SchemaState state = schema.defineWith(Category.Event,"name", "description").await();
+    assertTrue(state.persistenceId() > 0);
+    Assert.assertEquals(schemaId.value, state.schemaId.value);
+    Assert.assertEquals(Category.Event.name(), state.category.name());
+    Assert.assertEquals("name", state.name);
+    Assert.assertEquals("description", state.description);
   }
 
   @Test
-  public void testThatSchemaIsDescribed() throws Exception {
-    access.readFrom("entries"); // see setUp()
-    access = listener.afterCompleting(1);
-    schema.describeAs("new description");
-    final List<DomainEvent> applied = access.readFrom("entries");
-    assertEquals(2, applied.size());
-    final SchemaDescribed schemaDescribed = (SchemaDescribed) applied.get(1);
-    assertEquals("new description", schemaDescribed.description);
+  public void testThatSchemaIsDescribed() {
+    final SchemaState state = schema.describeAs("new description").await();
+    Assert.assertEquals("new description", state.description);
   }
 
   @Test
-  public void testThatSchemaRecategorised() throws Exception {
-    access.readFrom("entries"); // see setUp()
-    access = listener.afterCompleting(1);
-    schema.recategorizedAs(Category.Document);
-    final List<DomainEvent> applied = access.readFrom("entries");
-    assertEquals(2, applied.size());
-    final SchemaRecategorized schemaRecategorized = (SchemaRecategorized) applied.get(1);
-    assertEquals(Category.Document.name(), schemaRecategorized.category);
+  public void testThatSchemaRecategorised() {
+    final SchemaState state = schema.recategorizedAs(Category.Document).await();
+    Assert.assertEquals(Category.Document.name(), state.category.name());
   }
 
   @Test
-  public void testThatSchemaRenamed() throws Exception {
-    access.readFrom("entries"); // see setUp()
-    access = listener.afterCompleting(1);
-    schema.renameTo("new name");
-    final List<DomainEvent> applied = access.readFrom("entries");
-    assertEquals(2, applied.size());
-    final SchemaRenamed schemaRenamed = (SchemaRenamed) applied.get(1);
-    assertEquals("new name", schemaRenamed.name);
+  public void testThatSchemaRenamed() {
+    final SchemaState state = schema.renameTo("new name").await();
+    Assert.assertEquals("new name", state.name);
   }
 }
