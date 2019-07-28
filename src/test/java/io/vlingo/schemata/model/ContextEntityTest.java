@@ -30,6 +30,7 @@ public class ContextEntityTest {
   private ObjectTypeRegistry registry;
   private ObjectStore objectStore;
   private World world;
+  private ContextId contextId;
 
   @Before
   @SuppressWarnings({ "unchecked" })
@@ -52,10 +53,8 @@ public class ContextEntityTest {
 
     registry.register(contextInfo);
 
-    // Line below is commented because once the proxy is created a call to any of its methods blocks on .await()
-    // the lambda in the proxy is never invoked.
-    // context = world.actorFor(Context.class, ContextEntity.class, ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique())));
-    context = world.actorFor(Context.class, ContextEntity.class);
+    contextId = ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()));
+    context = world.actorFor(Context.class, ContextEntity.class, contextId);
   }
 
   @After
@@ -65,8 +64,7 @@ public class ContextEntityTest {
 
   @Test
   public void testThatContextIsDefined() {
-    final ContextId contextId = ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()));
-    final ContextState contextState = context.defineWith(contextId,"namespace", "description").await();
+    final ContextState contextState = context.defineWith("namespace", "description").await();
     assertTrue(contextState.persistenceId() > 0);
     Assert.assertEquals(contextId.value, contextState.contextId.value);
     Assert.assertEquals("namespace", contextState.namespace);
@@ -74,13 +72,13 @@ public class ContextEntityTest {
   }
 
   @Test
-  public void testThatContextRenamed() throws Exception {
+  public void testThatContextRenamed() {
     final ContextState contextState = context.changeNamespaceTo("new namespace").await();
     Assert.assertEquals("new namespace", contextState.namespace);
   }
 
   @Test
-  public void testThatContextIsDescribed() throws Exception {
+  public void testThatContextIsDescribed() {
     final ContextState contextState = context.describeAs("new description").await();
     Assert.assertEquals("new description", contextState.description);
   }

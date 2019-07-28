@@ -8,25 +8,31 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.common.Completes;
+import io.vlingo.common.Tuple2;
+import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.ContextDefined;
 import io.vlingo.schemata.model.Events.ContextDescribed;
 import io.vlingo.schemata.model.Events.ContextRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
+import io.vlingo.symbio.Source;
+
+import java.util.Collections;
+import java.util.List;
 
 
 public class ContextEntity extends ObjectEntity<ContextState> implements Context {
   private ContextState state;
 
-  public ContextEntity() {
-    this.state = new ContextState();
+  public ContextEntity(final ContextId contextId) {
+    this.state = new ContextState(contextId);
   }
 
   @Override
-  public Completes<ContextState> defineWith(final ContextId contextId, final String name, final String description) {
+  public Completes<ContextState> defineWith(final String name, final String description) {
     assert (name != null && !name.isEmpty());
     assert (description != null && !description.isEmpty());
-    apply(state.define(contextId, name, description), ContextDefined.with(contextId, name, description), () -> state);
+    apply(state.define(name, description), ContextDefined.with(this.state.contextId, name, description), () -> state);
     return completes();
   }
 
@@ -42,6 +48,12 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
     assert (description != null && !description.isEmpty());
     apply(state.withDescription(description), ContextDescribed.with(state.contextId, description), () -> state);
     return completes();
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  protected Tuple2<ContextState, List<Source<DomainEvent>>> whenNewState() {
+    return Tuple2.from(this.state, Collections.emptyList());
   }
 
   @Override

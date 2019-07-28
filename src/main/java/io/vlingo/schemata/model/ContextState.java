@@ -12,8 +12,8 @@ public class ContextState extends PersistentObject implements Comparable<Context
 
   private static final AtomicLong identityGenerator = new AtomicLong(0);
 
-  public ContextState() {
-    this(identityGenerator.incrementAndGet(), ContextId.undefined(), "", "");
+  public ContextState(final ContextId contextId) {
+    this(identityGenerator.incrementAndGet(), contextId, "", "");
   }
 
   public ContextState(final long id, final ContextId contextId, final String namespace, final String description) {
@@ -23,8 +23,8 @@ public class ContextState extends PersistentObject implements Comparable<Context
     this.description = description;
   }
 
-  public ContextState define(final ContextId contextId, final String namespace, final String description) {
-    return new ContextState(this.persistenceId(), contextId, namespace, description);
+  public ContextState define(final String namespace, final String description) {
+    return new ContextState(this.persistenceId(), this.contextId, namespace, description);
   }
 
   public ContextState withDescription(final String description) {

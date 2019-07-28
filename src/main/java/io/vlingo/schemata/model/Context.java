@@ -30,12 +30,12 @@ public interface Context {
           final ContextId contextId,
           final String name,
           final String description) {
-    final Context context = stage.actorFor(Context.class, ContextEntity.class);
-    context.defineWith(contextId, name, description);
+    final Context context = stage.actorFor(Context.class, ContextEntity.class, contextId);
+    context.defineWith(name, description);
     return context;
   }
 
-  Completes<ContextState> defineWith(final ContextId contextId, final String name, final String description);
+  Completes<ContextState> defineWith(final String name, final String description);
 
   Completes<ContextState> changeNamespaceTo(final String namespace);
 
