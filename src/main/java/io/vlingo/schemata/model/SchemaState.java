@@ -62,7 +62,7 @@ public class SchemaState extends PersistentObject implements Comparable<SchemaSt
   @Override
   public String toString() {
     return "SchemaState[persistenceId=" + persistenceId() +
-            " organizationId=" + schemaId.value +
+            " schemaId=" + schemaId.value +
             " category=" + category.name() +
             " description=" + description +
             " name=" + name + "]";

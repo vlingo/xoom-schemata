@@ -7,63 +7,57 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.List;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
+import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.object.ObjectStore;
+import io.vlingo.symbio.store.object.PersistentObjectMapper;
+import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
+import io.vlingo.actors.World;
+import io.vlingo.schemata.model.Id.ContextId;
+import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.schemata.model.Id.SchemaVersionId;
+import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.schemata.model.SchemaVersion.Specification;
+import io.vlingo.schemata.model.SchemaVersion.Version;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vlingo.actors.World;
-import io.vlingo.actors.testkit.AccessSafely;
-import io.vlingo.lattice.model.DomainEvent;
-import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.MockJournalDispatcher;
-import io.vlingo.schemata.infra.persistence.EntryAdapters;
-import io.vlingo.schemata.model.Events.SchemaVersionAssignedVersion;
-import io.vlingo.schemata.model.Events.SchemaVersionDefined;
-import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
-import io.vlingo.schemata.model.Events.SchemaVersionPublished;
-import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
-import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
-import io.vlingo.schemata.model.Id.ContextId;
-import io.vlingo.schemata.model.Id.OrganizationId;
-import io.vlingo.schemata.model.Id.SchemaId;
-import io.vlingo.schemata.model.Id.SchemaVersionId;
-import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.schemata.model.SchemaVersion.Specification;
-import io.vlingo.schemata.model.SchemaVersion.Version;
-import io.vlingo.symbio.EntryAdapterProvider;
-import io.vlingo.symbio.store.journal.Journal;
-import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
+import static org.junit.Assert.assertTrue;
 
 public class SchemaVersionEntityTest {
-  private AccessSafely access;
-  private Journal<String> journal;
-  private MockJournalDispatcher listener;
-  private SourcedTypeRegistry registry;
+  private ObjectTypeRegistry registry;
   private SchemaVersion schemaVersion;
+  private SchemaVersionId schemaVersionId;
+  private ObjectStore objectStore;
   private World world;
 
   @Before
   @SuppressWarnings("unchecked")
-  public void setUp() throws Exception {
+  public void setUp() {
     world = World.start("schema-version-test");
 
-    listener = new MockJournalDispatcher(EntryAdapterProvider.instance(world));
+    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
 
-    journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
+    registry = new ObjectTypeRegistry(world);
 
-    registry = new SourcedTypeRegistry(world.world());
+    final Info<SchemaVersion> schemaVersionInfo =
+            new Info(
+                    objectStore,
+                    SchemaVersionState.class,
+                    "HR-Database",
+                    MapQueryExpression.using(SchemaVersion.class, "find", MapQueryExpression.map("id", "id")),
+                    PersistentObjectMapper.with(SchemaVersion.class, new Object(), new Object()));
 
-    EntryAdapters.register(registry, journal);
+    registry.register(schemaVersionInfo);
 
-    schemaVersion = world.actorFor(
-            SchemaVersion.class,
-            SchemaVersionEntity.class,
-            SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique())))));
-    access = listener.afterCompleting(1);
-    schemaVersion.defineWith("description", new SchemaVersion.Specification("specification"), new SchemaVersion.Version("1.0.0"));
+    schemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
+    schemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, schemaVersionId);
   }
 
   @After
@@ -72,61 +66,43 @@ public class SchemaVersionEntityTest {
   }
 
   @Test
-  public void testThatSchemaVersionIsDefined() throws Exception {
-    final List<DomainEvent> applied = access.readFrom("entries"); // see setUp()
-    final SchemaVersionDefined schemaVersionDefined = (SchemaVersionDefined) applied.get(0);
-    Assert.assertEquals("description", schemaVersionDefined.description);
-    Assert.assertEquals("specification", schemaVersionDefined.specification);
-    Assert.assertEquals("1.0.0", schemaVersionDefined.version);
+  public void testThatSchemaVersionIsDefined() {
+    final SchemaVersionState state = schemaVersion.defineWith("description", new SchemaVersion.Specification("specification"), new SchemaVersion.Version("1.0.0")).await();
+    assertTrue(state.persistenceId() > 0);
+    Assert.assertEquals(schemaVersionId.value, state.schemaVersionId.value);
+    Assert.assertEquals("description", state.description);
+    Assert.assertEquals("specification", state.specification.value);
+    Assert.assertEquals(SchemaVersion.Status.Draft.name(), state.status.name());
+    Assert.assertEquals("1.0.0", state.versionState.value);
   }
 
   @Test
-  public void testThatSchemaVersionIsSpecified() throws Exception {
-    access.readFrom("entries"); // see setUp
-    access = listener.afterCompleting(1);
-    schemaVersion.specifyWith(Specification.of("new specification"));
-    final List<DomainEvent> applied = access.readFrom("entries");
-    final SchemaVersionSpecified schemaVersionSpecified = (SchemaVersionSpecified) applied.get(1);
-    Assert.assertEquals("new specification", schemaVersionSpecified.specification);
+  public void testThatSchemaVersionIsSpecified() {
+    final SchemaVersionState state = schemaVersion.specifyWith(Specification.of("new specification")).await();
+    Assert.assertEquals("new specification", state.specification.value);
   }
 
   @Test
-  public void testThatSchemaVersionIsDescribed() throws Exception {
-    access.readFrom("entries"); // see setUp
-    access = listener.afterCompleting(1);
-    schemaVersion.describeAs("new description");
-    final List<DomainEvent> applied = access.readFrom("entries");
-    final SchemaVersionDescribed schemaVersionDescribed = (SchemaVersionDescribed) applied.get(1);
-    Assert.assertEquals("new description", schemaVersionDescribed.description);
+  public void testThatSchemaVersionIsDescribed() {
+    final SchemaVersionState state = schemaVersion.describeAs("new description").await();
+    Assert.assertEquals("new description", state.description);
   }
 
   @Test
-  public void testThatSchemaVersionPublishes() throws Exception {
-    access.readFrom("entries"); // see setUp
-    access = listener.afterCompleting(1);
-    schemaVersion.publish();
-    final List<DomainEvent> applied = access.readFrom("entries");
-    final SchemaVersionPublished schemaVersionPublished = (SchemaVersionPublished) applied.get(1);
-    Assert.assertNotNull(schemaVersionPublished);
+  public void testThatSchemaVersionPublishes() {
+    final SchemaVersionState state = schemaVersion.publish().await();
+    Assert.assertEquals(SchemaVersion.Status.Published, state.status);
   }
 
   @Test
-  public void testThatSchemaVersionRemoves() throws Exception {
-    access.readFrom("entries"); // see setUp
-    access = listener.afterCompleting(1);
-    schemaVersion.remove();
-    final List<DomainEvent> applied = access.readFrom("entries");
-    final SchemaVersionRemoved schemaVersionRemoved = (SchemaVersionRemoved) applied.get(1);
-    Assert.assertNotNull(schemaVersionRemoved);
+  public void testThatSchemaVersionRemoves() {
+    final SchemaVersionState state = schemaVersion.remove().await();
+    Assert.assertEquals(SchemaVersion.Status.Removed, state.status);
   }
 
   @Test
-  public void testThatSchemaVersionAssignedVersion() throws Exception {
-    access.readFrom("entries"); // see setUp
-    access = listener.afterCompleting(1);
-    schemaVersion.assignVersionOf(Version.of("version-1"));
-    final List<DomainEvent> applied = access.readFrom("entries");
-    final SchemaVersionAssignedVersion schemaVersionAssignedVersion = (SchemaVersionAssignedVersion) applied.get(1);
-    Assert.assertEquals("version-1", schemaVersionAssignedVersion.version);
+  public void testThatSchemaVersionAssignedVersion() {
+    final SchemaVersionState state = schemaVersion.assignVersionOf(Version.of("version-1")).await();
+    Assert.assertEquals("version-1", state.versionState.value);
   }
 }

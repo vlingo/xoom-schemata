@@ -14,11 +14,6 @@ import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.PersistentObjectMapper;
 import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import io.vlingo.actors.World;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
@@ -26,6 +21,11 @@ import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.UnitId;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class SchemaEntityTest {
   private ObjectTypeRegistry registry;

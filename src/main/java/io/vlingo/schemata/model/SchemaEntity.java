@@ -54,6 +54,7 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
     apply(this.state.withName(name), SchemaRenamed.with(state.schemaId, name), () -> this.state);
     return completes();
   }
+
   @Override
   @SuppressWarnings("unchecked")
   protected Tuple2<SchemaState, List<Source<DomainEvent>>> whenNewState() {
