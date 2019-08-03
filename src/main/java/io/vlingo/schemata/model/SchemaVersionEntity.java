@@ -7,9 +7,10 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.function.BiConsumer;
-
-import io.vlingo.lattice.model.sourcing.EventSourced;
+import io.vlingo.common.Completes;
+import io.vlingo.common.Tuple2;
+import io.vlingo.lattice.model.DomainEvent;
+import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.SchemaVersionAssignedVersion;
 import io.vlingo.schemata.model.Events.SchemaVersionDefined;
 import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
@@ -17,141 +18,85 @@ import io.vlingo.schemata.model.Events.SchemaVersionPublished;
 import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
 import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
+import io.vlingo.symbio.Source;
 
-public final class SchemaVersionEntity extends EventSourced implements SchemaVersion {
-  private State state;
+import java.util.Collections;
+import java.util.List;
+
+public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState> implements SchemaVersion {
+  private SchemaVersionState state;
 
   public SchemaVersionEntity(final SchemaVersionId schemaVersionId) {
-    state = new State(schemaVersionId);
+    state = new SchemaVersionState(schemaVersionId);
   }
 
   @Override
-  public void defineWith(
+  public Completes<SchemaVersionState> defineWith(
           final String description,
           final Specification specification,
           final Version version) {
     assert (description != null && !description.isEmpty());
-    apply(SchemaVersionDefined.with(state.schemaVersionId, description, specification, Status.Draft, version));
+    apply(
+        this.state.defineWith(description, specification, version),
+        SchemaVersionDefined.with(state.schemaVersionId, description, specification, Status.Draft, version),
+        () -> state);
+    return completes();
   }
 
   @Override
-  public void assignVersionOf(final Version version) {
+  public Completes<SchemaVersionState> assignVersionOf(final Version version) {
     assert (version != null);
-    apply(SchemaVersionAssignedVersion.with(state.schemaVersionId, version));
+    apply(this.state.withVersion(version), SchemaVersionAssignedVersion.with(state.schemaVersionId, version), () -> this.state);
+    return completes();
   }
 
   @Override
-  public void describeAs(final String description) {
+  public Completes<SchemaVersionState> describeAs(final String description) {
     assert (description != null && !description.isEmpty());
     assert (state.status.isDraft());
-    apply(SchemaVersionDescribed.with(state.schemaVersionId, description));
+    apply(this.state.withDescription(description), SchemaVersionDescribed.with(state.schemaVersionId, description), () -> this.state);
+    return completes();
   }
 
   @Override
-  public void publish() {
+  public Completes<SchemaVersionState> publish() {
     assert (state.status.isDraft());
-    apply(SchemaVersionPublished.with(state.schemaVersionId));
+    apply(this.state.asPublished(), SchemaVersionPublished.with(state.schemaVersionId), () -> this.state);
+    return completes();
   }
 
   @Override
-  public void remove() {
+  public Completes<SchemaVersionState> remove() {
     assert (state.status.isDraft());
-    apply(SchemaVersionRemoved.with(state.schemaVersionId));
+    apply(this.state.asRemoved(), SchemaVersionRemoved.with(state.schemaVersionId), () -> this.state);
+    return completes();
   }
 
   @Override
-  public void specifyWith(final Specification specification) {
+  public Completes<SchemaVersionState> specifyWith(final Specification specification) {
     assert (specification != null);
-    apply(SchemaVersionSpecified.with(state.schemaVersionId, specification));
+    apply(this.state.withSpecification(specification), SchemaVersionSpecified.with(state.schemaVersionId, specification), () -> this.state);
+    return completes();
   }
 
   @Override
-  protected String streamName() {
-    return state.schemaVersionId.value;
+  @SuppressWarnings("unchecked")
+  protected Tuple2<SchemaVersionState, List<Source<DomainEvent>>> whenNewState() {
+    return Tuple2.from(this.state, Collections.emptyList());
   }
 
-  public class State {
-    public final SchemaVersionId schemaVersionId;
-    public final String description;
-    public final Specification specification;
-    public final Status status;
-    public final Version version;
-
-    public State(final SchemaVersionId schemaVersionId) {
-      this(schemaVersionId, "", new Specification("unknown"), Status.Draft, new Version("0.0.0"));
-    }
-
-    public State(
-            final SchemaVersionId schemaVersionId,
-            final String description,
-            final Specification specification,
-            final Status status,
-            final Version version) {
-      this.schemaVersionId = schemaVersionId;
-      this.description = description;
-      this.specification = specification;
-      this.status = status;
-      this.version = version;
-    }
-
-    public State asPublished() {
-      return new State(this.schemaVersionId, this.description, this.specification, Status.Published, this.version);
-    }
-
-    public State asRemoved() {
-      return new State(this.schemaVersionId, this.description, this.specification, Status.Removed, this.version);
-    }
-
-    public State withSpecification(final Specification specification) {
-      return new State(this.schemaVersionId, this.description, specification, this.status, this.version);
-    }
-
-    public State withDescription(final String description) {
-      return new State(this.schemaVersionId, description, this.specification, this.status, this.version);
-    }
-
-    public State withVersion(final Version version) {
-      return new State(this.schemaVersionId, this.description, this.specification, this.status, version);
-    }
+  @Override
+  protected String id() {
+    return String.valueOf(state.persistenceId());
   }
 
-  static {
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionDefined> applySchemaDefinedFn = SchemaVersionEntity::applyDefined;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionDefined.class, applySchemaDefinedFn);
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionSpecified> applySchemaVersionSpecifiedFn = SchemaVersionEntity::applySpecification;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionSpecified.class, applySchemaVersionSpecifiedFn);
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionDescribed> applySchemaDescribedFn = SchemaVersionEntity::applyDescribed;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionDescribed.class, applySchemaDescribedFn);
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionAssignedVersion> applySchemaVersionFn = SchemaVersionEntity::applyVersioned;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionAssignedVersion.class, applySchemaVersionFn);
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionPublished> applySchemaVersionPublishedFn = SchemaVersionEntity::applyPublished;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionPublished.class, applySchemaVersionPublishedFn);
-    BiConsumer<SchemaVersionEntity, Events.SchemaVersionRemoved> applySchemaVersionRemovedFn = SchemaVersionEntity::applyRemoved;
-    EventSourced.registerConsumer(SchemaVersionEntity.class, Events.SchemaVersionRemoved.class, applySchemaVersionRemovedFn);
+  @Override
+  protected void persistentObject(final SchemaVersionState persistentObject) {
+    this.state = persistentObject;
   }
 
-  private void applyDefined(final Events.SchemaVersionDefined e) {
-    this.state = new State(SchemaVersionId.existing(e.schemaVersionId), e.description,
-            new Specification(e.specification), Status.valueOf(e.status), new Version(e.version));
-  }
-
-  private void applySpecification(final Events.SchemaVersionSpecified e) {
-    this.state = this.state.withSpecification(new Specification(e.specification));
-  }
-
-  private void applyDescribed(final Events.SchemaVersionDescribed e) {
-    this.state = this.state.withDescription(e.description);
-  }
-
-  private void applyVersioned(final Events.SchemaVersionAssignedVersion e) {
-    this.state = this.state.withVersion(new Version(e.version));
-  }
-
-  private void applyPublished(final Events.SchemaVersionPublished e) {
-    this.state = this.state.asPublished();
-  }
-
-  private void applyRemoved(final Events.SchemaVersionRemoved e) {
-    this.state = this.state.asRemoved();
+  @Override
+  protected Class<SchemaVersionState> persistentObjectType() {
+    return SchemaVersionState.class;
   }
 }

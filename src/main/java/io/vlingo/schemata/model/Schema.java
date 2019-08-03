@@ -8,6 +8,7 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.actors.Stage;
+import io.vlingo.common.Completes;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.SchemaId;
 
@@ -21,14 +22,16 @@ public interface Schema {
   }
 
   static Schema with(final Stage stage, final SchemaId schemaId, final String name, final String description) {
-    return stage.actorFor(Schema.class, SchemaEntity.class, schemaId, name, description);
+    final Schema schema = stage.actorFor(Schema.class, SchemaEntity.class, schemaId);
+    schema.renameTo(name).andThen(s -> s.withDescription(description));
+    return schema;
   }
 
-  void defineWith(final Category category, final String name, final String description);
+  Completes<SchemaState> defineWith(final Category category, final String name, final String description);
 
-  void describeAs(final String description);
+  Completes<SchemaState> describeAs(final String description);
 
-  void recategorizedAs(final Category category);
+  Completes<SchemaState> recategorizedAs(final Category category);
 
-  void renameTo(final String name);
+  Completes<SchemaState> renameTo(final String name);
 }

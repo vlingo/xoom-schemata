@@ -7,51 +7,50 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.List;
-
+import io.vlingo.lattice.model.object.ObjectTypeRegistry;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
+import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.object.ObjectStore;
+import io.vlingo.symbio.store.object.PersistentObjectMapper;
+import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import io.vlingo.actors.World;
-import io.vlingo.actors.testkit.AccessSafely;
-import io.vlingo.lattice.model.DomainEvent;
-import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.MockJournalDispatcher;
-import io.vlingo.schemata.infra.persistence.EntryAdapters;
-import io.vlingo.schemata.model.Events.OrganizationDefined;
-import io.vlingo.schemata.model.Events.OrganizationDescribed;
-import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.schemata.model.Id.OrganizationId;
-import io.vlingo.symbio.EntryAdapterProvider;
-import io.vlingo.symbio.store.journal.Journal;
-import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
+
+import static org.junit.Assert.assertTrue;
 
 public class OrganizationEntityTest {
-  private AccessSafely access;
-  private Journal<String> journal;
-  private MockJournalDispatcher listener;
+  private ObjectTypeRegistry registry;
   private Organization organization;
-  private SourcedTypeRegistry registry;
+  private OrganizationId organizationId;
+  private ObjectStore objectStore;
   private World world;
 
   @Before
   @SuppressWarnings("unchecked")
-  public void setUp() throws Exception {
+  public void setUp() {
     world = World.start("organization-test");
 
-    listener = new MockJournalDispatcher(EntryAdapterProvider.instance(world));
+    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
 
-    journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
+    registry = new ObjectTypeRegistry(world);
 
-    registry = new SourcedTypeRegistry(world.world());
+    final Info<Organization> organizationInfo =
+            new Info(
+                    objectStore,
+                    OrganizationState.class,
+                    "HR-Database",
+                    MapQueryExpression.using(Organization.class, "find", MapQueryExpression.map("id", "id")),
+                    PersistentObjectMapper.with(Organization.class, new Object(), new Object()));
 
-    EntryAdapters.register(registry, journal);
-
-    organization = world.actorFor(Organization.class, OrganizationEntity.class, OrganizationId.unique());
-    access = listener.afterCompleting(1);
-    organization.defineWith("name", "description");
+    registry.register(organizationInfo);
+    organizationId = OrganizationId.unique();
+    organization = world.actorFor(Organization.class, OrganizationEntity.class, organizationId);
   }
 
   @After
@@ -60,30 +59,23 @@ public class OrganizationEntityTest {
   }
 
   @Test
-  public void testThatOrganizationDefinedIsEquals() throws Exception {
-    final List<DomainEvent> applied = access.readFrom("entries"); // see setUp()
-    final OrganizationDefined organizationDefined = (OrganizationDefined) applied.get(0);
-    Assert.assertEquals("name", organizationDefined.name);
-    Assert.assertEquals("description", organizationDefined.description);
+  public void testThatOrganizationDefinedIsEquals() {
+    final OrganizationState state = organization.defineWith("name", "description").await();
+    assertTrue(state.persistenceId() > 0);
+    Assert.assertEquals(organizationId.value, state.organizationId.value);
+    Assert.assertEquals("name", state.name);
+    Assert.assertEquals("description", state.description);
   }
 
   @Test
-  public void testThatOrganizationRenamed() throws Exception {
-    access.readFrom("entries"); // see setUp()
-    access = listener.afterCompleting(1);
-    organization.renameTo("new name");
-    final List<DomainEvent> applied = access.readFrom("entries");;
-    final OrganizationRenamed organizationRenamed = (OrganizationRenamed) applied.get(1);
-    Assert.assertEquals("new name", organizationRenamed.name);
+  public void testThatOrganizationRenamed() {
+    final OrganizationState state = organization.renameTo("new name").await();
+    Assert.assertEquals("new name", state.name);
   }
 
   @Test
-  public void testThatOrganizationIsDescribed() throws Exception {
-    access.readFrom("entries"); // see setUp()
-    access = listener.afterCompleting(1);
-    organization.describeAs("new description");
-    final List<DomainEvent> applied = access.readFrom("entries");;
-    final OrganizationDescribed organizationDescribed = (OrganizationDescribed) applied.get(1);
-    Assert.assertEquals("new description", organizationDescribed.description);
+  public void testThatOrganizationIsDescribed() {
+    final OrganizationState state = organization.describeAs("new description").await();
+    Assert.assertEquals("new description", state.description);
   }
 }

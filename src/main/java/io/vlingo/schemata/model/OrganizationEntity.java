@@ -7,83 +7,62 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.function.BiConsumer;
-
-import io.vlingo.lattice.model.sourcing.EventSourced;
+import io.vlingo.common.Completes;
+import io.vlingo.common.Tuple2;
+import io.vlingo.lattice.model.DomainEvent;
+import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.OrganizationDefined;
 import io.vlingo.schemata.model.Events.OrganizationDescribed;
 import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.symbio.Source;
 
-public class OrganizationEntity extends EventSourced implements Organization {
-  private State state;
+import java.util.Collections;
+import java.util.List;
 
-  public OrganizationEntity(final OrganizationId organizationId) {
-    this.state = new State(organizationId);
+public class OrganizationEntity extends ObjectEntity<OrganizationState> implements Organization {
+  private OrganizationState state;
+
+  public OrganizationEntity(OrganizationId organizationId) {
+    this.state = new OrganizationState(organizationId);
   }
 
   @Override
-  public void defineWith(final String name, final String description) {
-    apply(new OrganizationDefined(state.organizationId, name, description));
+  public Completes<OrganizationState> defineWith(final String name, final String description) {
+    apply(state.define(name, description), new OrganizationDefined(this.state.organizationId, name, description), () -> state);
+    return completes();
   }
 
   @Override
-  public void describeAs(final String description) {
-    apply(new OrganizationDescribed(state.organizationId, description));
+  public Completes<OrganizationState> describeAs(final String description) {
+    apply(state.withDescription(description), new OrganizationDescribed(state.organizationId, description), () -> state);
+    return completes();
   }
 
   @Override
-  public void renameTo(final String name) {
-    apply(new OrganizationRenamed(state.organizationId, name));
+  public Completes<OrganizationState> renameTo(final String name) {
+    apply(state.withName(name), new OrganizationRenamed(state.organizationId, name), () -> state);
+    return completes();
   }
 
   @Override
-  protected String streamName() {
-    return state.organizationId.value;
+  @SuppressWarnings("unchecked")
+  protected Tuple2<OrganizationState, List<Source<DomainEvent>>> whenNewState() {
+    return Tuple2.from(this.state, Collections.emptyList());
   }
 
-  public class State {
-    public final OrganizationId organizationId;
-    public final String name;
-    public final String description;
-
-    public State withDescription(final String description) {
-      return new State(this.organizationId, this.name, description);
-    }
-
-    public State withName(final String name) {
-      return new State(this.organizationId, name, this.description);
-    }
-
-    public State(OrganizationId organizationId) {
-      this(organizationId, "", "");
-    }
-
-    public State(final OrganizationId organizationId, final String name, final String description) {
-      this.organizationId = organizationId;
-      this.name = name;
-      this.description = description;
-    }
+  @Override
+  protected String id() {
+    return String.valueOf(state.persistenceId());
   }
 
-  static {
-    BiConsumer<OrganizationEntity, OrganizationDefined> applyOrganizationDefinedFn = OrganizationEntity::applyDefined;
-    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationDefined.class, applyOrganizationDefinedFn);
-    BiConsumer<OrganizationEntity, OrganizationDescribed> applyOrganizationDescribedFn = OrganizationEntity::applyDescribed;
-    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationDescribed.class, applyOrganizationDescribedFn);
-    BiConsumer<OrganizationEntity, OrganizationRenamed> applyOrganizationRenamedFn = OrganizationEntity::applyRenamed;
-    EventSourced.registerConsumer(OrganizationEntity.class, OrganizationRenamed.class, applyOrganizationRenamedFn);
+  @Override
+  protected void persistentObject(final OrganizationState persistentObject) {
+    this.state = persistentObject;
   }
 
-  private void applyDefined(OrganizationDefined event) {
-    state = new State(OrganizationId.existing(event.organizationId), event.name, event.description);
-  }
-
-  private final void applyDescribed(OrganizationDescribed event) {
-    state = state.withDescription(event.description);
-  }
-
-  private final void applyRenamed(OrganizationRenamed event) {
-    state = state.withName(event.name);
+  @Override
+  protected Class<OrganizationState> persistentObjectType() {
+    return OrganizationState.class;
   }
 }

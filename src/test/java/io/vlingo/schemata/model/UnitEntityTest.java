@@ -7,82 +7,75 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.List;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry;
+import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.object.ObjectStore;
+import io.vlingo.symbio.store.object.PersistentObjectMapper;
+import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
+import io.vlingo.actors.World;
+import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.schemata.model.Id.OrganizationId;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vlingo.actors.World;
-import io.vlingo.actors.testkit.AccessSafely;
-import io.vlingo.lattice.model.DomainEvent;
-import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.MockJournalDispatcher;
-import io.vlingo.schemata.infra.persistence.EntryAdapters;
-import io.vlingo.schemata.model.Events.UnitDefined;
-import io.vlingo.schemata.model.Events.UnitDescribed;
-import io.vlingo.schemata.model.Events.UnitRenamed;
-import io.vlingo.symbio.EntryAdapterProvider;
-import io.vlingo.symbio.store.journal.Journal;
-import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
+import static org.junit.Assert.assertTrue;
 
 public class UnitEntityTest {
-  private AccessSafely access;
-  private Journal<String> journal;
-  private MockJournalDispatcher listener;
-  private SourcedTypeRegistry registry;
+  private ObjectTypeRegistry registry;
   private Unit unit;
+  private UnitId unitId;
+  private ObjectStore objectStore;
   private World world;
 
   @Before
   @SuppressWarnings("unchecked")
-  public void setUp() throws Exception {
+  public void setUp() {
     world = World.start("unit-entity-test");
 
-    listener = new MockJournalDispatcher(EntryAdapterProvider.instance(world));
+    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
 
-    journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
+    registry = new ObjectTypeRegistry(world);
 
-    registry = new SourcedTypeRegistry(world.world());
+    final Info<Unit> unitInfo =
+            new Info(
+                  objectStore,
+                  UnitState.class,
+                  "HR-Database",
+                  MapQueryExpression.using(Unit.class, "find", MapQueryExpression.map("id", "id")),
+                  PersistentObjectMapper.with(Unit.class, new Object(), new Object()));
 
-    EntryAdapters.register(registry, journal);
-
-    unit = world.actorFor(Unit.class, UnitEntity.class, Unit.uniqueId(Organization.uniqueId()));
-    access = listener.afterCompleting(1);
-    unit.defineWith("name", "description");
+    registry.register(unitInfo);
+    unitId = UnitId.uniqueFor(OrganizationId.unique());
+    unit = world.actorFor(Unit.class, UnitEntity.class, unitId);
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     world.terminate();
   }
 
   @Test
-  public void testThatUnitDefined() throws Exception {
-    final List<DomainEvent> applied = access.readFrom("entries"); // see setUp()
-    final UnitDefined unitDefined = (UnitDefined) applied.get(0);
-    Assert.assertEquals("name", unitDefined.name);
-    Assert.assertEquals("description", unitDefined.description);
+  public void testThatUnitDefined() {
+    final UnitState state = unit.defineWith("name", "description").await();
+    assertTrue(state.persistenceId() > 0);
+    Assert.assertEquals("name", state.name);
+    Assert.assertEquals("description", state.description);
   }
 
   @Test
-  public void testThatUnitDescribed() throws Exception {
-    access.readFrom("entries"); // see setUp
-    access = listener.afterCompleting(1);
-    unit.describeAs("description");
-    final List<DomainEvent> applied = access.readFrom("entries");
-    final UnitDescribed unitDescribed = (UnitDescribed) applied.get(1);
-    Assert.assertEquals("description", unitDescribed.description);
+  public void testThatUnitDescribed() {
+    final UnitState state = unit.describeAs("new description").await();
+    Assert.assertEquals("new description", state.description);
   }
 
   @Test
-  public void testThatUnitRenamed() throws Exception {
-    access.readFrom("entries"); // see setUp
-    access = listener.afterCompleting(1);
-    unit.renameTo("newName");
-    final List<DomainEvent> applied = access.readFrom("entries");
-    final UnitRenamed unitRenamed = (UnitRenamed) applied.get(1);
-    Assert.assertEquals("newName", unitRenamed.name);
+  public void testThatUnitRenamed() {
+    final UnitState state = unit.renameTo("new name").await();
+    Assert.assertEquals("new name", state.name);
   }
 }

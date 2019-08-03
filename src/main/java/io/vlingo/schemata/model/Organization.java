@@ -8,6 +8,7 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.actors.Stage;
+import io.vlingo.common.Completes;
 import io.vlingo.schemata.model.Id.OrganizationId;
 
 public interface Organization {
@@ -15,17 +16,26 @@ public interface Organization {
     return OrganizationId.unique();
   }
 
-  static Organization with(final Stage stage) {
-    return with(stage, uniqueId());
+  static Organization with(
+          final Stage stage,
+          final String name,
+          final String description) {
+    return with(stage, uniqueId(), name, description);
   }
 
-  static Organization with(final Stage stage, final OrganizationId organizationId) {
-    return stage.actorFor(Organization.class, OrganizationEntity.class, organizationId);
+  static Organization with(
+          final Stage stage,
+          final OrganizationId organizationId,
+          final String name,
+          final String description) {
+    final Organization organization = stage.actorFor(Organization.class, OrganizationEntity.class, organizationId);
+    organization.defineWith(name, description);
+    return organization;
   }
 
-  void defineWith(final String name, final String description);
+  Completes<OrganizationState> defineWith(final String name, final String description);
 
-  void describeAs(final String description);
+  Completes<OrganizationState> describeAs(final String description);
 
-  void renameTo(final String name);
+  Completes<OrganizationState> renameTo(final String name);
 }

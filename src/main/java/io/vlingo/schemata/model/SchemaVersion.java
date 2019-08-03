@@ -7,6 +7,7 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.actors.Stage;
+import io.vlingo.common.Completes;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 
@@ -27,20 +28,22 @@ public interface SchemaVersion {
 
   static SchemaVersion with(final Stage stage, final SchemaVersionId previousSchemaVersionId,
           final String description, final Specification definition, final Status status, final Version version) {
-    return stage.actorFor(SchemaVersion.class, SchemaVersionEntity.class, uniqueId(previousSchemaVersionId), description, definition, status, version);
+    final SchemaVersion schemaVersion = stage.actorFor(SchemaVersion.class, SchemaVersionEntity.class, uniqueId(previousSchemaVersionId));
+    schemaVersion.defineWith(description, definition, version);
+    return schemaVersion;
   }
 
-  void defineWith(final String description, final Specification specification, final Version version);
+  Completes<SchemaVersionState> defineWith(final String description, final Specification specification, final Version version);
 
-  void assignVersionOf(final Version version);
+  Completes<SchemaVersionState> assignVersionOf(final Version version);
 
-  void describeAs(final String description);
+  Completes<SchemaVersionState> describeAs(final String description);
 
-  void publish();
+  Completes<SchemaVersionState> publish();
 
-  void remove();
+  Completes<SchemaVersionState> remove();
 
-  void specifyWith(final Specification specification);
+  Completes<SchemaVersionState> specifyWith(final Specification specification);
 
   class Specification {
     public final String value;
@@ -52,6 +55,11 @@ public interface SchemaVersion {
     public Specification(final String value) {
       assert(value != null && !value.trim().isEmpty());
       this.value = value;
+    }
+
+    @Override
+    public String toString() {
+      return value;
     }
   }
 
@@ -83,6 +91,11 @@ public interface SchemaVersion {
 
     public Version(final String value) {
       this.value = value;
+    }
+
+    @Override
+    public String toString() {
+      return value;
     }
   }
 }

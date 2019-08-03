@@ -7,89 +7,67 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.function.BiConsumer;
-
-import io.vlingo.lattice.model.sourcing.EventSourced;
+import io.vlingo.common.Completes;
+import io.vlingo.common.Tuple2;
+import io.vlingo.lattice.model.DomainEvent;
+import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.ContextDefined;
 import io.vlingo.schemata.model.Events.ContextDescribed;
 import io.vlingo.schemata.model.Events.ContextRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
+import io.vlingo.symbio.Source;
 
-public class ContextEntity extends EventSourced implements Context {
-  private State state;
+import java.util.Collections;
+import java.util.List;
+
+
+public class ContextEntity extends ObjectEntity<ContextState> implements Context {
+  private ContextState state;
 
   public ContextEntity(final ContextId contextId) {
-    this.state = new State(contextId);
+    this.state = new ContextState(contextId);
   }
 
   @Override
-  public void defineWith(final String name, final String description) {
+  public Completes<ContextState> defineWith(final String name, final String description) {
     assert (name != null && !name.isEmpty());
     assert (description != null && !description.isEmpty());
-    apply(ContextDefined.with(state.contextId, name, description));
+    apply(state.define(name, description), ContextDefined.with(this.state.contextId, name, description), () -> state);
+    return completes();
   }
 
   @Override
-  public void changeNamespaceTo(final String namespace) {
+  public Completes<ContextState> changeNamespaceTo(final String namespace) {
     assert (namespace != null && !namespace.isEmpty());
-    apply(ContextRenamed.with(state.contextId, namespace));
+    apply(state.withNamespace(namespace), ContextRenamed.with(state.contextId, namespace), () -> state);
+    return completes();
   }
 
   @Override
-  public void describeAs(final String description) {
+  public Completes<ContextState> describeAs(final String description) {
     assert (description != null && !description.isEmpty());
-    apply(ContextDescribed.with(state.contextId, description));
+    apply(state.withDescription(description), ContextDescribed.with(state.contextId, description), () -> state);
+    return completes();
   }
 
   @Override
-  protected String streamName() {
-    return state.contextId.value;
+  @SuppressWarnings("unchecked")
+  protected Tuple2<ContextState, List<Source<DomainEvent>>> whenNewState() {
+    return Tuple2.from(this.state, Collections.emptyList());
   }
 
-  public class State {
-    public final ContextId contextId;
-    public final String description;
-    public final String namespace;
-
-    public State(final ContextId contextId) {
-      this.contextId = contextId;
-      this.namespace = "";
-      this.description = "";
-    }
-
-    public State(final ContextId contextId, final String namespace, final String description) {
-      this.contextId = contextId;
-      this.namespace = namespace;
-      this.description = description;
-    }
-
-    public State withDescription(final String description) {
-      return new State(this.contextId, this.namespace, description);
-    }
-
-    public State withNamespace(final String namespace) {
-      return new State(this.contextId, namespace, this.description);
-    }
+  @Override
+  protected String id() {
+    return String.valueOf(state.persistenceId());
   }
 
-  static {
-    BiConsumer<ContextEntity, ContextDefined> applyContextDefinedFn = ContextEntity::applyDefined;
-    EventSourced.registerConsumer(ContextEntity.class, ContextDefined.class, applyContextDefinedFn);
-    BiConsumer<ContextEntity, ContextDescribed> applyContextDescribedFn = ContextEntity::applyDescribed;
-    EventSourced.registerConsumer(ContextEntity.class, ContextDescribed.class, applyContextDescribedFn);
-    BiConsumer<ContextEntity, ContextRenamed> applyContextNamespaceChangedFn = ContextEntity::applyNamespaceChanged;
-    EventSourced.registerConsumer(ContextEntity.class, ContextRenamed.class, applyContextNamespaceChangedFn);
+  @Override
+  protected void persistentObject(final ContextState persistentObject) {
+    this.state = persistentObject;
   }
 
-  private void applyDefined(final ContextDefined e) {
-    this.state = new State(ContextId.existing(e.contextId), e.name, e.description);
-  }
-
-  private void applyDescribed(final ContextDescribed e) {
-    this.state = this.state.withDescription(e.description);
-  }
-
-  private void applyNamespaceChanged(final ContextRenamed e) {
-    state = state.withNamespace(e.namespace);
+  @Override
+  protected Class<ContextState> persistentObjectType() {
+    return ContextState.class;
   }
 }

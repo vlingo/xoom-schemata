@@ -8,51 +8,53 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.actors.World;
-import io.vlingo.actors.testkit.AccessSafely;
-import io.vlingo.lattice.model.DomainEvent;
-import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.MockJournalDispatcher;
-import io.vlingo.schemata.infra.persistence.EntryAdapters;
-import io.vlingo.schemata.model.Events.ContextDefined;
-import io.vlingo.schemata.model.Events.ContextDescribed;
-import io.vlingo.schemata.model.Events.ContextRenamed;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
+import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.model.Id.ContextId;
-import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.symbio.EntryAdapterProvider;
-import io.vlingo.symbio.store.journal.Journal;
-import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
+import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.object.ObjectStore;
+import io.vlingo.symbio.store.object.PersistentObjectMapper;
+import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
+import static org.junit.Assert.assertTrue;
 
 public class ContextEntityTest {
-  private AccessSafely access;
   private Context context;
-  private Journal<String> journal;
-  private MockJournalDispatcher listener;
-  private SourcedTypeRegistry registry;
+  private ObjectTypeRegistry registry;
+  private ObjectStore objectStore;
   private World world;
+  private ContextId contextId;
 
   @Before
   @SuppressWarnings({ "unchecked" })
-  public void setUp() throws Exception {
+  public void setUp() {
     world = World.start("context-test");
 
-    listener = new MockJournalDispatcher(EntryAdapterProvider.instance(world));
+    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
 
-    journal = world.world().actorFor(Journal.class, InMemoryJournalActor.class, listener);
+    registry = new ObjectTypeRegistry(world);
 
-    registry = new SourcedTypeRegistry(world.world());
+    // NOTE: The InMemoryObjectStoreActor implementation currently
+    // does not use PersistentObjectMapper, and thus the no-op decl.
+    final Info<Context> contextInfo =
+            new Info(
+                    objectStore,
+                    ContextState.class,
+                    "HR-Database",
+                    MapQueryExpression.using(Context.class, "find", MapQueryExpression.map("id", "id")),
+                    PersistentObjectMapper.with(Context.class, new Object(), new Object()));
 
-    EntryAdapters.register(registry, journal);
+    registry.register(contextInfo);
 
-    context = world.actorFor(Context.class, ContextEntity.class, ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique())));
-    access = listener.afterCompleting(1);
-    context.defineWith("namespace", "description");
+    contextId = ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()));
+    context = world.actorFor(Context.class, ContextEntity.class, contextId);
   }
 
   @After
@@ -61,30 +63,23 @@ public class ContextEntityTest {
   }
 
   @Test
-  public void testThatContextIsDefined() throws Exception {
-    final List<DomainEvent> applied = access.readFrom("entries"); // see setUp()
-    final ContextDefined contextDefined = (ContextDefined) applied.get(0);
-    Assert.assertEquals("namespace", contextDefined.name);
-    Assert.assertEquals("description", contextDefined.description);
+  public void testThatContextIsDefined() {
+    final ContextState contextState = context.defineWith("namespace", "description").await();
+    assertTrue(contextState.persistenceId() > 0);
+    Assert.assertEquals(contextId.value, contextState.contextId.value);
+    Assert.assertEquals("namespace", contextState.namespace);
+    Assert.assertEquals("description", contextState.description);
   }
 
   @Test
-  public void testThatContextRenamed() throws Exception {
-    access.readFrom("entries"); // see setUp
-    access = listener.afterCompleting(1);
-    context.changeNamespaceTo("new namespace");
-    final List<DomainEvent> applied = access.readFrom("entries");
-    final ContextRenamed contextRenamed = (ContextRenamed) applied.get(1);
-    Assert.assertEquals("new namespace", contextRenamed.namespace);
+  public void testThatContextRenamed() {
+    final ContextState contextState = context.changeNamespaceTo("new namespace").await();
+    Assert.assertEquals("new namespace", contextState.namespace);
   }
 
   @Test
-  public void testThatContextIsDescribed() throws Exception {
-    access.readFrom("entries"); // see setUp()
-    access = listener.afterCompleting(1);
-    context.describeAs("new description");
-    final List<DomainEvent> applied = access.readFrom("entries");
-    final ContextDescribed contextDescribed = (ContextDescribed) applied.get(1);
-    Assert.assertEquals("new description", contextDescribed.description);
+  public void testThatContextIsDescribed() {
+    final ContextState contextState = context.describeAs("new description").await();
+    Assert.assertEquals("new description", contextState.description);
   }
 }
