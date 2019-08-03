@@ -7,83 +7,62 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.function.BiConsumer;
-
-import io.vlingo.lattice.model.sourcing.EventSourced;
+import io.vlingo.common.Completes;
+import io.vlingo.common.Tuple2;
+import io.vlingo.lattice.model.DomainEvent;
+import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.UnitDefined;
 import io.vlingo.schemata.model.Events.UnitDescribed;
 import io.vlingo.schemata.model.Events.UnitRenamed;
 import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.symbio.Source;
 
-public class UnitEntity extends EventSourced implements Unit {
-  private UnitEntity.State state;
+import java.util.Collections;
+import java.util.List;
+
+public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
+  private UnitState state;
 
   public UnitEntity(final UnitId unitId) {
-    this.state = new State(unitId);
+    this.state = new UnitState(unitId);
   }
 
   @Override
-  public void defineWith(final String name, final String description) {
-    apply(new UnitDefined(state.unitId, name, description));
+  public Completes<UnitState> defineWith(final String name, final String description) {
+    apply(this.state.defineWith(name, description), new UnitDefined(state.unitId, name, description), () -> this.state);
+    return completes();
   }
 
   @Override
-  public void describeAs(final String description) {
-    apply(new UnitDescribed(state.unitId, description));
+  public Completes<UnitState> describeAs(final String description) {
+    apply(this.state.withDescription(description), new UnitDescribed(state.unitId, description), () -> this.state);
+    return completes();
   }
 
   @Override
-  public void renameTo(final String name) {
-    apply(new UnitRenamed(state.unitId, name));
+  public Completes<UnitState> renameTo(final String name) {
+    apply(this.state.withName(name), new UnitRenamed(state.unitId, name), () -> this.state);
+    return completes();
   }
 
   @Override
-  protected String streamName() {
-    return state.unitId.value;
+  @SuppressWarnings("unchecked")
+  protected Tuple2<UnitState, List<Source<DomainEvent>>> whenNewState() {
+    return Tuple2.from(this.state, Collections.emptyList());
   }
 
-  public class State {
-    public final UnitId unitId;
-    public final String name;
-    public final String description;
-
-    public UnitEntity.State withDescription(final String description) {
-      return new State(this.unitId, this.name, description);
-    }
-
-    public State withName(final String name) {
-      return new State(this.unitId, name, this.description);
-    }
-
-    public State(final UnitId unitId) {
-      this(unitId, "", "");
-    }
-
-    public State(final UnitId unitId, final String name, final String description) {
-      this.unitId = unitId;
-      this.name = name;
-      this.description = description;
-    }
+  @Override
+  protected String id() {
+    return String.valueOf(state.persistenceId());
   }
 
-  static {
-    BiConsumer<UnitEntity, UnitDefined> applyOrganizationDefinedFn = UnitEntity::applyDefined;
-    EventSourced.registerConsumer(UnitEntity.class, UnitDefined.class, applyOrganizationDefinedFn);
-    BiConsumer<UnitEntity, UnitDescribed> applyOrganizationDescribedFn = UnitEntity::applyDescribed;
-    EventSourced.registerConsumer(UnitEntity.class, UnitDescribed.class, applyOrganizationDescribedFn);
-    BiConsumer<UnitEntity, UnitRenamed> applyOrganizationRenamedFn = UnitEntity::applyRenamed;
-    EventSourced.registerConsumer(UnitEntity.class, UnitRenamed.class, applyOrganizationRenamedFn);
+  @Override
+  protected void persistentObject(final UnitState persistentObject) {
+    this.state = persistentObject;
   }
 
-  private void applyDefined(final UnitDefined e) {
-    state = new State(UnitId.existing(e.unitId), e.name, e.description);
-  }
-
-  private final void applyDescribed(final UnitDescribed event) {
-    state = state.withDescription(event.description);
-  }
-
-  private final void applyRenamed(final UnitRenamed event) {
-    state = state.withName(event.name);
+  @Override
+  protected Class<UnitState> persistentObjectType() {
+    return UnitState.class;
   }
 }
