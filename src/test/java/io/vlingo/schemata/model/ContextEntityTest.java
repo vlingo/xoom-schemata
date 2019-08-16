@@ -7,23 +7,22 @@
 
 package io.vlingo.schemata.model;
 
-import io.vlingo.actors.World;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
-import io.vlingo.schemata.NoopDispatcher;
-import io.vlingo.schemata.model.Id.ContextId;
-import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.schemata.model.Id.OrganizationId;
-import io.vlingo.symbio.store.object.MapQueryExpression;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.PersistentObjectMapper;
-import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import io.vlingo.actors.World;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
+import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.schemata.model.Id.ContextId;
+import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.object.ObjectStore;
+import io.vlingo.symbio.store.object.PersistentObjectMapper;
+import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
 public class ContextEntityTest {
   private Context context;
@@ -33,7 +32,7 @@ public class ContextEntityTest {
   private ContextId contextId;
 
   @Before
-  @SuppressWarnings({ "unchecked" })
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setUp() {
     world = World.start("context-test");
 
@@ -65,7 +64,7 @@ public class ContextEntityTest {
   @Test
   public void testThatContextIsDefined() {
     final ContextState contextState = context.defineWith("namespace", "description").await();
-    assertTrue(contextState.persistenceId() > 0);
+    Assert.assertEquals(ContextState.unidentified(), contextState.persistenceId());
     Assert.assertEquals(contextId.value, contextState.contextId.value);
     Assert.assertEquals("namespace", contextState.namespace);
     Assert.assertEquals("description", contextState.description);

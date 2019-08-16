@@ -7,23 +7,21 @@
 
 package io.vlingo.schemata.model;
 
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.schemata.NoopDispatcher;
-import io.vlingo.symbio.store.object.MapQueryExpression;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.PersistentObjectMapper;
-import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
-import io.vlingo.actors.World;
-import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.schemata.model.Id.OrganizationId;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
+import io.vlingo.actors.World;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry;
+import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
+import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.object.ObjectStore;
+import io.vlingo.symbio.store.object.PersistentObjectMapper;
+import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
 public class UnitEntityTest {
   private ObjectTypeRegistry registry;
@@ -33,7 +31,7 @@ public class UnitEntityTest {
   private World world;
 
   @Before
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setUp() {
     world = World.start("unit-entity-test");
 
@@ -62,7 +60,7 @@ public class UnitEntityTest {
   @Test
   public void testThatUnitDefined() {
     final UnitState state = unit.defineWith("name", "description").await();
-    assertTrue(state.persistenceId() > 0);
+    Assert.assertEquals(UnitState.unidentified(), state.persistenceId());
     Assert.assertEquals("name", state.name);
     Assert.assertEquals("description", state.description);
   }
