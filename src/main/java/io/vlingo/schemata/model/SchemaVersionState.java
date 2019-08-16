@@ -1,41 +1,31 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.model;
 
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.symbio.store.object.PersistentObject;
 
-import java.util.concurrent.atomic.AtomicLong;
+public class SchemaVersionState extends PersistentObject {
+  private static final long serialVersionUID = 1L;
 
-public class SchemaVersionState extends PersistentObject implements Comparable<SchemaState> {
   public final SchemaVersionId schemaVersionId;
   public final String description;
   public final SchemaVersion.Specification specification;
   public final SchemaVersion.Status status;
   public final SchemaVersion.Version versionState;
 
-  private static final AtomicLong identityGenerator = new AtomicLong(0);
-
   public SchemaVersionState(final SchemaVersionId schemaVersionId) {
-    this(identityGenerator.incrementAndGet(),
+    this(Unidentified,
          schemaVersionId,
          "",
          new SchemaVersion.Specification("unknown"),
          SchemaVersion.Status.Draft,
          new SchemaVersion.Version("0.0.0"));
-  }
-
-  public SchemaVersionState(
-          final long id,
-          final SchemaVersionId schemaVersionId,
-          final String description,
-          final SchemaVersion.Specification specification,
-          final SchemaVersion.Status status,
-          final SchemaVersion.Version versionState) {
-    super(id);
-    this.schemaVersionId = schemaVersionId;
-    this.description = description;
-    this.specification = specification;
-    this.status = status;
-    this.versionState = versionState;
   }
 
   public SchemaVersionState asPublished() {
@@ -64,7 +54,7 @@ public class SchemaVersionState extends PersistentObject implements Comparable<S
 
   @Override
   public int hashCode() {
-    return 31 * this.schemaVersionId.value.hashCode() * this.description.hashCode() * this.specification.hashCode() * this.status.hashCode() * this.versionState.hashCode();
+    return 31 * this.schemaVersionId.value.hashCode();
   }
 
   @Override
@@ -90,8 +80,18 @@ public class SchemaVersionState extends PersistentObject implements Comparable<S
             " version=" + versionState + "]";
   }
 
-  @Override
-  public int compareTo(final SchemaState otherState) {
-    return Long.compare(this.persistenceId(), otherState.persistenceId());
+  private SchemaVersionState(
+          final long id,
+          final SchemaVersionId schemaVersionId,
+          final String description,
+          final SchemaVersion.Specification specification,
+          final SchemaVersion.Status status,
+          final SchemaVersion.Version versionState) {
+    super(id);
+    this.schemaVersionId = schemaVersionId;
+    this.description = description;
+    this.specification = specification;
+    this.status = status;
+    this.versionState = versionState;
   }
 }

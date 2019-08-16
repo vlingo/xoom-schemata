@@ -1,16 +1,25 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.model;
 
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.symbio.store.object.PersistentObject;
 
-import java.util.concurrent.atomic.AtomicLong;
+public class OrganizationState extends PersistentObject {
+  private static final long serialVersionUID = 1L;
 
-public class OrganizationState extends PersistentObject implements Comparable<OrganizationState> {
   public final OrganizationId organizationId;
   public final String name;
   public final String description;
 
-  private static final AtomicLong identityGenerator = new AtomicLong(0);
+  public OrganizationState(final OrganizationId organizationId) {
+    this(Unidentified, organizationId, "", "");
+  }
 
   public OrganizationState define(final String name, final String description) {
     return new OrganizationState(this.persistenceId(), this.organizationId, name, description);
@@ -24,20 +33,9 @@ public class OrganizationState extends PersistentObject implements Comparable<Or
     return new OrganizationState(this.persistenceId(), this.organizationId, name, this.description);
   }
 
-  public OrganizationState(OrganizationId organizationId) {
-    this(identityGenerator.incrementAndGet(), organizationId, "", "");
-  }
-
-  public OrganizationState(final long id, final OrganizationId organizationId, final String name, final String description) {
-    super(id);
-    this.organizationId = organizationId;
-    this.name = name;
-    this.description = description;
-  }
-
   @Override
   public int hashCode() {
-    return 31 * this.organizationId.value.hashCode() * this.description.hashCode() * this.name.hashCode();
+    return 31 * this.organizationId.value.hashCode();
   }
 
   @Override
@@ -57,12 +55,14 @@ public class OrganizationState extends PersistentObject implements Comparable<Or
   public String toString() {
     return "OrganizationState[persistenceId=" + persistenceId() +
             " organizationId=" + organizationId.value +
-            " description=" + description +
-            " name=" + name + "]";
+            " name=" + name +
+            " description=" + description + "]";
   }
 
-  @Override
-  public int compareTo(final OrganizationState otherState) {
-    return Long.compare(this.persistenceId(), otherState.persistenceId());
+  private OrganizationState(final long id, final OrganizationId organizationId, final String name, final String description) {
+    super(id);
+    this.organizationId = organizationId;
+    this.name = name;
+    this.description = description;
   }
 }

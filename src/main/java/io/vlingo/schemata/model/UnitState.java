@@ -1,16 +1,25 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.model;
 
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.symbio.store.object.PersistentObject;
 
-import java.util.concurrent.atomic.AtomicLong;
+public class UnitState extends PersistentObject {
+  private static final long serialVersionUID = 1L;
 
-public class UnitState extends PersistentObject implements Comparable<UnitState> {
   public final UnitId unitId;
   public final String name;
   public final String description;
 
-  private static final AtomicLong identityGenerator = new AtomicLong(0);
+  public UnitState(final UnitId unitId) {
+    this(Unidentified, unitId, "", "");
+  }
 
   public UnitState defineWith(final String name, final String description) {
     return new UnitState(this.persistenceId(), this.unitId, name, description);
@@ -24,20 +33,9 @@ public class UnitState extends PersistentObject implements Comparable<UnitState>
     return new UnitState(this.persistenceId(), this.unitId, name, this.description);
   }
 
-  public UnitState(final UnitId unitId) {
-    this(identityGenerator.incrementAndGet(), unitId, "", "");
-  }
-
-  public UnitState(final long id, final UnitId unitId, final String name, final String description) {
-    super(id);
-    this.unitId = unitId;
-    this.name = name;
-    this.description = description;
-  }
-
   @Override
   public int hashCode() {
-    return 31 * this.unitId.value.hashCode() * this.name.hashCode() * this.description.hashCode();
+    return 31 * this.unitId.value.hashCode();
   }
 
   @Override
@@ -61,8 +59,10 @@ public class UnitState extends PersistentObject implements Comparable<UnitState>
             " description=" + description + "]";
   }
 
-  @Override
-  public int compareTo(final UnitState otherState) {
-    return Long.compare(this.persistenceId(), otherState.persistenceId());
+  private UnitState(final long id, final UnitId unitId, final String name, final String description) {
+    super(id);
+    this.unitId = unitId;
+    this.name = name;
+    this.description = description;
   }
 }

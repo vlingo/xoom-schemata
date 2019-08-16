@@ -1,17 +1,26 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.model;
 
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.symbio.store.object.PersistentObject;
 
-import java.util.concurrent.atomic.AtomicLong;
+public class SchemaState extends PersistentObject {
+  private static final long serialVersionUID = 1L;
 
-public class SchemaState extends PersistentObject implements Comparable<SchemaState> {
   public final SchemaId schemaId;
   public final Category category;
   public final String description;
   public final String name;
 
-  private static final AtomicLong identityGenerator = new AtomicLong(0);
+  public SchemaState(SchemaId schemaId) {
+    this(Unidentified, schemaId, Category.Unknown, "", "");
+  }
 
   public SchemaState defineWith(final Category category, final String name, final String description) {
     return new SchemaState(this.persistenceId(), this.schemaId, category, name, description);
@@ -29,21 +38,9 @@ public class SchemaState extends PersistentObject implements Comparable<SchemaSt
     return new SchemaState(this.persistenceId(), this.schemaId, this.category, name, this.description);
   }
 
-  public SchemaState(SchemaId schemaId) {
-    this(identityGenerator.incrementAndGet(), schemaId, Category.Unknown, "", "");
-  }
-
-  public SchemaState(final long id, final SchemaId schemaId, final Category category, final String name, final String description) {
-    super(id);
-    this.schemaId = schemaId;
-    this.category = category;
-    this.name = name;
-    this.description = description;
-  }
-
   @Override
   public int hashCode() {
-    return 31 * this.schemaId.value.hashCode() * this.category.hashCode() * this.description.hashCode() * this.name.hashCode();
+    return 31 * this.schemaId.value.hashCode();
   }
 
   @Override
@@ -64,12 +61,15 @@ public class SchemaState extends PersistentObject implements Comparable<SchemaSt
     return "SchemaState[persistenceId=" + persistenceId() +
             " schemaId=" + schemaId.value +
             " category=" + category.name() +
-            " description=" + description +
-            " name=" + name + "]";
+            " name=" + name +
+            " description=" + description + "]";
   }
 
-  @Override
-  public int compareTo(final SchemaState otherState) {
-    return Long.compare(this.persistenceId(), otherState.persistenceId());
+  private SchemaState(final long id, final SchemaId schemaId, final Category category, final String name, final String description) {
+    super(id);
+    this.schemaId = schemaId;
+    this.category = category;
+    this.name = name;
+    this.description = description;
   }
 }

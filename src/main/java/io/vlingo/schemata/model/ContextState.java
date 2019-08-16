@@ -1,26 +1,24 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.model;
 
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.symbio.store.object.PersistentObject;
 
-import java.util.concurrent.atomic.AtomicLong;
+public class ContextState extends PersistentObject {
+  private static final long serialVersionUID = 1L;
 
-public class ContextState extends PersistentObject implements Comparable<ContextState> {
   public final ContextId contextId;
   public final String description;
   public final String namespace;
 
-  private static final AtomicLong identityGenerator = new AtomicLong(0);
-
   public ContextState(final ContextId contextId) {
-    this(identityGenerator.incrementAndGet(), contextId, "", "");
-  }
-
-  public ContextState(final long id, final ContextId contextId, final String namespace, final String description) {
-    super(id);
-    this.contextId = contextId;
-    this.namespace = namespace;
-    this.description = description;
+    this(Unidentified, contextId, "", "");
   }
 
   public ContextState define(final String namespace, final String description) {
@@ -37,7 +35,7 @@ public class ContextState extends PersistentObject implements Comparable<Context
 
   @Override
   public int hashCode() {
-    return 31 * this.contextId.value.hashCode() * this.description.hashCode() * this.namespace.hashCode();
+    return 31 * this.contextId.value.hashCode();
   }
 
   @Override
@@ -61,8 +59,10 @@ public class ContextState extends PersistentObject implements Comparable<Context
             " namespace=" + namespace + "]";
   }
 
-  @Override
-  public int compareTo(final ContextState otherState) {
-    return Long.compare(this.persistenceId(), otherState.persistenceId());
+  private ContextState(final long id, final ContextId contextId, final String namespace, final String description) {
+    super(id);
+    this.contextId = contextId;
+    this.namespace = namespace;
+    this.description = description;
   }
 }
