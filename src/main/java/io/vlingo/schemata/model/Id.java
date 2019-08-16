@@ -7,8 +7,6 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.UUID;
-
 import io.vlingo.common.identity.IdentityGeneratorType;
 
 public abstract class Id {
@@ -28,7 +26,7 @@ public abstract class Id {
 
   public static class OrganizationId extends Id {
     public static OrganizationId existing(final String id) {
-      return new OrganizationId(UUID.fromString(id).toString());
+      return new OrganizationId(id);
     }
 
     public static OrganizationId undefined() {
