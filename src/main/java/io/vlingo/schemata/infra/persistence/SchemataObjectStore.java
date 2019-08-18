@@ -21,7 +21,7 @@ import io.vlingo.symbio.store.dispatch.Dispatchable;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.PersistentObjectMapper;
+import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnHSQLDB;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiPersistMapper;
@@ -34,16 +34,16 @@ import java.util.Map;
 public class SchemataObjectStore {
 
     private final JdbiOnDatabase jdbi;
-    private final Map<Class<?>, PersistentObjectMapper> mappersLookup;
+    private final Map<Class<?>, StateObjectMapper> mappersLookup;
 
     public SchemataObjectStore(final String username, final String password) throws Exception {
         jdbi = initializeDatabase(username, password);
         mappersLookup = new HashMap<>(5);
     }
 
-    public Collection<PersistentObjectMapper> persistentMappers()  {
-        PersistentObjectMapper organizationStateMapper =
-                PersistentObjectMapper.with(
+    public Collection<StateObjectMapper> persistentMappers()  {
+        StateObjectMapper organizationStateMapper =
+                StateObjectMapper.with(
                         OrganizationState.class,
                         JdbiPersistMapper.with(
                                 "INSERT INTO ORGANIZATION(id, name, description) VALUES (:id, :name, :description)",
@@ -60,7 +60,7 @@ public class SchemataObjectStore {
     public ObjectStore objectStoreFor(
             World world,
             Dispatcher<Dispatchable<TextEntry, TextState>> dispatcher,
-            Collection<PersistentObjectMapper> mappers) {
+            Collection<StateObjectMapper> mappers) {
         return jdbi.objectStore(world, dispatcher, mappers);
     }
 
