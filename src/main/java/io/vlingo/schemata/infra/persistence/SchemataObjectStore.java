@@ -70,7 +70,7 @@ public class SchemataObjectStore {
                 new Info(
                     objectStore,
                     OrganizationState.class,
-                        "vlingo-schemata",
+                        "vlingo_schemata",
                     MapQueryExpression.using(Organization.class, "find", MapQueryExpression.map("id", "id")),
                     mappersLookup.get(OrganizationState.class));
 
