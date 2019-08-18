@@ -27,7 +27,6 @@ import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnHSQLDB;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiPersistMapper;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +52,7 @@ public class SchemataObjectStore {
 
         mappersLookup.put(OrganizationState.class, organizationStateMapper);
 
-        return Collections.singletonList(organizationStateMapper);
+        return mappersLookup.values();
         // TODO: add more mappers
     }
 
@@ -72,7 +71,7 @@ public class SchemataObjectStore {
                     OrganizationState.class,
                         "vlingo_schemata",
                     MapQueryExpression.using(Organization.class, "find", MapQueryExpression.map("id", "id")),
-                    mappersLookup.get(OrganizationState.class));
+                    mappersLookup.get(OrganizationState.class)); // at that point lookup is filled because persistentMappers was already called
 
         registry.register(organizationInfo);
     }
