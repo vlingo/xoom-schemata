@@ -8,9 +8,9 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.schemata.model.Id.SchemaId;
-import io.vlingo.symbio.store.object.PersistentObject;
+import io.vlingo.symbio.store.object.StateObject;
 
-public class SchemaState extends PersistentObject {
+public class SchemaState extends StateObject {
   private static final long serialVersionUID = 1L;
 
   public final SchemaId schemaId;
