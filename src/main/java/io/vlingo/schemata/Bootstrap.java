@@ -28,11 +28,11 @@ public class Bootstrap {
   public Bootstrap() throws Exception {
     world = World.startWithDefaults("vlingo-schemata");
 
-    NoopDispatcher dispatcher = new NoopDispatcher();
+    final NoopDispatcher dispatcher = new NoopDispatcher();
 
-    SchemataObjectStore schemataObjectStore = new SchemataObjectStore("SA", "");
-    ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
-    ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
+    final SchemataObjectStore schemataObjectStore = new SchemataObjectStore("SA", "");
+    final ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
+    final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
     schemataObjectStore.register(registry, objectStore);
 
     Resources allResources = Resources.are(

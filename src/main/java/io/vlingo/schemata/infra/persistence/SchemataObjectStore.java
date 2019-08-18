@@ -58,14 +58,14 @@ public class SchemataObjectStore {
     }
 
     public ObjectStore objectStoreFor(
-            World world,
-            Dispatcher<Dispatchable<TextEntry, TextState>> dispatcher,
-            Collection<StateObjectMapper> mappers) {
+            final World world,
+            final Dispatcher<Dispatchable<TextEntry, TextState>> dispatcher,
+            final Collection<StateObjectMapper> mappers) {
         return jdbi.objectStore(world, dispatcher, mappers);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void register(ObjectTypeRegistry registry, ObjectStore objectStore) {
+    public void register(final ObjectTypeRegistry registry, final ObjectStore objectStore) {
         final Info<Organization> organizationInfo =
                 new Info(
                     objectStore,
