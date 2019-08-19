@@ -7,6 +7,9 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.Collections;
+import java.util.List;
+
 import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple2;
 import io.vlingo.lattice.model.DomainEvent;
@@ -17,15 +20,12 @@ import io.vlingo.schemata.model.Events.ContextRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.symbio.Source;
 
-import java.util.Collections;
-import java.util.List;
-
 
 public class ContextEntity extends ObjectEntity<ContextState> implements Context {
   private ContextState state;
 
   public ContextEntity(final ContextId contextId) {
-    this.state = new ContextState(contextId);
+    this.state = ContextState.from(contextId);
   }
 
   @Override
