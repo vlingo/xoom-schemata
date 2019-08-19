@@ -17,8 +17,12 @@ public class UnitState extends StateObject {
   public final String name;
   public final String description;
 
-  public UnitState(final UnitId unitId) {
-    this(Unidentified, unitId, "", "");
+  public static UnitState from(final UnitId unitId) {
+    return new UnitState(unitId);
+  }
+
+  public static UnitState from(final long id, final UnitId unitId, final String name, final String description) {
+    return new UnitState(id, unitId, name, description);
   }
 
   public UnitState defineWith(final String name, final String description) {
@@ -57,6 +61,10 @@ public class UnitState extends StateObject {
             " unitId=" + unitId.value +
             " name=" + name +
             " description=" + description + "]";
+  }
+
+  private UnitState(final UnitId unitId) {
+    this(Unidentified, unitId, "", "");
   }
 
   private UnitState(final long id, final UnitId unitId, final String name, final String description) {
