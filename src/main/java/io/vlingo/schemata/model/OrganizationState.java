@@ -17,8 +17,12 @@ public class OrganizationState extends StateObject {
   public final String name;
   public final String description;
 
-  public OrganizationState(final OrganizationId organizationId) {
-    this(Unidentified, organizationId, "", "");
+  public static OrganizationState from(final OrganizationId organizationId) {
+    return new OrganizationState(organizationId);
+  }
+
+  public static OrganizationState from(final long id, final OrganizationId organizationId, final String name, final String description) {
+    return new OrganizationState(id, organizationId, name, description);
   }
 
   public OrganizationState define(final String name, final String description) {
@@ -57,6 +61,10 @@ public class OrganizationState extends StateObject {
             " organizationId=" + organizationId.value +
             " name=" + name +
             " description=" + description + "]";
+  }
+
+  private OrganizationState(final OrganizationId organizationId) {
+    this(Unidentified, organizationId, "", "");
   }
 
   private OrganizationState(final long id, final OrganizationId organizationId, final String name, final String description) {
