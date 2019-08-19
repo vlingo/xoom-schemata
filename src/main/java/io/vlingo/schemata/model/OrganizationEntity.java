@@ -7,6 +7,9 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.Collections;
+import java.util.List;
+
 import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple2;
 import io.vlingo.lattice.model.DomainEvent;
@@ -17,14 +20,15 @@ import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.symbio.Source;
 
-import java.util.Collections;
-import java.util.List;
-
 public class OrganizationEntity extends ObjectEntity<OrganizationState> implements Organization {
   private OrganizationState state;
 
-  public OrganizationEntity(OrganizationId organizationId) {
-    this.state = new OrganizationState(organizationId);
+  public OrganizationEntity(final OrganizationId organizationId) {
+    this.state = OrganizationState.from(organizationId);
+  }
+
+  public OrganizationEntity() {
+    this.state = null;
   }
 
   @Override
