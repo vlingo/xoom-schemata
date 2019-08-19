@@ -8,9 +8,12 @@
 package io.vlingo.schemata;
 
 import io.vlingo.actors.World;
+import io.vlingo.common.identity.IdentityGeneratorType;
 import io.vlingo.http.resource.Configuration;
 import io.vlingo.http.resource.Resources;
 import io.vlingo.http.resource.Server;
+import io.vlingo.lattice.grid.Grid;
+import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
 import io.vlingo.schemata.infra.persistence.EntryAdapters;
 import io.vlingo.schemata.resource.MockApiResource;
@@ -28,6 +31,7 @@ public class Bootstrap {
 
   public Bootstrap() {
     world = World.startWithDefaults("vlingo-schemata");
+    world.stageNamed("vlingo-schemata-grid", Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
 
     NoopDispatcher dispatcher = new NoopDispatcher();
     Journal<String> journal = Journal.using(world.stage(), InMemoryJournalActor.class, dispatcher);
