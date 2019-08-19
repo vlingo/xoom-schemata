@@ -63,15 +63,11 @@ public class SchemataObjectStoreTest {
 
         // Map
         queryInterest.until = TestUntil.happenings(1);
-        objectStore.queryObject(
-                MapQueryExpression.using(
-                        OrganizationState.class,
-                        "SELECT * FROM ORGANIZATION WHERE id = :id",
-                        MapQueryExpression.map("id", 1L)),
-                queryInterest);
+        querySelect(queryInterest, "ORGANIZATION");
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
-        assertEquals(organizationState, queryInterest.singleResult.get().stateObject);
+        final OrganizationState insertedOrganizationState = (OrganizationState) queryInterest.singleResult.get().stateObject;
+        assertEquals(organizationState, insertedOrganizationState);
 
         // List
         queryInterest.until = TestUntil.happenings(1);
@@ -84,6 +80,18 @@ public class SchemataObjectStoreTest {
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
         assertEquals(organizationState, queryInterest.singleResult.get().stateObject);
+
+        // update
+        queryInterest.until = TestUntil.happenings(1);
+        final OrganizationState updatedOrganizationState =
+                insertedOrganizationState.define("VlingoV2", "Organization Vlingo V2");
+
+        objectStore.persist(updatedOrganizationState, persistInterest);
+        querySelect(queryInterest, "ORGANIZATION");
+
+        queryInterest.until.completes();
+        assertNotNull(queryInterest.singleResult.get());
+        assertEquals(updatedOrganizationState, queryInterest.singleResult.get().stateObject);
     }
 
     @Before
@@ -103,5 +111,14 @@ public class SchemataObjectStoreTest {
     public void tearDown() {
         objectStore.close();
         world.terminate();
+    }
+
+    private void querySelect(final TestQueryResultInterest queryInterest, final String name) {
+        objectStore.queryObject(
+                MapQueryExpression.using(
+                        OrganizationState.class,
+                        "SELECT * FROM " + name + " WHERE id = :id",
+                        MapQueryExpression.map("id", 1L)),
+                queryInterest);
     }
 }
