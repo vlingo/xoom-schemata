@@ -45,7 +45,7 @@ public class SchemataObjectStore {
                 StateObjectMapper.with(
                         OrganizationState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO ORGANIZATION(id, name, description) VALUES (:id, :name, :description)",
+                                "INSERT INTO ORGANIZATION(id, organizationId, name, description) VALUES (:id, :organizationId, :name, :description)",
                                 "UPDATE ORGANIZATION SET name = :name, description = :description WHERE id = :id",
                                 (update,object) -> update.bindFields(object)),
                         new OrganizationStateMapper());
@@ -96,6 +96,6 @@ public class SchemataObjectStore {
     private void createOrganizationStateTable() {
         jdbi.handle().execute("CREATE TABLE IF NOT EXISTS ORGANIZATION " +
                 "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "name VARCHAR(100), description VARCHAR(1024)");
+                "organizationId VARCHAR (50), name VARCHAR(100), description VARCHAR(1024)");
     }
 }

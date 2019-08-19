@@ -18,7 +18,10 @@ import java.sql.SQLException;
 public class OrganizationStateMapper  implements RowMapper<OrganizationState> {
     @Override
     public OrganizationState map(ResultSet rs, StatementContext ctx) throws SQLException {
-        OrganizationState organizationState = new OrganizationState(OrganizationId.existing(Long.toString(rs.getLong("id"))));
-        return organizationState.define(rs.getString("name"), rs.getString("description"));
+        return OrganizationState.from(
+                rs.getLong("id"),
+                OrganizationId.existing(rs.getString("organizationId")),
+                rs.getString("name"),
+                rs.getString("description"));
     }
 }
