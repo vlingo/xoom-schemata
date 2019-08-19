@@ -22,7 +22,7 @@ import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.PersistentObjectMapper;
+import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
 public class SchemaEntityTest {
@@ -47,7 +47,7 @@ public class SchemaEntityTest {
                   SchemaState.class,
                   "HR-Database",
                   MapQueryExpression.using(Schema.class, "find", MapQueryExpression.map("id", "id")),
-                  PersistentObjectMapper.with(Schema.class, new Object(), new Object()));
+                  StateObjectMapper.with(Schema.class, new Object(), new Object()));
 
     registry.register(schemaInfo);
 
