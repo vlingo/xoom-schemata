@@ -24,6 +24,7 @@ import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnHSQLDB;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiPersistMapper;
+import org.jdbi.v3.core.statement.SqlStatement;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,11 +32,11 @@ import java.util.Map;
 
 public class SchemataObjectStore {
 
-    private final JdbiOnDatabase jdbi;
+    private JdbiOnDatabase jdbi;
     private final Map<Class<?>, StateObjectMapper> mappersLookup;
 
     public SchemataObjectStore(final Configuration configuration) throws Exception {
-        jdbi = initializeDatabase(configuration);
+        initializeDatabase(configuration);
         mappersLookup = new HashMap<>(5);
     }
 
@@ -44,9 +45,9 @@ public class SchemataObjectStore {
                 StateObjectMapper.with(
                         OrganizationState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO ORGANIZATION(id, organizationId, name, description) VALUES (:id, :organizationId, :name, :description)",
+                                "INSERT INTO ORGANIZATION(organizationId, name, description) VALUES (:organizationId.value, :name, :description)",
                                 "UPDATE ORGANIZATION SET name = :name, description = :description WHERE id = :id",
-                                (update,object) -> update.bindFields(object)),
+                                SqlStatement::bindFields),
                         new OrganizationStateMapper());
 
         mappersLookup.put(OrganizationState.class, organizationStateMapper);
@@ -75,19 +76,17 @@ public class SchemataObjectStore {
         registry.register(organizationInfo);
     }
 
-    private JdbiOnDatabase initializeDatabase(final Configuration configuration) throws Exception {
-        JdbiOnDatabase jdbi = JdbiOnHSQLDB.openUsing(configuration);
+    private void initializeDatabase(final Configuration configuration) throws Exception {
+        jdbi = JdbiOnHSQLDB.openUsing(configuration);
         jdbi.createCommonTables();
 
         this.createOrganizationStateTable();
         // TODO: add more tables
-
-        return jdbi;
     }
 
     private void createOrganizationStateTable() {
         jdbi.handle().execute("CREATE TABLE IF NOT EXISTS ORGANIZATION " +
                 "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "organizationId VARCHAR (50), name VARCHAR(100), description VARCHAR(1024)");
+                "organizationId VARCHAR (50), name VARCHAR(100), description VARCHAR(1024))");
     }
 }
