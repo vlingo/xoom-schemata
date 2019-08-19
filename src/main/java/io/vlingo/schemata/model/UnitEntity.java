@@ -7,6 +7,9 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.Collections;
+import java.util.List;
+
 import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple2;
 import io.vlingo.lattice.model.DomainEvent;
@@ -17,14 +20,11 @@ import io.vlingo.schemata.model.Events.UnitRenamed;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.symbio.Source;
 
-import java.util.Collections;
-import java.util.List;
-
 public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   private UnitState state;
 
   public UnitEntity(final UnitId unitId) {
-    this.state = new UnitState(unitId);
+    this.state = UnitState.from(unitId);
   }
 
   @Override

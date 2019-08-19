@@ -19,13 +19,24 @@ public class SchemaVersionState extends StateObject {
   public final SchemaVersion.Status status;
   public final SchemaVersion.Version versionState;
 
-  public SchemaVersionState(final SchemaVersionId schemaVersionId) {
-    this(Unidentified,
-         schemaVersionId,
-         "",
-         new SchemaVersion.Specification("unknown"),
-         SchemaVersion.Status.Draft,
-         new SchemaVersion.Version("0.0.0"));
+  public static SchemaVersionState from(final SchemaVersionId schemaVersionId) {
+    return new SchemaVersionState(schemaVersionId);
+  }
+
+  public static SchemaVersionState from(
+          final long id,
+          final SchemaVersionId schemaVersionId,
+          final String description,
+          final SchemaVersion.Specification specification,
+          final SchemaVersion.Status status,
+          final SchemaVersion.Version versionState) {
+    return new SchemaVersionState(
+            id,
+            schemaVersionId,
+            description,
+            specification,
+            status,
+            versionState);
   }
 
   public SchemaVersionState asPublished() {
@@ -78,6 +89,15 @@ public class SchemaVersionState extends StateObject {
             " specification=" + specification +
             " status=" + status.name() +
             " version=" + versionState + "]";
+  }
+
+  private SchemaVersionState(final SchemaVersionId schemaVersionId) {
+    this(Unidentified,
+         schemaVersionId,
+         "",
+         new SchemaVersion.Specification("unknown"),
+         SchemaVersion.Status.Draft,
+         new SchemaVersion.Version("0.0.0"));
   }
 
   private SchemaVersionState(

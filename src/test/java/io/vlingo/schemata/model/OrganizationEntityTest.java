@@ -19,7 +19,7 @@ import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.PersistentObjectMapper;
+import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
 public class OrganizationEntityTest {
@@ -44,7 +44,7 @@ public class OrganizationEntityTest {
                     OrganizationState.class,
                     "HR-Database",
                     MapQueryExpression.using(Organization.class, "find", MapQueryExpression.map("id", "id")),
-                    PersistentObjectMapper.with(Organization.class, new Object(), new Object()));
+                    StateObjectMapper.with(Organization.class, new Object(), new Object()));
 
     registry.register(organizationInfo);
     organizationId = OrganizationId.unique();

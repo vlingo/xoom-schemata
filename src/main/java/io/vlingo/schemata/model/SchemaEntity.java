@@ -25,7 +25,7 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
   private SchemaState state;
 
   public SchemaEntity(final SchemaId schemaId) {
-    this.state = new SchemaState(schemaId);
+    this.state = SchemaState.from(schemaId);
   }
 
   @Override

@@ -17,8 +17,12 @@ public class ContextState extends StateObject {
   public final String description;
   public final String namespace;
 
-  public ContextState(final ContextId contextId) {
-    this(Unidentified, contextId, "", "");
+  public static ContextState from(final ContextId contextId) {
+    return new ContextState(contextId);
+  }
+
+  public static ContextState from(final long id, final ContextId contextId, final String namespace, final String description) {
+    return new ContextState(id, contextId, namespace, description);
   }
 
   public ContextState define(final String namespace, final String description) {
@@ -57,6 +61,10 @@ public class ContextState extends StateObject {
             " contextId=" + contextId.value +
             " description=" + description +
             " namespace=" + namespace + "]";
+  }
+
+  private ContextState(final ContextId contextId) {
+    this(Unidentified, contextId, "", "");
   }
 
   private ContextState(final long id, final ContextId contextId, final String namespace, final String description) {

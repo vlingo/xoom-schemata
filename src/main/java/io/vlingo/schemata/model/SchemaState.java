@@ -18,8 +18,12 @@ public class SchemaState extends StateObject {
   public final String description;
   public final String name;
 
-  public SchemaState(SchemaId schemaId) {
-    this(Unidentified, schemaId, Category.Unknown, "", "");
+  public static SchemaState from(SchemaId schemaId) {
+    return new SchemaState(schemaId);
+  }
+
+  public static SchemaState from(final long id, final SchemaId schemaId, final Category category, final String name, final String description) {
+    return new SchemaState(id, schemaId, category, name, description);
   }
 
   public SchemaState defineWith(final Category category, final String name, final String description) {
@@ -63,6 +67,10 @@ public class SchemaState extends StateObject {
             " category=" + category.name() +
             " name=" + name +
             " description=" + description + "]";
+  }
+
+  private SchemaState(SchemaId schemaId) {
+    this(Unidentified, schemaId, Category.Unknown, "", "");
   }
 
   private SchemaState(final long id, final SchemaId schemaId, final Category category, final String name, final String description) {

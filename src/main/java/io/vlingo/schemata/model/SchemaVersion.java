@@ -17,7 +17,7 @@ public interface SchemaVersion {
   }
 
   static SchemaVersionId uniqueId(final SchemaVersionId previousSchemaVersionId) {
-    return SchemaVersionId.uniqueFor(previousSchemaVersionId);
+    return SchemaVersionId.nextUniqueFrom(previousSchemaVersionId);
   }
 
   static SchemaVersion with(final Stage stage, final SchemaId schemaId,

@@ -25,7 +25,7 @@ import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.PersistentObjectMapper;
+import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
 public class SchemaVersionEntityTest {
@@ -50,7 +50,7 @@ public class SchemaVersionEntityTest {
                     SchemaVersionState.class,
                     "HR-Database",
                     MapQueryExpression.using(SchemaVersion.class, "find", MapQueryExpression.map("id", "id")),
-                    PersistentObjectMapper.with(SchemaVersion.class, new Object(), new Object()));
+                    StateObjectMapper.with(SchemaVersion.class, new Object(), new Object()));
 
     registry.register(schemaVersionInfo);
 

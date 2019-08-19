@@ -22,8 +22,17 @@ public class OrganizationData {
     return new OrganizationData(state.organizationId.value, state.name, state.description, Collections.emptyList());
   }
 
+  public static OrganizationData from(final String id, final String name, final String description) {
+    return new OrganizationData(id, name, description, Collections.emptyList());
+  }
+
   public static OrganizationData from(final String id, final String name, final String description, final List<Unit> units) {
     return new OrganizationData(id, name, description, units);
+  }
+
+  @Override
+  public String toString() {
+    return "OrganizationData [id=" + id + " name=" + name + " description=" + description + " units=" + units + "]";
   }
 
   private OrganizationData(final String id, final String name, final String description, final List<Unit> units) {

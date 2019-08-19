@@ -7,6 +7,8 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.Address;
+import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.model.Id.OrganizationId;
@@ -16,21 +18,23 @@ public interface Organization {
     return OrganizationId.unique();
   }
 
-  static Organization with(
+  static Completes<OrganizationState> with(
           final Stage stage,
           final String name,
           final String description) {
     return with(stage, uniqueId(), name, description);
   }
 
-  static Organization with(
+  static Completes<OrganizationState> with(
           final Stage stage,
           final OrganizationId organizationId,
           final String name,
           final String description) {
-    final Organization organization = stage.actorFor(Organization.class, OrganizationEntity.class, organizationId);
-    organization.defineWith(name, description);
-    return organization;
+    final String actorName = "U:"+organizationId.value;
+    final Address address = stage.addressFactory().from(organizationId.value, actorName);
+    final Definition definition = Definition.has(OrganizationEntity.class, Definition.parameters(organizationId), actorName);
+    final Organization organization = stage.actorFor(Organization.class, definition, address);
+    return organization.defineWith(name, description);
   }
 
   Completes<OrganizationState> defineWith(final String name, final String description);
