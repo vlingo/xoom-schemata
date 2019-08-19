@@ -19,6 +19,8 @@ import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.resource.MockApiResource;
 import io.vlingo.schemata.resource.SchemaResource;
 import io.vlingo.schemata.resource.UiResource;
+import io.vlingo.symbio.store.DataFormat;
+import io.vlingo.symbio.store.common.jdbc.hsqldb.HSQLDBConfigurationProvider;
 import io.vlingo.symbio.store.object.ObjectStore;
 
 public class Bootstrap {
@@ -34,7 +36,14 @@ public class Bootstrap {
 
     final NoopDispatcher dispatcher = new NoopDispatcher();
 
-    final SchemataObjectStore schemataObjectStore = new SchemataObjectStore("SA", "");
+    final io.vlingo.symbio.store.common.jdbc.Configuration configuration = HSQLDBConfigurationProvider.configuration(DataFormat.Native,
+            "jdbc:hsqldb:mem:",
+            "vlingo_schemata",
+            "SA",
+            "",
+            "MAIN",
+            true);
+    final SchemataObjectStore schemataObjectStore = new SchemataObjectStore(configuration);
     final ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
     final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
     schemataObjectStore.register(registry, objectStore);

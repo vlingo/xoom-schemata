@@ -15,8 +15,7 @@ import io.vlingo.schemata.model.Organization;
 import io.vlingo.schemata.model.OrganizationState;
 import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.State.TextState;
-import io.vlingo.symbio.store.DataFormat;
-import io.vlingo.symbio.store.common.jdbc.hsqldb.HSQLDBConfigurationProvider;
+import io.vlingo.symbio.store.common.jdbc.Configuration;
 import io.vlingo.symbio.store.dispatch.Dispatchable;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.MapQueryExpression;
@@ -35,8 +34,8 @@ public class SchemataObjectStore {
     private final JdbiOnDatabase jdbi;
     private final Map<Class<?>, StateObjectMapper> mappersLookup;
 
-    public SchemataObjectStore(final String username, final String password) throws Exception {
-        jdbi = initializeDatabase(username, password);
+    public SchemataObjectStore(final Configuration configuration) throws Exception {
+        jdbi = initializeDatabase(configuration);
         mappersLookup = new HashMap<>(5);
     }
 
@@ -76,15 +75,8 @@ public class SchemataObjectStore {
         registry.register(organizationInfo);
     }
 
-    private JdbiOnDatabase initializeDatabase(final String username, final String password) throws Exception {
-        JdbiOnDatabase jdbi = JdbiOnHSQLDB.openUsing(HSQLDBConfigurationProvider.configuration(
-                DataFormat.Native,
-                "jdbc:hsqldb:mem:",
-                "vlingo-schemata",
-                username,
-                password,
-                "MAIN",
-                true));
+    private JdbiOnDatabase initializeDatabase(final Configuration configuration) throws Exception {
+        JdbiOnDatabase jdbi = JdbiOnHSQLDB.openUsing(configuration);
         jdbi.createCommonTables();
 
         this.createOrganizationStateTable();
