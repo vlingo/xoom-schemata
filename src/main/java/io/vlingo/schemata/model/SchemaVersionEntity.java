@@ -7,6 +7,9 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.Collections;
+import java.util.List;
+
 import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple2;
 import io.vlingo.lattice.model.DomainEvent;
@@ -20,14 +23,11 @@ import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.symbio.Source;
 
-import java.util.Collections;
-import java.util.List;
-
 public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState> implements SchemaVersion {
   private SchemaVersionState state;
 
   public SchemaVersionEntity(final SchemaVersionId schemaVersionId) {
-    state = new SchemaVersionState(schemaVersionId);
+    state = SchemaVersionState.from(schemaVersionId);
   }
 
   @Override
