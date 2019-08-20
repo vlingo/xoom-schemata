@@ -13,12 +13,11 @@ import io.vlingo.actors.testkit.TestUntil;
 import io.vlingo.common.Outcome;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.NoopDispatcher;
-import io.vlingo.schemata.model.ContextState;
+import io.vlingo.schemata.model.*;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Id.ContextId;
-import io.vlingo.schemata.model.OrganizationState;
-import io.vlingo.schemata.model.UnitState;
+import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.symbio.store.DataFormat;
 import io.vlingo.symbio.store.Result;
 import io.vlingo.symbio.store.StorageException;
@@ -160,6 +159,40 @@ public class SchemataObjectStoreTest {
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
         assertEquals(updatedContextState, queryInterest.singleResult.get().stateObject);
+    }
+
+    @Test
+    public void testThatObjectStoreInsertsSchemaStateAndQuerys() {
+        final TestPersistResultInterest persistInterest = new TestPersistResultInterest();
+        final AccessSafely access = persistInterest.afterCompleting(1);
+        final SchemaState schemaState = SchemaState.from(
+                1L,
+                SchemaId.existing("A343:U44:C13:S78"),
+                Category.Event, "Vlingo", "Schema Vlingo");
+        objectStore.persist(schemaState, persistInterest);
+        final Outcome<StorageException, Result> outcome = access.readFrom("outcome");
+        assertEquals(Result.Success, outcome.andThen(success -> success).get());
+
+        final TestQueryResultInterest queryInterest = new TestQueryResultInterest();
+
+        queryInterest.until = TestUntil.happenings(1);
+        querySelect(queryInterest, SchemaState.class,"SCHEMA");
+        queryInterest.until.completes();
+        assertNotNull(queryInterest.singleResult.get());
+        final SchemaState insertedSchemaState = (SchemaState) queryInterest.singleResult.get().stateObject;
+        assertEquals(schemaState, insertedSchemaState);
+
+        // update
+        queryInterest.until = TestUntil.happenings(1);
+        final SchemaState updatedSchemaState =
+                insertedSchemaState.defineWith(Category.Document, "VlingoV2", "Schema Vlingo V2");
+
+        objectStore.persist(updatedSchemaState, persistInterest);
+        querySelect(queryInterest, SchemaState.class, "SCHEMA");
+
+        queryInterest.until.completes();
+        assertNotNull(queryInterest.singleResult.get());
+        assertEquals(updatedSchemaState, queryInterest.singleResult.get().stateObject);
     }
 
     @Before
