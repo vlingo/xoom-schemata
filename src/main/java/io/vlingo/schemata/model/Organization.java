@@ -14,6 +14,10 @@ import io.vlingo.common.Completes;
 import io.vlingo.schemata.model.Id.OrganizationId;
 
 public interface Organization {
+  static String nameFrom(final OrganizationId organizationId) {
+    return "O:"+organizationId.value;
+  }
+
   static OrganizationId uniqueId() {
     return OrganizationId.unique();
   }
@@ -30,7 +34,7 @@ public interface Organization {
           final OrganizationId organizationId,
           final String name,
           final String description) {
-    final String actorName = "U:"+organizationId.value;
+    final String actorName = nameFrom(organizationId);
     final Address address = stage.addressFactory().from(organizationId.value, actorName);
     final Definition definition = Definition.has(OrganizationEntity.class, Definition.parameters(organizationId), actorName);
     final Organization organization = stage.actorFor(Organization.class, definition, address);
