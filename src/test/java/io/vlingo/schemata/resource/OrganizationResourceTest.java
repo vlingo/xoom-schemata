@@ -59,10 +59,10 @@ public class OrganizationResourceTest {
     final Response response1 = resource.defineWith(OrgName, OrgDescription).await();
     assertEquals(Created, response1.status);
     final OrganizationData data1 = JsonSerialization.deserialized(response1.entity.content(), OrganizationData.class);
-    final Response response2 = resource.describeAs(data1.id, OrgDescription + 1).await();
+    final Response response2 = resource.describeAs(data1.organizationId, OrgDescription + 1).await();
     assertNotEquals(response1.entity.content(), response2.entity.content());
     final OrganizationData data2 = JsonSerialization.deserialized(response2.entity.content(), OrganizationData.class);
-    assertEquals(data1.id, data2.id);
+    assertEquals(data1.organizationId, data2.organizationId);
     assertNotEquals(data1.description, data2.description);
   }
 
@@ -72,10 +72,10 @@ public class OrganizationResourceTest {
     final Response response1 = resource.defineWith(OrgName, OrgDescription).await();
     assertEquals(Created, response1.status);
     final OrganizationData data1 = JsonSerialization.deserialized(response1.entity.content(), OrganizationData.class);
-    final Response response2 = resource.renameTo(data1.id, OrgName + 1).await();
+    final Response response2 = resource.renameTo(data1.organizationId, OrgName + 1).await();
     assertNotEquals(response1.entity.content(), response2.entity.content());
     final OrganizationData data2 = JsonSerialization.deserialized(response2.entity.content(), OrganizationData.class);
-    assertEquals(data1.id, data2.id);
+    assertEquals(data1.organizationId, data2.organizationId);
     assertNotEquals(data1.name, data2.name);
   }
 
