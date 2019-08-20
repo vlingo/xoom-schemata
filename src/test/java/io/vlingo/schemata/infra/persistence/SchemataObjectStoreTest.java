@@ -13,8 +13,10 @@ import io.vlingo.actors.testkit.TestUntil;
 import io.vlingo.common.Outcome;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.schemata.model.ContextState;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.OrganizationState;
 import io.vlingo.schemata.model.UnitState;
 import io.vlingo.symbio.store.DataFormat;
@@ -124,6 +126,40 @@ public class SchemataObjectStoreTest {
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
         assertEquals(updatedUnitState, queryInterest.singleResult.get().stateObject);
+    }
+
+    @Test
+    public void testThatObjectStoreInsertsContextStateAndQuerys() {
+        final TestPersistResultInterest persistInterest = new TestPersistResultInterest();
+        final AccessSafely access = persistInterest.afterCompleting(1);
+        final ContextState contextState = ContextState.from(
+                1L,
+                ContextId.existing("A343:U44:C13"),
+                "io.vlingo", "Context Vlingo");
+        objectStore.persist(contextState, persistInterest);
+        final Outcome<StorageException, Result> outcome = access.readFrom("outcome");
+        assertEquals(Result.Success, outcome.andThen(success -> success).get());
+
+        final TestQueryResultInterest queryInterest = new TestQueryResultInterest();
+
+        queryInterest.until = TestUntil.happenings(1);
+        querySelect(queryInterest, ContextState.class,"CONTEXT");
+        queryInterest.until.completes();
+        assertNotNull(queryInterest.singleResult.get());
+        final ContextState insertedContextState = (ContextState) queryInterest.singleResult.get().stateObject;
+        assertEquals(contextState, insertedContextState);
+
+        // update
+        queryInterest.until = TestUntil.happenings(1);
+        final ContextState updatedContextState =
+                insertedContextState.define("io.vlingoV2", "Context Vlingo V2");
+
+        objectStore.persist(updatedContextState, persistInterest);
+        querySelect(queryInterest, ContextState.class, "CONTEXT");
+
+        queryInterest.until.completes();
+        assertNotNull(queryInterest.singleResult.get());
+        assertEquals(updatedContextState, queryInterest.singleResult.get().stateObject);
     }
 
     @Before
