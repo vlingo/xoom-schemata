@@ -19,6 +19,8 @@ import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.resource.MockApiResource;
 import io.vlingo.schemata.resource.SchemaResource;
 import io.vlingo.schemata.resource.UiResource;
+import io.vlingo.symbio.BaseEntry.TextEntry;
+import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.DataFormat;
 import io.vlingo.symbio.store.common.jdbc.hsqldb.HSQLDBConfigurationProvider;
 import io.vlingo.symbio.store.object.ObjectStore;
@@ -34,7 +36,7 @@ public class Bootstrap {
     world = World.startWithDefaults("vlingo-schemata");
     world.stageNamed("vlingo-schemata-grid", Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
 
-    final NoopDispatcher dispatcher = new NoopDispatcher();
+    final NoopDispatcher<TextEntry, TextState> dispatcher = new NoopDispatcher<>();
 
     final io.vlingo.symbio.store.common.jdbc.Configuration configuration = HSQLDBConfigurationProvider.configuration(DataFormat.Native,
             "jdbc:hsqldb:mem:",
