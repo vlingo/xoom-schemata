@@ -14,6 +14,9 @@ import static io.vlingo.http.Response.Status.Ok;
 import static io.vlingo.http.ResponseHeader.Location;
 import static io.vlingo.http.ResponseHeader.headers;
 import static io.vlingo.http.ResponseHeader.of;
+import static io.vlingo.schemata.Schemata.NoId;
+import static io.vlingo.schemata.Schemata.OrganizationsPath;
+import static io.vlingo.schemata.Schemata.StageName;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -27,14 +30,11 @@ import io.vlingo.schemata.model.Organization;
 import io.vlingo.schemata.resource.data.OrganizationData;
 
 public class OrganizationResource extends ResourceHandler {
-  private static final String NoId = "(no-id)";
-  private static final String OrganizationsPath = "/organizations/";
-
   private final OrganizationCommands commands;
   private final Stage stage;
 
   public OrganizationResource(final World world) {
-    this.stage = world.stageNamed("vlingo-schemata-grid");
+    this.stage = world.stageNamed(StageName);
     this.commands = new OrganizationCommands(this.stage, 10);
   }
 
@@ -42,8 +42,8 @@ public class OrganizationResource extends ResourceHandler {
     return Organization.with(stage, name, description)
             .andThenTo(state -> {
                 final String location = organizationLocation(state.organizationId);
-                final String serialized = serialized(OrganizationData.from(state));
                 final Headers<ResponseHeader> headers = headers(of(Location, location));
+                final String serialized = serialized(OrganizationData.from(state));
 
                 return Completes.withSuccess(Response.of(Created, headers, serialized));
               })
