@@ -7,24 +7,32 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.Address;
+import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
 
 public interface Unit {
+  static String nameFrom(final UnitId unitId) {
+    return "U:"+unitId.value;
+  }
+
   static UnitId uniqueId(final OrganizationId organizationId) {
     return UnitId.uniqueFor(organizationId);
   }
 
-  static Unit with(final Stage stage, final OrganizationId organizationId, final String name, final String description) {
+  static Completes<UnitState> with(final Stage stage, final OrganizationId organizationId, final String name, final String description) {
     return with(stage, uniqueId(organizationId), name, description);
   }
 
-  static Unit with(final Stage stage, final UnitId unitId, final String name, final String description) {
-    final Unit unit = stage.actorFor(Unit.class, UnitEntity.class, unitId);
-    unit.defineWith(name, description);
-    return unit;
+  static Completes<UnitState> with(final Stage stage, final UnitId unitId, final String name, final String description) {
+    final String actorName = nameFrom(unitId);
+    final Address address = stage.addressFactory().from(unitId.value, actorName);
+    final Definition definition = Definition.has(UnitEntity.class, Definition.parameters(unitId), actorName);
+    final Unit unit = stage.actorFor(Unit.class, definition, address);
+    return unit.defineWith(name, description);
   }
 
   Completes<UnitState> defineWith(final String name, final String description);
