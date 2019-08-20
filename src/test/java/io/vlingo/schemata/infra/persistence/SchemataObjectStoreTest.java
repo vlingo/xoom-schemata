@@ -87,7 +87,7 @@ public class SchemataObjectStoreTest {
         // update
         queryInterest.until = TestUntil.happenings(1);
         final OrganizationState updatedOrganizationState =
-                insertedOrganizationState.define("VlingoV2", "Organization Vlingo V2");
+                insertedOrganizationState.defineWith("VlingoV2", "Organization Vlingo V2");
 
         objectStore.persist(updatedOrganizationState, persistInterest);
         querySelect(queryInterest, OrganizationState.class, "ORGANIZATION");
@@ -155,7 +155,7 @@ public class SchemataObjectStoreTest {
         // update
         queryInterest.until = TestUntil.happenings(1);
         final ContextState updatedContextState =
-                insertedContextState.define("io.vlingoV2", "Context Vlingo V2");
+                insertedContextState.defineWith("io.vlingoV2", "Context Vlingo V2");
 
         objectStore.persist(updatedContextState, persistInterest);
         querySelect(queryInterest, ContextState.class, "CONTEXT");

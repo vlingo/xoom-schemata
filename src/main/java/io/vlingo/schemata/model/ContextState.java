@@ -25,7 +25,7 @@ public class ContextState extends StateObject {
     return new ContextState(id, contextId, namespace, description);
   }
 
-  public ContextState define(final String namespace, final String description) {
+  public ContextState defineWith(final String namespace, final String description) {
     return new ContextState(this.persistenceId(), this.contextId, namespace, description);
   }
 

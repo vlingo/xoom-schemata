@@ -25,7 +25,7 @@ public class OrganizationState extends StateObject {
     return new OrganizationState(id, organizationId, name, description);
   }
 
-  public OrganizationState define(final String name, final String description) {
+  public OrganizationState defineWith(final String name, final String description) {
     return new OrganizationState(this.persistenceId(), this.organizationId, name, description);
   }
 
