@@ -31,7 +31,7 @@ import io.vlingo.schemata.resource.data.OrganizationData;
 import io.vlingo.schemata.resource.data.SchemaData;
 import io.vlingo.schemata.resource.data.SchemaMetaData;
 import io.vlingo.schemata.resource.data.SchemaVersion;
-import io.vlingo.schemata.resource.data.Unit;
+import io.vlingo.schemata.resource.data.UnitData;
 
 /**
  * Serves randomized mock API model formatted data
@@ -65,38 +65,37 @@ public class MockApiResource extends ResourceHandler {
         Arrays.asList(
           OrganizationData.from("o1", "Orga 1", "Orga 1 Description",
             Arrays.asList(
-              Unit.from("o1-u1", "Orga 1 Unit 1",
+              UnitData.from("o1", "u1", "Orga 1 Unit 1", "Description1",
                 Arrays.asList(
                   ContextData.from("o1-u1-c1", "Orga 1 Unit 1 Context 1"),
                   ContextData.from("o1-u1-c2", "Orga 1 Unit 1 Context 2"),
                   ContextData.from("o1-u1-c3", "Orga 1 Unit 1 Context 3")
                 )),
-              Unit.from("o1-u2", "Orga 1 Unit 2",
+              UnitData.from("o1", "u2", "Orga 1 Unit 2", "Description2",
                 Arrays.asList(
                   ContextData.from("o1-u2-c1", "Orga 1 Unit 2 Context 1")
                 )),
-              Unit.from("o1-u3", "Orga 1 Unit 3",
+              UnitData.from("o1", "u3", "Orga 1 Unit 3", "Description3",
                 Arrays.asList(
                   ContextData.from("o1-u3-c1", "Orga 1 Unit 3 Context 1"),
                   ContextData.from("o1-u3-c2", "Orga 1 Unit 3 Context 2")
-                ))
-            )
-          ),
+                )))
+            ),
           OrganizationData.from("o2", "Orga 2", "Orga 2 Description",
             Arrays.asList(
-              Unit.from("o2-u1", "Orga 2 Unit 1",
+              UnitData.from("o2", "u1", "Orga 2 Unit 1", "Description2",
                 Arrays.asList()),
-              Unit.from("o2-u2", "Orga 2 Unit 2",
+              UnitData.from("o2", "u2", "Orga 2 Unit 2", "Description2",
                 Arrays.asList(
                   ContextData.from("o2-u2-c1", "Orga 2 Unit 2 Context 1"),
                   ContextData.from("o2-u2-c2", "Orga 2 Unit 2 Context 2"),
                   ContextData.from("o2-u2-c3", "Orga 2 Unit 2 Context 3")
                 )),
-              Unit.from("o2-u3", "Orga 2 Unit 3",
+              UnitData.from("o2", "u3", "Orga 2 Unit 3", "Description3",
                 Arrays.asList(
                   ContextData.from("o2-u3-c1", "Orga 2 Unit 3 Context 1")
-                ))
-            ))
+                )))
+            )
         )
       )));
   }
