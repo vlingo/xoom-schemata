@@ -32,7 +32,7 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   public Completes<ContextState> defineWith(final String name, final String description) {
     assert (name != null && !name.isEmpty());
     assert (description != null && !description.isEmpty());
-    apply(state.define(name, description), ContextDefined.with(this.state.contextId, name, description), () -> state);
+    apply(state.defineWith(name, description), ContextDefined.with(this.state.contextId, name, description), () -> state);
     return completes();
   }
 

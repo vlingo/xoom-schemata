@@ -33,7 +33,7 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
 
   @Override
   public Completes<OrganizationState> defineWith(final String name, final String description) {
-    apply(state.define(name, description), new OrganizationDefined(this.state.organizationId, name, description), () -> state);
+    apply(state.defineWith(name, description), new OrganizationDefined(this.state.organizationId, name, description), () -> state);
     return completes();
   }
 

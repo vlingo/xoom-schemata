@@ -13,7 +13,7 @@ import io.vlingo.symbio.store.dispatch.Dispatchable;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.dispatch.DispatcherControl;
 
-public class NoopDispatcher implements Dispatcher<Dispatchable<Entry<String>, State<?>>> {
+public class NoopDispatcher<E extends Entry<?>, RS extends State<?>> implements Dispatcher<Dispatchable<E,RS>> {
 
   @Override
   public void controlWith(final DispatcherControl control) {
@@ -21,7 +21,7 @@ public class NoopDispatcher implements Dispatcher<Dispatchable<Entry<String>, St
   }
 
   @Override
-  public void dispatch(final Dispatchable<Entry<String>, State<?>> dispatchable) {
+  public void dispatch(Dispatchable<E, RS> ersDispatchable) {
 
   }
 }
