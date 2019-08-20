@@ -10,10 +10,7 @@ package io.vlingo.schemata.infra.persistence;
 import io.vlingo.actors.World;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
-import io.vlingo.schemata.infra.persistence.mappers.ContextStateMapper;
-import io.vlingo.schemata.infra.persistence.mappers.OrganizationStateMapper;
-import io.vlingo.schemata.infra.persistence.mappers.SchemaStateMapper;
-import io.vlingo.schemata.infra.persistence.mappers.UnitStateMapper;
+import io.vlingo.schemata.infra.persistence.mappers.*;
 import io.vlingo.schemata.model.*;
 import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.State.TextState;
@@ -47,7 +44,8 @@ public class SchemataObjectStore {
                 StateObjectMapper.with(
                         OrganizationState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO ORGANIZATION(organizationId, name, description) VALUES (:organizationId.value, :name, :description)",
+                                "INSERT INTO ORGANIZATION(organizationId, name, description) " +
+                                        "VALUES (:organizationId.value, :name, :description)",
                                 "UPDATE ORGANIZATION SET name = :name, description = :description WHERE id = :id",
                                 SqlStatement::bindFields),
                         new OrganizationStateMapper());
@@ -58,7 +56,8 @@ public class SchemataObjectStore {
                 StateObjectMapper.with(
                         UnitState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO UNIT(unitId, organizationId, name, description) VALUES (:unitId.value, :unitId.organizationId.value, :name, :description)",
+                                "INSERT INTO UNIT(unitId, organizationId, name, description) " +
+                                        "VALUES (:unitId.value, :unitId.organizationId.value, :name, :description)",
                                 "UPDATE UNIT SET name = :name, description = :description WHERE id = :id",
                                 SqlStatement::bindFields),
                         new UnitStateMapper());
@@ -70,7 +69,8 @@ public class SchemataObjectStore {
                         ContextState.class,
                         JdbiPersistMapper.with(
                                 "INSERT INTO CONTEXT(contextId, unitId, organizationId, namespace, description) " +
-                                        "VALUES (:contextId.value, :contextId.unitId.value, :contextId.unitId.organizationId.value, :namespace, :description)",
+                                        "VALUES (:contextId.value, :contextId.unitId.value, " +
+                                        ":contextId.unitId.organizationId.value, :namespace, :description)",
                                 "UPDATE CONTEXT SET namespace = :namespace, description = :description WHERE id = :id",
                                 SqlStatement::bindFields),
                         new ContextStateMapper());
@@ -90,8 +90,24 @@ public class SchemataObjectStore {
 
         mappersLookup.put(SchemaState.class, schemaStateMapper);
 
+        StateObjectMapper schemaVersionStateMapper =
+                StateObjectMapper.with(
+                        SchemaVersionState.class,
+                        JdbiPersistMapper.with(
+                                "INSERT INTO SCHEMAVERSION(schemaVersionId, schemaId, contextId, unitId, " +
+                                        "organizationId, description, specification, status, versionState) " +
+                                        "VALUES (:schemaVersionId.value, :schemaVersionId.schemaId.value, " +
+                                        ":schemaVersionId.schemaId.contextId.value, :schemaVersionId.schemaId.contextId.unitId.value, " +
+                                        ":schemaVersionId.schemaId.contextId.unitId.organizationId.value, :description, " +
+                                        ":specification.value, :status.value, :versionState.value)",
+                                "UPDATE SCHEMAVERSION SET description = :description, specification = :specification.value, " +
+                                        "status = :status.value, versionState = :versionState.value WHERE id = :id",
+                                SqlStatement::bindFields),
+                        new SchemaVersionStateMapper());
+
+        mappersLookup.put(SchemaVersionState.class, schemaVersionStateMapper);
+
         return mappersLookup.values();
-        // TODO: add more mappers
     }
 
     public ObjectStore objectStoreFor(
@@ -138,6 +154,15 @@ public class SchemataObjectStore {
                         MapQueryExpression.using(Unit.class, "find", MapQueryExpression.map("id", "id")),
                         mappersLookup.get(SchemaState.class));
         registry.register(schemaInfo);
+
+        final Info<SchemaVersion> schemaVersionInfo =
+                new Info(
+                        objectStore,
+                        SchemaVersionState.class,
+                        "vlingo_schemata",
+                        MapQueryExpression.using(Unit.class, "find", MapQueryExpression.map("id", "id")),
+                        mappersLookup.get(SchemaVersionState.class));
+        registry.register(schemaVersionInfo);
     }
 
     private void initializeDatabase(final Configuration configuration) throws Exception {
@@ -148,7 +173,7 @@ public class SchemataObjectStore {
         this.createUnitStateTable();
         this.createContextStateTable();
         this.createSchemaStateTable();
-        // TODO: add more tables
+        this.createSchemaVersionStateTable();
     }
 
     private void createOrganizationStateTable() {
@@ -174,5 +199,12 @@ public class SchemataObjectStore {
                 "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
                 "schemaId VARCHAR(50), contextId VARCHAR(50), unitId VARCHAR(50), organizationId VARCHAR (50)" +
                 ", category VARCHAR(25), name VARCHAR(100), description VARCHAR(1024))");
+    }
+
+    private void createSchemaVersionStateTable() {
+        jdbi.handle().execute("CREATE TABLE IF NOT EXISTS SCHEMAVERSION " +
+                "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+                "schemaVersionId VARCHAR(50), schemaId VARCHAR(50), contextId VARCHAR(50), unitId VARCHAR(50), organizationId VARCHAR (50)" +
+                ", description VARCHAR(1024), specification VARCHAR(150), status VARCHAR(5), versionState VARCHAR(10))");
     }
 }

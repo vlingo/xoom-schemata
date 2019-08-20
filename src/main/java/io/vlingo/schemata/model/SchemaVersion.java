@@ -64,6 +64,7 @@ public interface SchemaVersion {
   }
 
   enum Status {
+
     Draft {
       @Override
       public boolean isDraft() { return true; }
@@ -77,6 +78,7 @@ public interface SchemaVersion {
       public boolean isRemoved() { return true; }
     };
 
+    public final String value = this.name();
     public boolean isDraft() { return false; }
     public boolean isPublished() { return false; }
     public boolean isRemoved() { return false; }

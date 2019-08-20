@@ -18,6 +18,10 @@ import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.schemata.model.Id.SchemaVersionId;
+import io.vlingo.schemata.model.SchemaVersion.Specification;
+import io.vlingo.schemata.model.SchemaVersion.Status;
+import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.symbio.store.DataFormat;
 import io.vlingo.symbio.store.Result;
 import io.vlingo.symbio.store.StorageException;
@@ -193,6 +197,43 @@ public class SchemataObjectStoreTest {
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
         assertEquals(updatedSchemaState, queryInterest.singleResult.get().stateObject);
+    }
+
+    @Test
+    public void testThatObjectStoreInsertsSchemaVersionStateAndQuerys() {
+        final TestPersistResultInterest persistInterest = new TestPersistResultInterest();
+        final AccessSafely access = persistInterest.afterCompleting(1);
+        final SchemaVersionState schemaVersionState = SchemaVersionState.from(
+                1L,
+                SchemaVersionId.existing("A343:U44:C13:S78:SV778"),
+                "Schema Version Vlingo",
+                Specification.of("Spec"),
+                Status.Draft,
+                Version.of("v1"));
+        objectStore.persist(schemaVersionState, persistInterest);
+        final Outcome<StorageException, Result> outcome = access.readFrom("outcome");
+        assertEquals(Result.Success, outcome.andThen(success -> success).get());
+
+        final TestQueryResultInterest queryInterest = new TestQueryResultInterest();
+
+        queryInterest.until = TestUntil.happenings(1);
+        querySelect(queryInterest, SchemaVersionState.class,"SCHEMAVERSION");
+        queryInterest.until.completes();
+        assertNotNull(queryInterest.singleResult.get());
+        final SchemaVersionState insertedSchemaVersionState = (SchemaVersionState) queryInterest.singleResult.get().stateObject;
+        assertEquals(schemaVersionState, insertedSchemaVersionState);
+
+        // update
+        queryInterest.until = TestUntil.happenings(1);
+        final SchemaVersionState updatedSchemaVersionState =
+                insertedSchemaVersionState.defineWith("Schema Version Vlingo V2", Specification.of("SpecV2"), Version.of("v2"));
+
+        objectStore.persist(updatedSchemaVersionState, persistInterest);
+        querySelect(queryInterest, SchemaVersionState.class, "SCHEMAVERSION");
+
+        queryInterest.until.completes();
+        assertNotNull(queryInterest.singleResult.get());
+        assertEquals(updatedSchemaVersionState, queryInterest.singleResult.get().stateObject);
     }
 
     @Before
