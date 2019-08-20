@@ -11,8 +11,11 @@ import io.vlingo.actors.World;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
 import io.vlingo.schemata.infra.persistence.mappers.OrganizationStateMapper;
+import io.vlingo.schemata.infra.persistence.mappers.UnitStateMapper;
 import io.vlingo.schemata.model.Organization;
 import io.vlingo.schemata.model.OrganizationState;
+import io.vlingo.schemata.model.Unit;
+import io.vlingo.schemata.model.UnitState;
 import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.common.jdbc.Configuration;
@@ -52,6 +55,17 @@ public class SchemataObjectStore {
 
         mappersLookup.put(OrganizationState.class, organizationStateMapper);
 
+        StateObjectMapper unitStateMapper =
+                StateObjectMapper.with(
+                        UnitState.class,
+                        JdbiPersistMapper.with(
+                                "INSERT INTO UNIT(unitId, organizationId, name, description) VALUES (:unitId.value, :unitId.organizationId.value, :name, :description)",
+                                "UPDATE ORGANIZATION SET name = :name, description = :description WHERE id = :id",
+                                SqlStatement::bindFields),
+                        new UnitStateMapper());
+
+        mappersLookup.put(UnitState.class, unitStateMapper);
+
         return mappersLookup.values();
         // TODO: add more mappers
     }
@@ -71,9 +85,17 @@ public class SchemataObjectStore {
                     OrganizationState.class,
                         "vlingo_schemata",
                     MapQueryExpression.using(Organization.class, "find", MapQueryExpression.map("id", "id")),
-                    mappersLookup.get(OrganizationState.class)); // at that point lookup is filled because persistentMappers was already called
-
+                    mappersLookup.get(OrganizationState.class));
         registry.register(organizationInfo);
+
+        final Info<Organization> unitInfo =
+                new Info(
+                        objectStore,
+                        UnitState.class,
+                        "vlingo_schemata",
+                        MapQueryExpression.using(Unit.class, "find", MapQueryExpression.map("id", "id")),
+                        mappersLookup.get(UnitState.class));
+        registry.register(unitInfo);
     }
 
     private void initializeDatabase(final Configuration configuration) throws Exception {
@@ -81,6 +103,7 @@ public class SchemataObjectStore {
         jdbi.createCommonTables();
 
         this.createOrganizationStateTable();
+        this.createUnitStateTable();
         // TODO: add more tables
     }
 
@@ -88,5 +111,11 @@ public class SchemataObjectStore {
         jdbi.handle().execute("CREATE TABLE IF NOT EXISTS ORGANIZATION " +
                 "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
                 "organizationId VARCHAR (50), name VARCHAR(100), description VARCHAR(1024))");
+    }
+
+    private void createUnitStateTable() {
+        jdbi.handle().execute("CREATE TABLE IF NOT EXISTS UNIT " +
+                "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+                "unitId VARCHAR(50), organizationId VARCHAR (50), name VARCHAR(100), description VARCHAR(1024))");
     }
 }
