@@ -10,25 +10,25 @@ package io.vlingo.schemata.resource.data;
 import io.vlingo.schemata.model.ContextState;
 
 public class ContextData {
-  public final String id;
-  public final String name;
+  public final String organizationId;
+  public final String unitId;
+  public final String contextId;
+  public final String namespace;
   public final String description;
 
   public static ContextData from(final ContextState state) {
-    return new ContextData(state.contextId.value, state.namespace, state.description);
+    return new ContextData(state.contextId.organizationId().value, state.contextId.unitId.value, state.contextId.value, state.namespace, state.description);
   }
 
-  public static ContextData from(final String id, final String name) {
-    return from(id, name, "");
+  public static ContextData from(final String organizationId, final String unitId, final String contextId, final String namespace, final String description) {
+    return from(organizationId, unitId, contextId, namespace, description);
   }
 
-  public static ContextData from(final String id, final String name, final String description) {
-    return new ContextData(id, name, description);
-  }
-
-  private ContextData(final String id, String name, final String description) {
-    this.id = id;
-    this.name = name;
+  private ContextData(final String organizationId, final String unitId, final String contextId, String namespace, final String description) {
+    this.organizationId = organizationId;
+    this.unitId = unitId;
+    this.contextId = contextId;
+    this.namespace = namespace;
     this.description = description;
   }
 }
