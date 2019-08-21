@@ -31,6 +31,12 @@ public class UnitData {
     return new UnitData(organizationId, unitId, name, description, contexts);
   }
 
+  @Override
+  public String toString() {
+    return "UnitData [organizationId=" + organizationId + " unitId=" + unitId + " name=" + name + " description="
+            + description + " contexts=" + contexts + "]";
+  }
+
   private UnitData(final String organizationId, final String unitId, final String name, final String description, final List<ContextData> contexts) {
     this.organizationId = organizationId;
     this.unitId = unitId;
