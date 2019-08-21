@@ -52,17 +52,17 @@ public class OrganizationResource extends ResourceHandler {
 
   public Completes<Response> describeAs(final String organizationId, final String description) {
     return commands
-              .describeAs(organizationId, description).answer()
+              .describeAs(OrganizationId.existing(organizationId), description).answer()
               .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(OrganizationData.from(state)))));
   }
 
   public Completes<Response> renameTo(final String organizationId, final String name) {
     return commands
-            .renameTo(organizationId, name).answer()
+            .renameTo(OrganizationId.existing(organizationId), name).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(OrganizationData.from(state)))));
   }
 
   private String organizationLocation(final OrganizationId organizationId) {
-    return OrganizationsPath + organizationId.value;
+    return String.format(OrganizationsPath, organizationId.value);
   }
 }
