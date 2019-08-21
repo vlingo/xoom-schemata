@@ -1,3 +1,10 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
@@ -10,8 +17,6 @@ import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.StageName;
 import static io.vlingo.schemata.Schemata.UnitsPath;
-
-import java.text.MessageFormat;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -48,17 +53,17 @@ public class UnitResource extends ResourceHandler {
 
   public Completes<Response> describeAs(final String organizationId, final String unitId, final String description) {
     return commands
-              .describeAs(unitId, description).answer()
+              .describeAs(UnitId.existing(organizationId, unitId), description).answer()
               .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(UnitData.from(state)))));
   }
 
   public Completes<Response> renameTo(final String organizationId, final String unitId, final String name) {
     return commands
-            .renameTo(unitId, name).answer()
+            .renameTo(UnitId.existing(organizationId, unitId), name).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(UnitData.from(state)))));
   }
 
   private String unitLocation(final UnitId unitId) {
-    return MessageFormat.format(UnitsPath, unitId.organizationId.value, unitId.value);
+    return String.format(UnitsPath, unitId.organizationId.value, unitId.value);
   }
 }
