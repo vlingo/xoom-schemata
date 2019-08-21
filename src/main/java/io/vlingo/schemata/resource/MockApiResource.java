@@ -67,18 +67,18 @@ public class MockApiResource extends ResourceHandler {
             Arrays.asList(
               UnitData.from("o1", "u1", "Orga 1 Unit 1", "Description1",
                 Arrays.asList(
-                  ContextData.from("o1-u1-c1", "Orga 1 Unit 1 Context 1"),
-                  ContextData.from("o1-u1-c2", "Orga 1 Unit 1 Context 2"),
-                  ContextData.from("o1-u1-c3", "Orga 1 Unit 1 Context 3")
+                  ContextData.from("o1", "u1", "c1", "Orga 1 Unit 1 Context 1", "Description1"),
+                  ContextData.from("o1", "u1", "c2", "Orga 1 Unit 1 Context 2", "Description2"),
+                  ContextData.from("o1", "u1", "c3", "Orga 1 Unit 1 Context 3", "Description3")
                 )),
               UnitData.from("o1", "u2", "Orga 1 Unit 2", "Description2",
                 Arrays.asList(
-                  ContextData.from("o1-u2-c1", "Orga 1 Unit 2 Context 1")
+                  ContextData.from("o1", "u1", "c4", "Orga 1 Unit 2 Context 4", "Description4")
                 )),
               UnitData.from("o1", "u3", "Orga 1 Unit 3", "Description3",
                 Arrays.asList(
-                  ContextData.from("o1-u3-c1", "Orga 1 Unit 3 Context 1"),
-                  ContextData.from("o1-u3-c2", "Orga 1 Unit 3 Context 2")
+                  ContextData.from("o1", "u1", "c5", "Orga 1 Unit 3 Context 1", "Description5"),
+                  ContextData.from("o1", "u1", "c6", "Orga 1 Unit 3 Context 2", "Description6")
                 )))
             ),
           OrganizationData.from("o2", "Orga 2", "Orga 2 Description",
@@ -87,13 +87,13 @@ public class MockApiResource extends ResourceHandler {
                 Arrays.asList()),
               UnitData.from("o2", "u2", "Orga 2 Unit 2", "Description2",
                 Arrays.asList(
-                  ContextData.from("o2-u2-c1", "Orga 2 Unit 2 Context 1"),
-                  ContextData.from("o2-u2-c2", "Orga 2 Unit 2 Context 2"),
-                  ContextData.from("o2-u2-c3", "Orga 2 Unit 2 Context 3")
+                  ContextData.from("o1", "u1", "c7", "Orga 2 Unit 2 Context 1", "Description7"),
+                  ContextData.from("o1", "u1", "c8", "Orga 2 Unit 2 Context 2", "Description8"),
+                  ContextData.from("o1", "u1", "c9", "Orga 2 Unit 2 Context 3", "Description9")
                 )),
               UnitData.from("o2", "u3", "Orga 2 Unit 3", "Description3",
                 Arrays.asList(
-                  ContextData.from("o2-u3-c1", "Orga 2 Unit 3 Context 1")
+                  ContextData.from("o1", "u1", "c10", "Orga 2 Unit 3 Context 1", "Description10")
                 )))
             )
         )
@@ -176,17 +176,12 @@ public class MockApiResource extends ResourceHandler {
   }
 
   private List<SchemaData> randomVersions() {
-    List<SchemaData> versions = new ArrayList<>();
+    List<SchemaData> schemas = new ArrayList<>();
     Random random = new Random();
 
     int noOfVersions = random.nextInt(10);
     while (noOfVersions > 0) {
-      versions.add(SchemaData.from(
-        String.format("%s.%s.%s",
-          random.nextInt(10),
-          random.nextInt(10),
-          random.nextInt(42)
-        ),
+      schemas.add(SchemaData.from("o1", "u1", "c1", "s1",
         randomElement(Category.values()).name(),
         randomElement(new String[] {"DocumentAdded", "DocumentEdited", "DocumentRemoved", "DocumentRestored"}),
         randomElement(new String[] {"Description1", "Description2", "Description3", "Description4"})
@@ -194,7 +189,7 @@ public class MockApiResource extends ResourceHandler {
       noOfVersions--;
     }
 
-    versions.sort(Comparator.comparing(v -> v.id));
-    return versions;
+    schemas.sort(Comparator.comparing(schema -> schema.schemaId));
+    return schemas;
   }
 }
