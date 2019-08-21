@@ -36,8 +36,8 @@ import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
 public class UnitResourceTest {
   private static final String OrgId = "O123";
-  private static final String OrgName = "Test";
-  private static final String OrgDescription = "Test org.";
+  private static final String UnitName = "Test";
+  private static final String UnitDescription = "Test unit.";
 
   private ObjectStore objectStore;
   private ObjectTypeRegistry registry;
@@ -46,37 +46,39 @@ public class UnitResourceTest {
   @Test
   public void testThatUnitIsDefined() {
     final UnitResource resource = new UnitResource(world);
-    final Response response = resource.defineWith(OrgId, OrgName, OrgDescription).await();
+    final Response response = resource.defineWith(OrgId, UnitName, UnitDescription).await();
     assertEquals(Created, response.status);
     assertNotNull(response.headers.headerOf(Location));
-    assertTrue(response.entity.content().contains(OrgName));
-    assertTrue(response.entity.content().contains(OrgDescription));
+    assertTrue(response.entity.content().contains(UnitName));
+    assertTrue(response.entity.content().contains(UnitDescription));
   }
 
   @Test
   public void testUnitDescribedAs() {
     final UnitResource resource = new UnitResource(world);
-    final Response response1 = resource.defineWith(OrgId, OrgName, OrgDescription).await();
+    final Response response1 = resource.defineWith(OrgId, UnitName, UnitDescription).await();
     assertEquals(Created, response1.status);
     final UnitData data1 = JsonSerialization.deserialized(response1.entity.content(), UnitData.class);
-    final Response response2 = resource.describeAs(data1.organizationId, data1.unitId, OrgDescription + 1).await();
+    final Response response2 = resource.describeAs(data1.organizationId, data1.unitId, UnitDescription + 1).await();
     assertNotEquals(response1.entity.content(), response2.entity.content());
     final UnitData data2 = JsonSerialization.deserialized(response2.entity.content(), UnitData.class);
     assertEquals(data1.unitId, data2.unitId);
     assertNotEquals(data1.description, data2.description);
+    assertEquals((UnitDescription + 1), data2.description);
   }
 
   @Test
   public void testUnitRenameTo() {
     final UnitResource resource = new UnitResource(world);
-    final Response response1 = resource.defineWith(OrgId, OrgName, OrgDescription).await();
+    final Response response1 = resource.defineWith(OrgId, UnitName, UnitDescription).await();
     assertEquals(Created, response1.status);
     final UnitData data1 = JsonSerialization.deserialized(response1.entity.content(), UnitData.class);
-    final Response response2 = resource.renameTo(data1.organizationId, data1.unitId, OrgName + 1).await();
+    final Response response2 = resource.renameTo(data1.organizationId, data1.unitId, UnitName + 1).await();
     assertNotEquals(response1.entity.content(), response2.entity.content());
     final UnitData data2 = JsonSerialization.deserialized(response2.entity.content(), UnitData.class);
     assertEquals(data1.unitId, data2.unitId);
     assertNotEquals(data1.name, data2.name);
+    assertEquals((UnitName + 1), data2.name);
   }
 
   @Before
