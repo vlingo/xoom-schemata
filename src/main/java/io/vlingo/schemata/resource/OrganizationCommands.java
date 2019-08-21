@@ -14,6 +14,7 @@ import io.vlingo.lattice.router.CommandDispatcher;
 import io.vlingo.lattice.router.CommandRouter;
 import io.vlingo.lattice.router.CommandRouter.Type;
 import io.vlingo.lattice.router.RoutableCommand;
+import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Organization;
 import io.vlingo.schemata.model.OrganizationEntity;
 import io.vlingo.schemata.model.OrganizationState;
@@ -28,7 +29,7 @@ class OrganizationCommands {
   }
 
   RoutableCommand<Organization,Command,OrganizationState> describeAs(
-          final String address,
+          final OrganizationId organizationId,
           final String description) {
 
     final DescribeAs describeAs = new DescribeAs(description);
@@ -37,7 +38,8 @@ class OrganizationCommands {
             RoutableCommand
               .speaks(Organization.class)
               .to(OrganizationEntity.class)
-              .at(address)
+              .at(organizationId.value)
+              .named(Organization.nameFrom(organizationId))
               .delivers(describeAs)
               .answers(Completes.using(stage.scheduler()))
               .handledBy(describeAs);
@@ -48,7 +50,7 @@ class OrganizationCommands {
   }
 
   RoutableCommand<Organization,Command,OrganizationState> renameTo(
-          final String address,
+          final OrganizationId organizationId,
           final String name) {
 
     final RenameTo renameTo = new RenameTo(name);
@@ -57,7 +59,8 @@ class OrganizationCommands {
             RoutableCommand
               .speaks(Organization.class)
               .to(OrganizationEntity.class)
-              .at(address)
+              .at(organizationId.value)
+              .named(Organization.nameFrom(organizationId))
               .delivers(renameTo)
               .answers(Completes.using(stage.scheduler()))
               .handledBy(renameTo);
