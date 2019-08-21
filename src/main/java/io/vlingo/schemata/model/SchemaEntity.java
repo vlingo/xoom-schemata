@@ -7,19 +7,19 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.Collections;
+import java.util.List;
+
 import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple2;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.SchemaDefined;
 import io.vlingo.schemata.model.Events.SchemaDescribed;
-import io.vlingo.schemata.model.Events.SchemaRecategorized;
+import io.vlingo.schemata.model.Events.SchemaCategorized;
 import io.vlingo.schemata.model.Events.SchemaRenamed;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.symbio.Source;
-
-import java.util.Collections;
-import java.util.List;
 
 public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
   private SchemaState state;
@@ -38,14 +38,14 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
   }
 
   @Override
-  public Completes<SchemaState> describeAs(String description) {
-    apply(this.state.withDescription(description), SchemaDescribed.with(state.schemaId, description), () -> this.state);
+  public Completes<SchemaState> categorizeAs(final Category category) {
+    apply(this.state.withCategory(category), SchemaCategorized.with(state.schemaId, category), () -> this.state);
     return completes();
   }
 
   @Override
-  public Completes<SchemaState> recategorizedAs(final Category category) {
-    apply(this.state.withCategory(category), SchemaRecategorized.with(state.schemaId, category), () -> this.state);
+  public Completes<SchemaState> describeAs(String description) {
+    apply(this.state.withDescription(description), SchemaDescribed.with(state.schemaId, description), () -> this.state);
     return completes();
   }
 
