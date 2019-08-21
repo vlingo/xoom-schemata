@@ -10,21 +10,27 @@ package io.vlingo.schemata.resource.data;
 import io.vlingo.schemata.model.SchemaState;
 
 public class SchemaData {
-  public final String id;
+  public final String organizationId;
+  public final String unitId;
+  public final String contextId;
+  public final String schemaId;
   public final String category;
-  public final String description;
   public final String name;
+  public final String description;
 
   public static SchemaData from(final SchemaState state) {
-    return new SchemaData(state.schemaId.value, state.category.name(), state.name, state.description);
+    return new SchemaData(state.schemaId.organizationId().value, state.schemaId.unitId().value, state.schemaId.contextId.value, state.schemaId.value, state.category.name(), state.name, state.description);
   }
 
-  public static SchemaData from(final String id, final String category, final String name, final String description) {
-    return new SchemaData(id, category, name, description);
+  public static SchemaData from(final String organizationId, final String unitId, final String contextId, final String schemaId, final String category, final String name, final String description) {
+    return new SchemaData(organizationId, unitId, contextId, schemaId, category, name, description);
   }
 
-  private SchemaData(final String id, final String category, final String name, final String description) {
-    this.id = id;
+  private SchemaData(final String organizationId, final String unitId, final String contextId, final String schemaId, final String category, final String name, final String description) {
+    this.organizationId = organizationId;
+    this.unitId = unitId;
+    this.contextId = contextId;
+    this.schemaId = schemaId;
     this.category = category;
     this.name = name;
     this.description = description;
