@@ -180,18 +180,24 @@ public class SchemataObjectStore {
         jdbi.handle().execute("CREATE TABLE IF NOT EXISTS ORGANIZATION " +
                 "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
                 "organizationId VARCHAR (50), name VARCHAR(100), description VARCHAR(1024))");
+        jdbi.handle().execute("ALTER TABLE ORGANIZATION" +
+                "  ADD CONSTRAINT IF NOT EXISTS ORGANIZATION_UNIQUE UNIQUE (name)");
     }
 
     private void createUnitStateTable() {
         jdbi.handle().execute("CREATE TABLE IF NOT EXISTS UNIT " +
                 "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
                 "unitId VARCHAR(50), organizationId VARCHAR (50), name VARCHAR(100), description VARCHAR(1024))");
+        jdbi.handle().execute("ALTER TABLE UNIT" +
+                "  ADD CONSTRAINT IF NOT EXISTS UNIT_UNIQUE UNIQUE (name)");
     }
 
     private void createContextStateTable() {
         jdbi.handle().execute("CREATE TABLE IF NOT EXISTS CONTEXT " +
                 "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
                 "contextId VARCHAR(50), unitId VARCHAR(50), organizationId VARCHAR (50), namespace VARCHAR(100), description VARCHAR(1024))");
+        jdbi.handle().execute("ALTER TABLE CONTEXT" +
+                "  ADD CONSTRAINT IF NOT EXISTS CONTEXT_UNIQUE UNIQUE (namespace)");
     }
 
     private void createSchemaStateTable() {
@@ -199,6 +205,8 @@ public class SchemataObjectStore {
                 "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
                 "schemaId VARCHAR(50), contextId VARCHAR(50), unitId VARCHAR(50), organizationId VARCHAR (50)" +
                 ", category VARCHAR(25), name VARCHAR(100), description VARCHAR(1024))");
+        jdbi.handle().execute("ALTER TABLE SCHEMA" +
+                "  ADD CONSTRAINT IF NOT EXISTS SCHEMA_UNIQUE UNIQUE (name)");
     }
 
     private void createSchemaVersionStateTable() {
@@ -206,5 +214,7 @@ public class SchemataObjectStore {
                 "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
                 "schemaVersionId VARCHAR(50), schemaId VARCHAR(50), contextId VARCHAR(50), unitId VARCHAR(50), organizationId VARCHAR (50)" +
                 ", description VARCHAR(1024), specification VARCHAR(150), status VARCHAR(5), versionState VARCHAR(10))");
+        jdbi.handle().execute("ALTER TABLE SCHEMAVERSION" +
+                "  ADD CONSTRAINT IF NOT EXISTS SCHEMAVERSION_UNIQUE UNIQUE (versionState)");
     }
 }
