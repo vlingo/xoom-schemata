@@ -78,7 +78,7 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaRecategorised() {
-    final SchemaState state = schema.recategorizedAs(Category.Document).await();
+    final SchemaState state = schema.categorizeAs(Category.Document).await();
     Assert.assertEquals(Category.Document.name(), state.category.name());
   }
 
