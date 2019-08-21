@@ -72,7 +72,7 @@ public class ContextEntityTest {
 
   @Test
   public void testThatContextRenamed() {
-    final ContextState contextState = context.changeNamespaceTo("new namespace").await();
+    final ContextState contextState = context.moveToNamespace("new namespace").await();
     Assert.assertEquals("new namespace", contextState.namespace);
   }
 
