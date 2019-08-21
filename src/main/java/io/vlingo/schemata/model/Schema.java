@@ -7,31 +7,39 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.Address;
+import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.SchemaId;
 
 public interface Schema {
+  static String nameFrom(final SchemaId schemaId) {
+    return "S:"+schemaId.value;
+  }
+
   static SchemaId uniqueId(final ContextId contextId) {
     return SchemaId.uniqueFor(contextId);
   }
 
-  static Schema with(final Stage stage, final ContextId contextId, final String name, final String description) {
-    return with(stage, uniqueId(contextId), name, description);
+  static Completes<SchemaState> with(final Stage stage, final ContextId contextId, final Category category, final String name, final String description) {
+    return with(stage, uniqueId(contextId), category, name, description);
   }
 
-  static Schema with(final Stage stage, final SchemaId schemaId, final String name, final String description) {
-    final Schema schema = stage.actorFor(Schema.class, SchemaEntity.class, schemaId);
-    schema.renameTo(name).andThen(s -> s.withDescription(description));
-    return schema;
+  static Completes<SchemaState> with(final Stage stage, final SchemaId schemaId, final Category category, final String name, final String description) {
+    final String actorName = nameFrom(schemaId);
+    final Address address = stage.addressFactory().from(schemaId.value, actorName);
+    final Definition definition = Definition.has(SchemaEntity.class, Definition.parameters(schemaId), actorName);
+    final Schema schema = stage.actorFor(Schema.class, definition, address);
+    return schema.defineWith(category, name, description);
   }
 
   Completes<SchemaState> defineWith(final Category category, final String name, final String description);
 
-  Completes<SchemaState> describeAs(final String description);
+  Completes<SchemaState> categorizeAs(final Category category);
 
-  Completes<SchemaState> recategorizedAs(final Category category);
+  Completes<SchemaState> describeAs(final String description);
 
   Completes<SchemaState> renameTo(final String name);
 }
