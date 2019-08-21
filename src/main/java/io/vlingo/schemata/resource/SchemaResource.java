@@ -7,45 +7,70 @@
 
 package io.vlingo.schemata.resource;
 
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.put;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
+import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.Conflict;
+import static io.vlingo.http.Response.Status.Created;
+import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.ResponseHeader.Location;
+import static io.vlingo.http.ResponseHeader.headers;
+import static io.vlingo.http.ResponseHeader.of;
+import static io.vlingo.schemata.Schemata.NoId;
+import static io.vlingo.schemata.Schemata.SchemasPath;
+import static io.vlingo.schemata.Schemata.StageName;
 
+import io.vlingo.actors.Stage;
+import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
-import io.vlingo.http.Header;
+import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
-import io.vlingo.http.resource.Resource;
-import io.vlingo.schemata.codegen.TypeDefinitionCompiler;
-import io.vlingo.schemata.codegen.backends.java.JavaCodeGenerator;
+import io.vlingo.http.resource.ResourceHandler;
+import io.vlingo.schemata.model.Category;
+import io.vlingo.schemata.model.Id.ContextId;
+import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.schemata.model.Schema;
+import io.vlingo.schemata.resource.data.SchemaData;
 
-public class SchemaResource {
-  @SuppressWarnings("rawtypes")
-  public static Resource asResource() {
-    SchemaResource impl = new SchemaResource();
+public class SchemaResource extends ResourceHandler {
+  private final SchemaCommands commands;
+  private final Stage stage;
 
-    return resource("schema", 10,
-            put("/{organization}/{context}/{unit}").param(String.class).param(String.class).param(String.class)
-                    .body(String.class).handle(impl::createSchema),
-            get("/{organization}/{context}/{unit}/{qualifiedName}").param(String.class).param(String.class)
-                    .param(String.class).param(String.class).header("Accept").handle(impl::getSchema));
+  public SchemaResource(final World world) {
+    this.stage = world.stageNamed(StageName);
+    this.commands = new SchemaCommands(this.stage, 10);
   }
 
-  private String schemaDef;
+  public Completes<Response> defineWith(final String organizationId, final String unitId, final String contextId, final String category, final String name, final String description) {
+    return Schema.with(stage, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(category), name, description)
+            .andThenTo(state -> {
+                final String location = schemaLocation(state.schemaId);
+                final Headers<ResponseHeader> headers = headers(of(Location, location));
+                final String serialized = serialized(SchemaData.from(state));
 
-  private Completes<Response> createSchema(final String organization, final String context, final String unit, final String schemaDefinition) {
-    this.schemaDef = new String(schemaDefinition);
-
-    return Completes.withSuccess(Response.of(Response.Status.Created, Header.Headers.of(ResponseHeader.of("Location",
-            String.format("/%s/%s/%s/%s:%s", organization, context, unit, "name", "0.0.0")))));
+                return Completes.withSuccess(Response.of(Created, headers, serialized));
+              })
+            .otherwise(response -> Response.of(Conflict, serialized(SchemaData.from(organizationId, unitId, contextId, NoId, category, name, description))));
   }
 
-  private Completes<Response> getSchema(final String organization, final String context, final String unit, final String qualifiedName, final Header language) {
-    if (!language.value.equals("x-vlingo-schema/java")) {
-      return Completes.withSuccess(Response.of(Response.Status.BadRequest));
-    }
+  public Completes<Response> categorizeAs(final String organizationId, final String unitId, final String contextId, final String schemaId, final String category) {
+    return commands
+            .categorizeAs(SchemaId.existing(organizationId, unitId, contextId, schemaId), Category.valueOf(category)).answer()
+            .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));
+  }
 
-    String code = TypeDefinitionCompiler.backedBy(new JavaCodeGenerator()).compile(schemaDef);
-    return Completes.withSuccess(Response.of(Response.Status.Ok, code));
+  public Completes<Response> describeAs(final String organizationId, final String unitId, final String contextId, final String schemaId, final String description) {
+    return commands
+              .describeAs(SchemaId.existing(organizationId, unitId, contextId, schemaId), description).answer()
+              .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));
+  }
+
+  public Completes<Response> renameTo(final String organizationId, final String unitId, final String contextId, final String schemaId, final String name) {
+    return commands
+            .renameTo(SchemaId.existing(organizationId, unitId, contextId, schemaId), name).answer()
+            .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));
+  }
+
+  private String schemaLocation(final SchemaId schemaId) {
+    return String.format(SchemasPath, schemaId.organizationId().value, schemaId.unitId().value, schemaId.contextId.value, schemaId.value);
   }
 }
