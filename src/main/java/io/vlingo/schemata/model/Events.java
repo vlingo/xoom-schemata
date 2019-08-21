@@ -135,15 +135,15 @@ public final class Events {
     }
   }
 
-  public static final class SchemaRecategorized extends DomainEvent {
+  public static final class SchemaCategorized extends DomainEvent {
     public final String schemaId;
     public final String category;
 
-    public static SchemaRecategorized with(final SchemaId schemaId, final Category category) {
-      return new SchemaRecategorized(schemaId, category);
+    public static SchemaCategorized with(final SchemaId schemaId, final Category category) {
+      return new SchemaCategorized(schemaId, category);
     }
 
-    public SchemaRecategorized(final SchemaId schemaId, final Category category) {
+    public SchemaCategorized(final SchemaId schemaId, final Category category) {
       this.schemaId = schemaId.value;
       this.category = category.name();
     }
