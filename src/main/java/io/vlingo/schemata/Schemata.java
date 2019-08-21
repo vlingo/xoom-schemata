@@ -18,9 +18,15 @@ public class Schemata {
   // Paths
   //==========================
 
-  public static final String OrganizationsPath = "/organizations/{0}";
+  public static final String OrganizationsPath  = "/organizations/%s";
 
-  public static final String UnitsPath = "/organizations/{0}/units/{1}";
+  public static final String UnitsPath          = "/organizations/%s/units/%s";
+
+  public static final String ContextsPath       = "/organizations/%s/units/%s/contexts/%s";
+
+  public static final String SchemasPath        = "/organizations/%s/units/%s/contexts/%s/schemas/%s";
+
+  public static final String SchemaVersionsPath = "/organizations/%s/units/%s/contexts/%s/schemas/%s/versions/%s";
 
   //==========================
   // Names
