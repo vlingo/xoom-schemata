@@ -29,17 +29,10 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   }
 
   @Override
-  public Completes<ContextState> defineWith(final String name, final String description) {
-    assert (name != null && !name.isEmpty());
-    assert (description != null && !description.isEmpty());
-    apply(state.defineWith(name, description), ContextDefined.with(this.state.contextId, name, description), () -> state);
-    return completes();
-  }
-
-  @Override
-  public Completes<ContextState> changeNamespaceTo(final String namespace) {
+  public Completes<ContextState> defineWith(final String namespace, final String description) {
     assert (namespace != null && !namespace.isEmpty());
-    apply(state.withNamespace(namespace), ContextRenamed.with(state.contextId, namespace), () -> state);
+    assert (description != null && !description.isEmpty());
+    apply(state.defineWith(namespace, description), ContextDefined.with(this.state.contextId, namespace, description), () -> state);
     return completes();
   }
 
@@ -47,6 +40,13 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   public Completes<ContextState> describeAs(final String description) {
     assert (description != null && !description.isEmpty());
     apply(state.withDescription(description), ContextDescribed.with(state.contextId, description), () -> state);
+    return completes();
+  }
+
+  @Override
+  public Completes<ContextState> moveToNamespace(final String namespace) {
+    assert (namespace != null && !namespace.isEmpty());
+    apply(state.withNamespace(namespace), ContextRenamed.with(state.contextId, namespace), () -> state);
     return completes();
   }
 
