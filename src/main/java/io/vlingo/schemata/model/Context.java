@@ -7,37 +7,45 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.Address;
+import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.UnitId;
 
 public interface Context {
+  static String nameFrom(final ContextId contextId) {
+    return "C:"+contextId.value;
+  }
+
   static ContextId uniqueId(final UnitId unitId) {
     return ContextId.uniqueFor(unitId);
   }
 
-  static Context with(
+  static Completes<ContextState> with(
           final Stage stage,
           final UnitId unitId,
-          final String name,
+          final String namespace,
           final String description) {
-    return with(stage, uniqueId(unitId), name, description);
+    return with(stage, uniqueId(unitId), namespace, description);
   }
 
-  static Context with(
+  static Completes<ContextState> with(
           final Stage stage,
           final ContextId contextId,
-          final String name,
+          final String namespace,
           final String description) {
-    final Context context = stage.actorFor(Context.class, ContextEntity.class, contextId);
-    context.defineWith(name, description);
-    return context;
+    final String actorName = nameFrom(contextId);
+    final Address address = stage.addressFactory().from(contextId.value, actorName);
+    final Definition definition = Definition.has(ContextEntity.class, Definition.parameters(contextId), actorName);
+    final Context context = stage.actorFor(Context.class, definition, address);
+    return context.defineWith(namespace, description);
   }
 
   Completes<ContextState> defineWith(final String name, final String description);
 
-  Completes<ContextState> changeNamespaceTo(final String namespace);
-
   Completes<ContextState> describeAs(final String description);
+
+  Completes<ContextState> moveToNamespace(final String namespace);
 }
