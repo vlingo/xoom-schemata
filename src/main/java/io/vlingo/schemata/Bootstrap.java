@@ -17,7 +17,6 @@ import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.resource.MockApiResource;
-import io.vlingo.schemata.resource.SchemaResource;
 import io.vlingo.schemata.resource.UiResource;
 import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.State.TextState;
@@ -51,7 +50,7 @@ public class Bootstrap {
     schemataObjectStore.register(registry, objectStore);
 
     Resources allResources = Resources.are(
-      SchemaResource.asResource(),
+//      SchemaResource.asResource(),
       UiResource.asResource(),
       MockApiResource.asResource()
     );
