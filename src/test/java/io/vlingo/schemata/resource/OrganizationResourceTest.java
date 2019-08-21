@@ -64,6 +64,7 @@ public class OrganizationResourceTest {
     final OrganizationData data2 = JsonSerialization.deserialized(response2.entity.content(), OrganizationData.class);
     assertEquals(data1.organizationId, data2.organizationId);
     assertNotEquals(data1.description, data2.description);
+    assertEquals((OrgDescription + 1), data2.description);
   }
 
   @Test
@@ -77,6 +78,7 @@ public class OrganizationResourceTest {
     final OrganizationData data2 = JsonSerialization.deserialized(response2.entity.content(), OrganizationData.class);
     assertEquals(data1.organizationId, data2.organizationId);
     assertNotEquals(data1.name, data2.name);
+    assertEquals((OrgName + 1), data2.name);
   }
 
   @Before
