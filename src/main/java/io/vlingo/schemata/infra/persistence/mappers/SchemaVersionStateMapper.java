@@ -7,16 +7,17 @@
 
 package io.vlingo.schemata.infra.persistence.mappers;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.jdbi.v3.core.mapper.RowMapper;
+import org.jdbi.v3.core.statement.StatementContext;
+
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersion.Status;
 import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.schemata.model.SchemaVersionState;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.statement.StatementContext;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class SchemaVersionStateMapper implements RowMapper<SchemaVersionState> {
     @Override
@@ -29,9 +30,10 @@ public class SchemaVersionStateMapper implements RowMapper<SchemaVersionState> {
                         rs.getString("contextId") + ":" +
                         rs.getString("unitId") + ":" +
                         rs.getString("organizationId")),
-                rs.getString("description"),
                 Specification.of(rs.getString("specification")),
+                rs.getString("description"),
                 Status.valueOf(rs.getString("status")),
-                Version.of(rs.getString("versionState")));
+                Version.of(rs.getString("previousVersion")),
+                Version.of(rs.getString("currentVersion")));
     }
 }
