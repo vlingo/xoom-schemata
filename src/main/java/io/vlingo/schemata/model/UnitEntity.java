@@ -48,7 +48,7 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   @Override
   @SuppressWarnings("unchecked")
   protected Tuple2<UnitState, List<Source<DomainEvent>>> whenNewState() {
-    return Tuple2.from(this.state, Collections.emptyList());
+    return state.isIdentified() ? null : Tuple2.from(state, Collections.emptyList());
   }
 
   @Override
