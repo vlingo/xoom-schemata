@@ -22,7 +22,6 @@ import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
-import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.StateObjectMapper;
@@ -65,13 +64,13 @@ public class SchemaVersionEntityTest {
 
   @Test
   public void testThatSchemaVersionIsDefined() {
-    final SchemaVersionState state = schemaVersion.defineWith("description", new SchemaVersion.Specification("specification"), new SchemaVersion.Version("1.0.0")).await();
+    final SchemaVersionState state = schemaVersion.defineWith(new SchemaVersion.Specification("specification"), "description", new SchemaVersion.Version("0.0.0"), new SchemaVersion.Version("1.0.0")).await();
     Assert.assertEquals(SchemaVersionState.unidentified(), state.persistenceId());
     Assert.assertEquals(schemaVersionId.value, state.schemaVersionId.value);
     Assert.assertEquals("description", state.description);
     Assert.assertEquals("specification", state.specification.value);
     Assert.assertEquals(SchemaVersion.Status.Draft.name(), state.status.name());
-    Assert.assertEquals("1.0.0", state.versionState.value);
+    Assert.assertEquals("1.0.0", state.currentVersion.value);
   }
 
   @Test
@@ -96,11 +95,5 @@ public class SchemaVersionEntityTest {
   public void testThatSchemaVersionRemoves() {
     final SchemaVersionState state = schemaVersion.remove().await();
     Assert.assertEquals(SchemaVersion.Status.Removed, state.status);
-  }
-
-  @Test
-  public void testThatSchemaVersionAssignedVersion() {
-    final SchemaVersionState state = schemaVersion.assignVersionOf(Version.of("version-1")).await();
-    Assert.assertEquals("version-1", state.versionState.value);
   }
 }
