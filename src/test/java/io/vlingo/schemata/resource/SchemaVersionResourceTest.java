@@ -53,7 +53,7 @@ public class SchemaVersionResourceTest {
   @Test
   public void testThatSchemaVersionIsDefined() {
     final SchemaVersionResource resource = new SchemaVersionResource(world);
-    final SchemaVersionData defineData = SchemaVersionData.from(OrgId, UnitId, ContextId, SchemaId, "", SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
+    final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
     assertNotNull(response1.headers.headerOf(Location));
@@ -67,7 +67,7 @@ public class SchemaVersionResourceTest {
   @Test
   public void testThatSchemaVersionMinorUpgradeIsDefined() {
     final SchemaVersionResource resource = new SchemaVersionResource(world);
-    final SchemaVersionData defineData = SchemaVersionData.from(OrgId, UnitId, ContextId, SchemaId, "", SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion100, SchemaVersionVersion101);
+    final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion100, SchemaVersionVersion101);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
     assertNotNull(response1.headers.headerOf(Location));
@@ -81,7 +81,7 @@ public class SchemaVersionResourceTest {
   @Test
   public void testSchemaVersionDescribedAs() {
     final SchemaVersionResource resource = new SchemaVersionResource(world);
-    final SchemaVersionData defineData = SchemaVersionData.from(OrgId, UnitId, ContextId, SchemaId, "", SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
+    final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
     final SchemaVersionData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaVersionData.class);
@@ -96,7 +96,7 @@ public class SchemaVersionResourceTest {
   @Test
   public void testThatSchemaVersionIsPublished() {
     final SchemaVersionResource resource = new SchemaVersionResource(world);
-    final SchemaVersionData defineData = SchemaVersionData.from(OrgId, UnitId, ContextId, SchemaId, "", SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
+    final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
     final SchemaVersionData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaVersionData.class);
@@ -111,7 +111,7 @@ public class SchemaVersionResourceTest {
   @Test
   public void testThatSchemaVersionIsDeprecated() {
     final SchemaVersionResource resource = new SchemaVersionResource(world);
-    final SchemaVersionData defineData = SchemaVersionData.from(OrgId, UnitId, ContextId, SchemaId, "", SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
+    final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
     final SchemaVersionData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaVersionData.class);
@@ -127,7 +127,7 @@ public class SchemaVersionResourceTest {
   @Test
   public void testThatSchemaVersionIsNotDeprecated() {
     final SchemaVersionResource resource = new SchemaVersionResource(world);
-    final SchemaVersionData defineData = SchemaVersionData.from(OrgId, UnitId, ContextId, SchemaId, "", SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
+    final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
     final SchemaVersionData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaVersionData.class);
@@ -142,7 +142,7 @@ public class SchemaVersionResourceTest {
   @Test
   public void testThatSchemaVersionIsRemoved() {
     final SchemaVersionResource resource = new SchemaVersionResource(world);
-    final SchemaVersionData defineData = SchemaVersionData.from(OrgId, UnitId, ContextId, SchemaId, "", SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
+    final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
     final SchemaVersionData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaVersionData.class);
@@ -158,7 +158,7 @@ public class SchemaVersionResourceTest {
   @Test
   public void testThatSchemaVersionIsNotRemoved() {
     final SchemaVersionResource resource = new SchemaVersionResource(world);
-    final SchemaVersionData defineData = SchemaVersionData.from(OrgId, UnitId, ContextId, SchemaId, "", SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
+    final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
     final SchemaVersionData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaVersionData.class);

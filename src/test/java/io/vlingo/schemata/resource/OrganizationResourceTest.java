@@ -46,7 +46,7 @@ public class OrganizationResourceTest {
   @Test
   public void testThatOrganizationIsDefined() {
     final OrganizationResource resource = new OrganizationResource(world);
-    final Response response = resource.defineWith(OrgName, OrgDescription).await();
+    final Response response = resource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
     assertEquals(Created, response.status);
     assertNotNull(response.headers.headerOf(Location));
     assertTrue(response.entity.content().contains(OrgName));
@@ -56,7 +56,7 @@ public class OrganizationResourceTest {
   @Test
   public void testOrganizationDescribedAs() {
     final OrganizationResource resource = new OrganizationResource(world);
-    final Response response1 = resource.defineWith(OrgName, OrgDescription).await();
+    final Response response1 = resource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
     assertEquals(Created, response1.status);
     final OrganizationData data1 = JsonSerialization.deserialized(response1.entity.content(), OrganizationData.class);
     final Response response2 = resource.describeAs(data1.organizationId, OrgDescription + 1).await();
@@ -70,7 +70,7 @@ public class OrganizationResourceTest {
   @Test
   public void testOrganizationRenameTo() {
     final OrganizationResource resource = new OrganizationResource(world);
-    final Response response1 = resource.defineWith(OrgName, OrgDescription).await();
+    final Response response1 = resource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
     assertEquals(Created, response1.status);
     final OrganizationData data1 = JsonSerialization.deserialized(response1.entity.content(), OrganizationData.class);
     final Response response2 = resource.renameTo(data1.organizationId, OrgName + 1).await();

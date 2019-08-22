@@ -46,7 +46,7 @@ public class ContextResourceTest {
   @Test
   public void testThatContextIsDefined() {
     final ContextResource resource = new ContextResource(world);
-    final Response response = resource.defineWith(OrgId, UnitId, ContextNamespace, ContextDescription).await();
+    final Response response = resource.defineWith(OrgId, UnitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     assertEquals(Created, response.status);
     assertNotNull(response.headers.headerOf(Location));
     final ContextData data = JsonSerialization.deserialized(response.entity.content(), ContextData.class);
@@ -57,7 +57,7 @@ public class ContextResourceTest {
   @Test
   public void testContextDescribedAs() {
     final ContextResource resource = new ContextResource(world);
-    final Response response1 = resource.defineWith(OrgId, UnitId, ContextNamespace, ContextDescription).await();
+    final Response response1 = resource.defineWith(OrgId, UnitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     assertEquals(Created, response1.status);
     final ContextData data1 = JsonSerialization.deserialized(response1.entity.content(), ContextData.class);
     final Response response2 = resource.describeAs(data1.organizationId, data1.unitId, data1.contextId, ContextDescription + 1).await();
@@ -71,7 +71,7 @@ public class ContextResourceTest {
   @Test
   public void testContextRenameTo() {
     final ContextResource resource = new ContextResource(world);
-    final Response response1 = resource.defineWith(OrgId, UnitId, ContextNamespace, ContextDescription).await();
+    final Response response1 = resource.defineWith(OrgId, UnitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     assertEquals(Created, response1.status);
     final ContextData data1 = JsonSerialization.deserialized(response1.entity.content(), ContextData.class);
     final Response response2 = resource.moveToNamespace(data1.organizationId, data1.unitId, data1.contextId, ContextNamespace + 1).await();

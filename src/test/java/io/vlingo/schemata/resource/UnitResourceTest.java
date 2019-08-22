@@ -46,7 +46,7 @@ public class UnitResourceTest {
   @Test
   public void testThatUnitIsDefined() {
     final UnitResource resource = new UnitResource(world);
-    final Response response = resource.defineWith(OrgId, UnitName, UnitDescription).await();
+    final Response response = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();
     assertEquals(Created, response.status);
     assertNotNull(response.headers.headerOf(Location));
     assertTrue(response.entity.content().contains(UnitName));
@@ -56,7 +56,7 @@ public class UnitResourceTest {
   @Test
   public void testUnitDescribedAs() {
     final UnitResource resource = new UnitResource(world);
-    final Response response1 = resource.defineWith(OrgId, UnitName, UnitDescription).await();
+    final Response response1 = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();
     assertEquals(Created, response1.status);
     final UnitData data1 = JsonSerialization.deserialized(response1.entity.content(), UnitData.class);
     final Response response2 = resource.describeAs(data1.organizationId, data1.unitId, UnitDescription + 1).await();
@@ -70,7 +70,7 @@ public class UnitResourceTest {
   @Test
   public void testUnitRenameTo() {
     final UnitResource resource = new UnitResource(world);
-    final Response response1 = resource.defineWith(OrgId, UnitName, UnitDescription).await();
+    final Response response1 = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();
     assertEquals(Created, response1.status);
     final UnitData data1 = JsonSerialization.deserialized(response1.entity.content(), UnitData.class);
     final Response response2 = resource.renameTo(data1.organizationId, data1.unitId, UnitName + 1).await();
