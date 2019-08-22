@@ -59,6 +59,21 @@ public class SchemaVersionData {
           nextVersion);
   }
 
+  public static SchemaVersionData just(
+          final String specification,
+          final String description,
+          final String status,
+          final String previousVersion,
+          final String nextVersion) {
+  return new SchemaVersionData(
+          "", "", "", "", "",
+          specification,
+          description,
+          status,
+          previousVersion,
+          nextVersion);
+  }
+
   private SchemaVersionData(
           final String organizationId,
           final String unitId,
