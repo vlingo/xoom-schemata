@@ -14,8 +14,8 @@ import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple2;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.object.ObjectEntity;
-import io.vlingo.schemata.model.Events.SchemaVersionAssignedVersion;
 import io.vlingo.schemata.model.Events.SchemaVersionDefined;
+import io.vlingo.schemata.model.Events.SchemaVersionDeprecated;
 import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
 import io.vlingo.schemata.model.Events.SchemaVersionPublished;
 import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
@@ -32,57 +32,67 @@ public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState>
 
   @Override
   public Completes<SchemaVersionState> defineWith(
-          final String description,
           final Specification specification,
-          final Version version) {
+          final String description,
+          final Version previousVersion,
+          final Version nextVersion) {
     assert (description != null && !description.isEmpty());
     apply(
-        this.state.defineWith(description, specification, version),
-        SchemaVersionDefined.with(state.schemaVersionId, description, specification, Status.Draft, version),
+        this.state.defineWith(description, specification, previousVersion, nextVersion),
+        SchemaVersionDefined.with(state.schemaVersionId, specification, description, Status.Draft, previousVersion, nextVersion),
         () -> state);
     return completes();
   }
 
   @Override
-  public Completes<SchemaVersionState> assignVersionOf(final Version version) {
-    assert (version != null);
-    apply(this.state.withVersion(version), SchemaVersionAssignedVersion.with(state.schemaVersionId, version), () -> this.state);
-    return completes();
-  }
-
-  @Override
   public Completes<SchemaVersionState> describeAs(final String description) {
-    assert (description != null && !description.isEmpty());
-    assert (state.status.isDraft());
-    apply(this.state.withDescription(description), SchemaVersionDescribed.with(state.schemaVersionId, description), () -> this.state);
-    return completes();
+    if (description != null && !description.isEmpty()) {
+      apply(this.state.withDescription(description), SchemaVersionDescribed.with(state.schemaVersionId, description), () -> this.state);
+      return completes();
+    }
+    return completes().with(state);
   }
 
   @Override
   public Completes<SchemaVersionState> publish() {
-    assert (state.status.isDraft());
-    apply(this.state.asPublished(), SchemaVersionPublished.with(state.schemaVersionId), () -> this.state);
-    return completes();
+    if (state.status.isDraft()) {
+      apply(this.state.asPublished(), SchemaVersionPublished.with(state.schemaVersionId), () -> this.state);
+      return completes();
+    }
+    return completes().with(state);
+  }
+
+  @Override
+  public Completes<SchemaVersionState> deprecate() {
+    if (state.status.isPublished()) {
+      apply(this.state.asDeprecated(), SchemaVersionDeprecated.with(state.schemaVersionId), () -> this.state);
+      return completes();
+    }
+    return completes().with(state);
   }
 
   @Override
   public Completes<SchemaVersionState> remove() {
-    assert (state.status.isDraft());
-    apply(this.state.asRemoved(), SchemaVersionRemoved.with(state.schemaVersionId), () -> this.state);
-    return completes();
+    if (state.status.isDeprecated()) {
+      apply(this.state.asRemoved(), SchemaVersionRemoved.with(state.schemaVersionId), () -> this.state);
+      return completes();
+    }
+    return completes().with(state);
   }
 
   @Override
   public Completes<SchemaVersionState> specifyWith(final Specification specification) {
-    assert (specification != null);
-    apply(this.state.withSpecification(specification), SchemaVersionSpecified.with(state.schemaVersionId, specification), () -> this.state);
-    return completes();
+    if (specification != null) {
+      apply(this.state.withSpecification(specification), SchemaVersionSpecified.with(state.schemaVersionId, specification), () -> this.state);
+      return completes();
+    }
+    return completes().with(state);
   }
 
   @Override
   @SuppressWarnings("unchecked")
   protected Tuple2<SchemaVersionState, List<Source<DomainEvent>>> whenNewState() {
-    return Tuple2.from(this.state, Collections.emptyList());
+    return state.isIdentified() ? null : Tuple2.from(state, Collections.emptyList());
   }
 
   @Override
