@@ -40,8 +40,8 @@ public class SchemaResource extends ResourceHandler {
     this.commands = new SchemaCommands(this.stage, 10);
   }
 
-  public Completes<Response> defineWith(final String organizationId, final String unitId, final String contextId, final String category, final String name, final String description) {
-    return Schema.with(stage, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(category), name, description)
+  public Completes<Response> defineWith(final String organizationId, final String unitId, final String contextId, final SchemaData data) {
+    return Schema.with(stage, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(data.category), data.name, data.description)
             .andThenTo(state -> {
                 final String location = schemaLocation(state.schemaId);
                 final Headers<ResponseHeader> headers = headers(of(Location, location));
@@ -49,7 +49,7 @@ public class SchemaResource extends ResourceHandler {
 
                 return Completes.withSuccess(Response.of(Created, headers, serialized));
               })
-            .otherwise(response -> Response.of(Conflict, serialized(SchemaData.from(organizationId, unitId, contextId, NoId, category, name, description))));
+            .otherwise(response -> Response.of(Conflict, serialized(SchemaData.from(organizationId, unitId, contextId, NoId, data.category, data.name, data.description))));
   }
 
   public Completes<Response> categorizeAs(final String organizationId, final String unitId, final String contextId, final String schemaId, final String category) {
