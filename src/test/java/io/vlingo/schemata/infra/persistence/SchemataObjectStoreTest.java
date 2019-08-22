@@ -213,10 +213,11 @@ public class SchemataObjectStoreTest {
         final SchemaVersionState schemaVersionState = SchemaVersionState.from(
                 1L,
                 SchemaVersionId.existing("A343:U44:C13:S78:SV778"),
-                "Schema Version Vlingo",
                 Specification.of("Spec"),
+                "Schema Version Vlingo",
                 Status.Draft,
-                Version.of("v1"));
+                Version.of("0.0.0"),
+                Version.of("1.0.0"));
         objectStore.persist(schemaVersionState, persistInterest);
         final Outcome<StorageException, Result> outcome = access.readFrom("outcome");
         assertEquals(Result.Success, outcome.andThen(success -> success).get());
@@ -233,7 +234,7 @@ public class SchemataObjectStoreTest {
         // update
         queryInterest.until = TestUntil.happenings(1);
         final SchemaVersionState updatedSchemaVersionState =
-                insertedSchemaVersionState.defineWith("Schema Version Vlingo V2", Specification.of("SpecV2"), Version.of("v2"));
+                insertedSchemaVersionState.defineWith("Schema Version Vlingo V2", Specification.of("SpecV2"), Version.of("1.0.0"), Version.of("2.0.0"));
 
         objectStore.persist(updatedSchemaVersionState, persistInterest);
         querySelect(queryInterest, SchemaVersionState.class, "SCHEMAVERSION");
