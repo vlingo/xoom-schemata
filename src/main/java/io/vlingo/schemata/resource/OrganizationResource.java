@@ -38,8 +38,8 @@ public class OrganizationResource extends ResourceHandler {
     this.commands = new OrganizationCommands(this.stage, 10);
   }
 
-  public Completes<Response> defineWith(final String name, final String description) {
-    return Organization.with(stage, name, description)
+  public Completes<Response> defineWith(final OrganizationData data) {
+    return Organization.with(stage, data.name, data.description)
             .andThenTo(state -> {
                 final String location = organizationLocation(state.organizationId);
                 final Headers<ResponseHeader> headers = headers(of(Location, location));
@@ -47,7 +47,7 @@ public class OrganizationResource extends ResourceHandler {
 
                 return Completes.withSuccess(Response.of(Created, headers, serialized));
               })
-            .otherwise(response -> Response.of(Conflict, serialized(OrganizationData.from(NoId, name, description))));
+            .otherwise(response -> Response.of(Conflict, serialized(OrganizationData.from(NoId, data.name, data.description))));
   }
 
   public Completes<Response> describeAs(final String organizationId, final String description) {
