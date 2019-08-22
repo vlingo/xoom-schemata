@@ -230,6 +230,6 @@ public class SchemataObjectStore {
                 "schemaVersionId VARCHAR(50), schemaId VARCHAR(50), contextId VARCHAR(50), unitId VARCHAR(50), organizationId VARCHAR (50), " +
                 "specification VARCHAR(8000), description VARCHAR(8000), status VARCHAR(16), previousVersion VARCHAR(16), currentVersion VARCHAR(16))");
         jdbi.handle().execute("ALTER TABLE SCHEMAVERSION" +
-                "  ADD CONSTRAINT IF NOT EXISTS SCHEMAVERSION_UNIQUE UNIQUE (versionState)");
+                "  ADD CONSTRAINT IF NOT EXISTS SCHEMAVERSION_UNIQUE UNIQUE (currentVersion)");
     }
 }
