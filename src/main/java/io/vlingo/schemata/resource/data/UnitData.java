@@ -31,6 +31,10 @@ public class UnitData {
     return new UnitData(organizationId, unitId, name, description, contexts);
   }
 
+  public static UnitData just(final String name, final String description) {
+    return new UnitData("", "", name, description, Collections.emptyList());
+  }
+
   @Override
   public String toString() {
     return "UnitData [organizationId=" + organizationId + " unitId=" + unitId + " name=" + name + " description="
