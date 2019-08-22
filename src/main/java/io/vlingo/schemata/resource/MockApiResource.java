@@ -30,7 +30,7 @@ import io.vlingo.schemata.resource.data.ContextData;
 import io.vlingo.schemata.resource.data.OrganizationData;
 import io.vlingo.schemata.resource.data.SchemaData;
 import io.vlingo.schemata.resource.data.SchemaMetaData;
-import io.vlingo.schemata.resource.data.SchemaVersion;
+import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.schemata.resource.data.UnitData;
 
 /**
@@ -132,7 +132,7 @@ public class MockApiResource extends ResourceHandler {
       )));
   }
 
-  private Completes<Response> schema(final String organizationId, final String unitId, final String contextId, final String schema, final String version) {
+  private Completes<Response> schema(final String organizationId, final String unitId, final String contextId, final String schema, final String currentVersion) {
 
     String specification = "event SalutationHappened {\n" +
       "    type eventType\n" +
@@ -157,11 +157,13 @@ public class MockApiResource extends ResourceHandler {
       "Unit: " + unitId + "\n" +
       "Context: " + contextId + "\n";
 
-    SchemaVersion result = SchemaVersion.from(
-      description,
+    SchemaVersionData result = SchemaVersionData.from(
+      "o1", "u1", "c10", "s1", "sv1",
       specification,
+      description,
       randomElement(Status.values()).name(),
-      version
+      "0.0.0",
+      currentVersion
     );
 
     return Completes.withSuccess(Response.of(Ok,
