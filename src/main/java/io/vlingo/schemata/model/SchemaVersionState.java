@@ -17,7 +17,8 @@ public class SchemaVersionState extends StateObject {
   public final String description;
   public final SchemaVersion.Specification specification;
   public final SchemaVersion.Status status;
-  public final SchemaVersion.Version versionState;
+  public final SchemaVersion.Version previousVersion;
+  public final SchemaVersion.Version currentVersion;
 
   public static SchemaVersionState from(final SchemaVersionId schemaVersionId) {
     return new SchemaVersionState(schemaVersionId);
@@ -26,41 +27,47 @@ public class SchemaVersionState extends StateObject {
   public static SchemaVersionState from(
           final long id,
           final SchemaVersionId schemaVersionId,
-          final String description,
           final SchemaVersion.Specification specification,
+          final String description,
           final SchemaVersion.Status status,
-          final SchemaVersion.Version versionState) {
+          final SchemaVersion.Version previousVersion,
+          final SchemaVersion.Version currentVersion) {
     return new SchemaVersionState(
             id,
             schemaVersionId,
-            description,
             specification,
+            description,
             status,
-            versionState);
+            previousVersion,
+            currentVersion);
   }
 
   public SchemaVersionState asPublished() {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.description, this.specification, SchemaVersion.Status.Published, this.versionState);
+    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.specification, this.description, SchemaVersion.Status.Published, this.previousVersion, this.currentVersion);
+  }
+
+  public SchemaVersionState asDeprecated() {
+    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.specification, this.description, SchemaVersion.Status.Deprecated, this.previousVersion, this.currentVersion);
   }
 
   public SchemaVersionState asRemoved() {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.description, this.specification, SchemaVersion.Status.Removed, this.versionState);
+    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.specification, this.description, SchemaVersion.Status.Removed, this.previousVersion, this.currentVersion);
   }
 
-  public SchemaVersionState defineWith(final String description, final SchemaVersion.Specification specification, final SchemaVersion.Version version) {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, description, specification, SchemaVersion.Status.Draft, version);
+  public SchemaVersionState defineWith(final String description, final SchemaVersion.Specification specification, final SchemaVersion.Version previousVersion, final SchemaVersion.Version currentVersion) {
+    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, specification, description, SchemaVersion.Status.Draft, previousVersion, currentVersion);
   }
 
   public SchemaVersionState withSpecification(final SchemaVersion.Specification specification) {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.description, specification, this.status, this.versionState);
+    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, specification, this.description, this.status, this.previousVersion, this.currentVersion);
   }
 
   public SchemaVersionState withDescription(final String description) {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, description, this.specification, this.status, this.versionState);
+    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.specification, description, this.status, this.previousVersion, this.currentVersion);
   }
 
-  public SchemaVersionState withVersion(final SchemaVersion.Version version) {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.description, this.specification, this.status, version);
+  public SchemaVersionState withVersion(final SchemaVersion.Version currentVersion) {
+    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.specification, this.description, this.status, this.previousVersion, currentVersion);
   }
 
   @Override
@@ -85,33 +92,37 @@ public class SchemaVersionState extends StateObject {
   public String toString() {
     return "SchemaVersionState[persistenceId=" + persistenceId() +
             " schemaVersionId=" + schemaVersionId.value +
-            " description=" + description +
             " specification=" + specification +
+            " description=" + description +
             " status=" + status.name() +
-            " version=" + versionState + "]";
+            " previousVersion=" + previousVersion +
+            " currentVersion=" + currentVersion + "]";
   }
 
   private SchemaVersionState(final SchemaVersionId schemaVersionId) {
     this(Unidentified,
          schemaVersionId,
+         new SchemaVersion.Specification("(unknown)"),
          "",
-         new SchemaVersion.Specification("unknown"),
          SchemaVersion.Status.Draft,
+         new SchemaVersion.Version("0.0.0"),
          new SchemaVersion.Version("0.0.0"));
   }
 
   private SchemaVersionState(
           final long id,
           final SchemaVersionId schemaVersionId,
-          final String description,
           final SchemaVersion.Specification specification,
+          final String description,
           final SchemaVersion.Status status,
-          final SchemaVersion.Version versionState) {
+          final SchemaVersion.Version previousVersion,
+          final SchemaVersion.Version currentVersion) {
     super(id);
     this.schemaVersionId = schemaVersionId;
-    this.description = description;
     this.specification = specification;
+    this.description = description;
     this.status = status;
-    this.versionState = versionState;
+    this.previousVersion = previousVersion;
+    this.currentVersion = currentVersion;
   }
 }
