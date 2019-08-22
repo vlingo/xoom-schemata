@@ -165,25 +165,35 @@ public final class Events {
 
   public static final class SchemaVersionDefined extends DomainEvent {
     public final String schemaVersionId;
+    public final String specification;
     public final String description;
     public final String status;
-    public final String specification;
-    public final String version;
+    public final String previousVersion;
+    public final String nextVersion;
 
-    public static SchemaVersionDefined with(final SchemaVersionId schemaVersionId,
-            final String description,  final SchemaVersion.Specification specification,
-            final SchemaVersion.Status status, final SchemaVersion.Version version) {
-      return new SchemaVersionDefined(schemaVersionId, description, specification, status, version);
+    public static SchemaVersionDefined with(
+            final SchemaVersionId schemaVersionId,
+            final SchemaVersion.Specification specification,
+            final String description,
+            final SchemaVersion.Status status,
+            final SchemaVersion.Version previousVersion,
+            final SchemaVersion.Version nextVersion) {
+      return new SchemaVersionDefined(schemaVersionId, specification, description, status, previousVersion, nextVersion);
     }
 
-    public SchemaVersionDefined(SchemaVersionId schemaVersionId, 
-            final String description, final SchemaVersion.Specification specification,
-            final SchemaVersion.Status status, final SchemaVersion.Version version) {
+    public SchemaVersionDefined(
+            SchemaVersionId schemaVersionId,
+            final SchemaVersion.Specification specification,
+            final String description,
+            final SchemaVersion.Status status,
+            final SchemaVersion.Version previousVersion,
+            final SchemaVersion.Version nextVersion) {
       this.schemaVersionId = schemaVersionId.value;
+      this.specification = specification.value;
       this.description = description;
       this.status = status.toString();
-      this.specification = specification.value;
-      this.version = version.value;
+      this.previousVersion = previousVersion.value;
+      this.nextVersion = nextVersion.value;
     }
   }
 
@@ -201,15 +211,15 @@ public final class Events {
     }
   }
 
-  public static final class SchemaVersionAssignedVersion extends DomainEvent {
+  public static final class SchemaVersionAssigned extends DomainEvent {
     public final String schemaVersionId;
     public final String version;
 
-    public static SchemaVersionAssignedVersion with(final SchemaVersionId schemaVersionId, final SchemaVersion.Version version) {
-      return new SchemaVersionAssignedVersion(schemaVersionId, version);
+    public static SchemaVersionAssigned with(final SchemaVersionId schemaVersionId, final SchemaVersion.Version version) {
+      return new SchemaVersionAssigned(schemaVersionId, version);
     }
 
-    public SchemaVersionAssignedVersion(SchemaVersionId schemaVersionId, final SchemaVersion.Version version) {
+    public SchemaVersionAssigned(SchemaVersionId schemaVersionId, final SchemaVersion.Version version) {
       this.schemaVersionId = schemaVersionId.value;
       this.version = version.value;
     }
@@ -237,6 +247,18 @@ public final class Events {
     }
 
     public SchemaVersionPublished(final SchemaVersionId schemaVersionId) {
+      this.schemaVersionId = schemaVersionId.value;
+    }
+  }
+
+  public static final class SchemaVersionDeprecated extends DomainEvent {
+    public final String schemaVersionId;
+
+    public static SchemaVersionDeprecated with(final SchemaVersionId schemaVersionId) {
+      return new SchemaVersionDeprecated(schemaVersionId);
+    }
+
+    public SchemaVersionDeprecated(final SchemaVersionId schemaVersionId) {
       this.schemaVersionId = schemaVersionId.value;
     }
   }
