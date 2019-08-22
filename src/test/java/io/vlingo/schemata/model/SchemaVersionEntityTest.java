@@ -93,6 +93,8 @@ public class SchemaVersionEntityTest {
 
   @Test
   public void testThatSchemaVersionRemoves() {
+    schemaVersion.publish();
+    schemaVersion.deprecate();
     final SchemaVersionState state = schemaVersion.remove().await();
     Assert.assertEquals(SchemaVersion.Status.Removed, state.status);
   }
