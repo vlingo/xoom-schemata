@@ -14,9 +14,9 @@ import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple2;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.object.ObjectEntity;
+import io.vlingo.schemata.model.Events.SchemaCategorized;
 import io.vlingo.schemata.model.Events.SchemaDefined;
 import io.vlingo.schemata.model.Events.SchemaDescribed;
-import io.vlingo.schemata.model.Events.SchemaCategorized;
 import io.vlingo.schemata.model.Events.SchemaRenamed;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.symbio.Source;
@@ -58,7 +58,7 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
   @Override
   @SuppressWarnings("unchecked")
   protected Tuple2<SchemaState, List<Source<DomainEvent>>> whenNewState() {
-    return Tuple2.from(this.state, Collections.emptyList());
+    return state.isIdentified() ? null : Tuple2.from(state, Collections.emptyList());
   }
 
   @Override
