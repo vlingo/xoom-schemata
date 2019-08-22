@@ -52,7 +52,7 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   @Override
   @SuppressWarnings("unchecked")
   protected Tuple2<OrganizationState, List<Source<DomainEvent>>> whenNewState() {
-    return Tuple2.from(this.state, Collections.emptyList());
+    return state.isIdentified() ? null : Tuple2.from(state, Collections.emptyList());
   }
 
   @Override
