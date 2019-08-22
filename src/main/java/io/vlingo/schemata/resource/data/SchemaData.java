@@ -26,6 +26,10 @@ public class SchemaData {
     return new SchemaData(organizationId, unitId, contextId, schemaId, category, name, description);
   }
 
+  public static SchemaData just(final String category, final String name, final String description) {
+    return new SchemaData("", "", "", "", category, name, description);
+  }
+
   private SchemaData(final String organizationId, final String unitId, final String contextId, final String schemaId, final String category, final String name, final String description) {
     this.organizationId = organizationId;
     this.unitId = unitId;
