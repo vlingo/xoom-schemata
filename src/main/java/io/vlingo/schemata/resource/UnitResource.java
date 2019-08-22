@@ -39,8 +39,8 @@ public class UnitResource extends ResourceHandler {
     this.commands = new UnitCommands(this.stage, 10);
   }
 
-  public Completes<Response> defineWith(final String organizationId, final String name, final String description) {
-    return Unit.with(stage, OrganizationId.existing(organizationId), name, description)
+  public Completes<Response> defineWith(final String organizationId, final UnitData data) {
+    return Unit.with(stage, OrganizationId.existing(organizationId), data.name, data.description)
             .andThenTo(state -> {
                 final String location = unitLocation(state.unitId);
                 final Headers<ResponseHeader> headers = headers(of(Location, location));
@@ -48,7 +48,7 @@ public class UnitResource extends ResourceHandler {
 
                 return Completes.withSuccess(Response.of(Created, headers, serialized));
               })
-            .otherwise(response -> Response.of(Conflict, serialized(UnitData.from(NoId, NoId, name, description))));
+            .otherwise(response -> Response.of(Conflict, serialized(UnitData.from(organizationId, NoId, data.name, data.description))));
   }
 
   public Completes<Response> describeAs(final String organizationId, final String unitId, final String description) {
