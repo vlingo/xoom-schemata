@@ -6,40 +6,62 @@
 // one at https://mozilla.org/MPL/2.0/.
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.Address;
+import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
+import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 
 public interface SchemaVersion {
+  static String nameFrom(final SchemaVersionId schemaVersionId) {
+    return "V:"+schemaVersionId.value;
+  }
+
   static SchemaVersionId uniqueId(final SchemaId schemaId) {
     return SchemaVersionId.uniqueFor(schemaId);
   }
 
-  static SchemaVersionId uniqueId(final SchemaVersionId previousSchemaVersionId) {
-    return SchemaVersionId.nextUniqueFrom(previousSchemaVersionId);
+  static Completes<SchemaVersionState> with(
+          final Stage stage,
+          final SchemaId schemaId,
+          final Specification specification,
+          final String description,
+          final Version parentVersion,
+          final Version childVersion) {
+    return with(stage, uniqueId(schemaId), specification, description, parentVersion, childVersion);
   }
 
-  static SchemaVersion with(final Stage stage, final SchemaId schemaId,
-          final String description, final Specification definition,
-          final Status status, final Version version) {
-    return with(stage, uniqueId(schemaId), description, definition, status, version);
+  static Completes<SchemaVersionState> with(
+          final Stage stage,
+          final SchemaVersionId schemaVersionId,
+          final Specification specification,
+          final String description,
+          final Version previousVersion,
+          final Version nextVersion) {
+
+    final SemanticVersion previous = SemanticVersion.from(previousVersion.value);
+    final SemanticVersion next = SemanticVersion.from(nextVersion.value);
+
+    if (!next.isCompatibleWith(previous)) {
+      throw new IllegalArgumentException("Versions are incompatible: previous: " + previousVersion.value + " next: " + nextVersion.value);
+    }
+
+    final String actorName = nameFrom(schemaVersionId);
+    final Address address = stage.addressFactory().from(schemaVersionId.value, actorName);
+    final Definition definition = Definition.has(SchemaVersionEntity.class, Definition.parameters(schemaVersionId), actorName);
+    final SchemaVersion schemaVersion = stage.actorFor(SchemaVersion.class, definition, address);
+    return schemaVersion.defineWith(specification, description, previousVersion, nextVersion);
   }
 
-  static SchemaVersion with(final Stage stage, final SchemaVersionId previousSchemaVersionId,
-          final String description, final Specification definition, final Status status, final Version version) {
-    final SchemaVersion schemaVersion = stage.actorFor(SchemaVersion.class, SchemaVersionEntity.class, uniqueId(previousSchemaVersionId));
-    schemaVersion.defineWith(description, definition, version);
-    return schemaVersion;
-  }
-
-  Completes<SchemaVersionState> defineWith(final String description, final Specification specification, final Version version);
-
-  Completes<SchemaVersionState> assignVersionOf(final Version version);
+  Completes<SchemaVersionState> defineWith(final Specification specification, final String description, final Version previousVersion, final Version nextVersion);
 
   Completes<SchemaVersionState> describeAs(final String description);
 
   Completes<SchemaVersionState> publish();
+
+  Completes<SchemaVersionState> deprecate();
 
   Completes<SchemaVersionState> remove();
 
@@ -73,6 +95,10 @@ public interface SchemaVersion {
       @Override
       public boolean isPublished() { return true; }
     },
+    Deprecated {
+      @Override
+      public boolean isDeprecated() { return true; }
+    },
     Removed {
       @Override
       public boolean isRemoved() { return true; }
@@ -81,6 +107,7 @@ public interface SchemaVersion {
     public final String value = this.name();
     public boolean isDraft() { return false; }
     public boolean isPublished() { return false; }
+    public boolean isDeprecated() { return false; }
     public boolean isRemoved() { return false; }
   }
 
@@ -92,6 +119,11 @@ public interface SchemaVersion {
     }
 
     public Version(final String value) {
+      assert(value != null);
+
+      // asserts valid as a semantic version (not necessarily correct)
+      SemanticVersion.from(value);
+
       this.value = value;
     }
 
