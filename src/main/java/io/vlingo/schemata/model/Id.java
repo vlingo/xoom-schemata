@@ -168,21 +168,16 @@ public abstract class Id {
       return new SchemaVersionId(new SchemaId(new ContextId(new UnitId(OrganizationId.existing(parts[0]), parts[1]), parts[2]), parts[3]), parts[4]);
     }
 
+    public static SchemaVersionId existing(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
+      return new SchemaVersionId(organizationId, unitId, contextId, schemaId, schemaVersionId);
+    }
+
     public static SchemaVersionId undefined() {
       return new SchemaVersionId(SchemaId.undefined(), "");
     }
 
     public static SchemaVersionId uniqueFor(final SchemaId schemaId) {
       return new SchemaVersionId(schemaId);
-    }
-
-    public static SchemaVersionId nextUniqueFrom(final SchemaVersionId previousSchemaVersionId) {
-      final int index = previousSchemaVersionId.value.lastIndexOf(':');
-      assert(index > 0);
-      final String prefix = previousSchemaVersionId.value.substring(0, index);
-      final SchemaId schemaId = SchemaId.existing(prefix);
-      final int previousSequence = Integer.parseInt(previousSchemaVersionId.value.substring(index + 1));
-      return new SchemaVersionId(schemaId, String.valueOf(previousSequence + 1));
     }
 
     public ContextId contextId() {
@@ -206,8 +201,8 @@ public abstract class Id {
       this.schemaId = schemaId;
     }
 
-    SchemaVersionId(final String organizationId, final String unitId, final String contextId, final String schemaId, final String version) {
-      super(version);
+    SchemaVersionId(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
+      super(schemaVersionId);
       this.schemaId = SchemaId.existing(organizationId, unitId, contextId, schemaId);
     }
   }
