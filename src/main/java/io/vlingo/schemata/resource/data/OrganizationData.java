@@ -30,6 +30,10 @@ public class OrganizationData {
     return new OrganizationData(organizationId, name, description, units);
   }
 
+  public static OrganizationData just(final String name, final String description) {
+    return new OrganizationData("", name, description, Collections.emptyList());
+  }
+
   @Override
   public String toString() {
     return "OrganizationData [id=" + organizationId + " name=" + name + " description=" + description + " units=" + units + "]";
