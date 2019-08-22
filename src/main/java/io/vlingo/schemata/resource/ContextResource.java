@@ -39,8 +39,8 @@ public class ContextResource extends ResourceHandler {
     this.commands = new ContextCommands(this.stage, 10);
   }
 
-  public Completes<Response> defineWith(final String organizationId, final String unitId, final String namespace, final String description) {
-    return Context.with(stage, UnitId.existing(organizationId, unitId), namespace, description)
+  public Completes<Response> defineWith(final String organizationId, final String unitId, final ContextData data) {
+    return Context.with(stage, UnitId.existing(organizationId, unitId), data.namespace, data.description)
             .andThenTo(state -> {
                 final String location = contextLocation(state.contextId);
                 final Headers<ResponseHeader> headers = headers(of(Location, location));
@@ -48,7 +48,7 @@ public class ContextResource extends ResourceHandler {
 
                 return Completes.withSuccess(Response.of(Created, headers, serialized));
               })
-            .otherwise(response -> Response.of(Conflict, serialized(ContextData.from(NoId, NoId, NoId, namespace, description))));
+            .otherwise(response -> Response.of(Conflict, serialized(ContextData.from(organizationId, unitId, NoId, data.namespace, data.description))));
   }
 
   public Completes<Response> describeAs(final String organizationId, final String unitId, final String contextId, final String description) {
