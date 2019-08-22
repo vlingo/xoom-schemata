@@ -19,6 +19,12 @@
       <organization>Kalele</organization>
       <organizationUrl>http://kalele.io</organizationUrl>
     </developer>
+    <developer>
+      <name>Tomasz Jaskula</name>
+      <email>tjaskula@luteceo.com</email>
+      <organization>Luteceo</organization>
+      <organizationUrl>http://luteceo.com/</organizationUrl>
+    </developer>
   </developers>
   <scm>
     <connection>scm:git:git://github.com/vlingo/vlingo-schemata.git</connection>
