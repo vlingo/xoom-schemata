@@ -53,7 +53,7 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   @Override
   @SuppressWarnings("unchecked")
   protected Tuple2<ContextState, List<Source<DomainEvent>>> whenNewState() {
-    return Tuple2.from(this.state, Collections.emptyList());
+    return state.isIdentified() ? null : Tuple2.from(state, Collections.emptyList());
   }
 
   @Override
