@@ -21,7 +21,11 @@ public class ContextData {
   }
 
   public static ContextData from(final String organizationId, final String unitId, final String contextId, final String namespace, final String description) {
-    return from(organizationId, unitId, contextId, namespace, description);
+    return new ContextData(organizationId, unitId, contextId, namespace, description);
+  }
+
+  public static ContextData just(final String namespace, final String description) {
+    return new ContextData("", "", "", namespace, description);
   }
 
   private ContextData(final String organizationId, final String unitId, final String contextId, String namespace, final String description) {
