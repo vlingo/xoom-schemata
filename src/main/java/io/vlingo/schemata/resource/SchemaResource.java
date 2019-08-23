@@ -14,9 +14,15 @@ import static io.vlingo.http.Response.Status.Ok;
 import static io.vlingo.http.ResponseHeader.Location;
 import static io.vlingo.http.ResponseHeader.headers;
 import static io.vlingo.http.ResponseHeader.of;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.patch;
+import static io.vlingo.http.resource.ResourceBuilder.post;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.SchemasPath;
 import static io.vlingo.schemata.Schemata.StageName;
+
+import java.util.Arrays;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -24,6 +30,7 @@ import io.vlingo.common.Completes;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
+import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Category;
 import io.vlingo.schemata.model.Id.ContextId;
@@ -68,6 +75,59 @@ public class SchemaResource extends ResourceHandler {
     return commands
             .renameTo(SchemaId.existing(organizationId, unitId, contextId, schemaId), name).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));
+  }
+
+  public Completes<Response> querySchemas(final String organizationId, final String unitId, final String contextId) {
+    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId + " SCHEMAS");
+    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(SchemaData.from("O1", "U1", "C1", "S1", "Event", "Schema1", "My schema 1.")))));
+  }
+
+  public Completes<Response> querySchema(final String organizationId, final String unitId, final String contextId, final String schemaId) {
+    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId + " SCHEMA: " + schemaId);
+    return Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from("O1", "U1", "C1", "S1", "Event", "Schema1", "My schema 1."))));
+  }
+
+  @Override
+  public Resource<?> routes() {
+    return resource("Schema Resource",
+      post("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(SchemaData.class)
+        .handle(this::defineWith),
+      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/cateogry")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(String.class)
+        .handle(this::categorizeAs),
+      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/description")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(String.class)
+        .handle(this::describeAs),
+      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/name")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(String.class)
+        .handle(this::renameTo),
+      get("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .handle(this::querySchemas),
+      get("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .handle(this::querySchema));
   }
 
   private String schemaLocation(final SchemaId schemaId) {
