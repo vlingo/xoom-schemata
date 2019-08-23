@@ -14,9 +14,15 @@ import static io.vlingo.http.Response.Status.Ok;
 import static io.vlingo.http.ResponseHeader.Location;
 import static io.vlingo.http.ResponseHeader.headers;
 import static io.vlingo.http.ResponseHeader.of;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.patch;
+import static io.vlingo.http.resource.ResourceBuilder.post;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.SchemaVersionsPath;
 import static io.vlingo.schemata.Schemata.StageName;
+
+import java.util.Arrays;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -24,6 +30,7 @@ import io.vlingo.common.Completes;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
+import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
@@ -91,6 +98,65 @@ public class SchemaVersionResource extends ResourceHandler {
     }
 
     return answer.andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaVersionData.from(state)))));
+  }
+
+  public Completes<Response> querySchemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId) {
+    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId + " SCHEMA: " + schemaId + " VERSIONS");
+    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(SchemaVersionData.from("O1", "U1", "C1", "S1", "V1", "event SomethingHappened { timestamp occurredOn }", "My something happened event.", "Draft", "0.0.0", "1.0.0")))));
+  }
+
+  public Completes<Response> querySchemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
+    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId + " SCHEMA: " + schemaId + " VERSION: " + schemaVersionId);
+    return Completes.withSuccess(Response.of(Ok, serialized(SchemaVersionData.from("O1", "U1", "C1", "S1", "V1", "event SomethingHappened { timestamp occurredOn }", "My something happened event.", "Draft", "0.0.0", "1.0.0"))));
+  }
+
+  @Override
+  public Resource<?> routes() {
+    return resource("SchemaVersion Resource",
+      post("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(SchemaVersionData.class)
+        .handle(this::defineWith),
+      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}/description")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(String.class)
+        .handle(this::describeAs),
+      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}/specification")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(String.class)
+        .handle(this::specifyWith),
+      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}/status")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(String.class)
+        .handle(this::statusOf),
+      get("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .handle(this::querySchemaVersions),
+      get("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .handle(this::querySchemaVersion));
   }
 
   private String schemaVersionLocation(final SchemaVersionId schemaVersionId) {
