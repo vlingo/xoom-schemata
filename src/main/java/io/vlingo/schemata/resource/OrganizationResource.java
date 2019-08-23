@@ -14,9 +14,15 @@ import static io.vlingo.http.Response.Status.Ok;
 import static io.vlingo.http.ResponseHeader.Location;
 import static io.vlingo.http.ResponseHeader.headers;
 import static io.vlingo.http.ResponseHeader.of;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.patch;
+import static io.vlingo.http.resource.ResourceBuilder.post;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.OrganizationsPath;
 import static io.vlingo.schemata.Schemata.StageName;
+
+import java.util.Arrays;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -24,6 +30,7 @@ import io.vlingo.common.Completes;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
+import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Organization;
@@ -60,6 +67,37 @@ public class OrganizationResource extends ResourceHandler {
     return commands
             .renameTo(OrganizationId.existing(organizationId), name).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(OrganizationData.from(state)))));
+  }
+
+  public Completes<Response> queryOrganizations() {
+    System.out.println("***** QUERY ORGS");
+    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(OrganizationData.from("123", "Org", "My org.")))));
+  }
+
+  public Completes<Response> queryOrganization(final String organizationId) {
+    System.out.println("***** QUERY ORG: " + organizationId);
+    return Completes.withSuccess(Response.of(Ok, serialized(OrganizationData.from("123", "Org", "My org."))));
+  }
+
+  @Override
+  public Resource<?> routes() {
+    return resource("Organization Resource",
+      post("/organizations")
+        .body(OrganizationData.class)
+        .handle(this::defineWith),
+      patch("/organizations/{organizationId}/description")
+        .param(String.class)
+        .body(String.class)
+        .handle(this::describeAs),
+      patch("/organizations/{organizationId}/name")
+        .param(String.class)
+        .body(String.class)
+        .handle(this::renameTo),
+      get("/organizations")
+        .handle(this::queryOrganizations),
+      get("/organizations/{organizationId}")
+        .param(String.class)
+        .handle(this::queryOrganization));
   }
 
   private String organizationLocation(final OrganizationId organizationId) {
