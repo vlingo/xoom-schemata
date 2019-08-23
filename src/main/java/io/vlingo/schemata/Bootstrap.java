@@ -16,8 +16,11 @@ import io.vlingo.lattice.grid.Grid;
 import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
-import io.vlingo.schemata.resource.MockApiResource;
-import io.vlingo.schemata.resource.UiResource;
+import io.vlingo.schemata.resource.ContextResource;
+import io.vlingo.schemata.resource.OrganizationResource;
+import io.vlingo.schemata.resource.SchemaResource;
+import io.vlingo.schemata.resource.SchemaVersionResource;
+import io.vlingo.schemata.resource.UnitResource;
 import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.DataFormat;
@@ -49,10 +52,22 @@ public class Bootstrap {
     final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
     schemataObjectStore.register(registry, objectStore);
 
+    final OrganizationResource organizationResource = new OrganizationResource(world);
+    final UnitResource unitResource = new UnitResource(world);
+    final ContextResource contextResource = new ContextResource(world);
+    final SchemaResource schemaResource = new SchemaResource(world);
+    final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world);
+
     Resources allResources = Resources.are(
+            organizationResource.routes(),
+            unitResource.routes(),
+            contextResource.routes(),
+            schemaResource.routes(),
+            schemaVersionResource.routes()
+
 //      SchemaResource.asResource(),
-      UiResource.asResource(),
-      MockApiResource.asResource()
+//      UiResource.asResource(),
+//      MockApiResource.asResource()
     );
 
     server = Server.startWith(world.stage(),
@@ -65,9 +80,9 @@ public class Bootstrap {
         instance.server.stop();
 
         System.out.println("\n");
-        System.out.println("=======================");
+        System.out.println("=========================");
         System.out.println("Stopping vlingo-schemata.");
-        System.out.println("=======================");
+        System.out.println("=========================");
       }
     }));
   }
@@ -80,9 +95,9 @@ public class Bootstrap {
   }
 
   public static void main(final String[] args) throws Exception {
-    System.out.println("=======================");
+    System.out.println("=========================");
     System.out.println("service: vlingo-schemata.");
-    System.out.println("=======================");
+    System.out.println("=========================");
     Bootstrap.instance();
   }
 }
