@@ -14,9 +14,15 @@ import static io.vlingo.http.Response.Status.Ok;
 import static io.vlingo.http.ResponseHeader.Location;
 import static io.vlingo.http.ResponseHeader.headers;
 import static io.vlingo.http.ResponseHeader.of;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.patch;
+import static io.vlingo.http.resource.ResourceBuilder.post;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.StageName;
 import static io.vlingo.schemata.Schemata.UnitsPath;
+
+import java.util.Arrays;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -24,6 +30,7 @@ import io.vlingo.common.Completes;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
+import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
@@ -61,6 +68,42 @@ public class UnitResource extends ResourceHandler {
     return commands
             .renameTo(UnitId.existing(organizationId, unitId), name).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(UnitData.from(state)))));
+  }
+
+  public Completes<Response> queryUnits(final String organizationId) {
+    System.out.println("***** QUERY ORG: " + organizationId + " UNITS");
+    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(UnitData.from("O1", "U1", "Unit1", "My unit 1.")))));
+  }
+
+  public Completes<Response> queryUnit(final String organizationId, final String unitId) {
+    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId);
+    return Completes.withSuccess(Response.of(Ok, serialized(UnitData.from("O1", "U1", "Unit1", "My unit 1."))));
+  }
+
+  @Override
+  public Resource<?> routes() {
+    return resource("Unit Resource",
+      post("/organizations/{organizationId}/units")
+        .param(String.class)
+        .body(UnitData.class)
+        .handle(this::defineWith),
+      patch("/organizations/{organizationId}/units/{unitId}/description")
+        .param(String.class)
+        .param(String.class)
+        .body(String.class)
+        .handle(this::describeAs),
+      patch("/organizations/{organizationId}/units/{unitId}/name")
+        .param(String.class)
+        .param(String.class)
+        .body(String.class)
+        .handle(this::renameTo),
+      get("/organizations/{organizationId}/units")
+        .param(String.class)
+        .handle(this::queryUnits),
+      get("/organizations/{organizationId}/units/{unitId}")
+        .param(String.class)
+        .param(String.class)
+        .handle(this::queryUnit));
   }
 
   private String unitLocation(final UnitId unitId) {
