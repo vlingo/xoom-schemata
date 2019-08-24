@@ -7,9 +7,13 @@
 
 package io.vlingo.schemata.model;
 
+import java.io.Serializable;
+
 import io.vlingo.common.identity.IdentityGeneratorType;
 
-public abstract class Id {
+public abstract class Id implements Serializable {
+  private static final long serialVersionUID = 1L;
+
   private static final String Separator = ":";
 
   public final String value;
@@ -27,6 +31,8 @@ public abstract class Id {
   }
 
   public static class OrganizationId extends Id {
+    private static final long serialVersionUID = 1L;
+
     public static OrganizationId existing(final String id) {
       return new OrganizationId(id);
     }
@@ -49,6 +55,8 @@ public abstract class Id {
   }
 
   public static class UnitId extends Id {
+    private static final long serialVersionUID = 1L;
+
     public final OrganizationId organizationId;
 
     public static UnitId existing(final String id) {
@@ -79,6 +87,8 @@ public abstract class Id {
   }
 
   public static class ContextId extends Id {
+    private static final long serialVersionUID = 1L;
+
     public final UnitId unitId;
 
     public static ContextId existing(final String compositeId) {
@@ -118,6 +128,8 @@ public abstract class Id {
   }
 
   public static class SchemaId extends Id {
+    private static final long serialVersionUID = 1L;
+
     public final ContextId contextId;
 
     public static SchemaId existing(final String compositeId) {
@@ -161,6 +173,8 @@ public abstract class Id {
   }
 
   public static class SchemaVersionId extends Id {
+    private static final long serialVersionUID = 1L;
+
     public final SchemaId schemaId;
 
     public static SchemaVersionId existing(final String id) {
