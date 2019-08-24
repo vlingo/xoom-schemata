@@ -58,10 +58,12 @@ public class SchemataObjectStore {
                 StateObjectMapper.with(
                         OrganizationState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO ORGANIZATION(organizationId, name, description) " +
-                                        "VALUES (:organizationId.value, :name, :description)",
-                                "UPDATE ORGANIZATION SET name = :name, description = :description WHERE id = :id",
-                                SqlStatement::bindFields),
+                                "INSERT INTO TBL_ORGANIZATIONS(organizationId, name, description) " +
+                                        "VALUES (:organizationId.value, :name, :description) ",
+                                "UPDATE TBL_ORGANIZATIONS SET name = :name, description = :description " +
+                                "WHERE id = :persistenceId",
+                                SqlStatement::bindFields,
+                                SqlStatement::bindMethods),
                         new OrganizationStateMapper());
 
         mappersLookup.put(OrganizationState.class, organizationStateMapper);
@@ -70,10 +72,12 @@ public class SchemataObjectStore {
                 StateObjectMapper.with(
                         UnitState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO UNIT(unitId, organizationId, name, description) " +
-                                        "VALUES (:unitId.value, :unitId.organizationId.value, :name, :description)",
-                                "UPDATE UNIT SET name = :name, description = :description WHERE id = :id",
-                                SqlStatement::bindFields),
+                                "INSERT INTO TBL_UNITS(unitId, organizationId, name, description) " +
+                                        "VALUES (:unitId.value, :unitId.organizationId.value, :name, :description) ",
+                                "UPDATE TBL_UNITS SET name = :name, description = :description " +
+                                "WHERE id = :persistenceId",
+                                SqlStatement::bindFields,
+                                SqlStatement::bindMethods),
                         new UnitStateMapper());
 
         mappersLookup.put(UnitState.class, unitStateMapper);
@@ -82,11 +86,13 @@ public class SchemataObjectStore {
                 StateObjectMapper.with(
                         ContextState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO CONTEXT(contextId, unitId, organizationId, namespace, description) " +
+                                "INSERT INTO TBL_CONTEXTS(contextId, unitId, organizationId, namespace, description) " +
                                         "VALUES (:contextId.value, :contextId.unitId.value, " +
-                                        ":contextId.unitId.organizationId.value, :namespace, :description)",
-                                "UPDATE CONTEXT SET namespace = :namespace, description = :description WHERE id = :id",
-                                SqlStatement::bindFields),
+                                        ":contextId.unitId.organizationId.value, :namespace, :description) ",
+                                "UPDATE TBL_CONTEXTS SET namespace = :namespace, description = :description " +
+                                "WHERE id = :persistenceId",
+                                SqlStatement::bindFields,
+                                SqlStatement::bindMethods),
                         new ContextStateMapper());
 
         mappersLookup.put(ContextState.class, contextStateMapper);
@@ -95,11 +101,13 @@ public class SchemataObjectStore {
                 StateObjectMapper.with(
                         SchemaState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO SCHEMA(schemaId, contextId, unitId, organizationId, category, name, description) " +
+                                "INSERT INTO TBL_SCHEMAS(schemaId, contextId, unitId, organizationId, category, name, description) " +
                                         "VALUES (:schemaId.value, :schemaId.contextId.value, :schemaId.contextId.unitId.value, " +
-                                        ":schemaId.contextId.unitId.organizationId.value, :category, :name, :description)",
-                                "UPDATE SCHEMA SET category = :category, name = :namespace, description = :description WHERE id = :id",
-                                SqlStatement::bindFields),
+                                        ":schemaId.contextId.unitId.organizationId.value, :category, :name, :description) ",
+                                "UPDATE TBL_SCHEMAS SET category = :category, name = :namespace, description = :description " +
+                                "WHERE id = :persistenceId",
+                                SqlStatement::bindFields,
+                                SqlStatement::bindMethods),
                         new SchemaStateMapper());
 
         mappersLookup.put(SchemaState.class, schemaStateMapper);
@@ -108,16 +116,17 @@ public class SchemataObjectStore {
                 StateObjectMapper.with(
                         SchemaVersionState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO SCHEMAVERSION(schemaVersionId, schemaId, contextId, unitId, organizationId, " +
+                                "INSERT INTO TBL_SCHEMAVERSIONS(schemaVersionId, schemaId, contextId, unitId, organizationId, " +
                                         "description, specification, status, previousVersion, currentVersion) " +
                                         "VALUES (:schemaVersionId.value, :schemaVersionId.schemaId.value, " +
                                         ":schemaVersionId.schemaId.contextId.value, :schemaVersionId.schemaId.contextId.unitId.value, " +
                                         ":schemaVersionId.schemaId.contextId.unitId.organizationId.value, :description, " +
                                         ":specification.value, :status.value, :previousVersion.value, :currentVersion.value)",
-                                "UPDATE SCHEMAVERSION SET description = :description, specification = :specification.value, " +
+                                "UPDATE TBL_SCHEMAVERSIONS SET description = :description, specification = :specification.value, " +
                                         "status = :status.value, previousVersion = :previousVersion.value, currentVersion = :currentVersion.value " +
-                                "WHERE id = :id",
-                                SqlStatement::bindFields),
+                                "WHERE id = :persistenceId",
+                                SqlStatement::bindFields,
+                                SqlStatement::bindMethods),
                         new SchemaVersionStateMapper());
 
         mappersLookup.put(SchemaVersionState.class, schemaVersionStateMapper);
@@ -138,7 +147,7 @@ public class SchemataObjectStore {
                 new Info(
                     objectStore,
                     OrganizationState.class,
-                        "vlingo_schemata",
+                    "vlingo_schemata",
                     MapQueryExpression.using(Organization.class, "find", MapQueryExpression.map("id", "id")),
                     mappersLookup.get(OrganizationState.class));
         registry.register(organizationInfo);
@@ -192,44 +201,104 @@ public class SchemataObjectStore {
     }
 
     private void createOrganizationStateTable() {
-        jdbi.handle().execute("CREATE TABLE IF NOT EXISTS ORGANIZATION " +
-                "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "organizationId VARCHAR (50), name VARCHAR(128), description VARCHAR(8000))");
-        jdbi.handle().execute("ALTER TABLE ORGANIZATION" +
-                "  ADD CONSTRAINT IF NOT EXISTS ORGANIZATION_UNIQUE UNIQUE (name)");
+        jdbi.handle().execute(
+                "CREATE TABLE IF NOT EXISTS TBL_ORGANIZATIONS (" +
+                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+                "organizationId VARCHAR (50), " +
+                "name VARCHAR(128), " +
+                "description VARCHAR(8000), " +
+
+                "UNIQUE (name) " +
+                ")");
+
+        jdbi.handle().execute("CREATE UNIQUE INDEX ORG_ALL_INDEX ON TBL_ORGANIZATIONS (organizationId)");
     }
 
     private void createUnitStateTable() {
-        jdbi.handle().execute("CREATE TABLE IF NOT EXISTS UNIT " +
-                "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "unitId VARCHAR(50), organizationId VARCHAR (50), name VARCHAR(128), description VARCHAR(8000))");
-        jdbi.handle().execute("ALTER TABLE UNIT" +
-                "  ADD CONSTRAINT IF NOT EXISTS UNIT_UNIQUE UNIQUE (name)");
+        jdbi.handle().execute(
+                "CREATE TABLE IF NOT EXISTS TBL_UNITS (" +
+                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+                "unitId VARCHAR(50), " +
+                "organizationId VARCHAR (50), " +
+                "name VARCHAR(128), " +
+                "description VARCHAR(8000), " +
+
+                "UNIQUE (organizationId, name) " +
+                ")");
+
+        jdbi.handle().execute("CREATE UNIQUE INDEX UNIT_PARENT_INDEX ON TBL_UNITS (organizationId)");
+        jdbi.handle().execute("CREATE UNIQUE INDEX UNIT_ALL_INDEX ON TBL_UNITS (organizationId, unitId)");
     }
 
     private void createContextStateTable() {
-        jdbi.handle().execute("CREATE TABLE IF NOT EXISTS CONTEXT " +
-                "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "contextId VARCHAR(50), unitId VARCHAR(50), organizationId VARCHAR (50), namespace VARCHAR(256), description VARCHAR(8000))");
-        jdbi.handle().execute("ALTER TABLE CONTEXT" +
-                "  ADD CONSTRAINT IF NOT EXISTS CONTEXT_UNIQUE UNIQUE (namespace)");
+        jdbi.handle().execute(
+                "CREATE TABLE IF NOT EXISTS TBL_CONTEXTS (" +
+                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+                "contextId VARCHAR(50), " +
+                "unitId VARCHAR(50), " +
+                "organizationId VARCHAR (50), " +
+                "namespace VARCHAR(256), " +
+                "description VARCHAR(8000), " +
+
+                "UNIQUE (unitId, namespace) " +
+                ")");
+
+        jdbi.handle().execute("CREATE UNIQUE INDEX CONTEXT_PARENT_INDEX ON TBL_CONTEXTS (organizationId, unitId)");
+        jdbi.handle().execute("CREATE UNIQUE INDEX CONTEXT_ALL_INDEX ON TBL_CONTEXTS (organizationId, unitId, contextId)");
     }
 
     private void createSchemaStateTable() {
-        jdbi.handle().execute("CREATE TABLE IF NOT EXISTS SCHEMA " +
-                "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "schemaId VARCHAR(50), contextId VARCHAR(50), unitId VARCHAR(50), organizationId VARCHAR (50), " +
-                "category VARCHAR(25), name VARCHAR(128), description VARCHAR(8000))");
-        jdbi.handle().execute("ALTER TABLE SCHEMA" +
-                "  ADD CONSTRAINT IF NOT EXISTS SCHEMA_UNIQUE UNIQUE (name)");
+        jdbi.handle().execute(
+                "CREATE TABLE IF NOT EXISTS TBL_SCHEMAS (" +
+                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+                "schemaId VARCHAR(50), " +
+                "contextId VARCHAR(50), " +
+                "unitId VARCHAR(50), " +
+                "organizationId VARCHAR (50), " +
+                "category VARCHAR(25), " +
+                "name VARCHAR(128), " +
+                "description VARCHAR(8000), " +
+
+                "UNIQUE (contextId, category, name) " +
+                ")");
+
+        jdbi.handle().execute("CREATE UNIQUE INDEX SCHEMA_PARENT_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId)");
+        jdbi.handle().execute("CREATE UNIQUE INDEX SCHEMA_ALL_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId, schemaId)");
     }
 
     private void createSchemaVersionStateTable() {
-        jdbi.handle().execute("CREATE TABLE IF NOT EXISTS SCHEMAVERSION " +
-                "(id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "schemaVersionId VARCHAR(50), schemaId VARCHAR(50), contextId VARCHAR(50), unitId VARCHAR(50), organizationId VARCHAR (50), " +
-                "specification VARCHAR(8000), description VARCHAR(8000), status VARCHAR(16), previousVersion VARCHAR(16), currentVersion VARCHAR(16))");
-        jdbi.handle().execute("ALTER TABLE SCHEMAVERSION" +
-                "  ADD CONSTRAINT IF NOT EXISTS SCHEMAVERSION_UNIQUE UNIQUE (currentVersion)");
+        final int specificationWidth;
+
+        switch (jdbi.databaseType()) {
+        case Postgres:
+          specificationWidth = 65536;
+          break;
+        case HSQLDB:
+          specificationWidth = 8000;
+          break;
+        default:
+          specificationWidth = 4000;
+          break;
+        }
+
+        jdbi.handle().execute(
+                "CREATE TABLE IF NOT EXISTS TBL_SCHEMAVERSIONS (" +
+                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+                "schemaVersionId VARCHAR(50), " +
+                "schemaId VARCHAR(50), " +
+                "contextId VARCHAR(50), " +
+                "unitId VARCHAR(50), " +
+                "organizationId VARCHAR (50), " +
+                "specification VARCHAR(" + specificationWidth + "), " +
+                "description VARCHAR(8000), " +
+                "status VARCHAR(16), " +
+                "previousVersion VARCHAR(20), " +
+                "currentVersion VARCHAR(20), " +
+
+                "UNIQUE (schemaId, currentVersion) " +
+                ")");
+
+        jdbi.handle().execute("CREATE UNIQUE INDEX SCHEMAVERSION_PARENT_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId)");
+        jdbi.handle().execute("CREATE UNIQUE INDEX SCHEMAVERSION_ALL_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId, schemaVersionId)");
     }
 }
