@@ -8,11 +8,12 @@
 package io.vlingo.schemata.query;
 
 import io.vlingo.actors.Stage;
+import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
 
 public class Queries {
-  public static OrganizationQueries forOrganizations(final Stage stage, final JdbiOnDatabase jdbi) {
-    return stage.actorFor(OrganizationQueries.class, OrganizationQueriesActor.class, jdbi);
+  public static OrganizationQueries forOrganizations(final Stage stage, final ObjectStore objectStore) {
+    return stage.actorFor(OrganizationQueries.class, OrganizationQueriesActor.class, objectStore);
   }
 
   public static UnitQueries forUnits(final Stage stage, final JdbiOnDatabase jdbi) {

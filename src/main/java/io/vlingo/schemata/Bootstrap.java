@@ -28,6 +28,7 @@ import io.vlingo.schemata.resource.UnitResource;
 import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.DataFormat;
+import io.vlingo.symbio.store.common.jdbc.DatabaseType;
 import io.vlingo.symbio.store.common.jdbc.hsqldb.HSQLDBConfigurationProvider;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
@@ -117,7 +118,8 @@ public class Bootstrap {
   }
 
   private io.vlingo.symbio.store.common.jdbc.Configuration jdbcConfiguration() throws Exception {
-    return HSQLDBConfigurationProvider.configuration(DataFormat.Native,
+    return HSQLDBConfigurationProvider.configuration(
+            DataFormat.Native,
             "jdbc:hsqldb:mem:",
             "vlingo_schemata",
             "SA",

@@ -12,18 +12,18 @@ import java.util.List;
 import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.resource.data.OrganizationData;
+import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
 
-public class OrganizationQueriesActor extends Actor implements OrganizationQueries {
-  private final JdbiOnDatabase jdbi;
+public class OrganizationQueriesActor extends QueryActor<OrganizationData> implements OrganizationQueries {
 
-  public OrganizationQueriesActor(final JdbiOnDatabase jdbi) {
-    this.jdbi = jdbi;
+  public OrganizationQueriesActor(final ObjectStore objectStore) {
+    super(objectStore);
   }
 
   @Override
   public Completes<List<OrganizationData>> organizations() {
-    return null;
+    return completes();
   }
 
   @Override
