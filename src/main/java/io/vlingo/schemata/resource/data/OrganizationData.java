@@ -7,42 +7,33 @@
 
 package io.vlingo.schemata.resource.data;
 
-import java.util.Collections;
-import java.util.List;
-
 import io.vlingo.schemata.model.OrganizationState;
 
 public class OrganizationData {
   public final String organizationId;
   public final String name;
   public final String description;
-  public final List<UnitData> units;
 
   public static OrganizationData from(final OrganizationState state) {
-    return new OrganizationData(state.organizationId.value, state.name, state.description, Collections.emptyList());
+    return new OrganizationData(state.organizationId.value, state.name, state.description);
   }
 
   public static OrganizationData from(final String organizationId, final String name, final String description) {
-    return new OrganizationData(organizationId, name, description, Collections.emptyList());
-  }
-
-  public static OrganizationData from(final String organizationId, final String name, final String description, final List<UnitData> units) {
-    return new OrganizationData(organizationId, name, description, units);
+    return new OrganizationData(organizationId, name, description);
   }
 
   public static OrganizationData just(final String name, final String description) {
-    return new OrganizationData("", name, description, Collections.emptyList());
+    return new OrganizationData("", name, description);
   }
 
   @Override
   public String toString() {
-    return "OrganizationData [id=" + organizationId + " name=" + name + " description=" + description + " units=" + units + "]";
+    return "OrganizationData [id=" + organizationId + " name=" + name + " description=" + description + "]";
   }
 
-  private OrganizationData(final String organizationId, final String name, final String description, final List<UnitData> units) {
+  private OrganizationData(final String organizationId, final String name, final String description) {
     this.organizationId = organizationId;
     this.name = name;
     this.description = description;
-    this.units = units;
   }
 }
