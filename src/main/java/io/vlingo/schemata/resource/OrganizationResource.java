@@ -22,8 +22,6 @@ import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.OrganizationsPath;
 import static io.vlingo.schemata.Schemata.StageName;
 
-import java.util.Arrays;
-
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
@@ -34,14 +32,17 @@ import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Organization;
+import io.vlingo.schemata.query.OrganizationQueries;
 import io.vlingo.schemata.resource.data.OrganizationData;
 
 public class OrganizationResource extends ResourceHandler {
   private final OrganizationCommands commands;
+  private final OrganizationQueries queries;
   private final Stage stage;
 
-  public OrganizationResource(final World world) {
+  public OrganizationResource(final World world, final OrganizationQueries queries) {
     this.stage = world.stageNamed(StageName);
+    this.queries = queries;
     this.commands = new OrganizationCommands(this.stage, 10);
   }
 
@@ -71,12 +72,19 @@ public class OrganizationResource extends ResourceHandler {
 
   public Completes<Response> queryOrganizations() {
     System.out.println("***** QUERY ORGS");
-    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(OrganizationData.from("123", "Org", "My org.")))));
+//    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(OrganizationData.from("123", "Org", "My org.")))));
+    return queries
+      .organizations()
+      .andThenTo(organizations ->
+        Completes.withSuccess(Response.of(Ok, serialized(organizations))));
   }
 
   public Completes<Response> queryOrganization(final String organizationId) {
     System.out.println("***** QUERY ORG: " + organizationId);
-    return Completes.withSuccess(Response.of(Ok, serialized(OrganizationData.from("123", "Org", "My org."))));
+    return queries
+            .organization(organizationId)
+            .andThenTo(organization ->
+              Completes.withSuccess(Response.of(Ok, serialized(organization))));
   }
 
   @Override
