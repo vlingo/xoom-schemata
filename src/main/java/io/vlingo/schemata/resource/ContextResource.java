@@ -35,14 +35,17 @@ import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Context;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.schemata.query.ContextQueries;
 import io.vlingo.schemata.resource.data.ContextData;
 
 public class ContextResource extends ResourceHandler {
   private final ContextCommands commands;
+  private final ContextQueries queries;
   private final Stage stage;
 
-  public ContextResource(final World world) {
+  public ContextResource(final World world, final ContextQueries queries) {
     this.stage = world.stageNamed(StageName);
+    this.queries = queries;
     this.commands = new ContextCommands(this.stage, 10);
   }
 
