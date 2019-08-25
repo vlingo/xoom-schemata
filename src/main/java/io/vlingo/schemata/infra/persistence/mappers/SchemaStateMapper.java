@@ -7,14 +7,15 @@
 
 package io.vlingo.schemata.infra.persistence.mappers;
 
-import io.vlingo.schemata.model.Category;
-import io.vlingo.schemata.model.Id.SchemaId;
-import io.vlingo.schemata.model.SchemaState;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import io.vlingo.schemata.model.Category;
+import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.schemata.model.SchemaState;
 
 public class SchemaStateMapper implements RowMapper<SchemaState> {
     @Override
@@ -22,10 +23,10 @@ public class SchemaStateMapper implements RowMapper<SchemaState> {
         return SchemaState.from(
                 rs.getLong("id"),
                 SchemaId.existing(
-                        rs.getString("schemaId") + ":" +
-                        rs.getString("contextId") + ":" +
-                        rs.getString("unitId") + ":" +
-                        rs.getString("organizationId")),
+                        rs.getString("organizationId"),
+                        rs.getString("unitId"),
+                        rs.getString("contextId"),
+                        rs.getString("schemaId")),
                 Category.valueOf(rs.getString("category")),
                 rs.getString("name"),
                 rs.getString("description"));
