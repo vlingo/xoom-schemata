@@ -28,7 +28,7 @@ public class OrganizationData {
 
   @Override
   public String toString() {
-    return "OrganizationData [id=" + organizationId + " name=" + name + " description=" + description + "]";
+    return "OrganizationData [organizationId=" + organizationId + " name=" + name + " description=" + description + "]";
   }
 
   private OrganizationData(final String organizationId, final String name, final String description) {

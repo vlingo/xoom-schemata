@@ -74,6 +74,14 @@ public class SchemaVersionData {
           nextVersion);
   }
 
+  @Override
+  public String toString() {
+    return "SchemaVersionData [organizationId=" + organizationId + ", unitId=" + unitId + ", contextId=" + contextId
+            + ", schemaId=" + schemaId + ", schemaVersionId=" + schemaVersionId + ", description=" + description
+            + ", specification=" + specification + ", status=" + status + ", previousVersion=" + previousVersion
+            + ", currentVersion=" + currentVersion + "]";
+  }
+
   private SchemaVersionData(
           final String organizationId,
           final String unitId,

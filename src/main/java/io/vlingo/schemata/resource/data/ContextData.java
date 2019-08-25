@@ -28,6 +28,12 @@ public class ContextData {
     return new ContextData("", "", "", namespace, description);
   }
 
+  @Override
+  public String toString() {
+    return "ContextData [organizationId=" + organizationId + ", unitId=" + unitId + ", contextId=" + contextId
+            + ", namespace=" + namespace + ", description=" + description + "]";
+  }
+
   private ContextData(final String organizationId, final String unitId, final String contextId, String namespace, final String description) {
     this.organizationId = organizationId;
     this.unitId = unitId;

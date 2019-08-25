@@ -30,6 +30,13 @@ public class SchemaData {
     return new SchemaData("", "", "", "", category, name, description);
   }
 
+  @Override
+  public String toString() {
+    return "SchemaData [organizationId=" + organizationId + ", unitId=" + unitId + ", contextId=" + contextId
+            + ", schemaId=" + schemaId + ", category=" + category + ", name=" + name + ", description=" + description
+            + "]";
+  }
+
   private SchemaData(final String organizationId, final String unitId, final String contextId, final String schemaId, final String category, final String name, final String description) {
     this.organizationId = organizationId;
     this.unitId = unitId;
