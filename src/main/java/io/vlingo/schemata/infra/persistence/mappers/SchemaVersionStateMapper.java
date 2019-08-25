@@ -25,11 +25,11 @@ public class SchemaVersionStateMapper implements RowMapper<SchemaVersionState> {
         return SchemaVersionState.from(
                 rs.getLong("id"),
                 SchemaVersionId.existing(
-                        rs.getString("schemaVersionId") + ":" +
-                        rs.getString("schemaId") + ":" +
-                        rs.getString("contextId") + ":" +
-                        rs.getString("unitId") + ":" +
-                        rs.getString("organizationId")),
+                        rs.getString("organizationId"),
+                        rs.getString("unitId"),
+                        rs.getString("contextId"),
+                        rs.getString("schemaId"),
+                        rs.getString("schemaVersionId")),
                 Specification.of(rs.getString("specification")),
                 rs.getString("description"),
                 Status.valueOf(rs.getString("status")),
