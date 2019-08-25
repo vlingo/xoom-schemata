@@ -38,14 +38,17 @@ import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.schemata.model.SchemaVersionState;
+import io.vlingo.schemata.query.SchemaVersionQueries;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public class SchemaVersionResource extends ResourceHandler {
   private final SchemaVersionCommands commands;
+  private final SchemaVersionQueries queries;
   private final Stage stage;
 
-  public SchemaVersionResource(final World world) {
+  public SchemaVersionResource(final World world, final SchemaVersionQueries queries) {
     this.stage = world.stageNamed(StageName);
+    this.queries = queries;
     this.commands = new SchemaVersionCommands(this.stage, 10);
   }
 
