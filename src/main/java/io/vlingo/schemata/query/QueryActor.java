@@ -22,23 +22,32 @@ import java.util.function.Supplier;
 public abstract class QueryActor<T extends StateObject> extends Actor implements ObjectStoreReader.QueryResultInterest {
 
     private final ObjectStore objectStore;
+    private final ObjectStoreReader.QueryResultInterest queryResultInterest = this.selfAs(ObjectStoreReader.QueryResultInterest.class);
     private ObjectStoreReader.QuerySingleResult singleResult;
 
     protected QueryActor(final ObjectStore objectStore) {
         this.objectStore = objectStore;
     }
 
-    protected <RT> void select(Class<T> stateObjectType, final String sql, Supplier<RT> andThen) {
+    @SuppressWarnings({ "unchecked" })
+    protected <RT> T select(Class<T> stateObjectType, final String sql, Supplier<RT> andThen) {
         objectStore.queryObject(
                 MapQueryExpression.using(
                         stateObjectType,
                         sql,
                         MapQueryExpression.map("id", 1L)),
-                this, CompletionSupplier.supplierOrNull(andThen, this.completesEventually()));
+                this.queryResultInterest, CompletionSupplier.supplierOrNull(andThen, this.completesEventually()));
+        return (T)this.singleResult.stateObject;
     }
 
     @Override
-    public void queryObjectResultedIn(final Outcome<StorageException, Result> outcome, final ObjectStoreReader.QuerySingleResult result, final Object object) {
-        this.singleResult = result;
+    public final void queryObjectResultedIn(Outcome<StorageException, Result> outcome, ObjectStoreReader.QuerySingleResult queryResult, Object object) {
+        this.singleResult = queryResult;
+    }
+
+    @Override
+    public final void queryAllResultedIn(Outcome<StorageException, Result> outcome, ObjectStoreReader.QueryMultiResults results, Object object) {
+        // has to be implemented.
+        throw new UnsupportedOperationException("Must be unreachable: queryAllResultedIn()");
     }
 }

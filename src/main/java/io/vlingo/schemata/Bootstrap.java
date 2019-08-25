@@ -54,7 +54,7 @@ public class Bootstrap {
     final Stage stage = world.stageNamed(StageName);
 
     final OrganizationResource organizationResource =
-            new OrganizationResource(world, Queries.forOrganizations(stage, jdbiFrom(configuration)));
+            new OrganizationResource(world, Queries.forOrganizations(stage, objectStore));
 
     final UnitResource unitResource =
             new UnitResource(world, Queries.forUnits(stage, jdbiFrom(configuration)));
