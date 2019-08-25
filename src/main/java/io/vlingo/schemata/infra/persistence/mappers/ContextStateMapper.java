@@ -7,13 +7,14 @@
 
 package io.vlingo.schemata.infra.persistence.mappers;
 
-import io.vlingo.schemata.model.ContextState;
-import io.vlingo.schemata.model.Id.ContextId;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import io.vlingo.schemata.model.ContextState;
+import io.vlingo.schemata.model.Id.ContextId;
 
 public class ContextStateMapper implements RowMapper<ContextState> {
     @Override
@@ -21,9 +22,9 @@ public class ContextStateMapper implements RowMapper<ContextState> {
         return ContextState.from(
                 rs.getLong("id"),
                 ContextId.existing(
-                        rs.getString("contextId") + ":" +
-                        rs.getString("unitId") + ":" +
-                        rs.getString("organizationId")),
+                        rs.getString("organizationId"),
+                        rs.getString("unitId"),
+                        rs.getString("contextId")),
                 rs.getString("namespace"),
                 rs.getString("description"));
     }
