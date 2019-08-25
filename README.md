@@ -10,6 +10,11 @@ You can run the registry with demo data within docker using `docker run -p 9019:
 
 After building the fat jar, you can also simply execute it via `java -jar vlingo-schemata-<version>-jar-with-dependencies.jar`
 
+## Using curl or Postman
+
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","name":"Org","description":"My org."}'  http://localhost:9019/users`
+
+
 ## Build
 
 Run the full build using `mvn clean package -Pfrontend`. 
