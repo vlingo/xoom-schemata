@@ -7,20 +7,23 @@
 
 package io.vlingo.schemata.infra.persistence.mappers;
 
-import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.schemata.model.UnitState;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.schemata.model.UnitState;
 
 public class UnitStateMapper implements RowMapper<UnitState> {
     @Override
     public UnitState map(ResultSet rs, StatementContext ctx) throws SQLException {
         return UnitState.from(
                 rs.getLong("id"),
-                UnitId.existing(rs.getString("unitId") + ":" + rs.getString("organizationId")),
+                UnitId.existing(
+                        rs.getString("organizationId"),
+                        rs.getString("unitId")),
                 rs.getString("name"),
                 rs.getString("description"));
     }
