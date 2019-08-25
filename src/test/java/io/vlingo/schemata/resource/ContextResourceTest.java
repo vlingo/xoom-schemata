@@ -25,27 +25,31 @@ import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.model.Context;
 import io.vlingo.schemata.model.ContextState;
+import io.vlingo.schemata.query.ContextQueries;
+import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.ContextData;
 import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
-public class ContextResourceTest {
+public class ContextResourceTest extends ResourceTest {
   private static final String OrgId = "O123";
   private static final String UnitId = "U456";
   private static final String ContextNamespace = "Test";
   private static final String ContextDescription = "Test context.";
 
   private ObjectStore objectStore;
+  private ContextQueries queries;
   private ObjectTypeRegistry registry;
   private World world;
 
   @Test
   public void testThatContextIsDefined() {
-    final ContextResource resource = new ContextResource(world);
+    final ContextResource resource = new ContextResource(world, queries);
     final Response response = resource.defineWith(OrgId, UnitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     assertEquals(Created, response.status);
     assertNotNull(response.headers.headerOf(Location));
@@ -56,7 +60,7 @@ public class ContextResourceTest {
 
   @Test
   public void testContextDescribedAs() {
-    final ContextResource resource = new ContextResource(world);
+    final ContextResource resource = new ContextResource(world, queries);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     assertEquals(Created, response1.status);
     final ContextData data1 = JsonSerialization.deserialized(response1.entity.content(), ContextData.class);
@@ -70,7 +74,7 @@ public class ContextResourceTest {
 
   @Test
   public void testContextRenameTo() {
-    final ContextResource resource = new ContextResource(world);
+    final ContextResource resource = new ContextResource(world, queries);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     assertEquals(Created, response1.status);
     final ContextData data1 = JsonSerialization.deserialized(response1.entity.content(), ContextData.class);
@@ -84,9 +88,10 @@ public class ContextResourceTest {
 
   @Before
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void setUp() {
+  public void setUp() throws Exception {
     world = World.startWithDefaults("test-command-router");
     world.stageNamed("vlingo-schemata-grid", Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
+    queries = Queries.forContexts(world.stageNamed(Schemata.StageName), jdbi());
 
     objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
 

@@ -25,16 +25,19 @@ import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.model.Category;
 import io.vlingo.schemata.model.Schema;
 import io.vlingo.schemata.model.SchemaState;
+import io.vlingo.schemata.query.Queries;
+import io.vlingo.schemata.query.SchemaQueries;
 import io.vlingo.schemata.resource.data.SchemaData;
 import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
-public class SchemaResourceTest {
+public class SchemaResourceTest extends ResourceTest {
   private static final String OrgId = "O123";
   private static final String UnitId = "U456";
   private static final String ContextId = "C789";
@@ -43,12 +46,13 @@ public class SchemaResourceTest {
   private static final String SchemaDescription = "Test context.";
 
   private ObjectStore objectStore;
+  private SchemaQueries queries;
   private ObjectTypeRegistry registry;
   private World world;
 
   @Test
   public void testThatSchemaIsDefined() {
-    final SchemaResource resource = new SchemaResource(world);
+    final SchemaResource resource = new SchemaResource(world, queries);
     final Response response = resource.defineWith(OrgId, UnitId, ContextId, SchemaData.just(SchemaCategory, SchemaName, SchemaDescription)).await();
     assertEquals(Created, response.status);
     assertNotNull(response.headers.headerOf(Location));
@@ -60,7 +64,7 @@ public class SchemaResourceTest {
 
   @Test
   public void testSchemaCategorizeAs() {
-    final SchemaResource resource = new SchemaResource(world);
+    final SchemaResource resource = new SchemaResource(world, queries);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaData.just(SchemaCategory, SchemaName, SchemaDescription)).await();
     assertEquals(Created, response1.status);
     final SchemaData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaData.class);
@@ -74,7 +78,7 @@ public class SchemaResourceTest {
 
   @Test
   public void testSchemaDescribedAs() {
-    final SchemaResource resource = new SchemaResource(world);
+    final SchemaResource resource = new SchemaResource(world, queries);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaData.just(SchemaCategory, SchemaName, SchemaDescription)).await();
     assertEquals(Created, response1.status);
     final SchemaData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaData.class);
@@ -88,7 +92,7 @@ public class SchemaResourceTest {
 
   @Test
   public void testSchemaRenameTo() {
-    final SchemaResource resource = new SchemaResource(world);
+    final SchemaResource resource = new SchemaResource(world, queries);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaData.just(SchemaCategory, SchemaName, SchemaDescription)).await();
     assertEquals(Created, response1.status);
     final SchemaData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaData.class);
@@ -102,9 +106,10 @@ public class SchemaResourceTest {
 
   @Before
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void setUp() {
+  public void setUp() throws Exception {
     world = World.startWithDefaults("test-command-router");
     world.stageNamed("vlingo-schemata-grid", Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
+    queries = Queries.forSchemas(world.stageNamed(Schemata.StageName), jdbi());
 
     objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
 

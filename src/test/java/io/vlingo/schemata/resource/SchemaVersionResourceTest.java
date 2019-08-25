@@ -25,16 +25,19 @@ import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.model.SchemaVersion.Status;
 import io.vlingo.schemata.model.SchemaVersionState;
+import io.vlingo.schemata.query.Queries;
+import io.vlingo.schemata.query.SchemaVersionQueries;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
-public class SchemaVersionResourceTest {
+public class SchemaVersionResourceTest extends ResourceTest {
   private static final String OrgId = "O123";
   private static final String UnitId = "U456";
   private static final String ContextId = "C789";
@@ -47,12 +50,13 @@ public class SchemaVersionResourceTest {
   private static final String SchemaVersionVersion101 = "1.0.1";
 
   private ObjectStore objectStore;
+  private SchemaVersionQueries queries;
   private ObjectTypeRegistry registry;
   private World world;
 
   @Test
   public void testThatSchemaVersionIsDefined() {
-    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionResource resource = new SchemaVersionResource(world, queries);
     final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
@@ -66,7 +70,7 @@ public class SchemaVersionResourceTest {
 
   @Test
   public void testThatSchemaVersionMinorUpgradeIsDefined() {
-    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionResource resource = new SchemaVersionResource(world, queries);
     final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion100, SchemaVersionVersion101);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
@@ -80,7 +84,7 @@ public class SchemaVersionResourceTest {
 
   @Test
   public void testSchemaVersionDescribedAs() {
-    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionResource resource = new SchemaVersionResource(world, queries);
     final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
@@ -95,7 +99,7 @@ public class SchemaVersionResourceTest {
 
   @Test
   public void testThatSchemaVersionIsPublished() {
-    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionResource resource = new SchemaVersionResource(world, queries);
     final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
@@ -110,7 +114,7 @@ public class SchemaVersionResourceTest {
 
   @Test
   public void testThatSchemaVersionIsDeprecated() {
-    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionResource resource = new SchemaVersionResource(world, queries);
     final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
@@ -126,7 +130,7 @@ public class SchemaVersionResourceTest {
 
   @Test
   public void testThatSchemaVersionIsNotDeprecated() {
-    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionResource resource = new SchemaVersionResource(world, queries);
     final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
@@ -141,7 +145,7 @@ public class SchemaVersionResourceTest {
 
   @Test
   public void testThatSchemaVersionIsRemoved() {
-    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionResource resource = new SchemaVersionResource(world, queries);
     final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
@@ -157,7 +161,7 @@ public class SchemaVersionResourceTest {
 
   @Test
   public void testThatSchemaVersionIsNotRemoved() {
-    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionResource resource = new SchemaVersionResource(world, queries);
     final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(Created, response1.status);
@@ -171,9 +175,10 @@ public class SchemaVersionResourceTest {
 
   @Before
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void setUp() {
+  public void setUp() throws Exception {
     world = World.startWithDefaults("test-command-router");
     world.stageNamed("vlingo-schemata-grid", Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
+    queries = Queries.forSchemaVersions(world.stageNamed(Schemata.StageName), jdbi());
 
     objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
 
