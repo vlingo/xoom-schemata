@@ -36,14 +36,17 @@ import io.vlingo.schemata.model.Category;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Schema;
+import io.vlingo.schemata.query.SchemaQueries;
 import io.vlingo.schemata.resource.data.SchemaData;
 
 public class SchemaResource extends ResourceHandler {
   private final SchemaCommands commands;
+  private final SchemaQueries queries;
   private final Stage stage;
 
-  public SchemaResource(final World world) {
+  public SchemaResource(final World world, final SchemaQueries queries) {
     this.stage = world.stageNamed(StageName);
+    this.queries = queries;
     this.commands = new SchemaCommands(this.stage, 10);
   }
 
