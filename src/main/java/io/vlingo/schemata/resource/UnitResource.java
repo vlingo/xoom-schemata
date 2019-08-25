@@ -35,14 +35,17 @@ import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Unit;
+import io.vlingo.schemata.query.UnitQueries;
 import io.vlingo.schemata.resource.data.UnitData;
 
 public class UnitResource extends ResourceHandler {
   private final UnitCommands commands;
+  private final UnitQueries queries;
   private final Stage stage;
 
-  public UnitResource(final World world) {
+  public UnitResource(final World world, final UnitQueries queries) {
     this.stage = world.stageNamed(StageName);
+    this.queries = queries;
     this.commands = new UnitCommands(this.stage, 10);
   }
 
