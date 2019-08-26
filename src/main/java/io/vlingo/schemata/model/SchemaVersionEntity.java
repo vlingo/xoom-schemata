@@ -37,18 +37,16 @@ public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState>
           final Version previousVersion,
           final Version nextVersion) {
     assert (description != null && !description.isEmpty());
-    apply(
+    return apply(
         this.state.defineWith(description, specification, previousVersion, nextVersion),
         SchemaVersionDefined.with(state.schemaVersionId, specification, description, Status.Draft, previousVersion, nextVersion),
         () -> state);
-    return completes();
   }
 
   @Override
   public Completes<SchemaVersionState> describeAs(final String description) {
     if (description != null && !description.isEmpty()) {
-      apply(this.state.withDescription(description), SchemaVersionDescribed.with(state.schemaVersionId, description), () -> this.state);
-      return completes();
+      return apply(this.state.withDescription(description), SchemaVersionDescribed.with(state.schemaVersionId, description), () -> this.state);
     }
     return completes().with(state);
   }
@@ -56,8 +54,7 @@ public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState>
   @Override
   public Completes<SchemaVersionState> publish() {
     if (state.status.isDraft()) {
-      apply(this.state.asPublished(), SchemaVersionPublished.with(state.schemaVersionId), () -> this.state);
-      return completes();
+      return apply(this.state.asPublished(), SchemaVersionPublished.with(state.schemaVersionId), () -> this.state);
     }
     return completes().with(state);
   }
@@ -65,8 +62,7 @@ public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState>
   @Override
   public Completes<SchemaVersionState> deprecate() {
     if (state.status.isPublished()) {
-      apply(this.state.asDeprecated(), SchemaVersionDeprecated.with(state.schemaVersionId), () -> this.state);
-      return completes();
+      return apply(this.state.asDeprecated(), SchemaVersionDeprecated.with(state.schemaVersionId), () -> this.state);
     }
     return completes().with(state);
   }
@@ -74,8 +70,7 @@ public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState>
   @Override
   public Completes<SchemaVersionState> remove() {
     if (state.status.isDeprecated()) {
-      apply(this.state.asRemoved(), SchemaVersionRemoved.with(state.schemaVersionId), () -> this.state);
-      return completes();
+      return apply(this.state.asRemoved(), SchemaVersionRemoved.with(state.schemaVersionId), () -> this.state);
     }
     return completes().with(state);
   }
@@ -83,8 +78,7 @@ public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState>
   @Override
   public Completes<SchemaVersionState> specifyWith(final Specification specification) {
     if (specification != null) {
-      apply(this.state.withSpecification(specification), SchemaVersionSpecified.with(state.schemaVersionId, specification), () -> this.state);
-      return completes();
+      return apply(this.state.withSpecification(specification), SchemaVersionSpecified.with(state.schemaVersionId, specification), () -> this.state);
     }
     return completes().with(state);
   }

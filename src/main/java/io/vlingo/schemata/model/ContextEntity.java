@@ -32,22 +32,19 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   public Completes<ContextState> defineWith(final String namespace, final String description) {
     assert (namespace != null && !namespace.isEmpty());
     assert (description != null && !description.isEmpty());
-    apply(state.defineWith(namespace, description), ContextDefined.with(this.state.contextId, namespace, description), () -> state);
-    return completes();
+    return apply(state.defineWith(namespace, description), ContextDefined.with(this.state.contextId, namespace, description), () -> state);
   }
 
   @Override
   public Completes<ContextState> describeAs(final String description) {
     assert (description != null && !description.isEmpty());
-    apply(state.withDescription(description), ContextDescribed.with(state.contextId, description), () -> state);
-    return completes();
+    return apply(state.withDescription(description), ContextDescribed.with(state.contextId, description), () -> state);
   }
 
   @Override
   public Completes<ContextState> moveToNamespace(final String namespace) {
     assert (namespace != null && !namespace.isEmpty());
-    apply(state.withNamespace(namespace), ContextRenamed.with(state.contextId, namespace), () -> state);
-    return completes();
+    return apply(state.withNamespace(namespace), ContextRenamed.with(state.contextId, namespace), () -> state);
   }
 
   @Override
