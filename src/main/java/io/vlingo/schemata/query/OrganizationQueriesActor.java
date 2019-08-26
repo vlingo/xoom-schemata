@@ -9,26 +9,26 @@ package io.vlingo.schemata.query;
 
 import java.util.List;
 
-import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.model.OrganizationState;
 import io.vlingo.schemata.resource.data.OrganizationData;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
 
 public class OrganizationQueriesActor extends QueryActor<OrganizationState> implements OrganizationQueries {
-
+  private List<OrganizationState> organizationStates;
   public OrganizationQueriesActor(final ObjectStore objectStore) {
     super(objectStore);
   }
 
   @Override
   public Completes<List<OrganizationData>> organizations() {
+    select(OrganizationState.class, "SELECT organizationId, name, description FROM TBL_ORGANIZATIONS", () -> organizationStates);
     return completes();
   }
 
   @Override
   public Completes<OrganizationData> organization(final String organizationId) {
-    return null;
+    select(OrganizationState.class, "SELECT organizationId, name, description FROM TBL_ORGANIZATIONS WHERE or", () -> organizationStates);
+    return completes();
   }
 }
