@@ -30,29 +30,25 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
 
   @Override
   public Completes<SchemaState> defineWith(final Category category, final String name, final String description) {
-    apply(
+    return apply(
       this.state.defineWith(category, name, description),
       SchemaDefined.with(state.schemaId, category, name, description),
       () -> this.state);
-    return completes();
   }
 
   @Override
   public Completes<SchemaState> categorizeAs(final Category category) {
-    apply(this.state.withCategory(category), SchemaCategorized.with(state.schemaId, category), () -> this.state);
-    return completes();
+    return apply(this.state.withCategory(category), SchemaCategorized.with(state.schemaId, category), () -> this.state);
   }
 
   @Override
   public Completes<SchemaState> describeAs(String description) {
-    apply(this.state.withDescription(description), SchemaDescribed.with(state.schemaId, description), () -> this.state);
-    return completes();
+    return apply(this.state.withDescription(description), SchemaDescribed.with(state.schemaId, description), () -> this.state);
   }
 
   @Override
   public Completes<SchemaState> renameTo(String name) {
-    apply(this.state.withName(name), SchemaRenamed.with(state.schemaId, name), () -> this.state);
-    return completes();
+    return apply(this.state.withName(name), SchemaRenamed.with(state.schemaId, name), () -> this.state);
   }
 
   @Override
