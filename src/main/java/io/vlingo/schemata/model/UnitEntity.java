@@ -29,20 +29,17 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
 
   @Override
   public Completes<UnitState> defineWith(final String name, final String description) {
-    apply(this.state.defineWith(name, description), new UnitDefined(state.unitId, name, description), () -> this.state);
-    return completes();
+    return apply(this.state.defineWith(name, description), new UnitDefined(state.unitId, name, description), () -> this.state);
   }
 
   @Override
   public Completes<UnitState> describeAs(final String description) {
-    apply(this.state.withDescription(description), new UnitDescribed(state.unitId, description), () -> this.state);
-    return completes();
+    return apply(this.state.withDescription(description), new UnitDescribed(state.unitId, description), () -> this.state);
   }
 
   @Override
   public Completes<UnitState> renameTo(final String name) {
-    apply(this.state.withName(name), new UnitRenamed(state.unitId, name), () -> this.state);
-    return completes();
+    return apply(this.state.withName(name), new UnitRenamed(state.unitId, name), () -> this.state);
   }
 
   @Override
