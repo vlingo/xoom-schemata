@@ -33,20 +33,17 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
 
   @Override
   public Completes<OrganizationState> defineWith(final String name, final String description) {
-    apply(state.defineWith(name, description), new OrganizationDefined(this.state.organizationId, name, description), () -> state);
-    return completes();
+    return apply(state.defineWith(name, description), new OrganizationDefined(this.state.organizationId, name, description), () -> state);
   }
 
   @Override
   public Completes<OrganizationState> describeAs(final String description) {
-    apply(state.withDescription(description), new OrganizationDescribed(state.organizationId, description), () -> state);
-    return completes();
+    return apply(state.withDescription(description), new OrganizationDescribed(state.organizationId, description), () -> state);
   }
 
   @Override
   public Completes<OrganizationState> renameTo(final String name) {
-    apply(state.withName(name), new OrganizationRenamed(state.organizationId, name), () -> state);
-    return completes();
+    return apply(state.withName(name), new OrganizationRenamed(state.organizationId, name), () -> state);
   }
 
   @Override
