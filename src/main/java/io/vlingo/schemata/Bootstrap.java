@@ -30,7 +30,6 @@ import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.DataFormat;
 import io.vlingo.symbio.store.common.jdbc.hsqldb.HSQLDBConfigurationProvider;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
 
 public class Bootstrap {
   private static final int SCHEMATA_PORT = 9019;
@@ -54,19 +53,19 @@ public class Bootstrap {
     final Stage stage = world.stageNamed(StageName);
 
     final OrganizationResource organizationResource =
-            new OrganizationResource(world, Queries.forOrganizations(stage, jdbiFrom(configuration)));
+            new OrganizationResource(world, Queries.forOrganizations(stage, objectStore));
 
     final UnitResource unitResource =
-            new UnitResource(world, Queries.forUnits(stage, jdbiFrom(configuration)));
+            new UnitResource(world, Queries.forUnits(stage, objectStore));
 
     final ContextResource contextResource =
-            new ContextResource(world, Queries.forContexts(stage, jdbiFrom(configuration)));
+            new ContextResource(world, Queries.forContexts(stage, objectStore));
 
     final SchemaResource schemaResource =
-            new SchemaResource(world, Queries.forSchemas(stage, jdbiFrom(configuration)));
+            new SchemaResource(world, Queries.forSchemas(stage, objectStore));
 
     final SchemaVersionResource schemaVersionResource =
-            new SchemaVersionResource(world, Queries.forSchemaVersions(stage, jdbiFrom(configuration)));
+            new SchemaVersionResource(world, Queries.forSchemaVersions(stage, objectStore));
 
     Resources allResources = Resources.are(
             organizationResource.routes(),
@@ -109,11 +108,6 @@ public class Bootstrap {
     System.out.println("service: vlingo-schemata.");
     System.out.println("=========================");
     Bootstrap.instance();
-  }
-
-  private JdbiOnDatabase jdbiFrom(
-          final io.vlingo.symbio.store.common.jdbc.Configuration configuration) {
-    return JdbiOnDatabase.openUsing(io.vlingo.symbio.store.common.jdbc.Configuration.cloneOf(configuration));
   }
 
   private io.vlingo.symbio.store.common.jdbc.Configuration jdbcConfiguration() throws Exception {
