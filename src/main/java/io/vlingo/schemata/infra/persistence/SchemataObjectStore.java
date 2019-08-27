@@ -143,48 +143,53 @@ public class SchemataObjectStore {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void register(final ObjectTypeRegistry registry, final ObjectStore objectStore) {
+        final String orgQuery = "SELECT * FROM TBL_ORGANIZATIONS WHERE id = :id";
         final Info<Organization> organizationInfo =
                 new Info(
                     objectStore,
                     OrganizationState.class,
                     "vlingo_schemata",
-                    MapQueryExpression.using(Organization.class, "find", MapQueryExpression.map("id", "id")),
+                    MapQueryExpression.using(OrganizationState.class, orgQuery, MapQueryExpression.map("id", "id")),
                     mappersLookup.get(OrganizationState.class));
         registry.register(organizationInfo);
 
+        final String unitQuery = "SELECT * FROM TBL_UNITS WHERE id = :id";
         final Info<Unit> unitInfo =
                 new Info(
                         objectStore,
                         UnitState.class,
                         "vlingo_schemata",
-                        MapQueryExpression.using(Unit.class, "find", MapQueryExpression.map("id", "id")),
+                        MapQueryExpression.using(UnitState.class, unitQuery, MapQueryExpression.map("id", "id")),
                         mappersLookup.get(UnitState.class));
         registry.register(unitInfo);
 
+        final String contextQuery = "SELECT * FROM TBL_CONTEXTS WHERE id = :id";
         final Info<Context> contextInfo =
                 new Info(
                         objectStore,
                         ContextState.class,
                         "vlingo_schemata",
-                        MapQueryExpression.using(Context.class, "find", MapQueryExpression.map("id", "id")),
+                        MapQueryExpression.using(ContextState.class, contextQuery, MapQueryExpression.map("id", "id")),
                         mappersLookup.get(ContextState.class));
         registry.register(contextInfo);
 
+        final String schemaQuery = "SELECT * FROM TBL_SCHEMAS WHERE id = :id";
         final Info<Schema> schemaInfo =
                 new Info(
                         objectStore,
                         SchemaState.class,
                         "vlingo_schemata",
-                        MapQueryExpression.using(Schema.class, "find", MapQueryExpression.map("id", "id")),
+                        MapQueryExpression.using(SchemaState.class, schemaQuery, MapQueryExpression.map("id", "id")),
                         mappersLookup.get(SchemaState.class));
         registry.register(schemaInfo);
 
+        final String versionQuery = "SELECT * FROM TBL_SCHEMAVERSIONS WHERE id = :id";
         final Info<SchemaVersion> schemaVersionInfo =
                 new Info(
                         objectStore,
                         SchemaVersionState.class,
                         "vlingo_schemata",
-                        MapQueryExpression.using(SchemaVersion.class, "find", MapQueryExpression.map("id", "id")),
+                        MapQueryExpression.using(SchemaVersionState.class, versionQuery, MapQueryExpression.map("id", "id")),
                         mappersLookup.get(SchemaVersionState.class));
         registry.register(schemaVersionInfo);
     }
