@@ -12,7 +12,29 @@ After building the fat jar, you can also simply execute it via `java -jar vlingo
 
 ## Using curl or Postman
 
-`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","name":"Org","description":"My org."}'  http://localhost:9019/users`
+### Schema Definitions
+
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","name":"Org1","description":"My organization."}' http://localhost:9019/organizations`
+
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","name":"Unit1","description":"My unit."}' http://localhost:9019/organizations/{orgId}/units`
+
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","namespace":"io.vlingo.schemata","description":"Schemata Context."}' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts`
+
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","schemaId":"","category":"Event","name":"SchemaDefined","description":"Schemata was defined event."}' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas`
+
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","schemaId":"","schemaVersionId":"","description":"Initial revision.","specification":"event SchemaDefined { type eventType }","status":"Draft","previousVersion":"0.0.0","currentVersion":"1.0.0"}' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions`
+
+### Schema Queries
+
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations`
+
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units`
+
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts`
+
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas`
+
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions`
 
 
 ## Build
