@@ -7,6 +7,9 @@
 
 package io.vlingo.schemata.resource.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.vlingo.schemata.model.ContextState;
 
 public class ContextData {
@@ -18,6 +21,16 @@ public class ContextData {
 
   public static ContextData from(final ContextState state) {
     return new ContextData(state.contextId.organizationId().value, state.contextId.unitId.value, state.contextId.value, state.namespace, state.description);
+  }
+
+  public static List<ContextData> from(final List<ContextState> states) {
+    final List<ContextData> data = new ArrayList<>(states.size());
+
+    for (final ContextState state : states) {
+      data.add(ContextData.from(state));
+    }
+
+    return data;
   }
 
   public static ContextData from(final String organizationId, final String unitId, final String contextId, final String namespace, final String description) {
