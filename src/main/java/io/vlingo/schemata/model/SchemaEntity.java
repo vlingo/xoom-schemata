@@ -7,19 +7,13 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.Collections;
-import java.util.List;
-
 import io.vlingo.common.Completes;
-import io.vlingo.common.Tuple2;
-import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.SchemaCategorized;
 import io.vlingo.schemata.model.Events.SchemaDefined;
 import io.vlingo.schemata.model.Events.SchemaDescribed;
 import io.vlingo.schemata.model.Events.SchemaRenamed;
 import io.vlingo.schemata.model.Id.SchemaId;
-import io.vlingo.symbio.Source;
 
 public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
   private SchemaState state;
@@ -49,12 +43,6 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
   @Override
   public Completes<SchemaState> renameTo(String name) {
     return apply(this.state.withName(name), SchemaRenamed.with(state.schemaId, name), () -> this.state);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  protected Tuple2<SchemaState, List<Source<DomainEvent>>> whenNewState() {
-    return state.isIdentified() ? null : Tuple2.from(state, Collections.emptyList());
   }
 
   @Override
