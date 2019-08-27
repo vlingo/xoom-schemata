@@ -8,26 +8,26 @@
 package io.vlingo.schemata.query;
 
 import io.vlingo.actors.Stage;
-import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
+import io.vlingo.symbio.store.object.ObjectStore;
 
 public class Queries {
-  public static OrganizationQueries forOrganizations(final Stage stage, final JdbiOnDatabase jdbi) {
-    return stage.actorFor(OrganizationQueries.class, OrganizationQueriesActor.class, jdbi);
+  public static OrganizationQueries forOrganizations(final Stage stage, final ObjectStore objectStore) {
+    return stage.actorFor(OrganizationQueries.class, OrganizationQueriesActor.class, objectStore);
   }
 
-  public static UnitQueries forUnits(final Stage stage, final JdbiOnDatabase jdbi) {
-    return stage.actorFor(UnitQueries.class, UnitQueriesActor.class, jdbi);
+  public static UnitQueries forUnits(final Stage stage, final ObjectStore objectStore) {
+    return stage.actorFor(UnitQueries.class, UnitQueriesActor.class, objectStore);
   }
 
-  public static ContextQueries forContexts(final Stage stage, final JdbiOnDatabase jdbi) {
-    return stage.actorFor(ContextQueries.class, ContextQueriesActor.class, jdbi);
+  public static ContextQueries forContexts(final Stage stage, final ObjectStore objectStore) {
+    return stage.actorFor(ContextQueries.class, ContextQueriesActor.class, objectStore);
   }
 
-  public static SchemaQueries forSchemas(final Stage stage, final JdbiOnDatabase jdbi) {
-    return stage.actorFor(SchemaQueries.class, SchemaQueriesActor.class, jdbi);
+  public static SchemaQueries forSchemas(final Stage stage, final ObjectStore objectStore) {
+    return stage.actorFor(SchemaQueries.class, SchemaQueriesActor.class, objectStore);
   }
 
-  public static SchemaVersionQueries forSchemaVersions(final Stage stage, final JdbiOnDatabase jdbi) {
-    return stage.actorFor(SchemaVersionQueries.class, SchemaVersionQueriesActor.class, jdbi);
+  public static SchemaVersionQueries forSchemaVersions(final Stage stage, final ObjectStore objectStore) {
+    return stage.actorFor(SchemaVersionQueries.class, SchemaVersionQueriesActor.class, objectStore);
   }
 }
