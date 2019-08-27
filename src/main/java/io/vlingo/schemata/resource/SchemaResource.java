@@ -22,8 +22,6 @@ import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.SchemasPath;
 import static io.vlingo.schemata.Schemata.StageName;
 
-import java.util.Arrays;
-
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
@@ -52,7 +50,7 @@ public class SchemaResource extends ResourceHandler {
 
   public Completes<Response> defineWith(final String organizationId, final String unitId, final String contextId, final SchemaData data) {
     return Schema.with(stage, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(data.category), data.name, data.description)
-            .andThenTo(state -> {
+            .andThenTo(3000, state -> {
                 final String location = schemaLocation(state.schemaId);
                 final Headers<ResponseHeader> headers = headers(of(Location, location));
                 final String serialized = serialized(SchemaData.from(state));
@@ -81,13 +79,15 @@ public class SchemaResource extends ResourceHandler {
   }
 
   public Completes<Response> querySchemas(final String organizationId, final String unitId, final String contextId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId + " SCHEMAS");
-    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(SchemaData.from("O1", "U1", "C1", "S1", "Event", "Schema1", "My schema 1.")))));
+    return queries
+            .schemas(organizationId, unitId, contextId)
+            .andThenTo(schemas -> Completes.withSuccess(Response.of(Ok, serialized(schemas))));
   }
 
   public Completes<Response> querySchema(final String organizationId, final String unitId, final String contextId, final String schemaId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId + " SCHEMA: " + schemaId);
-    return Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from("O1", "U1", "C1", "S1", "Event", "Schema1", "My schema 1."))));
+    return queries
+            .schema(organizationId, unitId, contextId, schemaId)
+            .andThenTo(schema -> Completes.withSuccess(Response.of(Ok, serialized(schema))));
   }
 
   @Override
