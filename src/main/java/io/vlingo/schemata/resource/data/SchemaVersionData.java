@@ -7,6 +7,9 @@
 
 package io.vlingo.schemata.resource.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.vlingo.schemata.model.SchemaVersionState;
 
 public class SchemaVersionData {
@@ -21,18 +24,28 @@ public class SchemaVersionData {
   public final String previousVersion;
   public final String currentVersion;
 
-  public static SchemaVersionData from(final SchemaVersionState version) {
+  public static SchemaVersionData from(final SchemaVersionState state) {
     return new SchemaVersionData(
-            version.schemaVersionId.organizationId().value,
-            version.schemaVersionId.unitId().value,
-            version.schemaVersionId.contextId().value,
-            version.schemaVersionId.schemaId.value,
-            version.schemaVersionId.value,
-            version.specification.value,
-            version.description,
-            version.status.value,
-            version.previousVersion.value,
-            version.currentVersion.value);
+            state.schemaVersionId.organizationId().value,
+            state.schemaVersionId.unitId().value,
+            state.schemaVersionId.contextId().value,
+            state.schemaVersionId.schemaId.value,
+            state.schemaVersionId.value,
+            state.specification.value,
+            state.description,
+            state.status.value,
+            state.previousVersion.value,
+            state.currentVersion.value);
+  }
+
+  public static List<SchemaVersionData> from(final List<SchemaVersionState> states) {
+    final List<SchemaVersionData> data = new ArrayList<>(states.size());
+
+    for (final SchemaVersionState state : states) {
+      data.add(SchemaVersionData.from(state));
+    }
+
+    return data;
   }
 
   public static SchemaVersionData from(
