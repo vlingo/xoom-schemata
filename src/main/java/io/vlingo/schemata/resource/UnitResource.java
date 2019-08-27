@@ -22,8 +22,6 @@ import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.StageName;
 import static io.vlingo.schemata.Schemata.UnitsPath;
 
-import java.util.Arrays;
-
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
@@ -51,7 +49,7 @@ public class UnitResource extends ResourceHandler {
 
   public Completes<Response> defineWith(final String organizationId, final UnitData data) {
     return Unit.with(stage, OrganizationId.existing(organizationId), data.name, data.description)
-            .andThenTo(state -> {
+            .andThenTo(3000, state -> {
                 final String location = unitLocation(state.unitId);
                 final Headers<ResponseHeader> headers = headers(of(Location, location));
                 final String serialized = serialized(UnitData.from(state));
@@ -74,13 +72,15 @@ public class UnitResource extends ResourceHandler {
   }
 
   public Completes<Response> queryUnits(final String organizationId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNITS");
-    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(UnitData.from("O1", "U1", "Unit1", "My unit 1.")))));
+    return queries
+            .units(organizationId)
+            .andThenTo(units -> Completes.withSuccess(Response.of(Ok, serialized(units))));
   }
 
   public Completes<Response> queryUnit(final String organizationId, final String unitId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId);
-    return Completes.withSuccess(Response.of(Ok, serialized(UnitData.from("O1", "U1", "Unit1", "My unit 1."))));
+    return queries
+            .unit(organizationId, unitId)
+            .andThenTo(unit -> Completes.withSuccess(Response.of(Ok, serialized(unit))));
   }
 
   @Override
