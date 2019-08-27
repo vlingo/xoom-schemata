@@ -90,9 +90,10 @@ public class UnitResourceTest extends ResourceTest {
   public void setUp() throws Exception {
     world = World.startWithDefaults("test-command-router");
     world.stageNamed("vlingo-schemata-grid", Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
-    queries = Queries.forUnits(world.stageNamed(Schemata.StageName), jdbi());
 
     objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
+
+    queries = Queries.forUnits(world.stageNamed(Schemata.StageName), objectStore);
 
     registry = new ObjectTypeRegistry(world);
 
