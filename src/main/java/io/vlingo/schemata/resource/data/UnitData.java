@@ -7,6 +7,9 @@
 
 package io.vlingo.schemata.resource.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.vlingo.schemata.model.UnitState;
 
 public class UnitData {
@@ -17,6 +20,16 @@ public class UnitData {
 
   public static UnitData from(final UnitState state) {
     return new UnitData(state.unitId.organizationId.value, state.unitId.value, state.name, state.description);
+  }
+
+  public static List<UnitData> from(final List<UnitState> states) {
+    final List<UnitData> data = new ArrayList<>(states.size());
+
+    for (final UnitState state : states) {
+      data.add(UnitData.from(state));
+    }
+
+    return data;
   }
 
   public static UnitData from(final String organizationId, final String unitId, final String name, final String description) {
