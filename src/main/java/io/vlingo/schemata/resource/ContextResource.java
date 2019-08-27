@@ -22,8 +22,6 @@ import static io.vlingo.schemata.Schemata.ContextsPath;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.StageName;
 
-import java.util.Arrays;
-
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
@@ -51,7 +49,7 @@ public class ContextResource extends ResourceHandler {
 
   public Completes<Response> defineWith(final String organizationId, final String unitId, final ContextData data) {
     return Context.with(stage, UnitId.existing(organizationId, unitId), data.namespace, data.description)
-            .andThenTo(state -> {
+            .andThenTo(3000, state -> {
                 final String location = contextLocation(state.contextId);
                 final Headers<ResponseHeader> headers = headers(of(Location, location));
                 final String serialized = serialized(ContextData.from(state));
@@ -74,13 +72,15 @@ public class ContextResource extends ResourceHandler {
   }
 
   public Completes<Response> queryContexts(final String organizationId, final String unitId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXTS");
-    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(ContextData.from("O1", "U1", "C1", "Context1", "My context 1.")))));
+    return queries
+            .contexts(organizationId, unitId)
+            .andThenTo(contexts -> Completes.withSuccess(Response.of(Ok, serialized(contexts))));
   }
 
   public Completes<Response> queryContext(final String organizationId, final String unitId, final String contextId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId);
-    return Completes.withSuccess(Response.of(Ok, serialized(ContextData.from("O1", "U1", "C1", "Context1", "My context 1."))));
+    return queries
+            .context(organizationId, unitId, contextId)
+            .andThenTo(context -> Completes.withSuccess(Response.of(Ok, serialized(context))));
   }
 
   @Override
