@@ -7,27 +7,67 @@
 
 package io.vlingo.schemata.query;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
+import io.vlingo.lattice.query.StateObjectQueryActor;
+import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
-import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
+import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.object.ObjectStore;
+import io.vlingo.symbio.store.object.QueryExpression;
 
-public class SchemaVersionQueriesActor extends Actor implements SchemaVersionQueries {
-  private final JdbiOnDatabase jdbi;
+public class SchemaVersionQueriesActor extends StateObjectQueryActor implements SchemaVersionQueries {
+  private final Map<String,String> parameters;
 
-  public SchemaVersionQueriesActor(final JdbiOnDatabase jdbi) {
-    this.jdbi = jdbi;
+  public SchemaVersionQueriesActor(final ObjectStore objectStore) {
+    super(objectStore);
+    this.parameters = new HashMap<>(5);
   }
 
   @Override
   public Completes<List<SchemaVersionData>> schemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId) {
-    return null;
+    parameters.clear();
+    parameters.put("organizationId", organizationId);
+    parameters.put("unitId", unitId);
+    parameters.put("contextId", contextId);
+    parameters.put("schemaId", schemaId);
+
+    final QueryExpression query =
+            MapQueryExpression.using(
+                    SchemaVersionState.class,
+                    "SELECT * FROM TBL_SCHEMAVERSIONS " +
+                    "WHERE organizationId = :organizationId " +
+                      "AND unitId = :unitId " +
+                      "AND contextId = :contextId " +
+                      "AND schemaId = :schemaId",
+                    parameters);
+
+    return queryAll(SchemaVersionState.class, query, (List<SchemaVersionState> states) -> SchemaVersionData.from(states));
   }
 
   @Override
   public Completes<SchemaVersionData> schemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
-    return null;
+    parameters.clear();
+    parameters.put("organizationId", organizationId);
+    parameters.put("unitId", unitId);
+    parameters.put("contextId", contextId);
+    parameters.put("schemaId", schemaId);
+    parameters.put("schemaVersionId", schemaVersionId);
+
+    final QueryExpression query =
+            MapQueryExpression.using(
+                    SchemaVersionState.class,
+                    "SELECT * FROM TBL_SCHEMAVERSIONS " +
+                    "WHERE organizationId = :organizationId " +
+                      "AND unitId = :unitId " +
+                      "AND contextId = :contextId " +
+                      "AND schemaId = :schemaId " +
+                      "AND schemaVersionId = :schemaVersionId",
+                    parameters);
+
+    return queryObject(SchemaVersionState.class, query, (SchemaVersionState state) -> SchemaVersionData.from(state));
   }
 }
