@@ -22,8 +22,6 @@ import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.SchemaVersionsPath;
 import static io.vlingo.schemata.Schemata.StageName;
 
-import java.util.Arrays;
-
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
@@ -60,7 +58,7 @@ public class SchemaVersionResource extends ResourceHandler {
           final SchemaVersionData data) {
 
     return SchemaVersion.with(stage, SchemaId.existing(organizationId, unitId, contextId, schemaId), Specification.of(data.specification), data.description, Version.of(data.previousVersion), Version.of(data.currentVersion))
-            .andThenTo(state -> {
+            .andThenTo(3000, state -> {
                 final String location = schemaVersionLocation(state.schemaVersionId);
                 final Headers<ResponseHeader> headers = headers(of(Location, location));
                 final String serialized = serialized(SchemaVersionData.from(state));
@@ -104,13 +102,15 @@ public class SchemaVersionResource extends ResourceHandler {
   }
 
   public Completes<Response> querySchemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId + " SCHEMA: " + schemaId + " VERSIONS");
-    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(SchemaVersionData.from("O1", "U1", "C1", "S1", "V1", "event SomethingHappened { timestamp occurredOn }", "My something happened event.", "Draft", "0.0.0", "1.0.0")))));
+    return queries
+            .schemaVersions(organizationId, unitId, contextId, schemaId)
+            .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
   }
 
   public Completes<Response> querySchemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId + " SCHEMA: " + schemaId + " VERSION: " + schemaVersionId);
-    return Completes.withSuccess(Response.of(Ok, serialized(SchemaVersionData.from("O1", "U1", "C1", "S1", "V1", "event SomethingHappened { timestamp occurredOn }", "My something happened event.", "Draft", "0.0.0", "1.0.0"))));
+    return queries
+            .schemaVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
+            .andThenTo(schemaVersion -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersion))));
   }
 
   @Override
