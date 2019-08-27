@@ -7,6 +7,9 @@
 
 package io.vlingo.schemata.resource.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.vlingo.schemata.model.SchemaState;
 
 public class SchemaData {
@@ -20,6 +23,16 @@ public class SchemaData {
 
   public static SchemaData from(final SchemaState state) {
     return new SchemaData(state.schemaId.organizationId().value, state.schemaId.unitId().value, state.schemaId.contextId.value, state.schemaId.value, state.category.name(), state.name, state.description);
+  }
+
+  public static List<SchemaData> from(final List<SchemaState> states) {
+    final List<SchemaData> data = new ArrayList<>(states.size());
+
+    for (final SchemaState state : states) {
+      data.add(SchemaData.from(state));
+    }
+
+    return data;
   }
 
   public static SchemaData from(final String organizationId, final String unitId, final String contextId, final String schemaId, final String category, final String name, final String description) {
