@@ -7,18 +7,12 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.Collections;
-import java.util.List;
-
 import io.vlingo.common.Completes;
-import io.vlingo.common.Tuple2;
-import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.OrganizationDefined;
 import io.vlingo.schemata.model.Events.OrganizationDescribed;
 import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.schemata.model.Id.OrganizationId;
-import io.vlingo.symbio.Source;
 
 public class OrganizationEntity extends ObjectEntity<OrganizationState> implements Organization {
   private OrganizationState state;
@@ -44,12 +38,6 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   @Override
   public Completes<OrganizationState> renameTo(final String name) {
     return apply(state.withName(name), new OrganizationRenamed(state.organizationId, name), () -> state);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  protected Tuple2<OrganizationState, List<Source<DomainEvent>>> whenNewState() {
-    return state.isIdentified() ? null : Tuple2.from(state, Collections.emptyList());
   }
 
   @Override
