@@ -7,18 +7,12 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.Collections;
-import java.util.List;
-
 import io.vlingo.common.Completes;
-import io.vlingo.common.Tuple2;
-import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.ContextDefined;
 import io.vlingo.schemata.model.Events.ContextDescribed;
 import io.vlingo.schemata.model.Events.ContextRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
-import io.vlingo.symbio.Source;
 
 
 public class ContextEntity extends ObjectEntity<ContextState> implements Context {
@@ -45,12 +39,6 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   public Completes<ContextState> moveToNamespace(final String namespace) {
     assert (namespace != null && !namespace.isEmpty());
     return apply(state.withNamespace(namespace), ContextRenamed.with(state.contextId, namespace), () -> state);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  protected Tuple2<ContextState, List<Source<DomainEvent>>> whenNewState() {
-    return state.isIdentified() ? null : Tuple2.from(state, Collections.emptyList());
   }
 
   @Override
