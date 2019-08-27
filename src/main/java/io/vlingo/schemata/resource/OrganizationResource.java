@@ -48,7 +48,7 @@ public class OrganizationResource extends ResourceHandler {
 
   public Completes<Response> defineWith(final OrganizationData data) {
     return Organization.with(stage, data.name, data.description)
-            .andThenTo(state -> {
+            .andThenTo(3000, state -> {
                 final String location = organizationLocation(state.organizationId);
                 final Headers<ResponseHeader> headers = headers(of(Location, location));
                 final String serialized = serialized(OrganizationData.from(state));
@@ -71,20 +71,15 @@ public class OrganizationResource extends ResourceHandler {
   }
 
   public Completes<Response> queryOrganizations() {
-    System.out.println("***** QUERY ORGS");
-//    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(OrganizationData.from("123", "Org", "My org.")))));
     return queries
-      .organizations()
-      .andThenTo(organizations ->
-        Completes.withSuccess(Response.of(Ok, serialized(organizations))));
+            .organizations()
+            .andThenTo(organizations -> Completes.withSuccess(Response.of(Ok, serialized(organizations))));
   }
 
   public Completes<Response> queryOrganization(final String organizationId) {
-    System.out.println("***** QUERY ORG: " + organizationId);
     return queries
             .organization(organizationId)
-            .andThenTo(organization ->
-              Completes.withSuccess(Response.of(Ok, serialized(organization))));
+            .andThenTo(organization -> Completes.withSuccess(Response.of(Ok, serialized(organization))));
   }
 
   @Override
