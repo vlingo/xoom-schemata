@@ -7,6 +7,9 @@
 
 package io.vlingo.schemata.resource.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.vlingo.schemata.model.OrganizationState;
 
 public class OrganizationData {
@@ -16,6 +19,16 @@ public class OrganizationData {
 
   public static OrganizationData from(final OrganizationState state) {
     return new OrganizationData(state.organizationId.value, state.name, state.description);
+  }
+
+  public static List<OrganizationData> from(final List<OrganizationState> states) {
+    final List<OrganizationData> data = new ArrayList<>(states.size());
+
+    for (final OrganizationState state : states) {
+      data.add(OrganizationData.from(state));
+    }
+
+    return data;
   }
 
   public static OrganizationData from(final String organizationId, final String name, final String description) {
