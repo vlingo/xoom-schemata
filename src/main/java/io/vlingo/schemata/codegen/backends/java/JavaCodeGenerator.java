@@ -29,14 +29,12 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeSpec;
 
 import io.vlingo.lattice.model.DomainEvent;
-import io.vlingo.schemata.codegen.Backend;
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
 import io.vlingo.schemata.codegen.backends.java.values.EventField;
 import io.vlingo.schemata.codegen.backends.java.values.IntrinsicField;
 import io.vlingo.schemata.codegen.backends.java.values.RuntimeSingleField;
 
-public class JavaCodeGenerator implements Backend {
-  @Override
+public class JavaCodeGenerator {
   public String generateFrom(final SchemaVersionDefinitionParser.TypeDeclarationContext typeDeclaration) {
     final Class<?> baseClass = baseClassOf(typeDeclaration);
     final String typeName = typeNameOf(typeDeclaration);

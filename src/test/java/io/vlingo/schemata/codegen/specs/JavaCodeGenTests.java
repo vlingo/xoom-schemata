@@ -7,28 +7,19 @@
 
 package io.vlingo.schemata.codegen.specs;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import io.vlingo.schemata.codegen.CodeGenTests;
 import io.vlingo.schemata.codegen.TypeDefinitionCompiler;
-import io.vlingo.schemata.codegen.backends.java.JavaCodeGenerator;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
+import static org.junit.Assert.assertTrue;
 
 public class JavaCodeGenTests extends CodeGenTests {
-  private TypeDefinitionCompiler compiler;
-
-  @Before
-  public void setUp() {
-    compiler = TypeDefinitionCompiler.backedBy(new JavaCodeGenerator());
-  }
-
   @Test
-  public void testThatGeneratesABasicType() throws IOException {
-    final String result = compiler.compile(typeDefinition("basic"));
+  public void testThatGeneratesABasicType() throws ExecutionException, InterruptedException {
+    final String result = compilerWithJavaBackend().compile(typeDefinition("basic")).get();
 
     assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
     assertTrue(result.contains("public final String eventType;"));
@@ -45,8 +36,8 @@ public class JavaCodeGenTests extends CodeGenTests {
   }
 
   @Test
-  public void testThatGeneratesABasicTypeWithAllConsideredInnerTypes() throws IOException {
-    final String result = compiler.compile(typeDefinition("allSingleTypes"));
+  public void testThatGeneratesABasicTypeWithAllConsideredInnerTypes() throws ExecutionException, InterruptedException {
+    final String result = compilerWithJavaBackend().compile(typeDefinition("allSingleTypes")).get();
 
     assertTrue(result.contains("public final Boolean booleanAttribute;"));
     assertTrue(result.contains("public final Byte byteAttribute;"));
