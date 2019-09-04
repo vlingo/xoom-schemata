@@ -30,7 +30,7 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("public final SalutationHappened(final String toWhom, final String text) {"));
     assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = SemanticVersion.from(\"0.0.1\");"));
+    assertTrue(result.contains("this.eventVersion = SchemaVersion.Version.of(\"0.0.1\");"));
     assertTrue(result.contains("this.toWhom = toWhom;"));
     assertTrue(result.contains("this.text = text;"));
   }
@@ -53,15 +53,15 @@ public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesAComposedTypeWithVersionedData() throws ExecutionException, InterruptedException {
     registerType("types/price", "1.0.0");
-    final String result = compilerWithJavaBackend().compile(typeDefinition("price-changed"), "0.0.1").get();
+    final String result = compilerWithJavaBackend().compile(typeDefinition("price-changed"), "0.5.1").get();
 
     assertTrue(result.contains("public final class PriceChanged extends DomainEvent {"));
-    assertTrue(result.contains("public final Long occurredOn;"));
-    assertTrue(result.contains("public final Integer version;"));
+    assertTrue(result.contains("public final long occurredOn;"));
+    assertTrue(result.contains("public final SchemaVersion.Version eventVersion;"));
     assertTrue(result.contains("public final Price newPrice;"));
     assertTrue(result.contains("public final PriceChanged(final Price newPrice) {"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(0, 0, 1);"));
+    assertTrue(result.contains("this.eventVersion = SchemaVersion.Version.of(\"0.5.1\");"));
     assertTrue(result.contains("this.newPrice = newPrice;"));
   }
 }

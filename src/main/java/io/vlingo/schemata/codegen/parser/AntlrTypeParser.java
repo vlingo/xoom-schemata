@@ -1,7 +1,6 @@
 package io.vlingo.schemata.codegen.parser;
 
 import io.vlingo.actors.Actor;
-import io.vlingo.actors.CompletesEventually;
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
@@ -75,21 +74,21 @@ public class AntlrTypeParser extends Actor implements TypeParser {
                 attribute.FLOAT(), attribute.INT(), attribute.LONG(),
                 attribute.SHORT(), attribute.STRING());
 
-        String fieldName = attribute.IDENTIFIER().toString();
+        String fieldName = attribute.IDENTIFIER().getText();
 
         return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, Optional.empty());
     }
 
     private Node parseComplexTypeAttribute(SchemaVersionDefinitionParser.ComplexTypeAttributeContext attribute) {
-        String typeName = attribute.typeName().toString();
-        String fieldName = attribute.IDENTIFIER().toString();
+        String typeName = attribute.typeName().getText();
+        String fieldName = attribute.IDENTIFIER().getText();
 
         return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, Optional.empty());
     }
 
     private Node parseSpecialTypeAttribute(SchemaVersionDefinitionParser.SpecialTypeAttributeContext attribute) {
         String typeName = firstNotNull(attribute.TIMESTAMP(), attribute.TYPE(), attribute.VERSION());
-        String fieldName = attribute.IDENTIFIER().toString();
+        String fieldName = attribute.IDENTIFIER().getText();
 
         return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, Optional.empty());
     }

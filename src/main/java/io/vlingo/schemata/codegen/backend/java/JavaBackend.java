@@ -31,34 +31,14 @@ public class JavaBackend extends Actor implements Backend {
     @Override
     public CompletableFuture<String> generateOutput(Node node, String version) {
         TypeDefinition type = Processor.requireBeing(node, TypeDefinition.class);
-        completableFuture().complete(generateJavaClass(type, version));
+        completableFuture().complete(compileJavaClass(type, version));
         return completableFuture();
     }
 
-    private String generateJavaClass(TypeDefinition type, String version) {
+    private String compileJavaClass(TypeDefinition type, String version) {
         final Class<?> baseClass = baseClassOf(type);
         final String typeName = type.typeName;
-        final List<FieldDefinition> fields = type.children.stream().map(e -> (FieldDefinition) e).collect(Collectors.toList());
-
-        final List<CodeBlock> initializers = fields.stream()
-                .map(param -> CodeBlock.of(initializationOf((FieldDefinition) param, type, version)))
-                .collect(Collectors.toList());
-
-        final List<FieldSpec> classFields = fields.stream()
-                .map(this::toField)
-                .collect(Collectors.toList());;
-
-        final MethodSpec constructor = MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
-                .addParameters(fields.stream().filter(field -> !(field.type instanceof ComputableType)).map(this::toConstructorParameter).collect(Collectors.toList()))
-                .addCode(CodeBlock.join(initializers, "\n"))
-                .build();
-
-        final TypeSpec.Builder spec = TypeSpec.classBuilder(unqualifiedName(typeName))
-                .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
-                .addMethod(constructor).superclass(baseClass);
-
-        final TypeSpec eventClass = spec.addFields(classFields).build();
+        final TypeSpec eventClass = getTypeSpec(type, version, baseClass, typeName);
         JavaFile javaFile = JavaFile.builder(packageOf(typeName), eventClass).build();
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -78,12 +58,37 @@ public class JavaBackend extends Actor implements Backend {
         return os.toString();
     }
 
+    private TypeSpec getTypeSpec(TypeDefinition type, String version, Class<?> baseClass, String typeName) {
+        final List<FieldDefinition> fields = type.children.stream().map(e -> (FieldDefinition) e).collect(Collectors.toList());
+
+        final List<CodeBlock> initializers = fields.stream()
+                .map(param -> CodeBlock.of(initializationOf((FieldDefinition) param, type, version)))
+                .collect(Collectors.toList());
+
+        final List<FieldSpec> classFields = fields.stream()
+                .map(this::toField)
+                .collect(Collectors.toList());
+        ;
+
+        final MethodSpec constructor = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
+                .addParameters(fields.stream().filter(field -> !(field.type instanceof ComputableType)).map(this::toConstructorParameter).collect(Collectors.toList()))
+                .addCode(CodeBlock.join(initializers, "\n"))
+                .build();
+
+        final TypeSpec.Builder spec = TypeSpec.classBuilder(unqualifiedName(typeName))
+                .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
+                .addMethod(constructor).superclass(baseClass);
+
+        return spec.addFields(classFields).build();
+    }
+
     private String initializationOf(FieldDefinition definition, TypeDefinition owner, String version) {
         Type type = definition.type;
         if (type instanceof ComputableType) {
             switch (((ComputableType) type).typeName) {
                 case "type": return String.format("this.%s = \"%s\";", definition.name, owner.typeName);
-                case "version": return String.format("this.%s = SemanticVersion.from(\"%s\");", definition.name, version);
+                case "version": return String.format("this.%s = SchemaVersion.Version.of(\"%s\");", definition.name, version);
                 case "timestamp": return String.format("this.%s = System.currentTimeMillis();", definition.name);
             }
         }
@@ -102,11 +107,8 @@ public class JavaBackend extends Actor implements Backend {
         }
 
         if (type instanceof TypeDefinition) {
-            try {
-                return FieldSpec.builder(Class.forName(((TypeDefinition) type).typeName), definition.name, Modifier.FINAL, Modifier.PUBLIC).build();
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException(e);
-            }
+            ClassName className = ClassName.bestGuess(((TypeDefinition) type).typeName);
+            return FieldSpec.builder(className, definition.name, Modifier.FINAL, Modifier.PUBLIC).build();
         }
 
         return null;
@@ -117,11 +119,8 @@ public class JavaBackend extends Actor implements Backend {
         if (type instanceof BasicType) {
             return ParameterSpec.builder(primitive((BasicType) type), definition.name, Modifier.FINAL).build();
         } else {
-            try {
-                return ParameterSpec.builder(Class.forName(((TypeDefinition) type).typeName), definition.name, Modifier.FINAL).build();
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException(e);
-            }
+            ClassName className = ClassName.bestGuess(((TypeDefinition) type).typeName);
+            return ParameterSpec.builder(className, definition.name, Modifier.FINAL).build();
         }
     }
 

@@ -20,6 +20,6 @@ public class InMemoryTypeResolver implements TypeResolver {
     }
 
     public void produce(TypeDefinition typeDefinition, String version) {
-        types.put(typeDefinition.category.name().toLowerCase() + "." + typeDefinition.typeName + ":" + version, typeDefinition);
+        types.put(typeDefinition.typeName, typeDefinition);
     }
 }

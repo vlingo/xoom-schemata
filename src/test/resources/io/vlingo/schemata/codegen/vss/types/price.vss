@@ -1,4 +1,4 @@
 data Price {
-    double amount;
-    string currency;
+    double amount
+    string currency
 }

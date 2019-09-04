@@ -125,7 +125,7 @@ NULL_LITERAL
 
 
 TYPE_IDENTIFIER
-  : CapitalLetter LetterOrDigit*
+  : CapitalLetter LetterOrDigit* (. TYPE_IDENTIFIER)?
   ;
 
 
