@@ -22,7 +22,7 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
         this.backend = backend;
     }
 
-    public CompletableFuture<String> compile(final InputStream typeDefinition) {
+    public CompletableFuture<String> compile(final InputStream typeDefinition, final String version) {
         Function<Node, CompletableFuture<Node>> process = node -> {
             CompletableFuture<Node> result = CompletableFuture.completedFuture(node);
             for (Processor p : processors) {
@@ -36,7 +36,7 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
 
         parser.parseTypeDefinition(typeDefinition)
                 .thenCompose(process)
-                .thenCompose(backend::generateOutput)
+                .thenCompose(tree -> backend.generateOutput(tree, version))
                 .thenAccept(result::complete);
 
         return result;

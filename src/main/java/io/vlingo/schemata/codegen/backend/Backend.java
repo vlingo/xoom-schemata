@@ -5,5 +5,5 @@ import io.vlingo.schemata.codegen.ast.Node;
 import java.util.concurrent.CompletableFuture;
 
 public interface Backend {
-    CompletableFuture<String> generateOutput(Node node);
+    CompletableFuture<String> generateOutput(Node node, String version);
 }

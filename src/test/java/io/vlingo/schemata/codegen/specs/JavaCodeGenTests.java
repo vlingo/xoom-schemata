@@ -8,10 +8,8 @@
 package io.vlingo.schemata.codegen.specs;
 
 import io.vlingo.schemata.codegen.CodeGenTests;
-import io.vlingo.schemata.codegen.TypeDefinitionCompiler;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertTrue;
@@ -19,34 +17,51 @@ import static org.junit.Assert.assertTrue;
 public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesABasicType() throws ExecutionException, InterruptedException {
-    final String result = compilerWithJavaBackend().compile(typeDefinition("basic")).get();
+    final String result = compilerWithJavaBackend().compile(typeDefinition("basic"), "0.0.1").get();
 
+    assertTrue(result.contains("import io.vlingo.lattice.model.DomainEvent;"));
+    assertTrue(result.contains("import io.vlingo.schemata.model.SchemaVersion;"));
     assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
     assertTrue(result.contains("public final String eventType;"));
-    assertTrue(result.contains("public final Long occurredOn;"));
-    assertTrue(result.contains("public final Integer eventVersion;"));
+    assertTrue(result.contains("public final long occurredOn;"));
+    assertTrue(result.contains("public final SchemaVersion.Version eventVersion;"));
     assertTrue(result.contains("public final String toWhom;"));
     assertTrue(result.contains("public final String text;"));
     assertTrue(result.contains("public final SalutationHappened(final String toWhom, final String text) {"));
     assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(0, 0, 1);"));
+    assertTrue(result.contains("this.eventVersion = SemanticVersion.from(\"0.0.1\");"));
     assertTrue(result.contains("this.toWhom = toWhom;"));
     assertTrue(result.contains("this.text = text;"));
   }
 
   @Test
   public void testThatGeneratesABasicTypeWithAllConsideredInnerTypes() throws ExecutionException, InterruptedException {
-    final String result = compilerWithJavaBackend().compile(typeDefinition("allSingleTypes")).get();
+    final String result = compilerWithJavaBackend().compile(typeDefinition("allSingleTypes"), "0.0.1").get();
 
-    assertTrue(result.contains("public final Boolean booleanAttribute;"));
-    assertTrue(result.contains("public final Byte byteAttribute;"));
-    assertTrue(result.contains("public final Character charAttribute;"));
-    assertTrue(result.contains("public final Double doubleAttribute;"));
-    assertTrue(result.contains("public final Float floatAttribute;"));
-    assertTrue(result.contains("public final Integer intAttribute;"));
-    assertTrue(result.contains("public final Long longAttribute;"));
-    assertTrue(result.contains("public final Short shortAttribute;"));
+    assertTrue(result.contains("public final boolean booleanAttribute;"));
+    assertTrue(result.contains("public final byte byteAttribute;"));
+    assertTrue(result.contains("public final char charAttribute;"));
+    assertTrue(result.contains("public final double doubleAttribute;"));
+    assertTrue(result.contains("public final float floatAttribute;"));
+    assertTrue(result.contains("public final int intAttribute;"));
+    assertTrue(result.contains("public final long longAttribute;"));
+    assertTrue(result.contains("public final short shortAttribute;"));
     assertTrue(result.contains("public final String stringAttribute;"));
+  }
+
+  @Test
+  public void testThatGeneratesAComposedTypeWithVersionedData() throws ExecutionException, InterruptedException {
+    registerType("types/price", "1.0.0");
+    final String result = compilerWithJavaBackend().compile(typeDefinition("price-changed"), "0.0.1").get();
+
+    assertTrue(result.contains("public final class PriceChanged extends DomainEvent {"));
+    assertTrue(result.contains("public final Long occurredOn;"));
+    assertTrue(result.contains("public final Integer version;"));
+    assertTrue(result.contains("public final Price newPrice;"));
+    assertTrue(result.contains("public final SalutationHappened(final Price newPrice) {"));
+    assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
+    assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(0, 0, 1);"));
+    assertTrue(result.contains("this.newPrice = newPrice;"));
   }
 }

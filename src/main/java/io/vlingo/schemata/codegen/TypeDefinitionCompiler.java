@@ -11,5 +11,5 @@ import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
 public interface TypeDefinitionCompiler {
-  CompletableFuture<String> compile(final InputStream typeDefinition);
+  CompletableFuture<String> compile(final InputStream typeDefinition, final String version);
 }

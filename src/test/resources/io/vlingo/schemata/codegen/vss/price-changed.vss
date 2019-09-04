@@ -1,0 +1,5 @@
+event PriceChanged {
+    version version;
+    timestamp ocurredOn;
+    data.Price newPrice;
+}

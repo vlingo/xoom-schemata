@@ -1,0 +1,4 @@
+data Price {
+    double amount;
+    string currency;
+}
