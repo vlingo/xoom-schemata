@@ -59,7 +59,7 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("public final Long occurredOn;"));
     assertTrue(result.contains("public final Integer version;"));
     assertTrue(result.contains("public final Price newPrice;"));
-    assertTrue(result.contains("public final SalutationHappened(final Price newPrice) {"));
+    assertTrue(result.contains("public final PriceChanged(final Price newPrice) {"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
     assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(0, 0, 1);"));
     assertTrue(result.contains("this.newPrice = newPrice;"));
