@@ -50,7 +50,7 @@
         methods: {
             loadSchemata() {
                 let vm = this
-                fetch('/api/organizations')
+                fetch('/organizations')
                     .then(
                         function (response) {
                             if (response.status !== 200) {

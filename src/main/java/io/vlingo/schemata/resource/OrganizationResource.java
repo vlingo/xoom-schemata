@@ -11,9 +11,7 @@ import static io.vlingo.common.serialization.JsonSerialization.serialized;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.headers;
-import static io.vlingo.http.ResponseHeader.of;
+import static io.vlingo.http.ResponseHeader.*;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
@@ -25,6 +23,7 @@ import static io.vlingo.schemata.Schemata.StageName;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
+import io.vlingo.http.Body;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
@@ -51,9 +50,10 @@ public class OrganizationResource extends ResourceHandler {
             .andThenTo(3000, state -> {
                 final String location = organizationLocation(state.organizationId);
                 final Headers<ResponseHeader> headers = headers(of(Location, location));
+                headers.add(of(ContentType, "application/json; charset=UTF-8"));
                 final String serialized = serialized(OrganizationData.from(state));
 
-                return Completes.withSuccess(Response.of(Created, headers, serialized));
+                return Completes.withSuccess(Response.of(Created, headers, Body.from(serialized.getBytes(), Body.Encoding.UTF8)));
               })
             .otherwise(response -> Response.of(Conflict, serialized(OrganizationData.from(NoId, data.name, data.description))));
   }
