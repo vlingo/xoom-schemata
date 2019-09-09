@@ -90,8 +90,8 @@ public class SchemaVersionData {
   @Override
   public String toString() {
     return "SchemaVersionData [organizationId=" + organizationId + ", unitId=" + unitId + ", contextId=" + contextId
-            + ", schemaId=" + schemaId + ", schemaVersionId=" + schemaVersionId + ", description=" + description
-            + ", specification=" + specification + ", status=" + status + ", previousVersion=" + previousVersion
+            + ", schemaId=" + schemaId + ", schemaVersionId=" + schemaVersionId + ", specification=" + specification
+            + ", description=" + description + ", status=" + status + ", previousVersion=" + previousVersion
             + ", currentVersion=" + currentVersion + "]";
   }
 
