@@ -1,17 +1,11 @@
-package io.vlingo.schemata.codegen.parser;
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
 
-import io.vlingo.actors.Actor;
-import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
-import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
-import io.vlingo.schemata.codegen.ast.FieldDefinition;
-import io.vlingo.schemata.codegen.ast.Node;
-import io.vlingo.schemata.codegen.ast.types.BasicType;
-import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
-import io.vlingo.schemata.model.Category;
-import org.antlr.v4.runtime.CodePointBuffer;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.TerminalNode;
+package io.vlingo.schemata.codegen.parser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,6 +18,20 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.antlr.v4.runtime.CodePointBuffer;
+import org.antlr.v4.runtime.CodePointCharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.TerminalNode;
+
+import io.vlingo.actors.Actor;
+import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
+import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
+import io.vlingo.schemata.codegen.ast.FieldDefinition;
+import io.vlingo.schemata.codegen.ast.Node;
+import io.vlingo.schemata.codegen.ast.types.BasicType;
+import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.schemata.model.Category;
+
 public class AntlrTypeParser extends Actor implements TypeParser {
     private static final int BUFFER_SIZE = 2048;
     private final byte[] parserBuffer;
@@ -32,6 +40,7 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         parserBuffer = new byte[BUFFER_SIZE];
     }
 
+    @Override
     public CompletableFuture<Node> parseTypeDefinition(InputStream inputStream) {
         CompletableFuture<Node> eventually = completableFuture();
         SchemaVersionDefinitionParser tree;

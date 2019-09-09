@@ -1,15 +1,22 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.codegen;
+
+import java.io.InputStream;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 
 import io.vlingo.actors.Actor;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
-
-import java.io.InputStream;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 public class TypeDefinitionCompilerActor extends Actor implements TypeDefinitionCompiler {
     private final TypeParser parser;
@@ -22,6 +29,7 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
         this.backend = backend;
     }
 
+    @Override
     public CompletableFuture<String> compile(final InputStream typeDefinition, final String version) {
         Function<Node, CompletableFuture<Node>> process = node -> {
             CompletableFuture<Node> result = CompletableFuture.completedFuture(node);
