@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
 public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesABasicType() throws ExecutionException, InterruptedException {
-    final String result = compilerWithJavaBackend().compile(typeDefinition("basic"), "0.0.1").get();
+    final String result = compilerWithJavaBackend().compile(typeDefinition("basic"), "0.0.1").await(TIMEOUT);
 
     assertTrue(result.contains("import io.vlingo.lattice.model.DomainEvent;"));
     assertTrue(result.contains("import io.vlingo.schemata.model.SchemaVersion;"));
@@ -37,7 +37,7 @@ public class JavaCodeGenTests extends CodeGenTests {
 
   @Test
   public void testThatGeneratesABasicTypeWithAllConsideredInnerTypes() throws ExecutionException, InterruptedException {
-    final String result = compilerWithJavaBackend().compile(typeDefinition("allSingleTypes"), "0.0.1").get();
+    final String result = compilerWithJavaBackend().compile(typeDefinition("allSingleTypes"), "0.0.1").await(TIMEOUT);
 
     assertTrue(result.contains("public final boolean booleanAttribute;"));
     assertTrue(result.contains("public final byte byteAttribute;"));
@@ -53,7 +53,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesAComposedTypeWithVersionedData() throws ExecutionException, InterruptedException {
     registerType("types/price", "1.0.0");
-    final String result = compilerWithJavaBackend().compile(typeDefinition("price-changed"), "0.5.1").get();
+    final String result = compilerWithJavaBackend().compile(typeDefinition("price-changed"), "0.5.1").await(TIMEOUT);
 
     assertTrue(result.contains("public final class PriceChanged extends DomainEvent {"));
     assertTrue(result.contains("public final long occurredOn;"));

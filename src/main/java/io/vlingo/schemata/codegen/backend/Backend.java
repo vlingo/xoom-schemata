@@ -7,10 +7,9 @@
 
 package io.vlingo.schemata.codegen.backend;
 
-import java.util.concurrent.CompletableFuture;
-
+import io.vlingo.common.Completes;
 import io.vlingo.schemata.codegen.ast.Node;
 
 public interface Backend {
-    CompletableFuture<String> generateOutput(Node node, String version);
+    Completes<String> generateOutput(Node node, String version);
 }

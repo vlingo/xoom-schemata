@@ -7,25 +7,9 @@
 
 package io.vlingo.schemata.codegen.backend.java;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-
-import javax.lang.model.element.Modifier;
-
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-
+import com.squareup.javapoet.*;
 import io.vlingo.actors.Actor;
+import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
@@ -37,6 +21,13 @@ import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.model.SchemaVersion;
 
+import javax.lang.model.element.Modifier;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class JavaBackend extends Actor implements Backend {
     @SuppressWarnings("unused")
     private final boolean loadCompiledClasses;
@@ -46,10 +37,10 @@ public class JavaBackend extends Actor implements Backend {
     }
 
     @Override
-    public CompletableFuture<String> generateOutput(Node node, String version) {
+    public Completes<String> generateOutput(Node node, String version) {
         TypeDefinition type = Processor.requireBeing(node, TypeDefinition.class);
-        completableFuture().complete(compileJavaClass(type, version));
-        return completableFuture();
+        completesEventually().with(compileJavaClass(type, version));
+        return completes();
     }
 
     private String compileJavaClass(TypeDefinition type, String version) {

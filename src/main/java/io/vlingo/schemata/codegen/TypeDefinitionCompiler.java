@@ -7,9 +7,10 @@
 
 package io.vlingo.schemata.codegen;
 
+import io.vlingo.common.Completes;
+
 import java.io.InputStream;
-import java.util.concurrent.CompletableFuture;
 
 public interface TypeDefinitionCompiler {
-  CompletableFuture<String> compile(final InputStream typeDefinition, final String version);
+  Completes<String> compile(final InputStream typeDefinition, final String version);
 }
