@@ -1,19 +1,16 @@
 <template>
-    <v-container class="fluid grid-list-md">
-        <v-alert v-model="hasError" dismissible type="error">{{error}}</v-alert>
+    <v-layout row wrap>
         <v-flex class="xs12">
             <Schemata v-model="schema" @vs-error="onError"/>
         </v-flex>
 
-        <v-layout row wrap>
-            <v-flex class="xs12 md3">
-                <Versions :schema="schema" v-model="schemaVersion" @vs-error="onError"/>
-            </v-flex>
-            <v-flex class="xs12 md9">
-                <Properties :schemaVersion="schemaVersion" @vs-error="onError"/>
-            </v-flex>
-        </v-layout>
-    </v-container>
+        <v-flex class="xs12 md3">
+            <Versions :schema="schema" v-model="schemaVersion" @vs-error="onError"/>
+        </v-flex>
+        <v-flex class="xs12 md9">
+            <Properties :schemaVersion="schemaVersion" @vs-error="onError"/>
+        </v-flex>
+    </v-layout>
 </template>
 
 <script>

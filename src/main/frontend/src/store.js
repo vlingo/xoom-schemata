@@ -5,11 +5,16 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    error: undefined,
     schema: undefined,
     schemaVersion: undefined,
     selected: undefined,
   },
   mutations: {
+    raiseError (state, error) {
+      state.error = error
+    },
+
     select (state, selected) {
       state.selected = selected
     }

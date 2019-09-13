@@ -93,13 +93,13 @@
                         })
                 }
                 loadPromise.catch(function (err) {
-                    vm.$emit('vs-error', {message: err})
+                    vm.$store.commit('raiseError', {message: err})
                 });
                 return loadPromise
             },
 
             async loadUnits(org) {
-                return fetch(`/organizations/${org.id}/units`)
+                return fetch(`/organizations/${org.id}/unitsy`)
                     .then(ensureHttpOk)
                     .then(response => response.json())
                     .then(data => {
