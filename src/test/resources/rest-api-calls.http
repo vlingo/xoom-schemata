@@ -1,15 +1,4 @@
-GET http://localhost:9019/organizations
-Accept: application/json
-Cache-Control: no-cache
-
-<> 2019-09-13T105259.200.txt
-<> 2019-09-13T105252.200.txt
-<> 2019-09-06T012837.200.txt
-<> 2019-09-06T012834.200.txt
-<> 2019-09-06T125316.200.txt
-<> 2019-09-06T125143.200.txt
-<> 2019-09-06T125132.200.txt
-<> 2019-09-06T124722.200.txt
+# Schema Definitions
 
 ### Create Organization
 POST http://localhost:9019/organizations
@@ -23,11 +12,6 @@ Content-Type: application/json
 
 > {% client.global.set('orgId', response.body.organizationId) %}
 
-<> 2019-09-13T105304.201.json
-<> 2019-09-13T104244.201.json
-<> 2019-09-06T012841.201.json
-<> 2019-09-06T012336.201.json
-
 
 ### Create Unit
 POST  http://localhost:9019/organizations/{{orgId}}/units
@@ -40,21 +24,7 @@ Content-Type: application/json
   "description": "My unit."
 }
 
-> {% client.global.set('unitIt', response.body.unitId) %}
-
-<> 2019-09-13T105334.201.json
-<> 2019-09-13T105310.201.json
-<> 2019-09-13T105131.201.txt
-<> 2019-09-13T104508.201.txt
-<> 2019-09-13T104314.201.txt
-<> 2019-09-13T104253.201.txt
-<> 2019-09-06T012957.201.txt
-<> 2019-09-06T012930-1.201.txt
-<> 2019-09-06T012930.201.txt
-<> 2019-09-06T012442.201.txt
-<> 2019-09-06T012339.201.txt
-<> 2019-09-06T010424.201.txt
-<> 2019-09-06T010306.201.txt
+> {% client.global.set('unitId', response.body.unitId) %}
 
 ### Create Context
 POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts
@@ -69,16 +39,6 @@ Content-Type: application/json
 }
 
 > {% client.global.set('contextId', response.body.contextId) %}
-
-
-<> 2019-09-13T105522.201.json
-<> 2019-09-13T105411.201.json
-<> 2019-09-13T105401.201.json
-<> 2019-09-13T105340.201.json
-<> 2019-09-13T104301.201.txt
-<> 2019-09-06T013009.201.txt
-<> 2019-09-06T012935.201.txt
-<> 2019-09-06T012445.201.txt
 
 ### Create Schema
 POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
@@ -116,3 +76,17 @@ Content-Type: application/json
   "previousVersion": "0.0.0",
   "currentVersion": "1.0.0"
 }
+
+
+###
+# Schema Queries
+
+### Units of Organisation
+GET http://localhost:9019/organizations/{{orgId}}/units
+Accept: application/json
+
+### Contexts of Unit
+GET http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts
+Accept: application/json
+
+###
