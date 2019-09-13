@@ -1,5 +1,5 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <v-card class="xs12">
+    <v-card class="xs12"  min-height="45vh">
         <v-card-title>
             <v-text-field
                     v-model="search"

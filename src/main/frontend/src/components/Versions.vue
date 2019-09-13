@@ -1,6 +1,6 @@
 <template>
 
-    <v-card min-height="30rem">
+    <v-card  min-height="45vh">
         <v-list dense>
             <v-list-item
                     ripple
