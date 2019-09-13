@@ -2,15 +2,15 @@
     <v-container class="fluid grid-list-md">
         <v-alert v-model="hasError" dismissible type="error">{{error}}</v-alert>
         <v-flex class="xs12">
-            <Schemata v-model="schema" v-on:vs-error="onError"/>
+            <Schemata v-model="schema" @vs-error="onError"/>
         </v-flex>
 
         <v-layout row wrap>
             <v-flex class="xs12 md3">
-                <Versions :schema="schema" v-model="version"/>
+                <Versions :schema="schema" v-model="schemaVersion" @vs-error="onError"/>
             </v-flex>
             <v-flex class="xs12 md9">
-                <Properties :schema="schema" :version="version" v-on:vs-error="onError"/>
+                <Properties :schemaVersion="schemaVersion" @vs-error="onError"/>
             </v-flex>
         </v-layout>
     </v-container>
@@ -28,8 +28,8 @@
             Properties
         },
         data: () => ({
-            schema: [],
-            version: undefined,
+            schema: undefined,
+            schemaVersion: undefined,
             error: false,
         }),
         computed: {

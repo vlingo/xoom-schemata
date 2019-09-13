@@ -1,5 +1,5 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <v-card class="xs12">
+    <v-card class="xs12"  min-height="45vh">
         <v-card-title>
             <v-text-field
                     v-model="search"
@@ -19,14 +19,9 @@
                     activatable
                     transition
                     :active.sync="selected"
+                    :open.sync="open"
                     @update:active="$emit('input', $event[0])"
             >
-                <template v-slot:prepend="{ item }">
-                    <v-icon
-                            v-if="item.children"
-                            v-text="`md-${item.id === 1 ? 'home' : 'folder'}`"
-                    ></v-icon>
-                </template>
             </v-treeview>
         </v-card-text>
     </v-card>
@@ -37,52 +32,35 @@
         data: () => ({
             items: [],
             search: null,
-            selected: [],
+            open: [],
         }),
         computed: {
             filter() {
                 return (item, search, textKey) => item[textKey].indexOf(search) > -1
             },
+            selected: {
+                get() { return [this.$store.state.selected]},
+                set(value) { this.$store.commit('select', value[0])}
+            }
         },
         created() {
-            this.loadSchemata()
+            this.loadOrganizations()
         },
         methods: {
-            loadSchemata() {
+            loadOrganizations() {
                 let vm = this
-                fetch('/api/organizations')
+                fetch('/organizations')
                     .then(
                         function (response) {
                             if (response.status !== 200) {
                                 vm.$emit('vs-error', {status: response.status, message: response.text()})
-                                return;
                             }
-
                             response.json().then(function (data) {
                                 for (let organization of data) {
-                                    vm.items.push({
-                                        id: organization.id,
-                                        name: organization.name,
-                                        type: 'organization',
-                                        children: organization.units.map(u => {
-                                            return {
-                                                id: u.id,
-                                                name: u.name,
-                                                type: 'unit',
-                                                children: u.contexts.map(c => {
-                                                    return {
-                                                        id: u.id + "-" + c.id,
-                                                        name: c.name,
-                                                        type: 'context',
-                                                        contextId: c.id,
-                                                        organizationId: organization.id,
-                                                        unitId: u.id,
-                                                        children: []
-                                                    }
-                                                })
-                                            }
-                                        }),
-                                    })
+                                    organization.id = organization.organizationId
+                                    organization.type = 'organization'
+                                    organization.children = []
+                                    vm.items.push(organization)
                                 }
                             });
                         }
@@ -91,42 +69,94 @@
                         vm.$emit('vs-error', {status: 0, message: err})
                     });
             },
-            async loadChildren(item) {
-                if (item.type !== 'context')
-                    return // only load additional items when a context is selected
 
+            async loadChildren(item) {
+                switch (item.type) {
+                    case 'organization':
+                        return this.loadUnits(item)
+                    case 'unit':
+                        return this.loadContexts(item)
+                    case 'context':
+                        return this.loadSchemata(item)
+                    default:
+                        this.$emit('vs-error', {
+                            status: 0,
+                            message: `Unknown type ${item.type} requested. Current selections: ${item}.`
+                        })
+                }
+            },
+
+            async loadUnits(org) {
                 let vm = this
-                return fetch(`/api/schemata/${item.organizationId}/${item.unitId}/${item.contextId}`)
+                return fetch(`/organizations/${org.id}/units`)
                     .then(
                         function (response) {
                             if (response.status !== 200) {
                                 vm.$emit('vs-error', {status: response.status, message: response.text()})
                                 return;
                             }
-
                             response.json().then(function (data) {
-                                for (let schemaType of Object.keys(data)) {
-                                    item.children.push({
-                                        id: schemaType,
-                                        name: schemaType,
-                                        type: 'schemaType',
-                                        children: data[schemaType].map(s => {
-                                            return {
-                                                id: s.id,
-                                                name: s.id,
-                                                type: 'schema',
-                                                organizationId: item.organizationId,
-                                                unitId:item.unitId,
-                                                contextId: item.contextId,
-                                                versions: s.versions
-                                            }
-                                        })
-                                    })
+                                for (let unit of data) {
+                                    unit.id = `${org.id}-${unit.unitId}`
+                                    unit.type = 'unit'
+                                    unit.children = []
+                                    org.children.push(unit)
                                 }
                             });
                         }
                     )
                     .catch(function (err) {
+                        // TODO factor out error handling
+                        vm.$emit('vs-error', {status: 0, message: err})
+                    });
+
+            },
+            async loadContexts(unit) {
+                let vm = this
+                return fetch(`/organizations/${unit.organizationId}/units/${unit.unitId}/contexts`)
+                    .then(
+                        function (response) {
+                            if (response.status !== 200) {
+                                vm.$emit('vs-error', {status: response.status, message: response.text()})
+                                return;
+                            }
+                            response.json().then(function (data) {
+                                for (let context of data) {
+                                    context.id = `${unit.id}-${context.contextId}`
+                                    context.name = context.namespace
+                                    context.type = 'context'
+                                    context.children = []
+                                    unit.children.push(context)
+                                }
+                            });
+                        }
+                    )
+                    .catch(function (err) {
+                        // TODO factor out error handling
+                        vm.$emit('vs-error', {status: 0, message: err})
+                    });
+            },
+            async loadSchemata(context) {
+                let vm = this
+                return fetch(`/organizations/${context.organizationId}/units/${context.unitId}/contexts/${context.contextId}/schemas`)
+                    .then(
+                        function (response) {
+                            if (response.status !== 200) {
+                                vm.$emit('vs-error', {status: response.status, message: response.text()})
+                                return;
+                            }
+                            response.json().then(function (data) {
+                                for (let schema of data) {
+                                    schema.id = `${context.id}-${schema.schemaId}`
+                                    schema.type = 'schema'
+
+                                    context.children.push(schema)
+                                }
+                            });
+                        }
+                    )
+                    .catch(function (err) {
+                        // TODO factor out error handling
                         vm.$emit('vs-error', {status: 0, message: err})
                     });
             }
