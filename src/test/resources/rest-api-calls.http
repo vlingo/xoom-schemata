@@ -1,0 +1,118 @@
+GET http://localhost:9019/organizations
+Accept: application/json
+Cache-Control: no-cache
+
+<> 2019-09-13T105259.200.txt
+<> 2019-09-13T105252.200.txt
+<> 2019-09-06T012837.200.txt
+<> 2019-09-06T012834.200.txt
+<> 2019-09-06T125316.200.txt
+<> 2019-09-06T125143.200.txt
+<> 2019-09-06T125132.200.txt
+<> 2019-09-06T124722.200.txt
+
+### Create Organization
+POST http://localhost:9019/organizations
+Content-Type: application/json
+
+{
+  "organizationId": "",
+  "name": "Org1",
+  "description": "My organization."
+}
+
+> {% client.global.set('orgId', response.body.organizationId) %}
+
+<> 2019-09-13T105304.201.json
+<> 2019-09-13T104244.201.json
+<> 2019-09-06T012841.201.json
+<> 2019-09-06T012336.201.json
+
+
+### Create Unit
+POST  http://localhost:9019/organizations/{{orgId}}/units
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "",
+  "name": "Unit1",
+  "description": "My unit."
+}
+
+> {% client.global.set('unitIt', response.body.unitId) %}
+
+<> 2019-09-13T105334.201.json
+<> 2019-09-13T105310.201.json
+<> 2019-09-13T105131.201.txt
+<> 2019-09-13T104508.201.txt
+<> 2019-09-13T104314.201.txt
+<> 2019-09-13T104253.201.txt
+<> 2019-09-06T012957.201.txt
+<> 2019-09-06T012930-1.201.txt
+<> 2019-09-06T012930.201.txt
+<> 2019-09-06T012442.201.txt
+<> 2019-09-06T012339.201.txt
+<> 2019-09-06T010424.201.txt
+<> 2019-09-06T010306.201.txt
+
+### Create Context
+POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "{{unitId}}",
+  "contextId": "",
+  "namespace": "io.vlingo.schemata",
+  "description": "Schemata Context."
+}
+
+> {% client.global.set('contextId', response.body.contextId) %}
+
+
+<> 2019-09-13T105522.201.json
+<> 2019-09-13T105411.201.json
+<> 2019-09-13T105401.201.json
+<> 2019-09-13T105340.201.json
+<> 2019-09-13T104301.201.txt
+<> 2019-09-06T013009.201.txt
+<> 2019-09-06T012935.201.txt
+<> 2019-09-06T012445.201.txt
+
+### Create Schema
+POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "{{unitId}}",
+  "contextId": "{{contextId}}",
+  "schemaId": "",
+  "category": "Event",
+  "name": "SchemaDefined",
+  "description": "Schemata was defined event."
+}
+
+> {% client.global.set('schemaId', response.body.schemaId) %}
+
+<> 2019-09-13T105524.201.txt
+<> 2019-09-13T105508.201.txt
+<> 2019-09-13T105413.201.txt
+
+### Create Schema Version
+POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "{{unitId}}",
+  "contextId": "{{contextId}}",
+  "schemaId": "{{schemaId}}",
+  "schemaVersionId": "",
+  "description": "Initial revision.",
+  "specification": "event SchemaDefined { type eventType }",
+  "status": "Draft",
+  "previousVersion": "0.0.0",
+  "currentVersion": "1.0.0"
+}
