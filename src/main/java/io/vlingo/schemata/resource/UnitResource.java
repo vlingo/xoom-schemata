@@ -12,9 +12,7 @@ import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.headers;
-import static io.vlingo.http.ResponseHeader.of;
+import static io.vlingo.http.ResponseHeader.*;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
@@ -57,7 +55,10 @@ public class UnitResource extends ResourceHandler {
     return Unit.with(stage, OrganizationId.existing(organizationId), data.name, data.description)
             .andThenTo(3000, state -> {
                 final String location = unitLocation(state.unitId);
-                final Headers<ResponseHeader> headers = headers(of(Location, location));
+                final Headers<ResponseHeader> headers =Headers.of(
+                        of(Location, location),
+                        of(ContentType, "application/json; charset=UTF-8")
+                );
                 final String serialized = serialized(UnitData.from(state));
 
                 return Completes.withSuccess(Response.of(Created, headers, serialized));

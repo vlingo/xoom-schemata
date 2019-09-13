@@ -55,8 +55,10 @@ public class OrganizationResource extends ResourceHandler {
     return Organization.with(stage, data.name, data.description)
             .andThenTo(3000, state -> {
                 final String location = organizationLocation(state.organizationId);
-                final Headers<ResponseHeader> headers = headers(of(Location, location));
-                headers.add(of(ContentType, "application/json; charset=UTF-8"));
+                final Headers<ResponseHeader> headers = Headers.of(
+                        of(Location, location),
+                        of(ContentType, "application/json; charset=UTF-8")
+                );
                 final String serialized = serialized(OrganizationData.from(state));
 
                 return Completes.withSuccess(Response.of(Created, headers, Body.from(serialized.getBytes(), Body.Encoding.UTF8)));
