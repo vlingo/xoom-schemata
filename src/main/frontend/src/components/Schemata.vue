@@ -104,6 +104,7 @@
                         }
                     )
                     .catch(function (err) {
+                        // TODO factor out error handling
                         vm.$emit('vs-error', {status: 0, message: err})
                     });
 
@@ -129,6 +130,7 @@
                         }
                     )
                     .catch(function (err) {
+                        // TODO factor out error handling
                         vm.$emit('vs-error', {status: 0, message: err})
                     });
             },
@@ -152,6 +154,7 @@
                         }
                     )
                     .catch(function (err) {
+                        // TODO factor out error handling
                         vm.$emit('vs-error', {status: 0, message: err})
                     });
             }
