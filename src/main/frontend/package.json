@@ -13,7 +13,7 @@
     "marked": "^0.7.0",
     "vue": "^2.6.6",
     "vue-router": "^3.0.1",
-    "vuetify": "^1.5.5",
+    "vuetify": "^1.5.18",
     "vuex": "^3.0.1"
   },
   "devDependencies": {

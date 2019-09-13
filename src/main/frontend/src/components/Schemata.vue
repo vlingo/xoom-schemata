@@ -23,9 +23,6 @@
                     open-on-click
                     @update:active="$emit('input', $event[0])"
             >
-                <template v-slot:prepend="{ item }">
-                    <v-icon v-if="item.children">folder</v-icon>
-                </template>
             </v-treeview>
         </v-card-text>
     </v-card>
@@ -58,12 +55,10 @@
                             }
                             response.json().then(function (data) {
                                 for (let organization of data) {
-                                    vm.items.push({
-                                        id: organization.organizationId,
-                                        name: organization.name,
-                                        type: 'organization',
-                                        children: []
-                                    })
+                                    organization.id = organization.organizationId
+                                    organization.type = 'organization'
+                                    organization.children = []
+                                    vm.items.push(organization)
                                 }
                             });
                         }
@@ -100,14 +95,10 @@
                             }
                             response.json().then(function (data) {
                                 for (let unit of data) {
-                                    org.children.push({
-                                        id: `${org.id}-${unit.unitId}`,
-                                        organizationId: org.id,
-                                        unitId: unit.unitId,
-                                        name: unit.name,
-                                        type: 'unit',
-                                        children: []
-                                    })
+                                    unit.id = `${org.id}-${unit.unitId}`
+                                    unit.type = 'unit'
+                                    unit.children = []
+                                    org.children.push(unit)
                                 }
                             });
                         }
@@ -128,15 +119,11 @@
                             }
                             response.json().then(function (data) {
                                 for (let context of data) {
-                                    unit.children.push({
-                                        id: `${unit.id}-${context.contextId}`,
-                                        organizationId: context.organizationId,
-                                        unitId: context.unitId,
-                                        contextId: context.contextId,
-                                        name: context.namespace,
-                                        type: 'context',
-                                        children: []
-                                    })
+                                    context.id = `${unit.id}-${context.contextId}`
+                                    context.name = context.namespace
+                                    context.type = 'context'
+                                    context.children = []
+                                    unit.children.push(context)
                                 }
                             });
                         }
@@ -156,16 +143,10 @@
                             }
                             response.json().then(function (data) {
                                 for (let schema of data) {
-                                    context.children.push({
-                                        id: `${context.id}-${schema.schemaId}`,
-                                        organizationId: schema.organizationId,
-                                        unitId: schema.unitId,
-                                        contextId: schema.contextId,
-                                        name: schema.name,
-                                        category: schema.category,
-                                        type: 'context',
-                                        children: []
-                                    })
+                                    schema.id = `${context.id}-${schema.schemaId}`
+                                    schema.type = 'schema'
+
+                                    context.children.push(schema)
                                 }
                             });
                         }
