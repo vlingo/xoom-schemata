@@ -3,7 +3,7 @@
     <v-card min-height="30rem">
         <v-card-title v-if="version && version.status && version.status !== 'Published'"
         class="ma-0 pa-0" primary-title>
-            <v-alert v-if="version.status !== 'Published'" :value="true" type="warning" outline>
+            <v-alert v-if="version.status !== 'Published'" :value="true" type="warning" outlined>
                 Status <b>{{version.status}}</b>. Do not use in production.
             </v-alert>
         </v-card-title>

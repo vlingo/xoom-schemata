@@ -2,23 +2,24 @@
 
     <v-card min-height="30rem">
         <v-list dense>
-            <v-list-tile
+            <v-list-item
                     ripple
                     active-class="primary"
                     v-for="version in versions" :key="version.id"
                     @click="selectVersion(version)">
-                <v-list-tile-action>
+                <v-list-item-action>
                     <v-tooltip right>
                         <template v-slot:activator="{ on }">
-                            <v-icon v-on="on" :color="selectedVersion === version ? 'primary': ''">{{icon(version)}}</v-icon>
+                            <v-icon v-on="on" :color="selectedVersion === version ? 'primary': ''">{{icon(version)}}
+                            </v-icon>
                         </template>
                         <span>{{version.status}}</span>
                     </v-tooltip>
-                </v-list-tile-action>
-                <v-list-tile-content>
-                    <v-list-tile-title>{{ version.id }}</v-list-tile-title>
-                </v-list-tile-content>
-            </v-list-tile>
+                </v-list-item-action>
+                <v-list-item-content>
+                    <v-list-item-title>{{ version.currentVersion }}</v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
         </v-list>
     </v-card>
 
@@ -36,13 +37,41 @@
             schema: function () {
                 this.selectVersion(undefined)
                 if (this.schema)
-                    this.versions = this.schema.versions
+                    this.loadVersions()
             }
         },
+        computed: {},
         methods: {
             selectVersion(selection) {
                 this.selectedVersion = selection
                 this.$emit('input', selection)
+            },
+            loadVersions() {
+                if (!(this.schema)) {
+                    return
+                }
+
+                let vm = this
+                let o = this.schema.organizationId
+                let u = this.schema.unitId
+                let c = this.schema.contextId
+                let s = this.schema.schemaId
+                fetch(`/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`)
+                    .then(
+                        function (response) {
+                            if (response.status !== 200) {
+                                vm.$emit('vs-error', {status: response.status, message: response.text()})
+                                return;
+                            }
+
+                            response.json().then(function (data) {
+                                vm.versions = data
+                            });
+                        }
+                    )
+                    .catch(function (err) {
+                        vm.$emit('vs-error', {status: 0, message: err})
+                    });
             },
             icon(version) {
                 if (!version) return '';

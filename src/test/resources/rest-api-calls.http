@@ -50,7 +50,7 @@ Content-Type: application/json
   "contextId": "{{contextId}}",
   "schemaId": "",
   "category": "Event",
-  "name": "SchemaDefined",
+  "name": "SchemaDefined2",
   "description": "Schemata was defined event."
 }
 
@@ -72,10 +72,16 @@ Content-Type: application/json
   "schemaVersionId": "",
   "description": "Initial revision.",
   "specification": "event SchemaDefined { type eventType }",
-  "status": "Draft",
-  "previousVersion": "0.0.0",
-  "currentVersion": "1.0.0"
+  "status": "Published",
+  "previousVersion": "1.0.1",
+  "currentVersion": "1.0.2"
 }
+> {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
+
+### Publish Schema Version
+PATCH http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions/{{schemaVersionId}}/status
+
+'Published'
 
 
 ###
