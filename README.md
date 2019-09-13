@@ -114,7 +114,7 @@ The UI is built using Vue.js and Vuetify.
 * Webpack bundle report `npm run report`
 
 When running the UI via `npm run serve`, API calls are proxied to a local backend instance.
-It is assumed to be running at http://localhost:9019/api.
+It is assumed to be running at http://localhost:9019/.
 
 You can run the backend ...
 * ... from the IDE, in case you want to debug the backend in parallel. `Bootstrap.java` has the `main` method.
