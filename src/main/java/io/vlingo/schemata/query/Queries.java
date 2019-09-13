@@ -30,4 +30,8 @@ public class Queries {
   public static SchemaVersionQueries forSchemaVersions(final Stage stage, final ObjectStore objectStore) {
     return stage.actorFor(SchemaVersionQueries.class, SchemaVersionQueriesActor.class, objectStore);
   }
+
+  public static CodeQueries forCode(final Stage stage, final ObjectStore objectStore) {
+    return stage.actorFor(CodeQueries.class, CodeQueriesActor.class, objectStore);
+  }
 }

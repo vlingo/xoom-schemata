@@ -20,6 +20,7 @@ import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.query.Queries;
+import io.vlingo.schemata.resource.CodeResource;
 import io.vlingo.schemata.resource.ContextResource;
 import io.vlingo.schemata.resource.OrganizationResource;
 import io.vlingo.schemata.resource.SchemaResource;
@@ -67,12 +68,16 @@ public class Bootstrap {
     final SchemaVersionResource schemaVersionResource =
             new SchemaVersionResource(world, Queries.forSchemaVersions(stage, objectStore));
 
+    final CodeResource codeResource =
+            new CodeResource(world, Queries.forCode(stage, objectStore));
+
     Resources allResources = Resources.are(
             organizationResource.routes(),
             unitResource.routes(),
             contextResource.routes(),
             schemaResource.routes(),
-            schemaVersionResource.routes()
+            schemaVersionResource.routes(),
+            codeResource.routes()
 
 //      SchemaResource.asResource(),
 //      UiResource.asResource(),

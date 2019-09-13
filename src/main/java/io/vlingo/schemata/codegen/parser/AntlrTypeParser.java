@@ -1,6 +1,15 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.codegen.parser;
 
 import io.vlingo.actors.Actor;
+import io.vlingo.actors.CompletesEventually;
+import io.vlingo.common.Completes;
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
@@ -20,9 +29,9 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 
 public class AntlrTypeParser extends Actor implements TypeParser {
     private static final int BUFFER_SIZE = 2048;
@@ -32,19 +41,20 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         parserBuffer = new byte[BUFFER_SIZE];
     }
 
-    public CompletableFuture<Node> parseTypeDefinition(InputStream inputStream) {
-        CompletableFuture<Node> eventually = completableFuture();
+    public Completes<Node> parseTypeDefinition(InputStream inputStream) {
+        CompletesEventually eventually = completesEventually();
         SchemaVersionDefinitionParser tree;
 
         try {
             tree = generateAntlrTree(inputStream);
             Node type = parseTypeDeclaration(tree.typeDeclaration());
-            eventually.complete(type);
+            eventually.with(type);
         } catch (IOException e) {
-            eventually.completeExceptionally(e);
+            logger().error(e.getMessage(), e);
+            eventually.with(null);
         }
 
-        return eventually;
+        return completes();
     }
 
     private Node parseTypeDeclaration(SchemaVersionDefinitionParser.TypeDeclarationContext typeDeclaration) {

@@ -1,6 +1,15 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.codegen;
 
 import io.vlingo.actors.Actor;
+import io.vlingo.actors.CompletesEventually;
+import io.vlingo.common.Completes;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.parser.TypeParser;
@@ -8,7 +17,6 @@ import io.vlingo.schemata.codegen.processor.Processor;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public class TypeDefinitionCompilerActor extends Actor implements TypeDefinitionCompiler {
@@ -22,23 +30,23 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
         this.backend = backend;
     }
 
-    public CompletableFuture<String> compile(final InputStream typeDefinition, final String version) {
-        Function<Node, CompletableFuture<Node>> process = node -> {
-            CompletableFuture<Node> result = CompletableFuture.completedFuture(node);
+    public Completes<String> compile(final InputStream typeDefinition, final String version) {
+        Function<Node, Completes<Node>> process = node -> {
+            Completes<Node> result = Completes.withSuccess(node);
             for (Processor p : processors) {
-                result = result.thenCompose(p::process);
+                result = result.andThenTo(p::process);
             }
 
             return result;
         };
 
-        CompletableFuture<String> result = completableFuture();
+        CompletesEventually eventually = completesEventually();
 
         parser.parseTypeDefinition(typeDefinition)
-                .thenCompose(process)
-                .thenCompose(tree -> backend.generateOutput(tree, version))
-                .thenAccept(result::complete);
+                .andThenTo(process)
+                .andThenTo(tree -> backend.generateOutput(tree, version))
+                .andThenConsume(eventually::with);
 
-        return result;
+        return completes();
     }
 }

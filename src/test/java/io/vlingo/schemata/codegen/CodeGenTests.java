@@ -22,9 +22,10 @@ import org.junit.Before;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 
 public abstract class CodeGenTests {
+    protected static final long TIMEOUT = 200L;
+
     private World world;
     private InMemoryTypeResolver typeResolver;
     private TypeParser typeParser;
@@ -52,9 +53,9 @@ public abstract class CodeGenTests {
         );
     }
 
-    protected final void registerType(final String name, final String version) throws ExecutionException, InterruptedException {
+    protected final void registerType(final String name, final String version) {
       InputStream typeDefinition = typeDefinition(name);
-      TypeDefinition parsed = (TypeDefinition) typeParser.parseTypeDefinition(typeDefinition).get();
+      TypeDefinition parsed = (TypeDefinition) typeParser.parseTypeDefinition(typeDefinition).await(TIMEOUT);
 
       typeResolver.produce(parsed, version);
     }

@@ -8,6 +8,7 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
@@ -33,6 +34,7 @@ import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Category;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Schema;
 import io.vlingo.schemata.query.SchemaQueries;
 import io.vlingo.schemata.resource.data.SchemaData;
@@ -49,6 +51,10 @@ public class SchemaResource extends ResourceHandler {
   }
 
   public Completes<Response> defineWith(final String organizationId, final String unitId, final String contextId, final SchemaData data) {
+    if (Naming.isValid(data.name)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
+    }
+
     return Schema.with(stage, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(data.category), data.name, data.description)
             .andThenTo(3000, state -> {
                 final String location = schemaLocation(state.schemaId);
@@ -73,6 +79,10 @@ public class SchemaResource extends ResourceHandler {
   }
 
   public Completes<Response> renameTo(final String organizationId, final String unitId, final String contextId, final String schemaId, final String name) {
+    if (Naming.isValid(name)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(name)));
+    }
+
     return commands
             .renameTo(SchemaId.existing(organizationId, unitId, contextId, schemaId), name).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));

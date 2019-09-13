@@ -8,6 +8,7 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
@@ -33,6 +34,7 @@ import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Context;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.query.ContextQueries;
 import io.vlingo.schemata.resource.data.ContextData;
 
@@ -48,6 +50,10 @@ public class ContextResource extends ResourceHandler {
   }
 
   public Completes<Response> defineWith(final String organizationId, final String unitId, final ContextData data) {
+    if (Naming.isValid(data.namespace)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.namespace)));
+    }
+
     return Context.with(stage, UnitId.existing(organizationId, unitId), data.namespace, data.description)
             .andThenTo(3000, state -> {
                 final String location = contextLocation(state.contextId);
@@ -66,6 +72,10 @@ public class ContextResource extends ResourceHandler {
   }
 
   public Completes<Response> moveToNamespace(final String organizationId, final String unitId, final String contextId, final String namespace) {
+    if (Naming.isValid(namespace)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(namespace)));
+    }
+
     return commands
             .moveToNamespace(ContextId.existing(organizationId, unitId, contextId), namespace).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(ContextData.from(state)))));

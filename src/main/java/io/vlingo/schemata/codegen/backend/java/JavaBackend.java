@@ -1,7 +1,15 @@
+// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.schemata.codegen.backend.java;
 
 import com.squareup.javapoet.*;
 import io.vlingo.actors.Actor;
+import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
@@ -18,10 +26,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class JavaBackend extends Actor implements Backend {
+    @SuppressWarnings("unused")
     private final boolean loadCompiledClasses;
 
     public JavaBackend(boolean loadCompiledClasses) {
@@ -29,10 +37,10 @@ public class JavaBackend extends Actor implements Backend {
     }
 
     @Override
-    public CompletableFuture<String> generateOutput(Node node, String version) {
+    public Completes<String> generateOutput(Node node, String version) {
         TypeDefinition type = Processor.requireBeing(node, TypeDefinition.class);
-        completableFuture().complete(compileJavaClass(type, version));
-        return completableFuture();
+        completesEventually().with(compileJavaClass(type, version));
+        return completes();
     }
 
     private String compileJavaClass(TypeDefinition type, String version) {
@@ -62,7 +70,7 @@ public class JavaBackend extends Actor implements Backend {
         final List<FieldDefinition> fields = type.children.stream().map(e -> (FieldDefinition) e).collect(Collectors.toList());
 
         final List<CodeBlock> initializers = fields.stream()
-                .map(param -> CodeBlock.of(initializationOf((FieldDefinition) param, type, version)))
+                .map(param -> CodeBlock.of(initializationOf(param, type, version)))
                 .collect(Collectors.toList());
 
         final List<FieldSpec> classFields = fields.stream()

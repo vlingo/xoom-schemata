@@ -28,13 +28,42 @@ After building the fat jar, you can also simply execute it via `java -jar vlingo
 
 `$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations`
 
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}`
+
 `$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units`
+
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}`
 
 `$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts`
 
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}`
+
 `$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas`
 
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}`
+
 `$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions`
+
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}`
+
+### Schema Modifications
+
+`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'My organization changed.' http://localhost:9019/organizations/{organizationId}/description`
+`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'Org123' http://localhost:9019/organizations/{organizationId}/name`
+
+`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'My unit changed.' http://localhost:9019/organizations/{orgId}/units/{unitId}/description`
+`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'Unit123' http://localhost:9019/organizations/{orgId}/units/{unitId}/description`
+
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'My context changed.' http://localhost:9019//organizations/{organizationId}/units/{unitId}/contexts/{contextId}/description`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'io.vlingo.schemata.changed' http://localhost:9019//organizations/{organizationId}/units/{unitId}/contexts/{contextId}/namespace`
+
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'Command' http://localhost:9019//organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/cateogry`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'DefineSchema command defined.' http://localhost:9019//organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/description`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'DefineSchema' http://localhost:9019//organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/name`
+
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'Initial revision of SchemaDefined.' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/description`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'event SchemaDefined { type eventType\n timestamp occurredOn }' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/specification`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'Published' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/status`
 
 
 ## Build
