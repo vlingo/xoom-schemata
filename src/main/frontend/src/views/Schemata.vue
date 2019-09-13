@@ -7,10 +7,10 @@
 
         <v-layout row wrap>
             <v-flex class="xs12 md3">
-                <Versions :schema="schema" v-model="version"/>
+                <Versions :schema="schema" v-model="schemaVersion" @vs-error="onError"/>
             </v-flex>
             <v-flex class="xs12 md9">
-                <Properties :schema="schema" :version="version" v-on:vs-error="onError"/>
+                <Properties :schemaVersion="schemaVersion"/>
             </v-flex>
         </v-layout>
     </v-container>
@@ -29,7 +29,7 @@
         },
         data: () => ({
             schema: [],
-            version: undefined,
+            schemaVersion: undefined,
             error: false,
         }),
         computed: {
