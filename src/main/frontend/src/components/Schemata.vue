@@ -20,7 +20,6 @@
                     transition
                     :active.sync="selected"
                     :open.sync="open"
-                    open-on-click
                     @update:active="$emit('input', $event[0])"
             >
             </v-treeview>
@@ -33,13 +32,16 @@
         data: () => ({
             items: [],
             search: null,
-            selected: [],
             open: [],
         }),
         computed: {
             filter() {
                 return (item, search, textKey) => item[textKey].indexOf(search) > -1
             },
+            selected: {
+                get() { return [this.$store.state.selected]},
+                set(value) { this.$store.commit('select', value[0])}
+            }
         },
         created() {
             this.loadOrganizations()
