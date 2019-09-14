@@ -45,7 +45,7 @@
         },
         methods: {
             async onError(event) {
-                this.error = await event.message + ` (HTTP ${event.status})`
+                this.error = await event.message
             }
         }
     }
