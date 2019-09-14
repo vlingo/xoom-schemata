@@ -15,6 +15,10 @@ export default new Vuex.Store({
       state.error = error
     },
 
+    dismissError (state) {
+      state.error = undefined
+    },
+
     select (state, selected) {
       state.selected = selected
     }

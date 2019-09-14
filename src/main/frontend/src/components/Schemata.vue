@@ -99,7 +99,7 @@
             },
 
             async loadUnits(org) {
-                return fetch(`/organizations/${org.id}/unitsy`)
+                return fetch(`/organizations/${org.id}/units`)
                     .then(ensureHttpOk)
                     .then(response => response.json())
                     .then(data => {
