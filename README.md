@@ -46,6 +46,16 @@ After building the fat jar, you can also simply execute it via `java -jar vlingo
 
 `$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}`
 
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/schema/categories`
+  - Enumeration names: Command, Data, Document, Envelope, Event, Unknown
+
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/schema/scopes`
+  - Enumeration names: Public, Private
+
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/code/{reference}/{language}`
+  - Takes the form:     /code/Org:Unit:Context:Schema:Version/java
+  - Or more precisely:  /code/vlingo:PlatformDevelopment:io.vlingo.schemata:SchemaDefined:1.0.0/java
+
 ### Schema Modifications
 
 `$ curl -i -X PATCH -H "Content-Type: application/json" -d 'My organization changed.' http://localhost:9019/organizations/{organizationId}/description`
