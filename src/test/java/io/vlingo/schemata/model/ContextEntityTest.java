@@ -64,7 +64,7 @@ public class ContextEntityTest {
   @Test
   public void testThatContextIsDefined() {
     final ContextState contextState = context.defineWith("namespace", "description").await();
-    Assert.assertEquals(ContextState.unidentified(), contextState.persistenceId());
+    Assert.assertNotEquals(ContextState.unidentified(), contextState.persistenceId());
     Assert.assertEquals(contextId.value, contextState.contextId.value);
     Assert.assertEquals("namespace", contextState.namespace);
     Assert.assertEquals("description", contextState.description);

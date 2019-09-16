@@ -14,42 +14,20 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import io.vlingo.actors.World;
-import io.vlingo.common.identity.IdentityGeneratorType;
 import io.vlingo.common.serialization.JsonSerialization;
 import io.vlingo.http.Response;
-import io.vlingo.lattice.grid.Grid;
-import io.vlingo.lattice.grid.GridAddressFactory;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
-import io.vlingo.schemata.NoopDispatcher;
-import io.vlingo.schemata.Schemata;
-import io.vlingo.schemata.model.Unit;
-import io.vlingo.schemata.model.UnitState;
-import io.vlingo.schemata.query.Queries;
-import io.vlingo.schemata.query.UnitQueries;
 import io.vlingo.schemata.resource.data.UnitData;
-import io.vlingo.symbio.store.object.MapQueryExpression;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.StateObjectMapper;
-import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
 public class UnitResourceTest extends ResourceTest {
   private static final String OrgId = "O123";
   private static final String UnitName = "Test";
   private static final String UnitDescription = "Test unit.";
 
-  private ObjectStore objectStore;
-  private UnitQueries queries;
-  private ObjectTypeRegistry registry;
-  private World world;
-
   @Test
   public void testThatUnitIsDefined() {
-    final UnitResource resource = new UnitResource(world, queries);
+    final UnitResource resource = new UnitResource(world);
     final Response response = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();
     assertEquals(Created, response.status);
     assertNotNull(response.headers.headerOf(Location));
@@ -59,7 +37,7 @@ public class UnitResourceTest extends ResourceTest {
 
   @Test
   public void testUnitDescribedAs() {
-    final UnitResource resource = new UnitResource(world, queries);
+    final UnitResource resource = new UnitResource(world);
     final Response response1 = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();
     assertEquals(Created, response1.status);
     final UnitData data1 = JsonSerialization.deserialized(response1.entity.content(), UnitData.class);
@@ -73,7 +51,7 @@ public class UnitResourceTest extends ResourceTest {
 
   @Test
   public void testUnitRenameTo() {
-    final UnitResource resource = new UnitResource(world, queries);
+    final UnitResource resource = new UnitResource(world);
     final Response response1 = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();
     assertEquals(Created, response1.status);
     final UnitData data1 = JsonSerialization.deserialized(response1.entity.content(), UnitData.class);
@@ -83,28 +61,5 @@ public class UnitResourceTest extends ResourceTest {
     assertEquals(data1.unitId, data2.unitId);
     assertNotEquals(data1.name, data2.name);
     assertEquals((UnitName + 1), data2.name);
-  }
-
-  @Before
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void setUp() throws Exception {
-    world = World.startWithDefaults("test-command-router");
-    world.stageNamed("vlingo-schemata-grid", Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
-
-    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
-
-    queries = Queries.forUnits(world.stageNamed(Schemata.StageName), objectStore);
-
-    registry = new ObjectTypeRegistry(world);
-
-    final Info<Unit> unitInfo =
-            new Info(
-                  objectStore,
-                  UnitState.class,
-                  "Unit",
-                  MapQueryExpression.using(Unit.class, "find", MapQueryExpression.map("id", "id")),
-                  StateObjectMapper.with(Unit.class, new Object(), new Object()));
-
-    registry.register(unitInfo);
   }
 }

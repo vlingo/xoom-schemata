@@ -60,7 +60,7 @@ public class UnitEntityTest {
   @Test
   public void testThatUnitDefined() {
     final UnitState state = unit.defineWith("name", "description").await();
-    Assert.assertEquals(UnitState.unidentified(), state.persistenceId());
+    Assert.assertNotEquals(UnitState.unidentified(), state.persistenceId());
     Assert.assertEquals("name", state.name);
     Assert.assertEquals("description", state.description);
   }
