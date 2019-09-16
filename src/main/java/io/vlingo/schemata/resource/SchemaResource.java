@@ -50,8 +50,8 @@ public class SchemaResource extends ResourceHandler {
   }
 
   public Completes<Response> defineWith(final String organizationId, final String unitId, final String contextId, final SchemaData data) {
-    if (Naming.isValid(data.name)) {
-      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
+    if (!Naming.isValid(data.name)) {
+      return Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
     }
 
     return Schema.with(stage, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(data.category), Scope.valueOf(data.scope), data.name, data.description)
