@@ -20,6 +20,20 @@ import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.QueryExpression;
 
 public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueries {
+  private static final String QueryAll =
+          "SELECT * FROM TBL_UNITS " +
+          "WHERE organizationId = :organizationId";
+
+  private static final String ById =
+          "SELECT * FROM TBL_UNITS " +
+          "WHERE organizationId = :organizationId " +
+          "AND unitId = :unitId";
+
+  private static final String ByName =
+          "SELECT * FROM TBL_UNITS " +
+          "WHERE organizationId = :organizationId " +
+          "AND name = :name";
+
   private final Map<String,String> parameters;
 
   public UnitQueriesActor(final ObjectStore objectStore) {
@@ -32,12 +46,7 @@ public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueri
     parameters.clear();
     parameters.put("organizationId", organizationId);
 
-    final QueryExpression query =
-            MapQueryExpression.using(
-                    UnitState.class,
-                    "SELECT * FROM TBL_UNITS " +
-                    "WHERE organizationId = :organizationId",
-                    parameters);
+    final QueryExpression query = MapQueryExpression.using(UnitState.class, QueryAll, parameters);
 
     return queryAll(UnitState.class, query, (List<UnitState> states) -> UnitData.from(states));
   }
@@ -48,14 +57,21 @@ public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueri
     parameters.put("organizationId", organizationId);
     parameters.put("unitId", unitId);
 
-    final QueryExpression query =
-            MapQueryExpression.using(
-                    UnitState.class,
-                    "SELECT * FROM TBL_UNITS " +
-                    "WHERE organizationId = :organizationId " +
-                      "AND unitId = :unitId",
-                    parameters);
+    return queryOne(ById, parameters);
+  }
 
-    return queryObject(UnitState.class, query, (UnitState state) -> UnitData.from(state));
+  @Override
+  public Completes<UnitData> unitNamed(final String organizationId, final String name) {
+    parameters.clear();
+    parameters.put("organizationId", organizationId);
+    parameters.put("name", name);
+
+    return queryOne(ByName, parameters);
+  }
+
+  private Completes<UnitData> queryOne(final String query, final Map<String,String> parameters) {
+    final QueryExpression expression = MapQueryExpression.using(UnitState.class, query, parameters);
+
+    return queryObject(UnitState.class, expression, (UnitState state) -> UnitData.from(state));
   }
 }

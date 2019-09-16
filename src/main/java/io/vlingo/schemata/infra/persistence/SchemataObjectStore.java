@@ -101,10 +101,10 @@ public class SchemataObjectStore {
                 StateObjectMapper.with(
                         SchemaState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO TBL_SCHEMAS(schemaId, contextId, unitId, organizationId, category, name, description) " +
+                                "INSERT INTO TBL_SCHEMAS(schemaId, contextId, unitId, organizationId, category, scope, name, description) " +
                                         "VALUES (:schemaId.value, :schemaId.contextId.value, :schemaId.contextId.unitId.value, " +
-                                        ":schemaId.contextId.unitId.organizationId.value, :category, :name, :description) ",
-                                "UPDATE TBL_SCHEMAS SET category = :category, name = :namespace, description = :description " +
+                                        ":schemaId.contextId.unitId.organizationId.value, :category, :scope, :name, :description) ",
+                                "UPDATE TBL_SCHEMAS SET category = :category, scope = :scope, name = :namespace, description = :description " +
                                 "WHERE id = :persistenceId",
                                 SqlStatement::bindFields,
                                 SqlStatement::bindMethods),
@@ -143,53 +143,88 @@ public class SchemataObjectStore {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void register(final ObjectTypeRegistry registry, final ObjectStore objectStore) {
-        final String orgQuery = "SELECT * FROM TBL_ORGANIZATIONS WHERE id = :id";
+        final String orgQuery = "SELECT * FROM TBL_ORGANIZATIONS " +
+                                "WHERE organizationId = :organizationId";
+
         final Info<Organization> organizationInfo =
                 new Info(
                     objectStore,
                     OrganizationState.class,
                     "vlingo_schemata",
-                    MapQueryExpression.using(OrganizationState.class, orgQuery, MapQueryExpression.map("id", "id")),
+                    MapQueryExpression.using(
+                            OrganizationState.class,
+                            orgQuery,
+                            MapQueryExpression.map("organizationId", "")),
                     mappersLookup.get(OrganizationState.class));
         registry.register(organizationInfo);
 
-        final String unitQuery = "SELECT * FROM TBL_UNITS WHERE id = :id";
+        final String unitQuery = "SELECT * FROM TBL_UNITS " +
+                                 "WHERE organizationId = :organizationId " +
+                                 "AND unitId = :unitId";
+
         final Info<Unit> unitInfo =
                 new Info(
                         objectStore,
                         UnitState.class,
                         "vlingo_schemata",
-                        MapQueryExpression.using(UnitState.class, unitQuery, MapQueryExpression.map("id", "id")),
+                        MapQueryExpression.using(
+                                UnitState.class,
+                                unitQuery,
+                                MapQueryExpression.map("organizationId", "").and("unitId", "")),
                         mappersLookup.get(UnitState.class));
         registry.register(unitInfo);
 
-        final String contextQuery = "SELECT * FROM TBL_CONTEXTS WHERE id = :id";
+        final String contextQuery = "SELECT * FROM TBL_CONTEXTS " +
+                                    "WHERE organizationId = :organizationId " +
+                                    "AND unitId = :unitId " +
+                                    "AND contextId = :contextId";
+
         final Info<Context> contextInfo =
                 new Info(
                         objectStore,
                         ContextState.class,
                         "vlingo_schemata",
-                        MapQueryExpression.using(ContextState.class, contextQuery, MapQueryExpression.map("id", "id")),
+                        MapQueryExpression.using(
+                                ContextState.class,
+                                contextQuery,
+                                MapQueryExpression.map("organizationId", "").and("unitId", "").and("contextId", "")),
                         mappersLookup.get(ContextState.class));
         registry.register(contextInfo);
 
-        final String schemaQuery = "SELECT * FROM TBL_SCHEMAS WHERE id = :id";
+        final String schemaQuery = "SELECT * FROM TBL_SCHEMAS " +
+                                   "WHERE organizationId = :organizationId " +
+                                   "AND unitId = :unitId " +
+                                   "AND contextId = :contextId " +
+                                   "AND schemaId = :schemaId";
+
         final Info<Schema> schemaInfo =
                 new Info(
                         objectStore,
                         SchemaState.class,
                         "vlingo_schemata",
-                        MapQueryExpression.using(SchemaState.class, schemaQuery, MapQueryExpression.map("id", "id")),
+                        MapQueryExpression.using(
+                                SchemaState.class,
+                                schemaQuery,
+                                MapQueryExpression.map("organizationId", "").and("unitId", "").and("contextId", "").and("schemaId", "")),
                         mappersLookup.get(SchemaState.class));
         registry.register(schemaInfo);
 
-        final String versionQuery = "SELECT * FROM TBL_SCHEMAVERSIONS WHERE id = :id";
+        final String versionQuery = "SELECT * FROM TBL_SCHEMAVERSIONS " +
+                                    "WHERE organizationId = :organizationId " +
+                                    "AND unitId = :unitId " +
+                                    "AND contextId = :contextId " +
+                                    "AND schemaId = :schemaId " +
+                                    "AND schemaVersionId = :schemaVersionId";
+
         final Info<SchemaVersion> schemaVersionInfo =
                 new Info(
                         objectStore,
                         SchemaVersionState.class,
                         "vlingo_schemata",
-                        MapQueryExpression.using(SchemaVersionState.class, versionQuery, MapQueryExpression.map("id", "id")),
+                        MapQueryExpression.using(
+                                SchemaVersionState.class,
+                                versionQuery,
+                                MapQueryExpression.map("organizationId", "").and("unitId", "").and("contextId", "").and("schemaId", "").and("schemaVersionId", "")),
                         mappersLookup.get(SchemaVersionState.class));
         registry.register(schemaVersionInfo);
     }
@@ -203,6 +238,7 @@ public class SchemataObjectStore {
         this.createContextStateTable();
         this.createSchemaStateTable();
         this.createSchemaVersionStateTable();
+        this.createDependencyStateTable();
     }
 
     private void createOrganizationStateTable() {
@@ -261,6 +297,7 @@ public class SchemataObjectStore {
                 "unitId VARCHAR(50) NOT NULL, " +
                 "organizationId VARCHAR (50) NOT NULL, " +
                 "category VARCHAR(25) NOT NULL, " +
+                "scope VARCHAR(25) NOT NULL, " +
                 "name VARCHAR(128) NOT NULL, " +
                 "description VARCHAR(8000) " +
 
@@ -305,5 +342,23 @@ public class SchemataObjectStore {
 
 //        jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_PARENT_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId)");
 //        jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_ALL_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId, schemaVersionId)");
+    }
+
+    private void createDependencyStateTable() {
+        jdbi.handle().execute(
+                "CREATE TABLE IF NOT EXISTS TBL_DEPENDENCIES (" +
+                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+
+                "sourceOrganizationId VARCHAR (50) NOT NULL, " +
+                "sourceUnitId VARCHAR(50) NOT NULL, " +
+                "sourceContextId VARCHAR(50) NOT NULL, " +
+                "sourceSchemaId VARCHAR(50) NOT NULL, " +
+                "sourceSchemaVersionId VARCHAR(50) NOT NULL, " +
+
+                "dependentOrganizationId VARCHAR (50) NOT NULL, " +
+                "dependentUnitId VARCHAR(50) NOT NULL, " +
+                "dependentContextId VARCHAR(50) NOT NULL " +
+
+                ")");
     }
 }

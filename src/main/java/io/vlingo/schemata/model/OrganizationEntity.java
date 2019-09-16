@@ -46,12 +46,17 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   }
 
   @Override
-  protected void persistentObject(final OrganizationState persistentObject) {
-    this.state = persistentObject;
+  protected OrganizationState stateObject() {
+    return state;
   }
 
   @Override
-  protected Class<OrganizationState> persistentObjectType() {
+  protected void stateObject(final OrganizationState stateObject) {
+    this.state = stateObject;
+  }
+
+  @Override
+  protected Class<OrganizationState> stateObjectType() {
     return OrganizationState.class;
   }
 }

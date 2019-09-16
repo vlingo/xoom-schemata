@@ -106,16 +106,18 @@ public final class Events {
   public static final class SchemaDefined extends DomainEvent {
     public final String schemaId;
     public final String category;
+    public final String scope;
     public final String name;
     public final String description;
 
-    public static SchemaDefined with(final SchemaId schemaId, final Category category, final String name, final String description) {
-      return new SchemaDefined(schemaId, category, name, description);
+    public static SchemaDefined with(final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+      return new SchemaDefined(schemaId, category, scope, name, description);
     }
 
-    public SchemaDefined(final SchemaId schemaId, final Category category, final String name, final String description) {
+    public SchemaDefined(final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
       this.schemaId = schemaId.value;
       this.category = category.name();
+      this.scope = scope.name();
       this.name = name;
       this.description = description;
     }
@@ -146,6 +148,20 @@ public final class Events {
     public SchemaCategorized(final SchemaId schemaId, final Category category) {
       this.schemaId = schemaId.value;
       this.category = category.name();
+    }
+  }
+
+  public static final class SchemaScoped extends DomainEvent {
+    public final String schemaId;
+    public final String scope;
+
+    public static SchemaScoped with(final SchemaId schemaId, final Scope scope) {
+      return new SchemaScoped(schemaId, scope);
+    }
+
+    public SchemaScoped(final SchemaId schemaId, final Scope scope) {
+      this.schemaId = schemaId.value;
+      this.scope = scope.name();
     }
   }
 

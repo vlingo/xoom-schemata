@@ -7,7 +7,10 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.Map;
+
 import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.symbio.store.object.MapQueryExpression.FluentMap;
 import io.vlingo.symbio.store.object.StateObject;
 
 public class SchemaState extends StateObject {
@@ -15,6 +18,7 @@ public class SchemaState extends StateObject {
 
   public final SchemaId schemaId;
   public final Category category;
+  public final Scope scope;
   public final String description;
   public final String name;
 
@@ -22,24 +26,37 @@ public class SchemaState extends StateObject {
     return new SchemaState(schemaId);
   }
 
-  public static SchemaState from(final long id, final SchemaId schemaId, final Category category, final String name, final String description) {
-    return new SchemaState(id, schemaId, category, name, description);
+  public static SchemaState from(final long id, final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+    return new SchemaState(id, schemaId, category, scope, name, description);
   }
 
-  public SchemaState defineWith(final Category category, final String name, final String description) {
-    return new SchemaState(this.persistenceId(), this.schemaId, category, name, description);
+  public SchemaState defineWith(final Category category, final Scope scope, final String name, final String description) {
+    return new SchemaState(this.persistenceId(), this.schemaId, category, scope, name, description);
   }
 
   public SchemaState withCategory(final Category category) {
-    return new SchemaState(this.persistenceId(), this.schemaId, category, this.name, this.description);
+    return new SchemaState(this.persistenceId(), this.schemaId, category, this.scope, this.name, this.description);
+  }
+
+  public SchemaState withScope(final Scope scope) {
+    return new SchemaState(this.persistenceId(), this.schemaId, this.category, scope, this.name, this.description);
   }
 
   public SchemaState withDescription(final String description) {
-    return new SchemaState(this.persistenceId(), this.schemaId, this.category, this.name, description);
+    return new SchemaState(this.persistenceId(), this.schemaId, this.category, this.scope, this.name, description);
   }
 
   public SchemaState withName(final String name) {
-    return new SchemaState(this.persistenceId(), this.schemaId, this.category, name, this.description);
+    return new SchemaState(this.persistenceId(), this.schemaId, this.category, this.scope, name, this.description);
+  }
+
+  @Override
+  public Map<String, Object> queryMap() {
+    return FluentMap
+            .has("organizationId", schemaId.contextId.unitId.organizationId.value)
+            .and("unitId", schemaId.contextId.unitId.value)
+            .and("contextId", schemaId.contextId.value)
+            .and("schemaId", schemaId.value);
   }
 
   @Override
@@ -65,18 +82,20 @@ public class SchemaState extends StateObject {
     return "SchemaState[persistenceId=" + persistenceId() +
             " schemaId=" + schemaId.value +
             " category=" + category.name() +
+            " scope=" + scope.name() +
             " name=" + name +
             " description=" + description + "]";
   }
 
   private SchemaState(SchemaId schemaId) {
-    this(Unidentified, schemaId, Category.Unknown, "", "");
+    this(Unidentified, schemaId, Category.Unknown, Scope.Private, "", "");
   }
 
-  private SchemaState(final long id, final SchemaId schemaId, final Category category, final String name, final String description) {
+  private SchemaState(final long id, final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
     super(id);
     this.schemaId = schemaId;
     this.category = category;
+    this.scope = scope;
     this.name = name;
     this.description = description;
   }

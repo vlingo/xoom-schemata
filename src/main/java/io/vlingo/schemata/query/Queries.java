@@ -11,27 +11,46 @@ import io.vlingo.actors.Stage;
 import io.vlingo.symbio.store.object.ObjectStore;
 
 public class Queries {
-  public static OrganizationQueries forOrganizations(final Stage stage, final ObjectStore objectStore) {
-    return stage.actorFor(OrganizationQueries.class, OrganizationQueriesActor.class, objectStore);
+  // TODO: If requires a greater number of instances
+  // consider using io.vlingo.actors.RoundRobinRouter.
+
+  private static OrganizationQueries organizationQueries;
+  private static UnitQueries unitQueries;
+  private static ContextQueries contextQueries;
+  private static SchemaQueries schemaQueries;
+  private static SchemaVersionQueries schemaVersionQueries;
+  private static CodeQueries codeQueries;
+
+  public static void startAll(final Stage stage, final ObjectStore objectStore) {
+    organizationQueries = stage.actorFor(OrganizationQueries.class, OrganizationQueriesActor.class, objectStore);
+    unitQueries = stage.actorFor(UnitQueries.class, UnitQueriesActor.class, objectStore);
+    contextQueries = stage.actorFor(ContextQueries.class, ContextQueriesActor.class, objectStore);
+    schemaQueries = stage.actorFor(SchemaQueries.class, SchemaQueriesActor.class, objectStore);
+    schemaVersionQueries = stage.actorFor(SchemaVersionQueries.class, SchemaVersionQueriesActor.class, objectStore);
+    codeQueries = stage.actorFor(CodeQueries.class, CodeQueriesActor.class, organizationQueries, unitQueries, contextQueries, schemaQueries, schemaVersionQueries);
   }
 
-  public static UnitQueries forUnits(final Stage stage, final ObjectStore objectStore) {
-    return stage.actorFor(UnitQueries.class, UnitQueriesActor.class, objectStore);
+  public static OrganizationQueries forOrganizations() {
+    return organizationQueries;
   }
 
-  public static ContextQueries forContexts(final Stage stage, final ObjectStore objectStore) {
-    return stage.actorFor(ContextQueries.class, ContextQueriesActor.class, objectStore);
+  public static UnitQueries forUnits() {
+    return unitQueries;
   }
 
-  public static SchemaQueries forSchemas(final Stage stage, final ObjectStore objectStore) {
-    return stage.actorFor(SchemaQueries.class, SchemaQueriesActor.class, objectStore);
+  public static ContextQueries forContexts() {
+    return contextQueries;
   }
 
-  public static SchemaVersionQueries forSchemaVersions(final Stage stage, final ObjectStore objectStore) {
-    return stage.actorFor(SchemaVersionQueries.class, SchemaVersionQueriesActor.class, objectStore);
+  public static SchemaQueries forSchemas() {
+    return schemaQueries;
   }
 
-  public static CodeQueries forCode(final Stage stage, final ObjectStore objectStore) {
-    return stage.actorFor(CodeQueries.class, CodeQueriesActor.class, objectStore);
+  public static SchemaVersionQueries forSchemaVersions() {
+    return schemaVersionQueries;
+  }
+
+  public static CodeQueries forCode() {
+    return codeQueries;
   }
 }

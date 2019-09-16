@@ -20,6 +20,20 @@ import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.QueryExpression;
 
 public class SchemaQueriesActor extends StateObjectQueryActor implements SchemaQueries {
+  private static final String ById =
+          "SELECT * FROM TBL_SCHEMAS " +
+          "WHERE organizationId = :organizationId " +
+            "AND unitId = :unitId " +
+            "AND contextId = :contextId " +
+            "AND schemaId = :schemaId";
+
+  private static final String ByName =
+          "SELECT * FROM TBL_SCHEMAS " +
+          "WHERE organizationId = :organizationId " +
+            "AND unitId = :unitId " +
+            "AND contextId = :contextId " +
+            "AND name = :name";
+
   private final Map<String,String> parameters;
 
   public SchemaQueriesActor(final ObjectStore objectStore) {
@@ -54,16 +68,23 @@ public class SchemaQueriesActor extends StateObjectQueryActor implements SchemaQ
     parameters.put("contextId", contextId);
     parameters.put("schemaId", schemaId);
 
-    final QueryExpression query =
-            MapQueryExpression.using(
-                    SchemaState.class,
-                    "SELECT * FROM TBL_SCHEMAS " +
-                    "WHERE organizationId = :organizationId " +
-                      "AND unitId = :unitId " +
-                      "AND contextId = :contextId " +
-                      "AND schemaId = :schemaId",
-                    parameters);
+    return queryOne(ById, parameters);
+  }
 
-    return queryObject(SchemaState.class, query, (SchemaState state) -> SchemaData.from(state));
+  @Override
+  public Completes<SchemaData> schemaNamed(final String organizationId, final String unitId, final String contextId, final String name) {
+    parameters.clear();
+    parameters.put("organizationId", organizationId);
+    parameters.put("unitId", unitId);
+    parameters.put("contextId", contextId);
+    parameters.put("name", name);
+
+    return queryOne(ByName, parameters);
+  }
+
+  private Completes<SchemaData> queryOne(final String query, final Map<String,String> parameters) {
+    final QueryExpression expression = MapQueryExpression.using(SchemaState.class, query, parameters);
+
+    return queryObject(SchemaState.class, expression, (SchemaState state) -> SchemaData.from(state));
   }
 }

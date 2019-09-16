@@ -29,4 +29,10 @@ public class PathData {
     this.schema = parts[3];
     this.version = parts[4];
   }
+
+  @Override
+  public String toString() {
+    return "PathData [organization=" + organization + ", unit=" + unit + ", context=" + context + ", schema=" + schema
+            + ", version=" + version + "]";
+  }
 }

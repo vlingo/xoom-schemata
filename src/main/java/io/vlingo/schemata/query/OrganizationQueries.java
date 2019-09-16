@@ -15,4 +15,7 @@ import io.vlingo.schemata.resource.data.OrganizationData;
 public interface OrganizationQueries {
   Completes<List<OrganizationData>> organizations();
   Completes<OrganizationData> organization(final String organizationId);
+  Completes<OrganizationData> organization(final String organizationId, final QueryResultsCollector collector);
+  Completes<OrganizationData> organizationNamed(final String name);
+  Completes<OrganizationData> organizationNamed(final String name, final QueryResultsCollector collector);
 }

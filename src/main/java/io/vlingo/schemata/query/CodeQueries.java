@@ -14,4 +14,5 @@ import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public interface CodeQueries {
   Completes<SchemaVersionData> schemaVersionFor(final AuthorizationData authorization, final PathData path);
+  Completes<SchemaVersionData> schemaVersionFor(final AuthorizationData authorization, final PathData path, final QueryResultsCollector collector);
 }

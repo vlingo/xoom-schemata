@@ -7,12 +7,18 @@
 
 package io.vlingo.schemata.resource.data;
 
+import java.util.Arrays;
+import java.util.List;
+
 import io.vlingo.common.Tuple3;
+import io.vlingo.schemata.Schemata;
 
 public class AuthorizationData {
   public static final String AuthorizationType = "VLINGO-SCHEMATA";
   public static final String DependentKey = "dependent";
   public static final String SourceKey = "source";
+
+  private static List<String> NoSpaceFollows = Arrays.asList(DependentKey, SourceKey, "=");
 
   private static final int TypeIndex = 0;
   private static final int SourceIndex = 1;
@@ -26,6 +32,29 @@ public class AuthorizationData {
     return new AuthorizationData(value);
   }
 
+  public Tuple3<String,String,String> dependentAsIds() {
+    final String[] ids = dependent.split(Schemata.ReferenceSeparator);
+
+    return Tuple3.tuple(ids[0], ids[1], ids[2]);
+  }
+
+  public String sourceAsId() {
+    return source;
+  }
+
+  public boolean sameDependent(final String... others) {
+    return dependent.equals(format(others));
+  }
+
+  public boolean sameSource(final String... others) {
+    return source.equals(format(others));
+  }
+
+  @Override
+  public String toString() {
+    return "AuthorizationData [type=" + type + ", source=" + source + ", dependent=" + dependent + "]";
+  }
+
   private AuthorizationData(final String value) {
     final Tuple3<String,String,String> data = parse(value);
     this.type = data._1;
@@ -33,16 +62,35 @@ public class AuthorizationData {
     this.dependent = data._3;
   }
 
-  private Tuple3<String, String, String> parse(final String value) {
-    int resultIndex = 0;
-    final String[] result = new String[3];
-    final String[] parts = value.split(" ");
+  private String format(final String[] others) {
+    final StringBuilder builder = new StringBuilder();
+    String separator = "";
 
-    for (final String part : parts) {
+    for (int idx = 0; idx < others.length; ++idx) {
+      builder.append(separator).append(others[idx]);
+      separator = Schemata.ReferenceSeparator;
+    }
+
+    return builder.toString();
+  }
+
+  private Tuple3<String, String, String> parse(final String value) {
+
+    final StringBuilder builder = new StringBuilder();
+    for (final String part : value.split(" ")) {
       final String clean = part.trim();
       if (!clean.isEmpty()) {
-        result[resultIndex++] = clean;
+        builder.append(clean);
+        if (!NoSpaceFollows.contains(clean)) {
+          builder.append(" ");
+        }
       }
+    }
+
+    final String[] result = builder.toString().trim().split(" ");
+
+    if (result.length != 3) {
+      throw new IllegalArgumentException("Wrong number of parameters in: " + value);
     }
 
     return Tuple3.from(part(result, TypeIndex), part(result, SourceIndex), part(result, DependentIndex));
@@ -58,6 +106,8 @@ public class AuthorizationData {
         return valueOf(result[index], SourceKey);
       case DependentIndex:
         return valueOf(result[index], DependentKey);
+      default:
+        return "";
       }
     }
 

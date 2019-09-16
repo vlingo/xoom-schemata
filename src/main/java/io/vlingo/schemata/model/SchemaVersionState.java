@@ -7,7 +7,10 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.Map;
+
 import io.vlingo.schemata.model.Id.SchemaVersionId;
+import io.vlingo.symbio.store.object.MapQueryExpression.FluentMap;
 import io.vlingo.symbio.store.object.StateObject;
 
 public class SchemaVersionState extends StateObject {
@@ -68,6 +71,16 @@ public class SchemaVersionState extends StateObject {
 
   public SchemaVersionState withVersion(final SchemaVersion.Version currentVersion) {
     return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.specification, this.description, this.status, this.previousVersion, currentVersion);
+  }
+
+  @Override
+  public Map<String, Object> queryMap() {
+    return FluentMap
+            .has("organizationId", schemaVersionId.schemaId.contextId.unitId.organizationId.value)
+            .and("unitId", schemaVersionId.schemaId.contextId.unitId.value)
+            .and("contextId", schemaVersionId.schemaId.contextId.value)
+            .and("schemaId", schemaVersionId.schemaId.value)
+            .and("schemaVersionId", schemaVersionId.value);
   }
 
   @Override

@@ -15,4 +15,7 @@ import io.vlingo.schemata.resource.data.ContextData;
 public interface ContextQueries {
   Completes<List<ContextData>> contexts(final String organizationId, final String unitId);
   Completes<ContextData> context(final String organizationId, final String unitId, final String contextId);
+  Completes<ContextData> context(final String organizationId, final String unitId, final String contextId, final QueryResultsCollector collector);
+  Completes<ContextData> contextOfNamespace(final String organizationId, final String unitId, final String namespace);
+  Completes<ContextData> contextOfNamespace(final String organizationId, final String unitId, final String namespace, final QueryResultsCollector collector);
 }

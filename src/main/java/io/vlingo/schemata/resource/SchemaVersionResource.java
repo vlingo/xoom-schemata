@@ -11,7 +11,9 @@ import static io.vlingo.common.serialization.JsonSerialization.serialized;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.ResponseHeader.*;
+import static io.vlingo.http.ResponseHeader.ContentType;
+import static io.vlingo.http.ResponseHeader.Location;
+import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
@@ -34,17 +36,15 @@ import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.schemata.model.SchemaVersionState;
-import io.vlingo.schemata.query.SchemaVersionQueries;
+import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public class SchemaVersionResource extends ResourceHandler {
   private final SchemaVersionCommands commands;
-  private final SchemaVersionQueries queries;
   private final Stage stage;
 
-  public SchemaVersionResource(final World world, final SchemaVersionQueries queries) {
+  public SchemaVersionResource(final World world) {
     this.stage = world.stageNamed(StageName);
-    this.queries = queries;
     this.commands = new SchemaVersionCommands(this.stage, 10);
   }
 
@@ -103,20 +103,20 @@ public class SchemaVersionResource extends ResourceHandler {
   }
 
   public Completes<Response> querySchemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId) {
-    return queries
+    return Queries.forSchemaVersions()
             .schemaVersions(organizationId, unitId, contextId, schemaId)
             .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
   }
 
   public Completes<Response> querySchemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
-    return queries
+    return Queries.forSchemaVersions()
             .schemaVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
             .andThenTo(schemaVersion -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersion))));
   }
 
   @Override
   public Resource<?> routes() {
-    return resource("SchemaVersion Resource",
+    return resource("SchemaVersion Resource", 1,
       post("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions")
         .param(String.class)
         .param(String.class)

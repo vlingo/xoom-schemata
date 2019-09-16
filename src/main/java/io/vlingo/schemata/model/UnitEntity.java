@@ -42,12 +42,17 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   }
 
   @Override
-  protected void persistentObject(final UnitState persistentObject) {
-    this.state = persistentObject;
+  protected UnitState stateObject() {
+    return state;
   }
 
   @Override
-  protected Class<UnitState> persistentObjectType() {
+  protected void stateObject(final UnitState stateObject) {
+    this.state = stateObject;
+  }
+
+  @Override
+  protected Class<UnitState> stateObjectType() {
     return UnitState.class;
   }
 }

@@ -12,7 +12,9 @@ import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.ResponseHeader.*;
+import static io.vlingo.http.ResponseHeader.ContentType;
+import static io.vlingo.http.ResponseHeader.Location;
+import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
@@ -33,17 +35,15 @@ import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Organization;
-import io.vlingo.schemata.query.OrganizationQueries;
+import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.OrganizationData;
 
 public class OrganizationResource extends ResourceHandler {
   private final OrganizationCommands commands;
-  private final OrganizationQueries queries;
   private final Stage stage;
 
-  public OrganizationResource(final World world, final OrganizationQueries queries) {
+  public OrganizationResource(final World world) {
     this.stage = world.stageNamed(StageName);
-    this.queries = queries;
     this.commands = new OrganizationCommands(this.stage, 10);
   }
 
@@ -83,20 +83,20 @@ public class OrganizationResource extends ResourceHandler {
   }
 
   public Completes<Response> queryOrganizations() {
-    return queries
+    return Queries.forOrganizations()
             .organizations()
             .andThenTo(organizations -> Completes.withSuccess(Response.of(Ok, serialized(organizations))));
   }
 
   public Completes<Response> queryOrganization(final String organizationId) {
-    return queries
+    return Queries.forOrganizations()
             .organization(organizationId)
             .andThenTo(organization -> Completes.withSuccess(Response.of(Ok, serialized(organization))));
   }
 
   @Override
   public Resource<?> routes() {
-    return resource("Organization Resource",
+    return resource("Organization Resource", 1,
       post("/organizations")
         .body(OrganizationData.class)
         .handle(this::defineWith),
