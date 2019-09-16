@@ -48,8 +48,8 @@ public class OrganizationResource extends ResourceHandler {
   }
 
   public Completes<Response> defineWith(final OrganizationData data) {
-    if (Naming.isValid(data.name)) {
-      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
+    if (!Naming.isValid(data.name)) {
+      return Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
     }
 
     return Organization.with(stage, data.name, data.description)
