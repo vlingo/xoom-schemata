@@ -79,10 +79,11 @@ public interface TypeDefinitionCompiler {
   /**
    * Answer the eventually generated source code given the {@code typeDefinition} and {@code version}.
    * @param typeDefinition the InputStream providing the schema type definition
+   * @param fullyQualifiedTypeName the String FQTN of the type to be compiled
    * @param version the String version of the definition
    * @return {@code Completes<String>}
    */
-  public abstract Completes<String> compile(final InputStream typeDefinition, final String version);
+  Completes<String> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version);
 
 
 
