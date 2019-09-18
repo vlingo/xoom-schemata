@@ -72,7 +72,7 @@ public class CodeResource extends ResourceHandler {
             })
             .andThenTo(context -> {
               logger.debug("COMPILING: " + collector.schemaVersion().specification);
-              return compile(collector.schemaVersion(), language);
+              return compile(collector.path.reference, collector.schemaVersion(), language);
             })
             .andThenTo(code    -> {
               logger.debug("CODE: \n" + code);
@@ -105,9 +105,9 @@ public class CodeResource extends ResourceHandler {
   // Internal implementation
   //////////////////////////////////
 
-  private Completes<String> compile(final SchemaVersionData version, final String language) {
+  private Completes<String> compile(final String reference, final SchemaVersionData version, final String language) {
     final InputStream inputStream = new ByteArrayInputStream(version.specification.getBytes());
-    return compilerFor(stage, language).compile(inputStream, version.currentVersion);
+    return compilerFor(stage, language).compile(inputStream, reference, version.currentVersion);
   }
 
   private Collector given(final Request request, final String reference) {
