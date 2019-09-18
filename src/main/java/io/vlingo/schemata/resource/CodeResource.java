@@ -19,6 +19,7 @@ import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
@@ -48,10 +49,12 @@ import io.vlingo.schemata.resource.data.UnitData;
 // header: Authorization: VLINGO-SCHEMATA source=<some-hash-value> dependent=<some-hash-value>
 //
 public class CodeResource extends ResourceHandler {
+  private final Logger logger;
   private final Stage stage;
 
   public CodeResource(final World world) {
     this.stage = world.stageNamed(StageName);
+    this.logger = world.defaultLogger();
   }
 
   public Completes<Response> queryCodeForLanguage(final String reference, final String language) {
@@ -59,52 +62,32 @@ public class CodeResource extends ResourceHandler {
 
     return Queries.forCode()
             .schemaVersionFor(collector.authorization, collector.path, collector)
-            .otherwise(failure -> {
-              System.out.println("FAILED ON VERSION: " + failure);
-              return failure;
-            })
             .andThenTo(version -> {
-              System.out.println("VERSION: " + version);
+              logger.debug("VERSION: " + version);
               return queryContextWith(collector.contextIndentities, collector);
             })
-            .otherwise(failure -> {
-              System.out.println("FAILED ON QUERY CONTEXT: " + failure);
-              return failure;
-            })
             .andThenTo(context -> {
-              System.out.println("CONTEXT: " + context);
+              logger.debug("CONTEXT: " + context);
               return validateContext(context, collector);
             })
-            .otherwise(failure -> {
-              System.out.println("FAILED ON VALIDATE CONTEXT: " + failure);
-              return failure;
-            })
             .andThenTo(context -> {
-              System.out.println("COMPILING: " + collector.schemaVersion().specification);
+              logger.debug("COMPILING: " + collector.schemaVersion().specification);
               return compile(collector.schemaVersion(), language);
             })
-            .otherwise(failure -> {
-              System.out.println("FAILED ON COMPILE: " + failure);
-              return failure;
-            })
             .andThenTo(code    -> {
-              System.out.println("CODE: \n" + code);
+              logger.debug("CODE: \n" + code);
               return recordDependency(code, collector);
             })
-            .otherwise(failure -> {
-              System.out.println("FAILED ON RECORD DEPENDENCY: " + failure);
-              return failure;
-            })
             .andThenTo(code    -> {
-              System.out.println("SUCCESS: \n" + code);
+              logger.debug("SUCCESS: \n" + code);
               return Completes.withSuccess(Response.of(Ok, code));
             })
             .otherwise(failure -> {
-              System.out.println("FAILED: " + failure);
+              logger.error("FAILED: " + failure);
               return Response.of(InternalServerError);
             })
             .recoverFrom(exception -> {
-              System.out.println("EXCEPTION: " + exception);
+              logger.error("EXCEPTION: " + exception, exception);
               return Response.of(BadRequest, exception.getMessage());
             });
   }
