@@ -7,6 +7,8 @@
 
 package io.vlingo.schemata.resource.data;
 
+import io.vlingo.schemata.Schemata;
+
 public class PathData {
   public final String organization;
   public final String unit;
@@ -14,12 +16,16 @@ public class PathData {
   public final String schema;
   public final String version;
 
+  public final String reference;
+
   public static PathData from(final String reference) {
     return new PathData(reference);
   }
 
   public PathData(final String reference) {
-    final String[] parts = reference.split(":");
+    this.reference = reference;
+
+    final String[] parts = reference.split(Schemata.ReferenceSeparator);
 
     assert parts.length == 5 : "The reference path must have five parts: org:unit:context:schema:version";
 
