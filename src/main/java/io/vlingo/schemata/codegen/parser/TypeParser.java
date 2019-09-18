@@ -7,11 +7,11 @@
 
 package io.vlingo.schemata.codegen.parser;
 
+import java.io.InputStream;
+
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.codegen.ast.Node;
 
-import java.io.InputStream;
-
 public interface TypeParser {
-    Completes<Node> parseTypeDefinition(InputStream inputStream);
+    Completes<Node> parseTypeDefinition(final InputStream inputStream, final String fullyQualifiedTypeName);
 }
