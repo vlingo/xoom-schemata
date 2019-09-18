@@ -7,17 +7,18 @@
 
 package io.vlingo.schemata.codegen.processor.types;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
+import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.ast.types.BasicType;
 import io.vlingo.schemata.codegen.ast.types.Type;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.Processor;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class TypeResolverProcessor extends Actor implements Processor {
     private final TypeResolver resolver;
@@ -27,7 +28,7 @@ public class TypeResolverProcessor extends Actor implements Processor {
     }
 
     @Override
-    public Completes<Node> process(Node node) {
+    public Completes<Node> process(Node node, final String fullyQualifiedTypeName) {
         TypeDefinition type = Processor.requireBeing(node, TypeDefinition.class);
 
         List<Node> processedTypes = type.children.stream()
@@ -35,7 +36,7 @@ public class TypeResolverProcessor extends Actor implements Processor {
                 .map(this::resolveType)
                 .collect(Collectors.toList());
 
-        completesEventually().with(new TypeDefinition(type.category, type.typeName, processedTypes));
+        completesEventually().with(new TypeDefinition(type.category, fullyQualifiedTypeName, type.typeName, processedTypes));
         return completes();
 
     }
@@ -45,9 +46,17 @@ public class TypeResolverProcessor extends Actor implements Processor {
 
         if (typeNode instanceof BasicType) {
             BasicType basicType = (BasicType) typeNode;
-            return new FieldDefinition(resolver.resolve(basicType.typeName).map(definition -> (Type) definition).orElse(basicType), fieldDefinition.version, fieldDefinition.name, fieldDefinition.defaultValue);
+            return new FieldDefinition(resolver.resolve(basicType.typeName, simple(basicType.typeName)).map(definition -> (Type) definition).orElse(basicType), fieldDefinition.version, fieldDefinition.name, fieldDefinition.defaultValue);
         }
 
         return fieldDefinition;
+    }
+
+    private String simple(final String typeName) {
+      final int last = typeName.lastIndexOf(Schemata.ReferenceSeparator);
+      if (last > 0) {
+        return typeName.substring(last + 1);
+      }
+      return typeName;
     }
 }
