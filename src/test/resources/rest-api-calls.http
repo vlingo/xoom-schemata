@@ -51,6 +51,7 @@ Content-Type: application/json
   "schemaId": "",
   "category": "Event",
   "name": "SchemaDefined2",
+  "scope": "Private",
   "description": "Schemata was defined event."
 }
 
