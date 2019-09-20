@@ -1,7 +1,6 @@
 <template>
     <v-app>
-        <v-system-bar height="5px" color="primary"></v-system-bar>
-        <v-app-bar dense>
+        <v-app-bar dense style="z-index: 10" fixed>
             <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
             <v-toolbar-title class="headline">
                 <span>vlingo</span>/<span class="font-weight-light">schemata</span>
@@ -11,17 +10,17 @@
                 <v-icon>{{icons.sync}}</v-icon>
             </v-btn>
         </v-app-bar>
+        <v-system-bar height="5px" color="primary" style="z-index: 10" fixed></v-system-bar>
 
         <v-navigation-drawer
                 app
-                class='mt-12'
-                style='top: 6px'
+                class='pt-12'
                 :expand-on-hover="drawer"
                 disable-resize-watcher
                 hide-overlay
                 permanent
         >
-            <v-list dense shaped>
+            <v-list dense shaped class="mt-1">
                 <v-list-item v-for="(item,idx) in menu" :key="idx"
                              :to="item.route"
                              color="primary"
@@ -71,6 +70,7 @@
         mdiFactory,
         mdiFileDocument,
         mdiHome,
+        mdiPencil,
         mdiStore,
         mdiSync,
         mdiTag
@@ -83,12 +83,13 @@
                 drawer: true,
                 menu: [
                     {route: '/schemata', title: 'Browse Schemata', icon: mdiHome},
+                    {route: '/editor', title: 'Edit Schema Version', icon: mdiPencil},
                     {divider: true},
-                    {route: '/editor', title: 'Create Organization', icon: mdiFactory},
-                    {route: '/editor', title: 'Create Unit', icon: mdiStore},
-                    {route: '/editor', title: 'Create Context', icon: mdiEllipseOutline},
-                    {route: '/editor', title: 'Create Schema', icon: mdiFileDocument},
-                    {route: '/editor', title: 'Create Schema Version', icon: mdiTag},
+                    {route: '/404', title: 'Create Organization', icon: mdiFactory},
+                    {route: '/404', title: 'Create Unit', icon: mdiStore},
+                    {route: '/404', title: 'Create Context', icon: mdiEllipseOutline},
+                    {route: '/404', title: 'Create Schema', icon: mdiFileDocument},
+                    {route: '/404', title: 'Create Schema Version', icon: mdiTag},
                 ],
                 icons: {
                     sync: mdiSync,
