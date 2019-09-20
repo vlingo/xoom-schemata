@@ -6,9 +6,7 @@
                 <span>vlingo</span>/<span class="font-weight-light">schemata</span>
             </v-toolbar-title>
             <div class="flex-grow-1"></div>
-            <v-btn icon="">
-                <v-icon>{{icons.sync}}</v-icon>
-            </v-btn>
+
         </v-app-bar>
         <v-system-bar height="5px" color="primary" style="z-index: 10" fixed></v-system-bar>
 
