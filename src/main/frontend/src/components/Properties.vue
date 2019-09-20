@@ -29,14 +29,19 @@
 
     export default {
         computed: {
+            ...mapFields([
+                'schema',
+                'version'
+            ]),
+
             specification() {
-                return this.$store.getters.version?.specification ?? ''
+                return this.version?.specification ?? ''
             },
             description() {
-                return this.$store.getters.version?.description ?? ''
+                return this.version?.description ?? ''
             },
             status() {
-                return this.$store.getters.version?.status ?? ''
+                return this.version?.status ?? ''
             },
         },
         methods: {

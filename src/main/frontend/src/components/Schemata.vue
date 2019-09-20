@@ -134,5 +134,7 @@
 </script>
 
 <style>
-
+    .v-card {
+        overflow-y: auto
+    }
 </style>
