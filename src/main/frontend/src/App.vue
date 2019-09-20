@@ -21,15 +21,20 @@
                 hide-overlay
                 permanent
         >
-            <v-list dense>
-                <v-list-item v-for="(item,idx) in menu" :key="idx">
+            <v-list dense shaped>
+                <v-list-item v-for="(item,idx) in menu" :key="idx"
+                             :to="item.route"
+                             color="primary"
+                >
                     <v-divider v-if="item.divider"></v-divider>
 
                     <v-list-item-action v-if="!item.divider">
                         <v-icon>{{item.icon}}</v-icon>
                     </v-list-item-action>
                     <v-list-item-content v-if="!item.divider">
-                        <v-list-item-title>{{item.title}}</v-list-item-title>
+                        <v-list-item-title>
+                            {{item.title}}
+                        </v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
             </v-list>
@@ -68,13 +73,13 @@
             return {
                 drawer: true,
                 menu: [
-                    {route: '', title: 'Browse Schemata', icon: mdiHome},
+                    {route: '/schemata', title: 'Browse Schemata', icon: mdiHome},
                     {divider: true},
-                    {route: '', title: 'Create Organization', icon: mdiFactory},
-                    {route: '', title: 'Create Unit', icon: mdiStore},
-                    {route: '', title: 'Create Context', icon: mdiEllipseOutline},
-                    {route: '', title: 'Create Schema', icon: mdiFileDocument},
-                    {route: '', title: 'Create Schema Version', icon: mdiTag},
+                    {route: '/404', title: 'Create Organization', icon: mdiFactory},
+                    {route: '/404', title: 'Create Unit', icon: mdiStore},
+                    {route: '/404', title: 'Create Context', icon: mdiEllipseOutline},
+                    {route: '/404', title: 'Create Schema', icon: mdiFileDocument},
+                    {route: '/404', title: 'Create Schema Version', icon: mdiTag},
                 ],
                 icons: {
                     sync: mdiSync
