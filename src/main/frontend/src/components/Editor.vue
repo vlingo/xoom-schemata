@@ -1,6 +1,7 @@
 <template>
     <v-card class="xs12" height="95vh">
-        <v-card-title>Edit</v-card-title>
+        <v-card-title class="warning">This is just a temporary component to try things.
+        It will either go away or evolve into something that can handle creating multiple types.</v-card-title>
         <v-card-text>
             <v-form
                     ref="form"
