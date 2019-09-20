@@ -1,6 +1,6 @@
 <template>
 
-    <v-card  min-height="45vh">
+    <v-card min-height="45vh">
         <v-list dense>
             <v-list-item
                     ripple
@@ -28,6 +28,7 @@
 
 <script>
     import {mdiDelete, mdiPencil, mdiTag} from '@mdi/js'
+    import Repository from '@/api/SchemataRepository'
 
     export default {
         props: ['schema'],
@@ -54,23 +55,12 @@
                 }
 
                 let vm = this
-                let o = this.schema.organizationId
-                let u = this.schema.unitId
-                let c = this.schema.contextId
-                let s = this.schema.schemaId
-                fetch(`/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`)
-                    .then(
-                        function (response) {
-                            if (response.status !== 200) {
-                                vm.$emit('vs-error', {status: response.status, message: response.text()})
-                                return;
-                            }
-
-                            response.json().then(function (data) {
-                                vm.versions = data
-                            });
-                        }
-                    )
+                Repository.getVersions(
+                    this.schema.organizationId,
+                    this.schema.unitId,
+                    this.schema.contextId,
+                    this.schema.schemaId)
+                    .then(data => vm.versions = data)
                     .catch(function (err) {
                         vm.$emit('vs-error', {status: 0, message: err})
                     });

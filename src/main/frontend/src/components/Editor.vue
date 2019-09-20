@@ -10,26 +10,26 @@
                 <v-row>
                 <v-col class="d-flex" cols="12" sm="6">
                 <v-select
-                        :items="items"
+                        :items="organizations"
                         label="Organization"
                 ></v-select>
                 </v-col>
                 <v-col class="d-flex" cols="12" sm="6">
                 <v-select
-                        :items="items"
+                        :items="units"
                         label="Unit"
                 ></v-select>
                 </v-col>
                 <v-col class="d-flex" cols="12" sm="6">
                 <v-select
-                        :items="items"
+                        :items="contexts"
                         label="Context"
                 ></v-select>
                 </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
                         <v-select
-                                :items="items"
-                                label="Type"
+                                :items="categories"
+                                label="Category"
                         ></v-select>
                     </v-col>
                 </v-row>
@@ -37,3 +37,25 @@
         </v-card-text>
     </v-card>
 </template>
+
+<script>
+
+    export default {
+        computed: {
+            organizations() {
+                return []
+            },
+            units() {
+                return []
+            },
+            contexts() {
+                return []
+            },
+            categories() {
+                return []
+            },
+        },
+        methods: {
+        }
+    }
+</script>

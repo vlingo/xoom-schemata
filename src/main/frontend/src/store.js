@@ -9,6 +9,7 @@ export default new Vuex.Store({
     schema: undefined,
     schemaVersion: undefined,
     selected: undefined,
+    organizations:[]
   },
   mutations: {
     raiseError (state, error) {

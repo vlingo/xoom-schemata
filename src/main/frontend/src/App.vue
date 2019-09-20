@@ -49,7 +49,7 @@
                     <v-col class="grow">{{$store.state.error.message}}</v-col>
                     <v-col class="shrink">
                         <v-btn icon dark @click="$store.commit('dismissError')">
-                            <v-icon>highlight_off</v-icon>
+                            <v-icon>{{icons.close}}</v-icon>
                         </v-btn>
                     </v-col>
                 </v-row>
@@ -65,7 +65,16 @@
 </template>
 
 <script>
-    import {mdiEllipseOutline, mdiFactory, mdiFileDocument, mdiHome, mdiStore, mdiSync, mdiTag} from '@mdi/js'
+    import {
+        mdiCloseCircleOutline,
+        mdiEllipseOutline,
+        mdiFactory,
+        mdiFileDocument,
+        mdiHome,
+        mdiStore,
+        mdiSync,
+        mdiTag
+    } from '@mdi/js'
 
     export default {
         name: 'App',
@@ -82,7 +91,8 @@
                     {route: '/editor', title: 'Create Schema Version', icon: mdiTag},
                 ],
                 icons: {
-                    sync: mdiSync
+                    sync: mdiSync,
+                    close: mdiCloseCircleOutline
                 }
             }
         }

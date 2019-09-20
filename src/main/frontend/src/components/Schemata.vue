@@ -29,12 +29,7 @@
 </template>
 
 <script>
-    function ensureHttpOk(response) {
-        if (!response.ok) {
-            throw Error(`HTTP ${response.status}: ${response.statusText} (${response.url})`);
-        }
-        return response;
-    }
+    import Repository from '@/api/SchemataRepository'
 
     export default {
         data: () => ({
@@ -61,9 +56,7 @@
         methods: {
             loadOrganizations() {
                 let vm = this
-                fetch('/organizations')
-                    .then(ensureHttpOk)
-                    .then(response => response.json())
+                Repository.getOrganizations()
                     .then(data => {
                         for (let organization of data) {
                             organization.id = organization.organizationId
@@ -99,9 +92,7 @@
             },
 
             async loadUnits(org) {
-                return fetch(`/organizations/${org.id}/units`)
-                    .then(ensureHttpOk)
-                    .then(response => response.json())
+                return Repository.getUnits(org.id)
                     .then(data => {
                         for (let unit of data) {
                             unit.id = `${org.id}-${unit.unitId}`
@@ -114,9 +105,7 @@
 
             },
             async loadContexts(unit) {
-                return fetch(`/organizations/${unit.organizationId}/units/${unit.unitId}/contexts`)
-                    .then(ensureHttpOk)
-                    .then(response => response.json())
+                return Repository.getContexts(unit.organizationId, unit.unitId)
                     .then(data => {
                         for (let context of data) {
                             context.id = `${unit.id}-${context.contextId}`
@@ -129,9 +118,7 @@
             }
             ,
             async loadSchemata(context) {
-                return fetch(`/organizations/${context.organizationId}/units/${context.unitId}/contexts/${context.contextId}/schemas`)
-                    .then(ensureHttpOk)
-                    .then(response => response.json())
+                return Repository.getSchemata(context.organizationId, context.unitId, context.contextId)
                     .then(data => {
                         for (let schema of data) {
                             schema.id = `${context.id}-${schema.schemaId}`
