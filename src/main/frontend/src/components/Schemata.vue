@@ -1,12 +1,12 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <v-card height="45vh" >
+    <v-card height="45vh">
         <v-card-title>
             <v-text-field
                     v-model="search"
                     label="Search"
                     clearable
                     hide-details
-                    clear-icon="close"
+                    :clear-icon="icons.clear"
             ></v-text-field>
         </v-card-title>
         <v-card-text>
@@ -23,6 +23,19 @@
                     :active.sync="schema"
                     :open.sync="open"
             >
+                <template v-slot:prepend="{ item }">
+                    <v-tooltip right v-if="item.category  && icons.categories[item.category]">
+                        <template v-slot:activator="{ on }">
+                            <v-icon v-on="on">
+                                {{icons.categories[item.category]}}
+                            </v-icon>
+
+                        </template>
+                        <span>{{item.category}}</span>
+                    </v-tooltip>
+
+
+                </template>
             </v-treeview>
         </v-card-text>
     </v-card>
@@ -30,12 +43,32 @@
 
 <script>
     import Repository from '@/api/SchemataRepository'
+    import {
+        mdiClose,
+        mdiCogs,
+        mdiDatabase,
+        mdiEmailOpen,
+        mdiFileDocument,
+        mdiHelpCircle,
+        mdiPlaylistPlay
+    } from '@mdi/js'
 
     export default {
         data: () => ({
             items: [],
             search: null,
             open: [],
+            icons: {
+                close: mdiClose,
+                categories: {
+                    Command: mdiCogs,
+                    Data: mdiDatabase,
+                    Document: mdiFileDocument,
+                    Envelope: mdiEmailOpen,
+                    Event: mdiPlaylistPlay,
+                    Unknown: mdiHelpCircle
+                }
+            }
 
         }),
         computed: {
