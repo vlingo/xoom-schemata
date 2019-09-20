@@ -1,16 +1,16 @@
 <template>
-    <v-layout row wrap>
-        <v-flex class="xs12">
-            <Schemata v-model="schema" @vs-error="onError"/>
-        </v-flex>
+        <v-row>
+        <v-col cols="12" class="pt-0">
+            <Schemata @vs-error="onError"/>
+        </v-col>
 
-        <v-flex class="xs12 md3">
-            <Versions :schema="schema" v-model="schemaVersion" @vs-error="onError"/>
-        </v-flex>
-        <v-flex class="xs12 md9">
-            <Properties :schemaVersion="schemaVersion" @vs-error="onError"/>
-        </v-flex>
-    </v-layout>
+        <v-col cols="12" md="3" class="pt-0 pr-0">
+            <Versions @vs-error="onError"/>
+        </v-col>
+        <v-col cols="12" md="9" class="pt-0">
+            <Properties @vs-error="onError"/>
+        </v-col>
+        </v-row>
 </template>
 
 <script>
@@ -25,8 +25,6 @@
             Properties
         },
         data: () => ({
-            schema: undefined,
-            schemaVersion: undefined,
             error: false,
         }),
         computed: {

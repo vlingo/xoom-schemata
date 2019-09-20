@@ -1,5 +1,5 @@
-<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <v-card class="xs12" min-height="95vh" min-width="100%">
+<template>
+    <v-card class="xs12" min-height="95vh">
         <v-card-title>Edit</v-card-title>
         <v-card-text>
             <v-form
@@ -43,10 +43,34 @@
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
                         <v-select
+                                :items="schemata"
+                                label="Schema"
+                                return-object
+                                :loading="loading.schemata"
+                                item-value="schemaId"
+                                item-text="name"
+                                v-model="schema"
+                        ></v-select>
+                    </v-col>
+                    <v-col class="d-flex" cols="12" sm="6">
+                        <v-select
+                                :items="versions"
+                                label="Version"
+                                return-object
+                                item-text="currentVersion"
+                                item-value="schemaVersionId"
+                                :loading="loading.versions"
+                                v-model="version"
+                        ></v-select>
+                    </v-col>
+                </v-row>
+                    <v-divider></v-divider>
+                <v-row>
+                    <v-col class="d-flex" cols="12" sm="6">
+                        <v-select
                                 :items="categories"
                                 label="Category"
                                 :loading="loading.categories"
-                                item-value="id"
                                 v-model="category"
                         ></v-select>
                     </v-col>
@@ -68,6 +92,8 @@
                     units: false,
                     contexts: false,
                     category: false,
+                    schemata: false,
+                    versions: false
                 }
             }
         },
@@ -76,7 +102,9 @@
                 'organization',
                 'unit',
                 'context',
-                'category'
+                'category',
+                'schema',
+                'version'
             ]),
         },
         asyncComputed: {
@@ -108,6 +136,31 @@
                 this.loading.categories = true
                 const result = await SchemataRepository.getCategories()
                 this.loading.categories = false
+                return result
+            },
+            async schemata() {
+                if(!this.organization || !this.unit || !this.context) return []
+
+                this.loading.schemata = true
+                const result = await SchemataRepository.getSchemata(
+                    this.organization.organizationId,
+                    this.unit.unitId,
+                    this.context.contextId
+                )
+                this.loading.schemata = false
+                return result
+            },
+            async versions() {
+                if(!this.organization || !this.unit || !this.context || !this.schema) return []
+
+                this.loading.versions = true
+                const result = await SchemataRepository.getVersions(
+                    this.organization.organizationId,
+                    this.unit.unitId,
+                    this.context.contextId,
+                    this.schema.schemaId
+                )
+                this.loading.versions = false
                 return result
             },
         },

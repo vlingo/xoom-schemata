@@ -1,5 +1,5 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <v-card class="xs12" min-height="45vh">
+    <v-card height="45vh" >
         <v-card-title>
             <v-text-field
                     v-model="search"
@@ -16,12 +16,12 @@
                     :search="search"
                     :filter="filter"
                     :load-children="loadChildren"
+                    open-on-click
                     return-object
                     activatable
                     transition
-                    :active.sync="selected"
+                    :active.sync="schema"
                     :open.sync="open"
-                    @update:active="$emit('input', $event[0])"
             >
             </v-treeview>
         </v-card-text>
@@ -36,19 +36,21 @@
             items: [],
             search: null,
             open: [],
+
         }),
         computed: {
             filter() {
                 return (item, search, textKey) => item[textKey].indexOf(search) > -1
             },
-            selected: {
+            schema: {
                 get() {
-                    return [this.$store.state.selected]
+                    return [this.$store.schema]
                 },
                 set(value) {
-                    this.$store.commit('select', value[0])
+                    this.$store.commit('selectSchema', value[0])
                 }
-            }
+            },
+
         },
         created() {
             this.loadOrganizations()
@@ -95,7 +97,7 @@
                 return Repository.getUnits(org.id)
                     .then(data => {
                         for (let unit of data) {
-                            unit.id = `${org.id}-${unit.unitId}`
+                            unit.id = unit.unitId
                             unit.type = 'unit'
                             unit.children = []
                             org.children.push(unit)
@@ -108,7 +110,7 @@
                 return Repository.getContexts(unit.organizationId, unit.unitId)
                     .then(data => {
                         for (let context of data) {
-                            context.id = `${unit.id}-${context.contextId}`
+                            context.id = context.contextId
                             context.name = context.namespace
                             context.type = 'context'
                             context.children = []
@@ -121,7 +123,7 @@
                 return Repository.getSchemata(context.organizationId, context.unitId, context.contextId)
                     .then(data => {
                         for (let schema of data) {
-                            schema.id = `${context.id}-${schema.schemaId}`
+                            schema.id = schema.schemaId
                             schema.type = 'schema'
                             context.children.push(schema)
                         }

@@ -1,5 +1,4 @@
 <template>
-
     <v-card min-height="45vh">
         <v-card-text>
             <v-alert v-if="status && status !== 'Published'" :value="true" type="warning" outlined>
@@ -28,16 +27,15 @@
     import marked from 'marked'
 
     export default {
-        props: ['schemaVersion'],
         computed: {
             specification() {
-                return this.schemaVersion?.specification ?? ''
+                return this.$store.getters.version?.specification ?? ''
             },
             description() {
-                return this.schemaVersion?.description ?? ''
+                return this.$store.getters.version?.description ?? ''
             },
             status() {
-                return this.schemaVersion?.status ?? ''
+                return this.$store.getters.version?.status ?? ''
             },
         },
         methods: {

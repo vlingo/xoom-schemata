@@ -5,19 +5,19 @@
             <v-list-item
                     ripple
                     active-class="primary"
-                    v-for="version in versions" :key="version.id"
-                    @click="selectVersion(version)">
+                    v-for="v in versions" :key="v.id"
+                    @click="selectVersion(v)">
                 <v-list-item-action>
                     <v-tooltip right>
                         <template v-slot:activator="{ on }">
-                            <v-icon v-on="on" :color="selectedVersion === version ? 'primary': ''">{{icon(version)}}
+                            <v-icon v-on="on" :color="version === v ? 'primary': ''">{{icon(v)}}
                             </v-icon>
                         </template>
-                        <span>{{version.status}}</span>
+                        <span>{{v.status}}</span>
                     </v-tooltip>
                 </v-list-item-action>
                 <v-list-item-content>
-                    <v-list-item-title>{{ version.currentVersion }}</v-list-item-title>
+                    <v-list-item-title>{{ v.currentVersion }}</v-list-item-title>
                 </v-list-item-content>
             </v-list-item>
         </v-list>
@@ -29,13 +29,15 @@
 <script>
     import {mdiDelete, mdiPencil, mdiTag} from '@mdi/js'
     import Repository from '@/api/SchemataRepository'
+    import {mapFields} from 'vuex-map-fields';
 
     export default {
-        props: ['schema'],
         data: () => ({
             versions: [],
-            selectedVersion: undefined,
         }),
+        mounted() {
+          this.loadVersions()
+        },
         watch: {
             schema: function () {
                 this.selectVersion(undefined)
@@ -43,13 +45,19 @@
                     this.loadVersions()
             }
         },
-        computed: {},
+        computed: {
+            ...mapFields([
+                'schema',
+                'version'
+            ]),
+        },
         methods: {
             selectVersion(selection) {
                 this.selectedVersion = selection
                 this.$emit('input', selection)
             },
             loadVersions() {
+                console.log('load version')
                 if (!(this.schema)) {
                     return
                 }

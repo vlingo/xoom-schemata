@@ -8,14 +8,13 @@ export default new Vuex.Store({
   strict: true,
   state: {
     error: undefined,
-    schema: undefined,
     schemaVersion: undefined,
     selected: undefined,
     organization: undefined,
     unit: undefined,
     context: undefined,
     category: undefined,
-    //schema: undefined,
+    schema: undefined,
     version: undefined
   },
   mutations: {
@@ -28,8 +27,8 @@ export default new Vuex.Store({
       state.error = undefined
     },
 
-    select (state, selected) {
-      state.selected = selected
+    selectSchema (state, selected) {
+      state.schema = selected
     }
   },
   actions: {
@@ -37,8 +36,9 @@ export default new Vuex.Store({
   },
   getters: {
     getField,
-    unit: state => state.selected?.unitId ?? undefined,
-    context: state => state.selected?.contextId ?? undefined,
-    schema: state => state.selected?.schemaId ?? undefined,
+    organizationId: state => state.selected?.organizationId ?? undefined,
+    unitId: state => state.selected?.unitId ?? undefined,
+    contextId: state => state.selected?.contextId ?? undefined,
+    schemaId: state => state.selected?.schemaId ?? undefined,
   }
 })
