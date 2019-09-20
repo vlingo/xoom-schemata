@@ -3,17 +3,19 @@
         <v-system-bar height="5px" color="primary"></v-system-bar>
         <v-app-bar dense>
             <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-            <v-toolbar-title class="headline text-uppercase">
-                <span>Vlingo</span><span class="font-weight-light">Schemata</span>
+            <v-toolbar-title class="headline">
+                <span>vlingo</span>/<span class="font-weight-light">schemata</span>
             </v-toolbar-title>
         </v-app-bar>
 
         <v-navigation-drawer
-                v-model="drawer"
                 app
                 class='mt-12'
                 style='top: 6px'
-
+                :expand-on-hover="drawer"
+                disable-resize-watcher
+                hide-overlay
+                permanent
         >
             <v-list dense>
                 <v-list-item>
@@ -98,7 +100,7 @@
         name: 'App',
         data() {
             return {
-                drawer: null,
+                drawer: true,
             }
         }
     }
