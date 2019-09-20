@@ -7,6 +7,12 @@
 
 package io.vlingo.schemata.codegen;
 
+import java.io.InputStream;
+import java.util.Arrays;
+
+import org.junit.After;
+import org.junit.Before;
+
 import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.TestWorld;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
@@ -17,14 +23,9 @@ import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
-import org.junit.After;
-import org.junit.Before;
-
-import java.io.InputStream;
-import java.util.Arrays;
 
 public abstract class CodeGenTests {
-    protected static final long TIMEOUT = 200L;
+    protected static final long TIMEOUT = 500L;
 
     private World world;
     private InMemoryTypeResolver typeResolver;
@@ -53,9 +54,9 @@ public abstract class CodeGenTests {
         );
     }
 
-    protected final void registerType(final String name, final String version) {
-      InputStream typeDefinition = typeDefinition(name);
-      TypeDefinition parsed = (TypeDefinition) typeParser.parseTypeDefinition(typeDefinition).await(TIMEOUT);
+    protected final void registerType(final String filePath, final String fullyQualifiedTypeName, final String version) {
+      InputStream typeDefinition = typeDefinition(filePath);
+      TypeDefinition parsed = (TypeDefinition) typeParser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName).await(TIMEOUT);
 
       typeResolver.produce(parsed, version);
     }

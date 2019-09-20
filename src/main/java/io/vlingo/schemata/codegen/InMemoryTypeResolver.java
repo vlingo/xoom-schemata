@@ -22,8 +22,13 @@ public class InMemoryTypeResolver implements TypeResolver {
     }
 
     @Override
-    public Optional<TypeDefinition> resolve(String fullQualifiedTypeName) {
-        return Optional.ofNullable(types.get(fullQualifiedTypeName));
+    public Optional<TypeDefinition> resolve(String fullQualifiedTypeName, final String simpleTypeName) {
+        for (final TypeDefinition type : types.values()) {
+          if (type.fullyQualifiedTypeName.equals(fullQualifiedTypeName) || type.typeName.equals(simpleTypeName)) {
+            return Optional.of(type);
+          }
+        }
+        return Optional.empty();
     }
 
     public void produce(TypeDefinition typeDefinition, String version) {

@@ -37,6 +37,10 @@ public class ContextData {
     return new ContextData(organizationId, unitId, contextId, namespace, description);
   }
 
+  public static ContextData identity(final String organizationId, final String unitId, final String contextId) {
+    return new ContextData(organizationId, unitId, contextId, null, null);
+  }
+
   public static ContextData just(final String namespace, final String description) {
     return new ContextData("", "", "", namespace, description);
   }

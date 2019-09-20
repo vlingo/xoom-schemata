@@ -83,12 +83,17 @@ public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState>
   }
 
   @Override
-  protected void persistentObject(final SchemaVersionState persistentObject) {
-    this.state = persistentObject;
+  protected SchemaVersionState stateObject() {
+    return state;
   }
 
   @Override
-  protected Class<SchemaVersionState> persistentObjectType() {
+  protected void stateObject(final SchemaVersionState stateObject) {
+    this.state = stateObject;
+  }
+
+  @Override
+  protected Class<SchemaVersionState> stateObjectType() {
     return SchemaVersionState.class;
   }
 }

@@ -47,12 +47,17 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   }
 
   @Override
-  protected void persistentObject(final ContextState persistentObject) {
-    this.state = persistentObject;
+  protected ContextState stateObject() {
+    return state;
   }
 
   @Override
-  protected Class<ContextState> persistentObjectType() {
+  protected void stateObject(final ContextState stateObject) {
+    this.state = stateObject;
+  }
+
+  @Override
+  protected Class<ContextState> stateObjectType() {
     return ContextState.class;
   }
 }

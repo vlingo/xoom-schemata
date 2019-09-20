@@ -13,28 +13,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import io.vlingo.actors.World;
-import io.vlingo.common.identity.IdentityGeneratorType;
 import io.vlingo.common.serialization.JsonSerialization;
 import io.vlingo.http.Response;
-import io.vlingo.lattice.grid.Grid;
-import io.vlingo.lattice.grid.GridAddressFactory;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
-import io.vlingo.schemata.NoopDispatcher;
-import io.vlingo.schemata.Schemata;
-import io.vlingo.schemata.model.Context;
-import io.vlingo.schemata.model.ContextState;
-import io.vlingo.schemata.query.ContextQueries;
-import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.ContextData;
-import io.vlingo.symbio.store.object.MapQueryExpression;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.StateObjectMapper;
-import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
 public class ContextResourceTest extends ResourceTest {
   private static final String OrgId = "O123";
@@ -42,14 +25,9 @@ public class ContextResourceTest extends ResourceTest {
   private static final String ContextNamespace = "Test";
   private static final String ContextDescription = "Test context.";
 
-  private ObjectStore objectStore;
-  private ContextQueries queries;
-  private ObjectTypeRegistry registry;
-  private World world;
-
   @Test
   public void testThatContextIsDefined() {
-    final ContextResource resource = new ContextResource(world, queries);
+    final ContextResource resource = new ContextResource(world);
     final Response response = resource.defineWith(OrgId, UnitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     assertEquals(Created, response.status);
     assertNotNull(response.headers.headerOf(Location));
@@ -60,7 +38,7 @@ public class ContextResourceTest extends ResourceTest {
 
   @Test
   public void testContextDescribedAs() {
-    final ContextResource resource = new ContextResource(world, queries);
+    final ContextResource resource = new ContextResource(world);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     assertEquals(Created, response1.status);
     final ContextData data1 = JsonSerialization.deserialized(response1.entity.content(), ContextData.class);
@@ -74,7 +52,7 @@ public class ContextResourceTest extends ResourceTest {
 
   @Test
   public void testContextRenameTo() {
-    final ContextResource resource = new ContextResource(world, queries);
+    final ContextResource resource = new ContextResource(world);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     assertEquals(Created, response1.status);
     final ContextData data1 = JsonSerialization.deserialized(response1.entity.content(), ContextData.class);
@@ -84,28 +62,5 @@ public class ContextResourceTest extends ResourceTest {
     assertEquals(data1.unitId, data2.unitId);
     assertNotEquals(data1.namespace, data2.namespace);
     assertEquals((ContextNamespace + 1), data2.namespace);
-  }
-
-  @Before
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void setUp() throws Exception {
-    world = World.startWithDefaults("test-command-router");
-    world.stageNamed("vlingo-schemata-grid", Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
-
-    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
-
-    queries = Queries.forContexts(world.stageNamed(Schemata.StageName), objectStore);
-
-    registry = new ObjectTypeRegistry(world);
-
-    final Info<Context> unitInfo =
-            new Info(
-                  objectStore,
-                  ContextState.class,
-                  "Context",
-                  MapQueryExpression.using(Context.class, "find", MapQueryExpression.map("id", "id")),
-                  StateObjectMapper.with(Context.class, new Object(), new Object()));
-
-    registry.register(unitInfo);
   }
 }

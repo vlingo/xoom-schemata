@@ -7,7 +7,10 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.Map;
+
 import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.symbio.store.object.MapQueryExpression.FluentMap;
 import io.vlingo.symbio.store.object.StateObject;
 
 public class UnitState extends StateObject {
@@ -35,6 +38,13 @@ public class UnitState extends StateObject {
 
   public UnitState withName(final String name) {
     return new UnitState(this.persistenceId(), this.unitId, name, this.description);
+  }
+
+  @Override
+  public Map<String, Object> queryMap() {
+    return FluentMap
+            .has("organizationId", unitId.organizationId.value)
+            .and("unitId", unitId.value);
   }
 
   @Override

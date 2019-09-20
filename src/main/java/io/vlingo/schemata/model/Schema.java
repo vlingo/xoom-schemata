@@ -23,21 +23,23 @@ public interface Schema {
     return SchemaId.uniqueFor(contextId);
   }
 
-  static Completes<SchemaState> with(final Stage stage, final ContextId contextId, final Category category, final String name, final String description) {
-    return with(stage, uniqueId(contextId), category, name, description);
+  static Completes<SchemaState> with(final Stage stage, final ContextId contextId, final Category category, final Scope scope, final String name, final String description) {
+    return with(stage, uniqueId(contextId), category, scope, name, description);
   }
 
-  static Completes<SchemaState> with(final Stage stage, final SchemaId schemaId, final Category category, final String name, final String description) {
+  static Completes<SchemaState> with(final Stage stage, final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
     final String actorName = nameFrom(schemaId);
     final Address address = stage.addressFactory().from(schemaId.value, actorName);
     final Definition definition = Definition.has(SchemaEntity.class, Definition.parameters(schemaId), actorName);
     final Schema schema = stage.actorFor(Schema.class, definition, address);
-    return schema.defineWith(category, name, description);
+    return schema.defineWith(category, scope, name, description);
   }
 
-  Completes<SchemaState> defineWith(final Category category, final String name, final String description);
+  Completes<SchemaState> defineWith(final Category category, final Scope scope, final String name, final String description);
 
   Completes<SchemaState> categorizeAs(final Category category);
+
+  Completes<SchemaState> scopeAs(final Scope scope);
 
   Completes<SchemaState> describeAs(final String description);
 

@@ -16,6 +16,7 @@ import org.jdbi.v3.core.statement.StatementContext;
 import io.vlingo.schemata.model.Category;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.SchemaState;
+import io.vlingo.schemata.model.Scope;
 
 public class SchemaStateMapper implements RowMapper<SchemaState> {
     @Override
@@ -28,6 +29,7 @@ public class SchemaStateMapper implements RowMapper<SchemaState> {
                         rs.getString("contextId"),
                         rs.getString("schemaId")),
                 Category.valueOf(rs.getString("category")),
+                Scope.valueOf(rs.getString("scope")),
                 rs.getString("name"),
                 rs.getString("description"));
     }

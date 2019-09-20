@@ -7,21 +7,6 @@
 
 package io.vlingo.schemata.codegen.parser;
 
-import io.vlingo.actors.Actor;
-import io.vlingo.actors.CompletesEventually;
-import io.vlingo.common.Completes;
-import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
-import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
-import io.vlingo.schemata.codegen.ast.FieldDefinition;
-import io.vlingo.schemata.codegen.ast.Node;
-import io.vlingo.schemata.codegen.ast.types.BasicType;
-import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
-import io.vlingo.schemata.model.Category;
-import org.antlr.v4.runtime.CodePointBuffer;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.TerminalNode;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +17,22 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.antlr.v4.runtime.CodePointBuffer;
+import org.antlr.v4.runtime.CodePointCharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.TerminalNode;
+
+import io.vlingo.actors.Actor;
+import io.vlingo.actors.CompletesEventually;
+import io.vlingo.common.Completes;
+import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
+import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
+import io.vlingo.schemata.codegen.ast.FieldDefinition;
+import io.vlingo.schemata.codegen.ast.Node;
+import io.vlingo.schemata.codegen.ast.types.BasicType;
+import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.schemata.model.Category;
+
 
 public class AntlrTypeParser extends Actor implements TypeParser {
     private static final int BUFFER_SIZE = 2048;
@@ -41,13 +42,13 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         parserBuffer = new byte[BUFFER_SIZE];
     }
 
-    public Completes<Node> parseTypeDefinition(InputStream inputStream) {
+    public Completes<Node> parseTypeDefinition(final InputStream inputStream, final String fullyQualifiedTypeName) {
         CompletesEventually eventually = completesEventually();
         SchemaVersionDefinitionParser tree;
 
         try {
             tree = generateAntlrTree(inputStream);
-            Node type = parseTypeDeclaration(tree.typeDeclaration());
+            Node type = parseTypeDeclaration(tree.typeDeclaration(), fullyQualifiedTypeName);
             eventually.with(type);
         } catch (IOException e) {
             logger().error(e.getMessage(), e);
@@ -57,13 +58,16 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         return completes();
     }
 
-    private Node parseTypeDeclaration(SchemaVersionDefinitionParser.TypeDeclarationContext typeDeclaration) {
+    private Node parseTypeDeclaration(
+            final SchemaVersionDefinitionParser.TypeDeclarationContext typeDeclaration,
+            final String fullyQualifiedTypeName) {
+
         String typeKind = typeDeclaration.type().getText();
         String typeName = typeDeclaration.typeName().getText();
 
         Stream<Node> fields = typeDeclaration.typeBody().attributes().attribute().stream().map(this::parseFieldDefinition);
 
-        return new TypeDefinition(categoryOf(typeKind), typeName, fields.collect(Collectors.toList()));
+        return new TypeDefinition(categoryOf(typeKind), fullyQualifiedTypeName, typeName, fields.collect(Collectors.toList()));
     }
 
     private Node parseFieldDefinition(SchemaVersionDefinitionParser.AttributeContext attribute) {

@@ -20,6 +20,14 @@ import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.QueryExpression;
 
 public class OrganizationQueriesActor extends StateObjectQueryActor implements OrganizationQueries {
+  private static final String ById =
+          "SELECT * FROM TBL_ORGANIZATIONS " +
+          "WHERE organizationId = :organizationId";
+
+  private static final String ByName =
+          "SELECT * FROM TBL_ORGANIZATIONS " +
+          "WHERE name = :name";
+
   private final Map<String,String> parameters;
   private final QueryExpression queryAll;
 
@@ -41,13 +49,34 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
     parameters.clear();
     parameters.put("organizationId", organizationId);
 
-    final QueryExpression query =
-            MapQueryExpression.using(
-                    OrganizationState.class,
-                    "SELECT * FROM TBL_ORGANIZATIONS " +
-                    "WHERE organizationId = :organizationId",
-                    parameters);
+    return queryOne(ById, parameters);
+  }
 
-    return queryObject(OrganizationState.class, query, (OrganizationState state) -> OrganizationData.from(state));
+  @Override
+  public Completes<OrganizationData> organization(final String organizationId, final QueryResultsCollector collector) {
+    final Completes<OrganizationData> data = organization(organizationId);
+    collector.expectOrganization(data);
+    return data;
+  }
+
+  @Override
+  public Completes<OrganizationData> organizationNamed(final String name) {
+    parameters.clear();
+    parameters.put("name", name);
+
+    return queryOne(ByName, parameters);
+  }
+
+  @Override
+  public Completes<OrganizationData> organizationNamed(final String name, final QueryResultsCollector collector) {
+    final Completes<OrganizationData> data = organizationNamed(name);
+    collector.expectOrganization(data);
+    return data;
+  }
+
+  private Completes<OrganizationData> queryOne(final String query, final Map<String,String> parameters) {
+    final QueryExpression expression = MapQueryExpression.using(OrganizationState.class, query, parameters);
+
+    return queryObject(OrganizationState.class, expression, (OrganizationState state) -> OrganizationData.from(state));
   }
 }

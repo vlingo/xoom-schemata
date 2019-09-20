@@ -7,6 +7,10 @@
 
 package io.vlingo.schemata.codegen;
 
+import java.io.InputStream;
+import java.util.List;
+import java.util.function.Function;
+
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
@@ -14,10 +18,6 @@ import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
-
-import java.io.InputStream;
-import java.util.List;
-import java.util.function.Function;
 
 public class TypeDefinitionCompilerActor extends Actor implements TypeDefinitionCompiler {
     private final TypeParser parser;
@@ -30,11 +30,12 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
         this.backend = backend;
     }
 
-    public Completes<String> compile(final InputStream typeDefinition, final String version) {
+    @Override
+    public Completes<String> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version) {
         Function<Node, Completes<Node>> process = node -> {
             Completes<Node> result = Completes.withSuccess(node);
             for (Processor p : processors) {
-                result = result.andThenTo(p::process);
+                result = result.andThenTo(n -> p.process(n, fullyQualifiedTypeName));
             }
 
             return result;
@@ -42,7 +43,7 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
 
         CompletesEventually eventually = completesEventually();
 
-        parser.parseTypeDefinition(typeDefinition)
+        parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
                 .andThenTo(process)
                 .andThenTo(tree -> backend.generateOutput(tree, version))
                 .andThenConsume(eventually::with);

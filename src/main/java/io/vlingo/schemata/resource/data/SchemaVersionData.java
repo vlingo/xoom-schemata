@@ -87,6 +87,10 @@ public class SchemaVersionData {
           nextVersion);
   }
 
+  public static SchemaVersionData none() {
+    return just("", "", "", "", "");
+  }
+
   @Override
   public String toString() {
     return "SchemaVersionData [organizationId=" + organizationId + ", unitId=" + unitId + ", contextId=" + contextId

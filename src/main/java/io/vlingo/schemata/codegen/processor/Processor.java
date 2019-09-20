@@ -11,7 +11,7 @@ import io.vlingo.common.Completes;
 import io.vlingo.schemata.codegen.ast.Node;
 
 public interface Processor {
-    Completes<Node> process(Node node);
+    Completes<Node> process(Node node, final String fullyQualifiedTypeName);
 
     @SuppressWarnings("unchecked")
     static <T extends Node> T requireBeing(Node node, Class<T> nodeClass) {

@@ -12,7 +12,9 @@ import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.ResponseHeader.*;
+import static io.vlingo.http.ResponseHeader.ContentType;
+import static io.vlingo.http.ResponseHeader.Location;
+import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
@@ -33,17 +35,15 @@ import io.vlingo.schemata.model.Context;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Naming;
-import io.vlingo.schemata.query.ContextQueries;
+import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.ContextData;
 
 public class ContextResource extends ResourceHandler {
   private final ContextCommands commands;
-  private final ContextQueries queries;
   private final Stage stage;
 
-  public ContextResource(final World world, final ContextQueries queries) {
+  public ContextResource(final World world) {
     this.stage = world.stageNamed(StageName);
-    this.queries = queries;
     this.commands = new ContextCommands(this.stage, 10);
   }
 
@@ -83,20 +83,20 @@ public class ContextResource extends ResourceHandler {
   }
 
   public Completes<Response> queryContexts(final String organizationId, final String unitId) {
-    return queries
+    return Queries.forContexts()
             .contexts(organizationId, unitId)
             .andThenTo(contexts -> Completes.withSuccess(Response.of(Ok, serialized(contexts))));
   }
 
   public Completes<Response> queryContext(final String organizationId, final String unitId, final String contextId) {
-    return queries
+    return Queries.forContexts()
             .context(organizationId, unitId, contextId)
             .andThenTo(context -> Completes.withSuccess(Response.of(Ok, serialized(context))));
   }
 
   @Override
   public Resource<?> routes() {
-    return resource("Context Resource",
+    return resource("Context Resource", 1,
       post("/organizations/{organizationId}/units/{unitId}/contexts")
         .param(String.class)
         .param(String.class)

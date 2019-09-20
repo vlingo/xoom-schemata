@@ -12,7 +12,9 @@ import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.ResponseHeader.*;
+import static io.vlingo.http.ResponseHeader.ContentType;
+import static io.vlingo.http.ResponseHeader.Location;
+import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
@@ -33,23 +35,21 @@ import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Unit;
-import io.vlingo.schemata.query.UnitQueries;
+import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.UnitData;
 
 public class UnitResource extends ResourceHandler {
   private final UnitCommands commands;
-  private final UnitQueries queries;
   private final Stage stage;
 
-  public UnitResource(final World world, final UnitQueries queries) {
+  public UnitResource(final World world) {
     this.stage = world.stageNamed(StageName);
-    this.queries = queries;
     this.commands = new UnitCommands(this.stage, 10);
   }
 
   public Completes<Response> defineWith(final String organizationId, final UnitData data) {
-    if (Naming.isValid(data.name)) {
-      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
+    if (!Naming.isValid(data.name)) {
+      return Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
     }
 
     return Unit.with(stage, OrganizationId.existing(organizationId), data.name, data.description)
@@ -83,20 +83,20 @@ public class UnitResource extends ResourceHandler {
   }
 
   public Completes<Response> queryUnits(final String organizationId) {
-    return queries
+    return Queries.forUnits()
             .units(organizationId)
             .andThenTo(units -> Completes.withSuccess(Response.of(Ok, serialized(units))));
   }
 
   public Completes<Response> queryUnit(final String organizationId, final String unitId) {
-    return queries
+    return Queries.forUnits()
             .unit(organizationId, unitId)
             .andThenTo(unit -> Completes.withSuccess(Response.of(Ok, serialized(unit))));
   }
 
   @Override
   public Resource<?> routes() {
-    return resource("Unit Resource",
+    return resource("Unit Resource", 1,
       post("/organizations/{organizationId}/units")
         .param(String.class)
         .body(UnitData.class)

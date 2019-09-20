@@ -5,12 +5,10 @@
 // was not distributed with this file, You can obtain
 // one at https://mozilla.org/MPL/2.0/.
 
-package io.vlingo.schemata.codegen.processor.types;
+package io.vlingo.schemata.model;
 
-import java.util.Optional;
+import io.vlingo.common.Completes;
 
-import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
-
-public interface TypeResolver {
-    Optional<TypeDefinition> resolve(final String fullQualifiedTypeName, final String simpleTypeName);
+public interface DependencyRecorder {
+  Completes<Boolean> recordDependency(final Dependency dependency);
 }

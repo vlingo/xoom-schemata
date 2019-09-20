@@ -20,6 +20,22 @@ import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.QueryExpression;
 
 public class SchemaVersionQueriesActor extends StateObjectQueryActor implements SchemaVersionQueries {
+  private static final String ById =
+          "SELECT * FROM TBL_SCHEMAVERSIONS " +
+          "WHERE organizationId = :organizationId " +
+            "AND unitId = :unitId " +
+            "AND contextId = :contextId " +
+            "AND schemaId = :schemaId " +
+            "AND schemaVersionId = :schemaVersionId";
+
+  private static final String ByCurrentVersion =
+          "SELECT * FROM TBL_SCHEMAVERSIONS " +
+          "WHERE organizationId = :organizationId " +
+            "AND unitId = :unitId " +
+            "AND contextId = :contextId " +
+            "AND schemaId = :schemaId " +
+            "AND currentVersion = :currentVersion";
+
   private final Map<String,String> parameters;
 
   public SchemaVersionQueriesActor(final ObjectStore objectStore) {
@@ -57,17 +73,24 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
     parameters.put("schemaId", schemaId);
     parameters.put("schemaVersionId", schemaVersionId);
 
-    final QueryExpression query =
-            MapQueryExpression.using(
-                    SchemaVersionState.class,
-                    "SELECT * FROM TBL_SCHEMAVERSIONS " +
-                    "WHERE organizationId = :organizationId " +
-                      "AND unitId = :unitId " +
-                      "AND contextId = :contextId " +
-                      "AND schemaId = :schemaId " +
-                      "AND schemaVersionId = :schemaVersionId",
-                    parameters);
+    return queryOne(ById, parameters);
+  }
 
-    return queryObject(SchemaVersionState.class, query, (SchemaVersionState state) -> SchemaVersionData.from(state));
+  @Override
+  public Completes<SchemaVersionData> schemaVersionOfVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String version) {
+    parameters.clear();
+    parameters.put("organizationId", organizationId);
+    parameters.put("unitId", unitId);
+    parameters.put("contextId", contextId);
+    parameters.put("schemaId", schemaId);
+    parameters.put("currentVersion", version);
+
+    return queryOne(ByCurrentVersion, parameters);
+  }
+
+  private Completes<SchemaVersionData> queryOne(final String query, final Map<String,String> parameters) {
+    final QueryExpression expression = MapQueryExpression.using(SchemaVersionState.class, query, parameters);
+
+    return queryObject(SchemaVersionState.class, expression, (SchemaVersionState state) -> SchemaVersionData.from(state));
   }
 }

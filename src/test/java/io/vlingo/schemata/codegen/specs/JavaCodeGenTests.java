@@ -7,17 +7,20 @@
 
 package io.vlingo.schemata.codegen.specs;
 
-import io.vlingo.schemata.codegen.CodeGenTests;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
+import io.vlingo.schemata.codegen.CodeGenTests;
 
 public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesABasicType() throws ExecutionException, InterruptedException {
-    final String result = compilerWithJavaBackend().compile(typeDefinition("basic"), "0.0.1").await(TIMEOUT);
+    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
+
+    final String result = compilerWithJavaBackend().compile(typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
 
     assertTrue(result.contains("import io.vlingo.lattice.model.DomainEvent;"));
     assertTrue(result.contains("import io.vlingo.schemata.model.SchemaVersion;"));
@@ -37,7 +40,9 @@ public class JavaCodeGenTests extends CodeGenTests {
 
   @Test
   public void testThatGeneratesABasicTypeWithAllConsideredInnerTypes() throws ExecutionException, InterruptedException {
-    final String result = compilerWithJavaBackend().compile(typeDefinition("allSingleTypes"), "0.0.1").await(TIMEOUT);
+    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
+
+    final String result = compilerWithJavaBackend().compile(typeDefinition("allSingleTypes"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
 
     assertTrue(result.contains("public final boolean booleanAttribute;"));
     assertTrue(result.contains("public final byte byteAttribute;"));
@@ -52,8 +57,8 @@ public class JavaCodeGenTests extends CodeGenTests {
 
   @Test
   public void testThatGeneratesAComposedTypeWithVersionedData() throws ExecutionException, InterruptedException {
-    registerType("types/price", "1.0.0");
-    final String result = compilerWithJavaBackend().compile(typeDefinition("price-changed"), "0.5.1").await(TIMEOUT);
+    registerType("types/price", "Org:Unit:Context:Schema:Price", "1.0.0");
+    final String result = compilerWithJavaBackend().compile(typeDefinition("price-changed"), "Org:Unit:Context:Schema:PriceChanged", "0.5.1").await();
 
     assertTrue(result.contains("public final class PriceChanged extends DomainEvent {"));
     assertTrue(result.contains("public final long occurredOn;"));
