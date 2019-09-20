@@ -6,7 +6,7 @@ Content-Type: application/json
 
 {
   "organizationId": "",
-  "name": "Org1",
+  "name": "Org3",
   "description": "My organization."
 }
 
@@ -20,7 +20,7 @@ Content-Type: application/json
 {
   "organizationId": "{{orgId}}",
   "unitId": "",
-  "name": "Unit1",
+  "name": "Unit3",
   "description": "My unit."
 }
 
@@ -34,7 +34,7 @@ Content-Type: application/json
   "organizationId": "{{orgId}}",
   "unitId": "{{unitId}}",
   "contextId": "",
-  "namespace": "io.vlingo.schemata",
+  "namespace": "io.vlingo.schemata5",
   "description": "Schemata Context."
 }
 
@@ -50,7 +50,7 @@ Content-Type: application/json
   "contextId": "{{contextId}}",
   "schemaId": "",
   "category": "Event",
-  "name": "SchemaDefined2",
+  "name": "SchemaDefinedFoo",
   "scope": "Private",
   "description": "Schemata was defined event."
 }
@@ -74,8 +74,8 @@ Content-Type: application/json
   "description": "Initial revision.",
   "specification": "event SchemaDefined { type eventType }",
   "status": "Published",
-  "previousVersion": "1.0.1",
-  "currentVersion": "1.0.2"
+  "previousVersion": "1.0.3",
+  "currentVersion": "1.0.4"
 }
 > {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
 
@@ -94,6 +94,10 @@ Accept: application/json
 
 ### Contexts of Unit
 GET http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts
+Accept: application/json
+
+### Categories
+GET http://localhost:9019/schema/categories
 Accept: application/json
 
 ###
