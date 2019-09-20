@@ -27,6 +27,8 @@
 </template>
 
 <script>
+    import {mdiDelete, mdiPencil, mdiTag} from '@mdi/js'
+
     export default {
         props: ['schema'],
         data: () => ({
@@ -77,11 +79,11 @@
                 if (!version) return '';
                 switch (version.status) {
                     case 'Published':
-                        return 'label'
+                        return mdiTag
                     case 'Draft':
-                        return 'create'
+                        return mdiPencil
                     case 'Removed':
-                        return 'delete'
+                        return mdiDelete
                     default:
                         return 'insert_drive_file'
                 }

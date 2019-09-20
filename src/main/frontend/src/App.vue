@@ -75,11 +75,11 @@
                 menu: [
                     {route: '/schemata', title: 'Browse Schemata', icon: mdiHome},
                     {divider: true},
-                    {route: '/404', title: 'Create Organization', icon: mdiFactory},
-                    {route: '/404', title: 'Create Unit', icon: mdiStore},
-                    {route: '/404', title: 'Create Context', icon: mdiEllipseOutline},
-                    {route: '/404', title: 'Create Schema', icon: mdiFileDocument},
-                    {route: '/404', title: 'Create Schema Version', icon: mdiTag},
+                    {route: '/editor', title: 'Create Organization', icon: mdiFactory},
+                    {route: '/editor', title: 'Create Unit', icon: mdiStore},
+                    {route: '/editor', title: 'Create Context', icon: mdiEllipseOutline},
+                    {route: '/editor', title: 'Create Schema', icon: mdiFileDocument},
+                    {route: '/editor', title: 'Create Schema Version', icon: mdiTag},
                 ],
                 icons: {
                     sync: mdiSync

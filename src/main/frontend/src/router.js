@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Schemata from './views/Schemata'
-import e404 from './components/e404'
+import Schemata from '@/views/Schemata'
+import e404 from '@/components/e404'
+import Editor from '@/components/Editor'
 
 Vue.use(Router)
 
@@ -16,6 +17,11 @@ export default new Router({
       path: '/schemata',
       name: 'schemata',
       component: Schemata
+    },
+    {
+      path: '/editor',
+      name: 'editor',
+      component: Editor
     },
     {
       path: '/404',
