@@ -2,9 +2,10 @@ import Repository from '@/api/Repository'
 
 
 const resources = {
-    organizations: () => 'organizations',
+    organizations: () => '/organizations',
     units: (o) => `/organizations/${o}/units`,
     contexts: (o, u) => `/organizations/${o}/units/${u}/contexts`,
+    categories: () => '/schema/categories',
     schemata: (o, u, c) => `/organizations/${o}/units/${u}/contexts/${c}/schemas`,
     versions: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`
 }
@@ -35,6 +36,11 @@ export default {
 
     getContexts(organization, unit) {
         return Repository.get(resources.contexts(organization, unit))
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+    getCategories() {
+        return Repository.get(resources.categories())
             .then(ensureOk)
             .then(response => response.data)
     },
