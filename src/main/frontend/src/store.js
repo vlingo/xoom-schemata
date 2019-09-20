@@ -29,7 +29,8 @@ export default new Vuex.Store({
 
     selectSchema (state, selected) {
       state.schema = selected
-    }
+    },
+
   },
   actions: {
 

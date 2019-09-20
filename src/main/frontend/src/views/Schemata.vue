@@ -4,7 +4,7 @@
             <Schemata @vs-error="onError"/>
         </v-col>
 
-        <v-col cols="12" md="3" class="pt-0 pr-0">
+        <v-col cols="12" md="3" class="pt-0">
             <Versions @vs-error="onError"/>
         </v-col>
         <v-col cols="12" md="9" class="pt-0">

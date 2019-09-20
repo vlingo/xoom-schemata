@@ -1,25 +1,24 @@
 <template>
 
-    <v-card min-height="45vh">
+    <v-card height="45vh">
         <v-list dense>
-            <v-list-item
-                    ripple
-                    active-class="primary"
-                    v-for="v in versions" :key="v.id"
-                    @click="selectVersion(v)">
-                <v-list-item-action>
-                    <v-tooltip right>
-                        <template v-slot:activator="{ on }">
-                            <v-icon v-on="on" :color="version === v ? 'primary': ''">{{icon(v)}}
-                            </v-icon>
-                        </template>
-                        <span>{{v.status}}</span>
-                    </v-tooltip>
-                </v-list-item-action>
-                <v-list-item-content>
-                    <v-list-item-title>{{ v.currentVersion }}</v-list-item-title>
-                </v-list-item-content>
-            </v-list-item>
+            <v-list-item-group v-model="selected" color="primary">
+                <v-list-item v-for="v in versions" :key="v.id" ripple>
+                    <v-list-item-action>
+                        <v-tooltip right>
+                            <template v-slot:activator="{ on }">
+                                <v-icon v-on="on">
+                                    {{icon(v)}}
+                                </v-icon>
+                            </template>
+                            <span>{{v.status}}</span>
+                        </v-tooltip>
+                    </v-list-item-action>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ v.currentVersion }}</v-list-item-title>
+                    </v-list-item-content>
+                </v-list-item>
+            </v-list-item-group>
         </v-list>
     </v-card>
 
@@ -32,17 +31,21 @@
     import {mapFields} from 'vuex-map-fields';
 
     export default {
-        data: () => ({
-            versions: [],
-        }),
-        mounted() {
-          this.loadVersions()
+        data() {
+            return {
+                selected: undefined
+            }
         },
         watch: {
             schema: function () {
-                this.selectVersion(undefined)
-                if (this.schema)
-                    this.loadVersions()
+                this.version = undefined
+            },
+            selected: function (value) {
+                if (value === undefined) {
+                    this.version = undefined
+                } else {
+                    this.version = this.versions[value]
+                }
             }
         },
         computed: {
@@ -51,28 +54,24 @@
                 'version'
             ]),
         },
-        methods: {
-            selectVersion(selection) {
-                this.selectedVersion = selection
-                this.$emit('input', selection)
-            },
-            loadVersions() {
-                console.log('load version')
+        asyncComputed: {
+            async versions() {
                 if (!(this.schema)) {
                     return
                 }
 
                 let vm = this
-                Repository.getVersions(
+                return await Repository.getVersions(
                     this.schema.organizationId,
                     this.schema.unitId,
                     this.schema.contextId,
                     this.schema.schemaId)
-                    .then(data => vm.versions = data)
                     .catch(function (err) {
                         vm.$emit('vs-error', {status: 0, message: err})
                     });
-            },
+            }
+        },
+        methods: {
             icon(version) {
                 if (!version) return '';
                 switch (version.status) {
@@ -91,7 +90,5 @@
 </script>
 
 <style>
-    .v-card {
-        overflow-y: auto
-    }
+
 </style>
