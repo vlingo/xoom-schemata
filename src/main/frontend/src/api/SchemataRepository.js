@@ -12,13 +12,17 @@ const resources = {
 
 function ensure(response, status) {
     if (response.status !== status) {
-        throw Error(`HTTP ${response.status}: ${response.statusText} (${response.config.url})`);
+        throw Error(`HTTP ${response.status}: ${response.statusText} (${response.config.url}).`);
     }
     return response;
 }
 
 function ensureOk(response) {
     return ensure(response, 200);
+}
+
+function ensureCreated(response) {
+    return ensure(response, 201);
 }
 
 export default {
@@ -55,5 +59,17 @@ export default {
         return Repository.get(resources.versions(organization, unit, context, schema))
             .then(ensureOk)
             .then(response => response.data)
-    }
+    },
+
+    createOrganization(name, description) {
+        return Repository.post(resources.organizations(),
+            {
+                organizationId: '',
+                name: name,
+                description: description
+            }
+        )
+            .then(ensureCreated)
+            .then(response => response.data)
+    },
 }

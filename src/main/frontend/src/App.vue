@@ -37,22 +37,25 @@
             </v-list>
         </v-navigation-drawer>
 
+        <v-alert
+                v-if="$store.state.error"
+                class="mt-5 ml-2 mr-2 mb-0 pt-0 pb-0 error elevation-15"
+                style="z-index: 10"
+        >
+            <v-row align="center">
+                <v-col class="grow">{{$store.state.error.message}}</v-col>
+                <v-col class="shrink">
+                    <v-btn icon dark @click="$store.commit('dismissError')">
+                        <v-icon>{{icons.close}}</v-icon>
+                    </v-btn>
+                </v-col>
+            </v-row>
+        </v-alert>
         <v-content>
-            <v-alert
-                    v-if="$store.state.error"
-                    class="mt-2 ml-2 mr-2 mb-0 pt-0 pb-0 error"
-            >
-                <v-row align="center">
-                    <v-col class="grow">{{$store.state.error.message}}</v-col>
-                    <v-col class="shrink">
-                        <v-btn icon dark @click="$store.commit('dismissError')">
-                            <v-icon>{{icons.close}}</v-icon>
-                        </v-btn>
-                    </v-col>
-                </v-row>
-            </v-alert>
+
             <v-container
-                    class="grid-list-md fill-height mt-8"
+                    class="grid-list-md fill-height"
+                    :class="$store.state.error ? 'mt-0' : 'mt-8'"
                     fluid
             >
                 <router-view/>
@@ -83,11 +86,11 @@
                     {route: '/schemata', title: 'Browse Schemata', icon: mdiHome},
                     {route: '/editor', title: 'Edit Schema Version', icon: mdiPencil},
                     {divider: true},
-                    {route: '/404', title: 'Create Organization', icon: mdiFactory},
-                    {route: '/404', title: 'Create Unit', icon: mdiStore},
-                    {route: '/404', title: 'Create Context', icon: mdiEllipseOutline},
-                    {route: '/404', title: 'Create Schema', icon: mdiFileDocument},
-                    {route: '/404', title: 'Create Schema Version', icon: mdiTag},
+                    {route: '/organization', title: 'New Organization', icon: mdiFactory},
+                    {route: '/404', title: 'New Unit', icon: mdiStore},
+                    {route: '/404', title: 'New Context', icon: mdiEllipseOutline},
+                    {route: '/404', title: 'New Schema', icon: mdiFileDocument},
+                    {route: '/404', title: 'New Schema Version', icon: mdiTag},
                 ],
                 icons: {
                     sync: mdiSync,

@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Schemata from '@/views/Schemata'
 import e404 from '@/components/e404'
 import Editor from '@/components/Editor'
+import Organization from '@/components/Organization'
 
 Vue.use(Router)
 
@@ -27,6 +28,11 @@ export default new Router({
       path: '/404',
       name: '404',
       component: e404
+    },
+    {
+      path: '/organization',
+      name: 'organization',
+      component: Organization
     },
     {
       path: '/about',

@@ -1,5 +1,5 @@
 <template>
-    <v-card class="xs12" min-height="95vh">
+    <v-card class="xs12" height="95vh">
         <v-card-title>Edit</v-card-title>
         <v-card-text>
             <v-form
