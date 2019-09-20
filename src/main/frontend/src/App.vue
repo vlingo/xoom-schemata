@@ -6,6 +6,10 @@
             <v-toolbar-title class="headline">
                 <span>vlingo</span>/<span class="font-weight-light">schemata</span>
             </v-toolbar-title>
+            <div class="flex-grow-1"></div>
+            <v-btn icon="">
+                <v-icon>{{icons.sync}}</v-icon>
+            </v-btn>
         </v-app-bar>
 
         <v-navigation-drawer
@@ -56,7 +60,7 @@
 </template>
 
 <script>
-    import {mdiEllipseOutline, mdiFactory, mdiFileDocument, mdiHome, mdiStore, mdiTag} from '@mdi/js'
+    import {mdiEllipseOutline, mdiFactory, mdiFileDocument, mdiHome, mdiStore, mdiSync, mdiTag} from '@mdi/js'
 
     export default {
         name: 'App',
@@ -71,7 +75,10 @@
                     {route: '', title: 'Create Context', icon: mdiEllipseOutline},
                     {route: '', title: 'Create Schema', icon: mdiFileDocument},
                     {route: '', title: 'Create Schema Version', icon: mdiTag},
-                ]
+                ],
+                icons: {
+                    sync: mdiSync
+                }
             }
         }
     }
