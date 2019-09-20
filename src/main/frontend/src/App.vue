@@ -18,53 +18,14 @@
                 permanent
         >
             <v-list dense>
-                <v-list-item>
-                    <v-list-item-action>
-                        <v-icon>home</v-icon>
+                <v-list-item v-for="(item,idx) in menu" :key="idx">
+                    <v-divider v-if="item.divider"></v-divider>
+
+                    <v-list-item-action v-if="!item.divider">
+                        <v-icon>{{item.icon}}</v-icon>
                     </v-list-item-action>
-                    <v-list-item-content>
-                        <v-list-item-title>Browse Schemata</v-list-item-title>
-                    </v-list-item-content>
-                </v-list-item>
-                <v-divider></v-divider>
-                <v-list-item>
-                    <v-list-item-action>
-                        <v-icon>business</v-icon>
-                    </v-list-item-action>
-                    <v-list-item-content>
-                        <v-list-item-title>Create Organization</v-list-item-title>
-                    </v-list-item-content>
-                </v-list-item>
-                <v-list-item>
-                    <v-list-item-action>
-                        <v-icon>store</v-icon>
-                    </v-list-item-action>
-                    <v-list-item-content>
-                        <v-list-item-title>Create Unit</v-list-item-title>
-                    </v-list-item-content>
-                </v-list-item>
-                <v-list-item>
-                    <v-list-item-action>
-                        <v-icon>folder</v-icon>
-                    </v-list-item-action>
-                    <v-list-item-content>
-                        <v-list-item-title>Create Context</v-list-item-title>
-                    </v-list-item-content>
-                </v-list-item>
-                <v-list-item>
-                    <v-list-item-action>
-                        <v-icon>description</v-icon>
-                    </v-list-item-action>
-                    <v-list-item-content>
-                        <v-list-item-title>Create Schema</v-list-item-title>
-                    </v-list-item-content>
-                </v-list-item>
-                <v-list-item>
-                    <v-list-item-action>
-                        <v-icon>label</v-icon>
-                    </v-list-item-action>
-                    <v-list-item-content>
-                        <v-list-item-title>Create Schema Version</v-list-item-title>
+                    <v-list-item-content v-if="!item.divider">
+                        <v-list-item-title>{{item.title}}</v-list-item-title>
                     </v-list-item-content>
                 </v-list-item>
             </v-list>
@@ -95,12 +56,22 @@
 </template>
 
 <script>
+    import {mdiEllipseOutline, mdiFactory, mdiFileDocument, mdiHome, mdiStore, mdiTag} from '@mdi/js'
 
     export default {
         name: 'App',
         data() {
             return {
                 drawer: true,
+                menu: [
+                    {route: '', title: 'Browse Schemata', icon: mdiHome},
+                    {divider: true},
+                    {route: '', title: 'Create Organization', icon: mdiFactory},
+                    {route: '', title: 'Create Unit', icon: mdiStore},
+                    {route: '', title: 'Create Context', icon: mdiEllipseOutline},
+                    {route: '', title: 'Create Schema', icon: mdiFileDocument},
+                    {route: '', title: 'Create Schema Version', icon: mdiTag},
+                ]
             }
         }
     }
