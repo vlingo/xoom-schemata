@@ -7,19 +7,32 @@
                     v-model="valid"
                     lazy-validation
             >
+                <v-row>
+                <v-col class="d-flex" cols="12" sm="6">
                 <v-select
                         :items="items"
                         label="Organization"
                 ></v-select>
+                </v-col>
+                <v-col class="d-flex" cols="12" sm="6">
                 <v-select
                         :items="items"
                         label="Unit"
                 ></v-select>
+                </v-col>
+                <v-col class="d-flex" cols="12" sm="6">
                 <v-select
                         :items="items"
                         label="Context"
                 ></v-select>
-
+                </v-col>
+                    <v-col class="d-flex" cols="12" sm="6">
+                        <v-select
+                                :items="items"
+                                label="Type"
+                        ></v-select>
+                    </v-col>
+                </v-row>
             </v-form>
         </v-card-text>
     </v-card>
