@@ -30,6 +30,9 @@ export default new Vuex.Store({
     selectSchema (state, selected) {
       state.schema = selected
     },
+    selectOrganization (state, selected) {
+      state.organization = selected
+    },
 
   },
   actions: {

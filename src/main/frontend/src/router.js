@@ -4,6 +4,8 @@ import Schemata from '@/views/Schemata'
 import e404 from '@/components/e404'
 import Editor from '@/components/Editor'
 import Organization from '@/components/Organization'
+import Unit from '@/components/Unit'
+import Context from '@/components/Context'
 
 Vue.use(Router)
 
@@ -33,6 +35,16 @@ export default new Router({
       path: '/organization',
       name: 'organization',
       component: Organization
+    },
+    {
+      path: '/unit',
+      name: 'unit',
+      component: Unit
+    },
+    {
+      path: '/context',
+      name: 'context',
+      component: Context
     },
     {
       path: '/about',

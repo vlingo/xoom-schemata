@@ -1,6 +1,6 @@
 <template>
     <v-card class="xs12" height="95vh" width="100%">
-        <v-card-title>Organization</v-card-title>
+        <v-card-title>Unit</v-card-title>
         <v-card-text>
             <v-form
                     ref="form"
@@ -9,15 +9,26 @@
                 <v-row>
                     <v-col class="d-flex" cols="12">
                         <v-text-field
-                                v-model="organizationId"
-                                label="OrganizationID"
+                                v-model="unitId"
+                                label="UnitID"
                                 disabled
                         ></v-text-field>
+                    </v-col>
+                    <v-col class="d-flex" cols="12" sm="6">
+                        <v-select
+                                :items="organizations"
+                                label="Organization"
+                                :loading="loading.organizations"
+                                return-object
+                                item-value="organizationId"
+                                item-text="name"
+                                v-model="organization"
+
+                        ></v-select>
                     </v-col>
                     <v-col class="d-flex" cols="12">
                         <v-text-field
                                 v-model="name"
-
                                 label="Name"
                                 required
                         ></v-text-field>
@@ -36,11 +47,12 @@
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="createOrganization"
-                   :disabled="!name || !description">Create
+            <v-btn color="primary"
+                   :disabled="!name || !description || !organization "
+                   @click="createUnit">Create
             </v-btn>
-            <v-btn color="secondary" to="/unit"
-                   :disabled="!organizationId">Create Unit
+            <v-btn color="secondary" to="/context"
+                   :disabled="!unitId">Create Context
             </v-btn>
         </v-card-actions>
     </v-card>
@@ -53,32 +65,48 @@
     export default {
         data: () => {
             return {
-                organizationId: '',
+                unitId: '',
                 name: '',
                 description: '',
+                loading: {
+                    organizations: false,
+                }
             }
         },
         computed: {
             ...mapFields([
                 'organization',
+                'unit',
             ]),
         },
         watch: {
             name() {
-                this.organizationId = ''
+                this.unitId = ''
             },
             description() {
-                this.organizationId = ''
+                this.unitId = ''
             }
         },
 
+        asyncComputed: {
+            async organizations() {
+                this.loading.organizations = true
+                const result = await Repository.getOrganizations()
+                this.loading.organizations = false
+                return result
+            },
+        },
+
         methods: {
-            createOrganization() {
+            createUnit() {
                 let vm = this
-                Repository.createOrganization(this.name, this.description)
+                Repository.createUnit(
+                    this.organization.organizationId,
+                    this.name,
+                    this.description)
                     .then((created) => {
-                            vm.organization = created
-                            vm.organizationId = created.organizationId
+                            vm.unit = created
+                            vm.unitId = created.unitId
                             vm.name = created.name
                             vm.description = created.description
                         }

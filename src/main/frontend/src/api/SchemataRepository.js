@@ -72,4 +72,26 @@ export default {
             .then(ensureCreated)
             .then(response => response.data)
     },
+    createUnit(organization, name, description) {
+        return Repository.post(resources.units(organization),
+            {
+                unitId: '',
+                name: name,
+                description: description
+            }
+        )
+            .then(ensureCreated)
+            .then(response => response.data)
+    },
+    createContext(organization, unit, namespace, description) {
+        return Repository.post(resources.contexts(organization, unit),
+            {
+                contextId: '',
+                namespace: namespace,
+                description: description
+            }
+        )
+            .then(ensureCreated)
+            .then(response => response.data)
+    },
 }
