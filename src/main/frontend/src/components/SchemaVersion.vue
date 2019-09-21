@@ -219,7 +219,6 @@
                     this.previousVersion,
                     this.currentVersion)
                     .then((created) => {
-                            console.log(created)
                             vm.schema = created
                             vm.schemaVersionId = created.schemaVersionId
                             vm.speficication = created.speficication
