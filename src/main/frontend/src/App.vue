@@ -90,7 +90,7 @@
                     {route: '/unit', title: 'New Unit', icon: mdiStore},
                     {route: '/context', title: 'New Context', icon: mdiEllipseOutline},
                     {route: '/schema', title: 'New Schema', icon: mdiFileDocument},
-                    {route: '/404', title: 'New Schema Version', icon: mdiTag},
+                    {route: '/schemaVersion', title: 'New Schema Version', icon: mdiTag},
                 ],
                 icons: {
                     sync: mdiSync,

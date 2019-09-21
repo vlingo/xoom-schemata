@@ -1,6 +1,6 @@
 <template>
     <v-card class="xs12" height="95vh" width="100%">
-        <v-card-title>Schema</v-card-title>
+        <v-card-title>Schema Version</v-card-title>
         <v-card-text>
             <v-form
                     ref="form"
@@ -9,8 +9,8 @@
                 <v-row>
                     <v-col class="d-flex" cols="12">
                         <v-text-field
-                                v-model="schemaId"
-                                label="SchemaID"
+                                v-model="schemaVersionId"
+                                label="SchemaVersionID"
                                 disabled
                         ></v-text-field>
                     </v-col>
@@ -49,36 +49,54 @@
                                 v-model="context"
                         ></v-select>
                     </v-col>
-                    <v-col class="d-flex" cols="12">
+                    <v-col class="d-flex" cols="12" sm="6">
+                        <v-select
+                                :items="schemata"
+                                label="Schema"
+                                :loading="loading.schema"
+                                return-object
+                                item-value="schemaId"
+                                item-text="name"
+                                v-model="schema"
+                        ></v-select>
+                    </v-col>
+
+
+                    <v-col class="d-flex" cols="4">
                         <v-text-field
-                                v-model="name"
-                                label="Name"
+                                v-model="previousVersion"
+                                label="Previous Version"
                                 required
                         ></v-text-field>
                     </v-col>
-                    <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
-                                :items="categories"
-                                label="Category"
-                                :loading="loading.categories"
-                                v-model="category"
-                        ></v-select>
-                    </v-col>
-                    <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
-                                :items="scopes"
-                                label="Scope"
-                                :loading="loading.scopes"
-                                v-model="scope"
-                        ></v-select>
-                    </v-col>
-                </v-row>
 
-                <v-row>
-                    <v-col class="d-flex" cols="12">
+                    <v-col class="d-flex" cols="4">
+                        <v-text-field
+                                v-model="currentVersion"
+                                label="Current Version"
+                                required
+                        ></v-text-field>
+                    </v-col>
+
+                    <v-col class="d-flex" cols="4">
+                        <v-select
+                                :items="statuses"
+                                label="Status"
+                                v-model="status"
+                        ></v-select>
+                    </v-col>
+
+                    <v-col class="d-flex" cols="12" lg="6">
                         <v-textarea
                                 v-model="description"
                                 label="Description"
+                                required
+                        ></v-textarea>
+                    </v-col>
+                    <v-col class="d-flex" cols="12" lg="6">
+                        <v-textarea
+                                v-model="specification"
+                                label="Specification"
                                 required
                         ></v-textarea>
                     </v-col>
@@ -88,11 +106,8 @@
         <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="primary"
-                   :disabled="!name || !description || !organization || !unit || !context"
-                   @click="createSchema">Create
-            </v-btn>
-            <v-btn color="secondary" to="/schemaVersion"
-                   :disabled="!schemaId">Create Schema Version
+                   :disabled="!status || !previousVersion || !currentVersion ||!description ||!specification || !description || !organization || !unit || !context || !schema"
+                   @click="createSchemaVersion">Create
             </v-btn>
         </v-card-actions>
     </v-card>
@@ -105,17 +120,20 @@
     export default {
         data: () => {
             return {
-                schemaId: '',
-                name: '',
+                schemaVersionId: '',
                 description: '',
-                category: '',
-                scope: '',
+                specification: '',
+                status: 'Draft',
+                previousVersion: '',
+                currentVersion: '',
+                statuses: ['Draft', 'Published', 'Deprecated', 'Removed'],
+
                 loading: {
                     organizations: false,
                     units: false,
                     contexts: false,
-                    categories: false,
-                    scopes: false
+                    versions: false,
+                    schemata: false,
                 }
             }
         },
@@ -128,17 +146,20 @@
             ]),
         },
         watch: {
-            name() {
-                this.schemaId = ''
-            },
             description() {
-                this.schemaId = ''
+                this.schemaVersionId = ''
             },
-            category() {
-                this.schemaId = ''
+            specification() {
+                this.schemaVersionId = ''
             },
-            scope() {
-                this.schemaId = ''
+            status() {
+                this.schemaVersionId = ''
+            },
+            previousVersion() {
+                this.schemaVersionId = ''
+            },
+            currentVersion() {
+                this.schemaVersionId = ''
             }
         },
 
@@ -168,38 +189,44 @@
                 this.loading.contexts = false
                 return result
             },
-            async categories() {
-                this.loading.categories = true
-                const result = await Repository.getCategories()
-                this.loading.categories = false
-                return result
-            },
-            async scopes() {
-                this.loading.scopes = true
-                const result = await Repository.getScopes()
-                this.loading.scopes = false
-                return result
-            },
-        },
+            async schemata() {
+                if (!this.organization || !this.unit || !this.context) return []
 
-        methods: {
-            createSchema() {
-                let vm = this
-                Repository.createSchema(
+                this.loading.schemata = true
+                const result = await Repository.getSchemata(
                     this.organization.organizationId,
                     this.unit.unitId,
                     this.context.contextId,
-                    this.name,
-                    this.scope,
-                    this.category,
-                    this.description)
+                )
+
+                this.loading.schemata = false
+                return result
+            },
+
+        },
+
+        methods: {
+            createSchemaVersion() {
+                let vm = this
+                Repository.createSchemaVersion(
+                    this.organization.organizationId,
+                    this.unit.unitId,
+                    this.context.contextId,
+                    this.schema.schemaId,
+                    this.speficication,
+                    this.description,
+                    this.status,
+                    this.previousVersion,
+                    this.currentVersion)
                     .then((created) => {
+                            console.log(created)
                             vm.schema = created
-                            vm.schemaId = created.schemaId
-                            vm.name = created.name
-                            vm.scope = created.scope
-                            vm.category = created.category
+                            vm.schemaVersionId = created.schemaVersionId
+                            vm.speficication = created.speficication
                             vm.description = created.description
+                            vm.status = created.status
+                            vm.previousVersion = created.previousVersion
+                            vm.currentVersion = created.currentVersion
                         }
                     )
                     .catch(function (err) {

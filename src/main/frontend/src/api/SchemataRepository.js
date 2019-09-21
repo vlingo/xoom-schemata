@@ -112,4 +112,20 @@ export default {
             .then(ensureCreated)
             .then(response => response.data)
     },
+    createSchemaVersion(
+        organization, unit, context, schema,
+        specification, description, status, previousVersion, currentVersion) {
+        return Repository.post(resources.versions(organization, unit, context, schema),
+            {
+                schemaVersionId: '',
+                specification: specification,
+                status: status,
+                previousVersion: previousVersion,
+                currentVersion: currentVersion,
+                description: description
+            }
+        )
+            .then(ensureCreated)
+            .then(response => response.data)
+    },
 }

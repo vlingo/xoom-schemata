@@ -74,8 +74,8 @@ Content-Type: application/json
   "description": "Initial revision.",
   "specification": "event SchemaDefined { type eventType }",
   "status": "Published",
-  "previousVersion": "1.0.3",
-  "currentVersion": "1.0.4"
+  "previousVersion": "1.0.1",
+  "currentVersion": "1.0.0"
 }
 > {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
 
