@@ -214,7 +214,7 @@
                     this.unit.unitId,
                     this.context.contextId,
                     this.schema.schemaId,
-                    this.speficication,
+                    this.specification,
                     this.description,
                     this.status,
                     this.previousVersion,
