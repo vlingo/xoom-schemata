@@ -1,6 +1,5 @@
 <template>
-
-    <v-card min-height="45vh">
+    <v-card height="45vh">
         <v-card-text>
             <v-alert v-if="status && status !== 'Published'" :value="true" type="warning" outlined>
                 Status <b>{{status}}</b>. Do not use in production.
@@ -25,19 +24,24 @@
 </template>
 
 <script>
+    import {mapFields} from 'vuex-map-fields';
     import marked from 'marked'
 
     export default {
-        props: ['schemaVersion'],
         computed: {
+            ...mapFields([
+                'schema',
+                'version'
+            ]),
+
             specification() {
-                return this.schemaVersion?.specification ?? ''
+                return this.version?.specification ?? ''
             },
             description() {
-                return this.schemaVersion?.description ?? ''
+                return this.version?.description ?? ''
             },
             status() {
-                return this.schemaVersion?.status ?? ''
+                return this.version?.status ?? ''
             },
         },
         methods: {

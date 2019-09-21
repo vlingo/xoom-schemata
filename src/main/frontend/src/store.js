@@ -1,26 +1,48 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import { getField, updateField } from 'vuex-map-fields';
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+  strict: true,
   state: {
-    schema: undefined,
+    error: undefined,
     schemaVersion: undefined,
     selected: undefined,
+    organization: undefined,
+    unit: undefined,
+    context: undefined,
+    category: undefined,
+    schema: undefined,
+    version: undefined
   },
   mutations: {
-    select (state, selected) {
-      state.selected = selected
-    }
+    updateField,
+    raiseError (state, error) {
+      state.error = error
+    },
+
+    dismissError (state) {
+      state.error = undefined
+    },
+
+    selectSchema (state, selected) {
+      state.schema = selected
+    },
+    selectOrganization (state, selected) {
+      state.organization = selected
+    },
+
   },
   actions: {
 
   },
   getters: {
-    organization: state => state.selected?.organizationId ?? undefined,
-    unit: state => state.selected?.unitId ?? undefined,
-    context: state => state.selected?.contextId ?? undefined,
-    schema: state => state.selected?.schemaId ?? undefined,
+    getField,
+    organizationId: state => state.selected?.organizationId ?? undefined,
+    unitId: state => state.selected?.unitId ?? undefined,
+    contextId: state => state.selected?.contextId ?? undefined,
+    schemaId: state => state.selected?.schemaId ?? undefined,
   }
 })

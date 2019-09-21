@@ -1,12 +1,12 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <v-card class="xs12" min-height="45vh">
+    <v-card height="45vh">
         <v-card-title>
             <v-text-field
                     v-model="search"
                     label="Search"
                     clearable
                     hide-details
-                    clear-icon="close"
+                    :clear-icon="icons.clear"
             ></v-text-field>
         </v-card-title>
         <v-card-text>
@@ -16,44 +16,74 @@
                     :search="search"
                     :filter="filter"
                     :load-children="loadChildren"
+                    open-on-click
                     return-object
                     activatable
                     transition
-                    :active.sync="selected"
+                    :active.sync="schema"
                     :open.sync="open"
-                    @update:active="$emit('input', $event[0])"
             >
+                <template v-slot:prepend="{ item }">
+                    <v-tooltip right v-if="item.category  && icons.categories[item.category]">
+                        <template v-slot:activator="{ on }">
+                            <v-icon v-on="on">
+                                {{icons.categories[item.category]}}
+                            </v-icon>
+
+                        </template>
+                        <span>{{item.category}}</span>
+                    </v-tooltip>
+
+
+                </template>
             </v-treeview>
         </v-card-text>
     </v-card>
 </template>
 
 <script>
-    function ensureHttpOk(response) {
-        if (!response.ok) {
-            throw Error(`HTTP ${response.status}: ${response.statusText} (${response.url})`);
-        }
-        return response;
-    }
+    import Repository from '@/api/SchemataRepository'
+    import {
+        mdiClose,
+        mdiCogs,
+        mdiDatabase,
+        mdiEmailOpen,
+        mdiFileDocument,
+        mdiHelpCircle,
+        mdiPlaylistPlay
+    } from '@mdi/js'
 
     export default {
         data: () => ({
             items: [],
             search: null,
             open: [],
+            icons: {
+                close: mdiClose,
+                categories: {
+                    Command: mdiCogs,
+                    Data: mdiDatabase,
+                    Document: mdiFileDocument,
+                    Envelope: mdiEmailOpen,
+                    Event: mdiPlaylistPlay,
+                    Unknown: mdiHelpCircle
+                }
+            }
+
         }),
         computed: {
             filter() {
                 return (item, search, textKey) => item[textKey].indexOf(search) > -1
             },
-            selected: {
+            schema: {
                 get() {
-                    return [this.$store.state.selected]
+                    return [this.$store.schema]
                 },
                 set(value) {
-                    this.$store.commit('select', value[0])
+                    this.$store.commit('selectSchema', value[0])
                 }
-            }
+            },
+
         },
         created() {
             this.loadOrganizations()
@@ -61,9 +91,7 @@
         methods: {
             loadOrganizations() {
                 let vm = this
-                fetch('/organizations')
-                    .then(ensureHttpOk)
-                    .then(response => response.json())
+                Repository.getOrganizations()
                     .then(data => {
                         for (let organization of data) {
                             organization.id = organization.organizationId
@@ -93,18 +121,16 @@
                         })
                 }
                 loadPromise.catch(function (err) {
-                    vm.$emit('vs-error', {message: err})
+                    vm.$store.commit('raiseError', {message: err})
                 });
                 return loadPromise
             },
 
             async loadUnits(org) {
-                return fetch(`/organizations/${org.id}/units`)
-                    .then(ensureHttpOk)
-                    .then(response => response.json())
+                return Repository.getUnits(org.id)
                     .then(data => {
                         for (let unit of data) {
-                            unit.id = `${org.id}-${unit.unitId}`
+                            unit.id = unit.unitId
                             unit.type = 'unit'
                             unit.children = []
                             org.children.push(unit)
@@ -114,12 +140,10 @@
 
             },
             async loadContexts(unit) {
-                return fetch(`/organizations/${unit.organizationId}/units/${unit.unitId}/contexts`)
-                    .then(ensureHttpOk)
-                    .then(response => response.json())
+                return Repository.getContexts(unit.organizationId, unit.unitId)
                     .then(data => {
                         for (let context of data) {
-                            context.id = `${unit.id}-${context.contextId}`
+                            context.id = context.contextId
                             context.name = context.namespace
                             context.type = 'context'
                             context.children = []
@@ -129,12 +153,10 @@
             }
             ,
             async loadSchemata(context) {
-                return fetch(`/organizations/${context.organizationId}/units/${context.unitId}/contexts/${context.contextId}/schemas`)
-                    .then(ensureHttpOk)
-                    .then(response => response.json())
+                return Repository.getSchemata(context.organizationId, context.unitId, context.contextId)
                     .then(data => {
                         for (let schema of data) {
-                            schema.id = `${context.id}-${schema.schemaId}`
+                            schema.id = schema.schemaId
                             schema.type = 'schema'
                             context.children.push(schema)
                         }
@@ -145,5 +167,7 @@
 </script>
 
 <style>
-
+    .v-card {
+        overflow-y: auto
+    }
 </style>
