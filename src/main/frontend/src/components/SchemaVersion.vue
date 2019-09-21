@@ -142,7 +142,8 @@
                 'organization',
                 'unit',
                 'context',
-                'schema'
+                'schema',
+                'version'
             ]),
         },
         watch: {
@@ -219,7 +220,7 @@
                     this.previousVersion,
                     this.currentVersion)
                     .then((created) => {
-                            vm.schema = created
+                            vm.version = created
                             vm.schemaVersionId = created.schemaVersionId
                             vm.speficication = created.speficication
                             vm.description = created.description
