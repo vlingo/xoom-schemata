@@ -1,6 +1,6 @@
 <template>
     <v-card class="xs12" height="95vh" width="100%">
-        <v-card-title>Context</v-card-title>
+        <v-card-title>Schema</v-card-title>
         <v-card-text>
             <v-form
                     ref="form"
@@ -9,8 +9,8 @@
                 <v-row>
                     <v-col class="d-flex" cols="12">
                         <v-text-field
-                                v-model="contextId"
-                                label="ContextID"
+                                v-model="schemaId"
+                                label="SchemaID"
                                 disabled
                         ></v-text-field>
                     </v-col>
@@ -38,14 +38,42 @@
 
                         ></v-select>
                     </v-col>
+                    <v-col class="d-flex" cols="12" sm="6">
+                        <v-select
+                                :items="contexts"
+                                label="Context"
+                                :loading="loading.contexts"
+                                return-object
+                                item-value="contextId"
+                                item-text="namespace"
+                                v-model="context"
+                        ></v-select>
+                    </v-col>
                     <v-col class="d-flex" cols="12">
                         <v-text-field
-                                v-model="namespace"
-                                label="Namespace"
+                                v-model="name"
+                                label="Name"
                                 required
                         ></v-text-field>
                     </v-col>
+                    <v-col class="d-flex" cols="12" sm="6">
+                        <v-select
+                                :items="categories"
+                                label="Category"
+                                :loading="loading.categories"
+                                v-model="category"
+                        ></v-select>
+                    </v-col>
+                    <v-col class="d-flex" cols="12" sm="6">
+                        <v-select
+                                :items="scopes"
+                                label="Scope"
+                                :loading="loading.scopes"
+                                v-model="scope"
+                        ></v-select>
+                    </v-col>
                 </v-row>
+
                 <v-row>
                     <v-col class="d-flex" cols="12">
                         <v-textarea
@@ -60,11 +88,11 @@
         <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="primary"
-                   :disabled="!namespace || !description || !organization||!unit"
-                   @click="createUnit">Create
+                   :disabled="!name || !description || !organization || !unit || !context"
+                   @click="createSchema">Create
             </v-btn>
-            <v-btn color="secondary" to="/schema"
-                   :disabled="!contextId">Create Schema
+            <v-btn color="secondary" to="/schemaVersion"
+                   :disabled="!schemaId">Create Schema Version
             </v-btn>
         </v-card-actions>
     </v-card>
@@ -77,12 +105,17 @@
     export default {
         data: () => {
             return {
-                contextId: '',
-                namespace: '',
+                schemaId: '',
+                name: '',
                 description: '',
+                category: '',
+                scope: '',
                 loading: {
                     organizations: false,
-                    units: false
+                    units: false,
+                    contexts: false,
+                    categories: false,
+                    scopes: false
                 }
             }
         },
@@ -90,15 +123,22 @@
             ...mapFields([
                 'organization',
                 'unit',
-                'context'
+                'context',
+                'schema'
             ]),
         },
         watch: {
-            namespace() {
-                this.contextId = ''
+            name() {
+                this.schemaId = ''
             },
             description() {
-                this.contextId = ''
+                this.schemaId = ''
+            },
+            category() {
+                this.schemaId = ''
+            },
+            scope() {
+                this.schemaId = ''
             }
         },
 
@@ -117,20 +157,48 @@
                 this.loading.organizations = false
                 return result
             },
+            async contexts() {
+                if (!this.organization || !this.unit) return []
+
+                this.loading.contexts = true
+                const result = await Repository.getContexts(
+                    this.organization.organizationId,
+                    this.unit.unitId
+                )
+                this.loading.contexts = false
+                return result
+            },
+            async categories() {
+                this.loading.categories = true
+                const result = await Repository.getCategories()
+                this.loading.categories = false
+                return result
+            },
+            async scopes() {
+                this.loading.scopes = true
+                const result = await Repository.getScopes()
+                this.loading.scopes = false
+                return result
+            },
         },
 
         methods: {
-            createUnit() {
+            createSchema() {
                 let vm = this
-                Repository.createContext(
+                Repository.createSchema(
                     this.organization.organizationId,
                     this.unit.unitId,
-                    this.namespace,
+                    this.context.contextId,
+                    this.name,
+                    this.scope,
+                    this.category,
                     this.description)
                     .then((created) => {
-                            vm.context = created
-                            vm.contextId = created.contextId
-                            vm.namespace = created.namespace
+                            vm.schema = created
+                            vm.schemaId = created.schemaId
+                            vm.name = created.name
+                            vm.scope = created.scope
+                            vm.category = created.category
                             vm.description = created.description
                         }
                     )

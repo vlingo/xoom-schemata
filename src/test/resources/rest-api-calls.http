@@ -74,8 +74,8 @@ Content-Type: application/json
   "description": "Initial revision.",
   "specification": "event SchemaDefined { type eventType }",
   "status": "Published",
-  "previousVersion": "1.0.3",
-  "currentVersion": "1.0.4"
+  "previousVersion": "0.0.0",
+  "currentVersion": "1.0.0"
 }
 > {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
 
@@ -94,6 +94,14 @@ Accept: application/json
 
 ### Contexts of Unit
 GET http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts
+Accept: application/json
+
+### Schemata of Context
+GET http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
+Accept: application/json
+
+### Schema Versions of Schema
+GET http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
 Accept: application/json
 
 ### Categories

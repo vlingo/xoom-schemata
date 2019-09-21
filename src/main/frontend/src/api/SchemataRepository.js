@@ -6,6 +6,7 @@ const resources = {
     units: (o) => `/organizations/${o}/units`,
     contexts: (o, u) => `/organizations/${o}/units/${u}/contexts`,
     categories: () => '/schema/categories',
+    scopes: () => '/schema/scopes',
     schemata: (o, u, c) => `/organizations/${o}/units/${u}/contexts/${c}/schemas`,
     versions: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`
 }
@@ -48,7 +49,11 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
-
+    getScopes() {
+        return Repository.get(resources.scopes())
+            .then(ensureOk)
+            .then(response => response.data)
+    },
     getSchemata(organization, unit, context) {
         return Repository.get(resources.schemata(organization, unit, context))
             .then(ensureOk)
@@ -88,6 +93,35 @@ export default {
             {
                 contextId: '',
                 namespace: namespace,
+                description: description
+            }
+        )
+            .then(ensureCreated)
+            .then(response => response.data)
+    },
+    createSchema(organization, unit, context, name, scope, category, description) {
+        return Repository.post(resources.schemata(organization, unit, context),
+            {
+                contextId: '',
+                name: name,
+                scope: scope,
+                category: category,
+                description: description
+            }
+        )
+            .then(ensureCreated)
+            .then(response => response.data)
+    },
+    createSchemaVersion(
+        organization, unit, context, schema,
+        specification, description, status, previousVersion, currentVersion) {
+        return Repository.post(resources.versions(organization, unit, context, schema),
+            {
+                schemaVersionId: '',
+                specification: specification,
+                status: status,
+                previousVersion: previousVersion,
+                currentVersion: currentVersion,
                 description: description
             }
         )
