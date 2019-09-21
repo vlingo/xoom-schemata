@@ -6,6 +6,7 @@ import Editor from '@/components/Editor'
 import Organization from '@/components/Organization'
 import Unit from '@/components/Unit'
 import Context from '@/components/Context'
+import Schema from '@/components/Schema'
 
 Vue.use(Router)
 
@@ -45,6 +46,16 @@ export default new Router({
       path: '/context',
       name: 'context',
       component: Context
+    },
+    {
+      path: '/schema',
+      name: 'schema',
+      component: Schema
+    },
+    {
+      path: '/schemaVersion',
+      name: 'schemaVersion',
+      component: e404
     },
     {
       path: '/about',

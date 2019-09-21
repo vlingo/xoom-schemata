@@ -89,7 +89,7 @@
                     {route: '/organization', title: 'New Organization', icon: mdiFactory},
                     {route: '/unit', title: 'New Unit', icon: mdiStore},
                     {route: '/context', title: 'New Context', icon: mdiEllipseOutline},
-                    {route: '/404', title: 'New Schema', icon: mdiFileDocument},
+                    {route: '/schema', title: 'New Schema', icon: mdiFileDocument},
                     {route: '/404', title: 'New Schema Version', icon: mdiTag},
                 ],
                 icons: {
