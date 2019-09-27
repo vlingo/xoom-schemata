@@ -7,24 +7,6 @@
 
 package io.vlingo.schemata.resource;
 
-import static io.vlingo.http.Response.Status.InternalServerError;
-import static io.vlingo.http.Response.Status.MovedPermanently;
-import static io.vlingo.http.Response.Status.NotFound;
-import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.ResponseHeader.ContentLength;
-import static io.vlingo.http.ResponseHeader.ContentType;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import io.vlingo.common.Completes;
 import io.vlingo.http.Body;
 import io.vlingo.http.Header;
@@ -38,6 +20,22 @@ import io.vlingo.http.resource.RequestHandler4.Handler4;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 
+import javax.activation.MimetypesFileTypeMap;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static io.vlingo.http.Response.Status.*;
+import static io.vlingo.http.ResponseHeader.ContentLength;
+import static io.vlingo.http.ResponseHeader.ContentType;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
+
 /**
  * Serves the files making up the UI from the classpath.
  * Assumes the generated UI resources to be present in
@@ -49,45 +47,47 @@ import io.vlingo.http.resource.ResourceHandler;
  * FIXME: This leaves the server wide open for read access. We should constrain access to the resources we actually provide.
  */
 public class UiResource extends ResourceHandler {
-  public static Resource<?> asResource() {
-    UiResource impl = new UiResource();
-    final Handler0 serve0 = impl::serve;
-    final Handler1<String> serve1 = impl::serve;
-    final Handler2<String, String> serve2 = impl::serve;
-    final Handler3<String, String, String> serve3 = impl::serve;
-    final Handler4<String, String, String, String> serve4 = impl::serve;
+
+
+  @Override
+  public Resource<?> routes() {
+    final Handler0 serve0 = this::serve;
+    final Handler1<String> serve1 = this::serve;
+    final Handler2<String, String> serve2 = this::serve;
+    final Handler3<String, String, String> serve3 = this::serve;
+    final Handler4<String, String, String, String> serve4 = this::serve;
 
     return resource("ui", 10,
-      get("/")
-        .handle(impl::redirectToApp),
-      get("/app/")
-        .handle(serve0),
-      get("/app/{file}")
-        .param(String.class)
-        .handle(serve1),
-      get("/app/{path1}/{file}")
-        .param(String.class)
-        .param(String.class)
-        .handle(serve2),
-      get("/app/{path1}/{path2}/{file}")
-        .param(String.class)
-        .param(String.class)
-        .param(String.class)
-        .handle(serve3),
-      get("/app/{path1}/{path2}/{path3}/{file}")
-        .param(String.class)
-        .param(String.class)
-        .param(String.class)
-        .param(String.class)
-        .handle(serve4)
+            get("/")
+                    .handle(this::redirectToApp),
+            get("/app/")
+                    .handle(serve0),
+            get("/app/{file}")
+                    .param(String.class)
+                    .handle(serve1),
+            get("/app/{path1}/{file}")
+                    .param(String.class)
+                    .param(String.class)
+                    .handle(serve2),
+            get("/app/{path1}/{path2}/{file}")
+                    .param(String.class)
+                    .param(String.class)
+                    .param(String.class)
+                    .handle(serve3),
+            get("/app/{path1}/{path2}/{path3}/{file}")
+                    .param(String.class)
+                    .param(String.class)
+                    .param(String.class)
+                    .param(String.class)
+                    .handle(serve4)
     );
   }
 
   private Completes<Response> redirectToApp() {
     return Completes.withSuccess(
-      Response.of(MovedPermanently,
-        Header.Headers.of(
-          ResponseHeader.of("Location", "/app/"))));
+            Response.of(MovedPermanently,
+                    Header.Headers.of(
+                            ResponseHeader.of("Location", "/app/"))));
   }
 
   private Completes<Response> serve(final String... pathSegments) {
@@ -98,13 +98,13 @@ public class UiResource extends ResourceHandler {
     try {
       byte[] content = readFileFromClasspath(path);
       return Completes.withSuccess(
-        Response.of(Ok,
-          Header.Headers.of(
-            ResponseHeader.of(ContentType, guessContentType(path)),
-            ResponseHeader.of(ContentLength, content.length)
-          ),
-          Body.from(content, Body.Encoding.UTF8).content() //FIXME: This will not work for binary files; rather find out how to send a plain byte[]
-        ));
+              Response.of(Ok,
+                      Header.Headers.of(
+                              ResponseHeader.of(ContentType, guessContentType(path)),
+                              ResponseHeader.of(ContentLength, content.length)
+                      ),
+                      Body.from(content, Body.Encoding.UTF8).content()
+              ));
     } catch (FileNotFoundException e) {
       return Completes.withSuccess(Response.of(NotFound, path + " not found."));
     } catch (IOException e) {
@@ -113,20 +113,19 @@ public class UiResource extends ResourceHandler {
   }
 
   private String guessContentType(final String path) throws IOException {
-    String contentType = Files.probeContentType(Paths.get(path));
-    contentType = (contentType != null) ? contentType : "application/octet-stream";
-    if (contentType.equals("application/octet-stream")) {
-      if (path.endsWith(".js")) contentType = "text/javascript";
-      else if (path.endsWith(".css")) contentType = "text/css";
-    }
-    return contentType;
+    // This implementation uses javax.activation.MimetypesFileTypeMap; the mime types are defined
+    // in META-INF/mime.types as JDK8's java.nio.file.Files#probeContentType is highly platform dependent
+    // and reportedly not reliable, see e.g. https://bugs.openjdk.java.net/browse/JDK-8186071
+    MimetypesFileTypeMap m = new MimetypesFileTypeMap();
+    String contentType = m.getContentType(Paths.get(path).toFile());
+    return (contentType != null) ? contentType : "application/octet-stream";
   }
 
   private String pathFrom(final String[] pathSegments) {
     return Stream.of(pathSegments)
-      .map(p -> p.startsWith("/") ? p.substring(1) : p)
-      .map(p -> p.endsWith("/") ? p.substring(0, p.length() - 1) : p)
-      .collect(Collectors.joining("/", "frontend/", ""));
+            .map(p -> p.startsWith("/") ? p.substring(1) : p)
+            .map(p -> p.endsWith("/") ? p.substring(0, p.length() - 1) : p)
+            .collect(Collectors.joining("/", "frontend/", ""));
   }
 
   private byte[] readFileFromClasspath(final String path) throws IOException {

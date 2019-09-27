@@ -1,5 +1,5 @@
 <template>
-    <v-card class="xs12" height="95vh" width="100%">
+    <v-card class="xs12" height="95vh" width="100%" id="schemata-view-unit">
         <v-card-title>Unit</v-card-title>
         <v-card-text>
             <v-form
@@ -15,7 +15,7 @@
                         ></v-text-field>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="organizations"
                                 label="Organization"
                                 :loading="loading.organizations"
@@ -24,7 +24,7 @@
                                 item-text="name"
                                 v-model="organization"
 
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12">
                         <v-text-field

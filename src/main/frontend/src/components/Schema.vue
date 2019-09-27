@@ -1,5 +1,5 @@
 <template>
-    <v-card class="xs12" height="95vh" width="100%">
+    <v-card class="xs12" height="95vh" width="100%" id="schemata-view-schema">
         <v-card-title>Schema</v-card-title>
         <v-card-text>
             <v-form
@@ -15,7 +15,7 @@
                         ></v-text-field>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="organizations"
                                 label="Organization"
                                 :loading="loading.organizations"
@@ -24,10 +24,10 @@
                                 item-text="name"
                                 v-model="organization"
 
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="units"
                                 label="Unit"
                                 :loading="loading.units"
@@ -36,10 +36,10 @@
                                 item-text="name"
                                 v-model="unit"
 
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="contexts"
                                 label="Context"
                                 :loading="loading.contexts"
@@ -47,7 +47,7 @@
                                 item-value="contextId"
                                 item-text="namespace"
                                 v-model="context"
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12">
                         <v-text-field
@@ -57,20 +57,20 @@
                         ></v-text-field>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="categories"
                                 label="Category"
                                 :loading="loading.categories"
                                 v-model="category"
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="scopes"
                                 label="Scope"
                                 :loading="loading.scopes"
                                 v-model="scope"
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
                 </v-row>
 

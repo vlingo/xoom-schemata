@@ -21,3 +21,7 @@ out/
 
 # Node
 node_modules/
+
+# E2E Tests
+src/test/frontend/cypress/sceenshots
+src/test/frontend/cypress/videos

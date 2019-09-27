@@ -21,12 +21,7 @@ import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.infra.persistence.JDBCConfiguration;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.query.Queries;
-import io.vlingo.schemata.resource.CodeResource;
-import io.vlingo.schemata.resource.ContextResource;
-import io.vlingo.schemata.resource.OrganizationResource;
-import io.vlingo.schemata.resource.SchemaResource;
-import io.vlingo.schemata.resource.SchemaVersionResource;
-import io.vlingo.schemata.resource.UnitResource;
+import io.vlingo.schemata.resource.*;
 import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.object.ObjectStore;
@@ -60,6 +55,7 @@ public class Bootstrap {
     final SchemaResource schemaResource = new SchemaResource(world);
     final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world);
     final CodeResource codeResource = new CodeResource(world);
+    final UiResource uiResource = new UiResource();
 
     Resources allResources = Resources.are(
             organizationResource.routes(),
@@ -67,7 +63,8 @@ public class Bootstrap {
             contextResource.routes(),
             schemaResource.routes(),
             schemaVersionResource.routes(),
-            codeResource.routes()
+            codeResource.routes(),
+            uiResource.routes()
     );
 
     server = Server.startWith(world.stage(),

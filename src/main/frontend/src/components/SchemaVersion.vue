@@ -1,5 +1,5 @@
 <template>
-    <v-card class="xs12" height="95vh" width="100%">
+    <v-card class="xs12" height="95vh" width="100%" id="schemata-view-schema-version">
         <v-card-title>Schema Version</v-card-title>
         <v-card-text>
             <v-form
@@ -15,7 +15,7 @@
                         ></v-text-field>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="organizations"
                                 label="Organization"
                                 :loading="loading.organizations"
@@ -24,10 +24,10 @@
                                 item-text="name"
                                 v-model="organization"
 
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="units"
                                 label="Unit"
                                 :loading="loading.units"
@@ -36,10 +36,10 @@
                                 item-text="name"
                                 v-model="unit"
 
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="contexts"
                                 label="Context"
                                 :loading="loading.contexts"
@@ -47,10 +47,10 @@
                                 item-value="contextId"
                                 item-text="namespace"
                                 v-model="context"
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="schemata"
                                 label="Schema"
                                 :loading="loading.schema"
@@ -58,7 +58,7 @@
                                 item-value="schemaId"
                                 item-text="name"
                                 v-model="schema"
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
 
 
@@ -79,11 +79,11 @@
                     </v-col>
 
                     <v-col class="d-flex" cols="4">
-                        <v-select
+                        <v-autocomplete
                                 :items="statuses"
                                 label="Status"
                                 v-model="status"
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
 
                     <v-col class="d-flex" cols="12" lg="6">

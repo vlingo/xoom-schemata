@@ -1,5 +1,5 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <v-card height="45vh">
+    <v-card height="45vh" id="schemata-treeview">
         <v-card-title>
             <v-text-field
                     v-model="search"
