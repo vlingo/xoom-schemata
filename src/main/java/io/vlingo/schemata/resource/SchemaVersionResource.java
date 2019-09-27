@@ -8,6 +8,7 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
@@ -55,6 +56,10 @@ public class SchemaVersionResource extends ResourceHandler {
           final String schemaId,
           final SchemaVersionData data) {
 
+    if (!data.hasSpecification()) {
+      return Completes.withSuccess(Response.of(BadRequest, "Missing specification"));
+    }
+
     return SchemaVersion.with(stage, SchemaId.existing(organizationId, unitId, contextId, schemaId), Specification.of(data.specification), data.description, Version.of(data.previousVersion), Version.of(data.currentVersion))
             .andThenTo(3000, state -> {
                 final String location = schemaVersionLocation(state.schemaVersionId);
@@ -76,6 +81,10 @@ public class SchemaVersionResource extends ResourceHandler {
   }
 
   public Completes<Response> specifyWith(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId, final String specification) {
+    if (!SchemaVersionData.hasSpecification(specification)) {
+      return Completes.withSuccess(Response.of(BadRequest, "Missing specification"));
+    }
+
     return commands
             .specifyWith(SchemaVersionId.existing(organizationId, unitId, contextId, schemaId, schemaVersionId), Specification.of(specification)).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaVersionData.from(state)))));
