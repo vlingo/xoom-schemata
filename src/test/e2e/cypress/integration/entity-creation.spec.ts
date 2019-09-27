@@ -1,3 +1,5 @@
+import * as faker from 'faker';
+
 describe('Entity Creation Tests', function () {
     before(() => {
     });
@@ -10,23 +12,57 @@ describe('Entity Creation Tests', function () {
         cy.viewport(1280, 960)
     });
 
-    it('can create organizations', function () {
+    it('can create organization', function () {
+        let orgName = faker.company.companyName()
         cy.visit('/#/organization')
         cy.fieldContent('OrganizationID').should('be.empty')
-        cy.fillField('Name', 'Test Organization 1')
-        cy.fillField('Description', 'Description for Test Organization 1')
+        cy.fillField('Name', orgName)
+        cy.fillField('Description', faker.company.catchPhrase())
         cy.contains('button','Create').click()
-        cy.fieldContent('Organization').should('not.be.empty')
+        cy.fieldContent('OrganizationID').should('not.be.empty')
     });
 
-    it('can create units', function () {
+    it('can create unit', function () {
+        let orgName = faker.company.companyName()
+        let unitName = faker.lorem.word()
+
+        cy.visit('/#/organization')
+        cy.fillField('Name', orgName)
+        cy.fillField('Description', 'foo')
+        cy.contains('button','Create').click()
+
         cy.visit('/#/unit')
         cy.fieldContent('UnitID').should('be.empty')
-        cy.selectOption('Organization','Test Organization 1')
-        cy.fillField('Name', 'Test Organization 1 Unit 1')
-        cy.fillField('Description', 'Description for Test Organization 1 Unit 1')
+        cy.selectOption('Organization',orgName)
+        cy.fillField('Name', unitName)
+        cy.fillField('Description', faker.lorem.paragraph())
         cy.contains('button','Create').click()
         cy.fieldContent('UnitID').should('not.be.empty')
+    });
+
+    it('can create context', function () {
+        let orgName = faker.company.companyName()
+        let unitName = faker.lorem.word()
+        let namespace = faker.internet.domainName()
+
+        cy.visit('/#/organization')
+        cy.fillField('Name', orgName)
+        cy.fillField('Description', 'foo')
+        cy.contains('button','Create').click()
+
+        cy.visit('/#/unit')
+        cy.selectOption('Organization',orgName)
+        cy.fillField('Name', unitName)
+        cy.fillField('Description', 'foo')
+        cy.contains('button','Create').click()
+
+        cy.visit('/#/context')
+        cy.selectOption('Organization',orgName)
+        cy.selectOption('Unit',unitName)
+        cy.fillField('Namespace', namespace)
+        cy.fillField('Description', faker.lorem.paragraph())
+        cy.contains('button','Create').click()
+
     });
 
 });
