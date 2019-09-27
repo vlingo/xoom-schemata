@@ -6,7 +6,7 @@ The vlingo/PLATFORM schema registry.
  
 ## Run
 
-You can run the registry with demo data within docker using `docker run -p 9019:9019 wernerw/vlingo-schemata:demo`.
+You can run the registry with an in-memory database within docker using `docker run -p 9019:9019 vlingo/vlingo-schemata`.
 
 After building the fat jar, you can also simply execute it via `java -jar vlingo-schemata-<version>-jar-with-dependencies.jar`
 
@@ -80,11 +80,11 @@ After building the fat jar, you can also simply execute it via `java -jar vlingo
 
 Run the full build using `mvn clean package -Pfrontend`. 
 
-Afterwards, you can build the docker container with `docker build . -t vlingo-schemata-demo`.
+Afterwards, you can build the docker container with `docker build . -t vlingo/vlingo-schemata`.
 
-CI build runs on CircleCI: https://circleci.com/gh/wwerner/vlingo-schemata/.
+CI build runs on CircleCI: https://circleci.com/gh/vlingo/vlingo-schemata/.
 
-A docker image containing mock data is published to https://hub.docker.com/r/wernerw/vlingo-schemata.
+A docker image containing mock data is published to https://hub.docker.com/r/vlingo/vlingo-schemata.
 
 
 The maven build takes care of the following:
@@ -131,5 +131,31 @@ You can run the backend ...
 * ... from the jar, in case you just need the current backend state and do not want to delve into the backend code: 
 `java -jar vlingo-schemata-<version>-jar-with-dependencies.jar`
 * ... from Docker, in case you don't want bother w/ Java at all: 
-`docker run -p 9019:9019 wernerw/vlingo-schemata:demo`. 
+`docker run -p 9019:9019 vlingo/vlingo-schemata`.
+
 Note that this also pulls in the current UI, so don't get confused.
+
+### Testing
+
+#### Unit Tests
+
+Unit tests live in `src/test/java` and are execute by the Maven build (e.g. `mvn test`) as you'd expect.
+
+#### E2E Tests
+
+End-to-End tests are implemented using [Cypress.io](https://www.cypress.io/). 
+Test implementations are in `src/test/e2e`.
+
+To run the tests locally, you need to set the URL of the application under test, open 
+cypress and launch select the tests to launch. 
+
+In case you want to run the tests against `vlingo-schemata` running within a docker container,
+you can simple start it like this to match the E2E base URL default: 
+`docker run -p9019:9019 vlingo/vlingo-schemata`
+
+
+```
+$ cd <project root>/src/test/e2e
+$ export CYPRESS_BASE_URL=http://localhost:9019 # default
+$ npx cypress open
+```
