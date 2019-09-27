@@ -29,4 +29,16 @@ describe('Basic Application Tests', function () {
             .get('.v-list-item__title').should('not.be.visible')
     });
 
+    it('toggles menu on hover', function () {
+        cy.visit('/')
+            .get('.v-list-item__title').should('not.be.visible')
+            .get('.v-navigation-drawer__content')
+            .trigger('mouseenter')
+            .trigger('mouseover')
+            .get('.v-list-item__title').should('be.visible')
+            .get('.v-navigation-drawer__content')
+            .trigger('mouseleave')
+            .get('.v-list-item__title').should('not.be.visible')
+    });
+
 });
