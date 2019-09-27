@@ -34,6 +34,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
   private static final String SchemaVersionVersion000 = "0.0.0";
   private static final String SchemaVersionVersion100 = "1.0.0";
   private static final String SchemaVersionVersion101 = "1.0.1";
+  private static final String SchemaVersionVersion300 = "3.0.0";
 
   @Test
   public void testThatSchemaVersionIsDefined() {
@@ -171,6 +172,36 @@ public class SchemaVersionResourceTest extends ResourceTest {
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
     assertEquals(BadRequest, response1.status);
     assertTrue(response1.entity.content().toLowerCase().contains("missing"));
+    assertNull(response1.headers.headerOf(Location));
+  }
+
+  @Test
+  public void testFailDefineWithZeroVersions() {
+    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion000);
+    final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
+    assertEquals(BadRequest, response1.status);
+    assertTrue(response1.entity.content().toLowerCase().contains("conflicting"));
+    assertNull(response1.headers.headerOf(Location));
+  }
+
+  @Test
+  public void testFailDefineWithHighLowVersions() {
+    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion100, SchemaVersionVersion000);
+    final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
+    assertEquals(BadRequest, response1.status);
+    assertTrue(response1.entity.content().toLowerCase().contains("conflicting"));
+    assertNull(response1.headers.headerOf(Location));
+  }
+
+  @Test
+  public void testFailDefineWithGappedVersions() {
+    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion100, SchemaVersionVersion300);
+    final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
+    assertEquals(BadRequest, response1.status);
+    assertTrue(response1.entity.content().toLowerCase().contains("conflicting"));
     assertNull(response1.headers.headerOf(Location));
   }
 }
