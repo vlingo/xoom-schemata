@@ -113,7 +113,7 @@ describe('Entity Creation Tests', function () {
         let majorMinorVersion = faker.random.number(9) + '.' + faker.random.number(9)
         let patchVersion = faker.random.number(9)
         let prevVersion = majorMinorVersion + '.' + patchVersion
-        let nextVersion = majorMinorVersion + '.' + (patchVersion + 1)
+        let currentVersion = majorMinorVersion + '.' + (patchVersion + 1)
 
         cy.visit('/#/organization')
         cy.fillField('Name', orgName)
@@ -151,9 +151,9 @@ describe('Entity Creation Tests', function () {
         cy.selectOption('Unit', unitName)
         cy.selectOption('Context', namespace)
         cy.selectOption('Schema', schema)
-        cy.selectOption('Previous Version', prevVersion)
-        cy.fillField('Next Version', nextVersion)
-        cy.fillField('Status', faker.random.arrayElement(['Draft', 'Published', 'Deprecated', 'Removed']))
+        cy.fillField('Previous Version', prevVersion)
+        cy.fillField('Current Version', currentVersion)
+        cy.selectOption('Status', faker.random.arrayElement(['Draft', 'Published', 'Deprecated', 'Removed']))
         cy.fillField('Description', faker.lorem.sentence())
         cy.fillField('Specification', 'event SalutationHappened {\n' +
             '    type eventType\n' +
