@@ -149,6 +149,14 @@ Test implementations are in `src/test/e2e`.
 To run the tests locally, you need to set the URL of the application under test, open 
 cypress and launch select the tests to launch. 
 
+To run the tests against the development server and a locally running (debuggable) backend:
+```
+$ # run Boostrap.main from your IDE
+$ cd <project root>/src/main/frontend
+$ npm run serve &
+$ cd <project root>/src/test/e2e
+$ CYPRESS_BASE_URL=http://localhost:8080 npx cypress open
+```
 In case you want to run the tests against `vlingo-schemata` running within a docker container,
 you can simple start it like this to match the E2E base URL default: 
 `docker run -p9019:9019 vlingo/vlingo-schemata`
