@@ -7,11 +7,14 @@
 
 package io.vlingo.schemata.resource;
 
+import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.ResponseHeader.Location;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -149,5 +152,25 @@ public class SchemaVersionResourceTest extends ResourceTest {
     final SchemaVersionData data2 = JsonSerialization.deserialized(response2.entity.content(), SchemaVersionData.class);
     assertEquals(data1.schemaVersionId, data2.schemaVersionId);
     assertNotEquals(Status.Removed.name(), data2.status);
+  }
+
+  @Test
+  public void testFailDefineWithNullSpecification() {
+    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionData defineData = SchemaVersionData.just(null, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
+    final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
+    assertEquals(BadRequest, response1.status);
+    assertTrue(response1.entity.content().toLowerCase().contains("missing"));
+    assertNull(response1.headers.headerOf(Location));
+  }
+
+  @Test
+  public void testFailDefineWithEmptySpecification() {
+    final SchemaVersionResource resource = new SchemaVersionResource(world);
+    final SchemaVersionData defineData = SchemaVersionData.just("", SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
+    final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
+    assertEquals(BadRequest, response1.status);
+    assertTrue(response1.entity.content().toLowerCase().contains("missing"));
+    assertNull(response1.headers.headerOf(Location));
   }
 }
