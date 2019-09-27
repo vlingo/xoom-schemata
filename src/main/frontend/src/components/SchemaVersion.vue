@@ -1,5 +1,5 @@
 <template>
-    <v-card class="xs12" height="95vh" width="100%">
+    <v-card class="xs12" height="95vh" width="100%" id="schemata-view-schema-version">
         <v-card-title>Schema Version</v-card-title>
         <v-card-text>
             <v-form
