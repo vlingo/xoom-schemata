@@ -35,7 +35,7 @@ describe('Entity Creation Tests', function () {
         cy.fieldContent('UnitID').should('be.empty')
         cy.selectOption('Organization',orgName)
         cy.fillField('Name', unitName)
-        cy.fillField('Description', faker.lorem.paragraph())
+        cy.fillField('Description', faker.lorem.sentence())
         cy.contains('button','Create').click()
         cy.fieldContent('UnitID').should('not.be.empty')
     });
@@ -57,11 +57,14 @@ describe('Entity Creation Tests', function () {
         cy.contains('button','Create').click()
 
         cy.visit('/#/context')
+        cy.fieldContent('ContextID').should('be.empty')
         cy.selectOption('Organization',orgName)
         cy.selectOption('Unit',unitName)
         cy.fillField('Namespace', namespace)
-        cy.fillField('Description', faker.lorem.paragraph())
+        cy.fillField('Description', faker.lorem.sentence())
         cy.contains('button','Create').click()
+        cy.fieldContent('ContextID').should('not.be.empty')
+
 
     });
 
