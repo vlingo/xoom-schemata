@@ -15,7 +15,7 @@
                         ></v-text-field>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="organizations"
                                 label="Organization"
                                 :loading="loading.organizations"
@@ -24,10 +24,10 @@
                                 item-text="name"
                                 v-model="organization"
 
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
-                        <v-select
+                        <v-autocomplete
                                 :items="units"
                                 label="Unit"
                                 :loading="loading.units"
@@ -36,7 +36,7 @@
                                 item-text="name"
                                 v-model="unit"
 
-                        ></v-select>
+                        ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
                         <v-select

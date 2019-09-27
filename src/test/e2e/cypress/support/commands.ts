@@ -39,5 +39,7 @@ Cypress.Commands.add("selectOption", (label, optionLabel) => {
         .siblings('.v-select__selections')
         .click()
         .get('.v-select-list')
-        .contains('.v-list-item',optionLabel).click()
+        .contains('.v-list-item',optionLabel)
+        .scrollIntoView()
+        .click({force: true})
 })
