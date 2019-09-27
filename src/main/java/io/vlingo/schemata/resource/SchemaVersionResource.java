@@ -59,6 +59,9 @@ public class SchemaVersionResource extends ResourceHandler {
     if (!data.hasSpecification()) {
       return Completes.withSuccess(Response.of(BadRequest, "Missing specification"));
     }
+    if (!data.validVersions()) {
+      return Completes.withSuccess(Response.of(BadRequest, "Conflicting versions"));
+    }
 
     return SchemaVersion.with(stage, SchemaId.existing(organizationId, unitId, contextId, schemaId), Specification.of(data.specification), data.description, Version.of(data.previousVersion), Version.of(data.currentVersion))
             .andThenTo(3000, state -> {
