@@ -49,39 +49,40 @@ import io.vlingo.http.resource.ResourceHandler;
  * FIXME: This leaves the server wide open for read access. We should constrain access to the resources we actually provide.
  */
 public class UiResource extends ResourceHandler {
-  public static Resource<?> asResource() {
-    UiResource impl = new UiResource();
-    final Handler0 serve0 = impl::serve;
-    final Handler1<String> serve1 = impl::serve;
-    final Handler2<String, String> serve2 = impl::serve;
-    final Handler3<String, String, String> serve3 = impl::serve;
-    final Handler4<String, String, String, String> serve4 = impl::serve;
+
+
+  @Override
+  public Resource<?> routes() {
+    final Handler0 serve0 = this::serve;
+    final Handler1<String> serve1 = this::serve;
+    final Handler2<String, String> serve2 = this::serve;
+    final Handler3<String, String, String> serve3 = this::serve;
+    final Handler4<String, String, String, String> serve4 = this::serve;
 
     return resource("ui", 10,
-      get("/")
-        .handle(impl::redirectToApp),
-      get("/app/")
-        .handle(serve0),
-      get("/app/{file}")
-        .param(String.class)
-        .handle(serve1),
-      get("/app/{path1}/{file}")
-        .param(String.class)
-        .param(String.class)
-        .handle(serve2),
-      get("/app/{path1}/{path2}/{file}")
-        .param(String.class)
-        .param(String.class)
-        .param(String.class)
-        .handle(serve3),
-      get("/app/{path1}/{path2}/{path3}/{file}")
-        .param(String.class)
-        .param(String.class)
-        .param(String.class)
-        .param(String.class)
-        .handle(serve4)
-    );
-  }
+            get("/")
+                    .handle(this::redirectToApp),
+            get("/app/")
+                    .handle(serve0),
+            get("/app/{file}")
+                    .param(String.class)
+                    .handle(serve1),
+            get("/app/{path1}/{file}")
+                    .param(String.class)
+                    .param(String.class)
+                    .handle(serve2),
+            get("/app/{path1}/{path2}/{file}")
+                    .param(String.class)
+                    .param(String.class)
+                    .param(String.class)
+                    .handle(serve3),
+            get("/app/{path1}/{path2}/{path3}/{file}")
+                    .param(String.class)
+                    .param(String.class)
+                    .param(String.class)
+                    .param(String.class)
+                    .handle(serve4)
+    );  }
 
   private Completes<Response> redirectToApp() {
     return Completes.withSuccess(
