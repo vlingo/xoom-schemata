@@ -84,8 +84,6 @@ Afterwards, you can build the docker container with `docker build . -t vlingo/vl
 
 CI build runs on CircleCI: https://circleci.com/gh/vlingo/vlingo-schemata/.
 
-A docker image containing mock data is published to https://hub.docker.com/r/vlingo/vlingo-schemata.
-
 
 The maven build takes care of the following:
 * Generate sources for the schema grammars in `src/main/antlr4`
