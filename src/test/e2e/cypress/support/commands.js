@@ -23,3 +23,21 @@
 //
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("fillField", (label, text) => {
+    cy.contains('label', label)
+        .siblings('input,textarea').type(text)
+})
+
+Cypress.Commands.add("fieldContent", (label) => {
+    cy.contains('label', label)
+        .siblings('input,textarea').invoke('val')
+})
+
+Cypress.Commands.add("selectOption", (label, optionLabel) => {
+    cy.contains('label', label)
+        .siblings('.v-select__selections')
+        .click()
+        .get('.v-select-list')
+        .contains('.v-list-item',optionLabel).click()
+})
