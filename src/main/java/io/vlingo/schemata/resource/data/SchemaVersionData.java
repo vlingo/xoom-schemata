@@ -10,6 +10,7 @@ package io.vlingo.schemata.resource.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.schemata.model.SchemaVersionState;
 
 public class SchemaVersionData {
@@ -99,8 +100,29 @@ public class SchemaVersionData {
     return organizationId.isEmpty() && unitId.isEmpty() && contextId.isEmpty() && schemaId.isEmpty() && schemaVersionId.isEmpty();
   }
 
+  public static boolean validVersions(final String previousVersion, final String currentVersion) {
+    try {
+      final SemanticVersion previousSemantic = SemanticVersion.from(previousVersion);
+      final SemanticVersion currentSemantic = SemanticVersion.from(currentVersion);
+
+      return (
+          currentSemantic.isNonZero() &&
+          currentSemantic.isCompatibleWith(previousSemantic) &&
+          currentSemantic.isGreaterThan(previousSemantic));
+
+    } catch (Exception e) {
+      // fall through
+    }
+
+    return false;
+  }
+
   public boolean hasSpecification() {
     return hasSpecification(specification);
+  }
+
+  public boolean validVersions() {
+    return validVersions(previousVersion, currentVersion);
   }
 
   @Override
