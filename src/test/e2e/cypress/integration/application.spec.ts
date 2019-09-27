@@ -24,6 +24,8 @@ describe('Basic Application Tests', function () {
             .get('.v-navigation-drawer__content').should('be.visible')
             .get('.v-list-item__title').should('not.be.visible')
             .get('#schemata-navigation-toggle').click()
+            .get('.v-list-item__title').should('be.visible')
+            .get('#schemata-navigation-toggle').click()
             .get('.v-list-item__title').should('not.be.visible')
     });
 
