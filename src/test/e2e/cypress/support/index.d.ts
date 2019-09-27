@@ -15,7 +15,7 @@ declare namespace Cypress {
         fieldContent(label: string): Chainable<Element>
 
         /**
-         * Select an option from a Vuetify select box field identified by their labels
+         * Select an option from a Vuetify _autocomplete_ select box field identified by their labels
          * @example cy.selectOption('Color','Blue')
          */
         selectOption(label: string, OptionLabel: string): Chainable<Element>
