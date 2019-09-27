@@ -91,6 +91,18 @@ public class SchemaVersionData {
     return just("", "", "", "", "");
   }
 
+  public static boolean hasSpecification(final String specification) {
+    return specification != null && !specification.isEmpty();
+  }
+
+  public boolean isNone() {
+    return organizationId.isEmpty() && unitId.isEmpty() && contextId.isEmpty() && schemaId.isEmpty() && schemaVersionId.isEmpty();
+  }
+
+  public boolean hasSpecification() {
+    return hasSpecification(specification);
+  }
+
   @Override
   public String toString() {
     return "SchemaVersionData [organizationId=" + organizationId + ", unitId=" + unitId + ", contextId=" + contextId
