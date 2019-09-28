@@ -1,7 +1,7 @@
 <template>
     <v-app>
         <v-app-bar dense style="z-index: 10" fixed>
-            <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+            <v-app-bar-nav-icon @click.stop="drawer = !drawer" id="schemata-navigation-toggle"></v-app-bar-nav-icon>
             <v-toolbar-title class="headline">
                 <span>vlingo</span>/<span class="font-weight-light">schemata</span>
             </v-toolbar-title>
