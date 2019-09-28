@@ -18,7 +18,6 @@ import io.vlingo.http.resource.Server;
 import io.vlingo.lattice.grid.Grid;
 import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.schemata.infra.persistence.JDBCConfiguration;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.*;
@@ -33,14 +32,13 @@ public class Bootstrap {
   private final Server server;
   private final World world;
 
-  public Bootstrap() throws Exception {
+  public Bootstrap(final String runtimeType) throws Exception {
     world = World.startWithDefaults("vlingo-schemata");
     world.stageNamed(StageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
 
     final NoopDispatcher<TextEntry, TextState> dispatcher = new NoopDispatcher<>();
 
-    final io.vlingo.symbio.store.common.jdbc.Configuration configuration = JDBCConfiguration.jdbcConfiguration();
-    final SchemataObjectStore schemataObjectStore = new SchemataObjectStore(configuration);
+    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(runtimeType);
     final ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
     final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
     schemataObjectStore.register(registry, objectStore);
@@ -84,9 +82,9 @@ public class Bootstrap {
     }));
   }
 
-  static Bootstrap instance() throws Exception {
+  static Bootstrap instance(final String runtimeType) throws Exception {
     if (instance == null) {
-      instance = new Bootstrap();
+      instance = new Bootstrap(runtimeType);
     }
     return instance;
   }
@@ -95,6 +93,6 @@ public class Bootstrap {
     System.out.println("=========================");
     System.out.println("service: vlingo-schemata.");
     System.out.println("=========================");
-    Bootstrap.instance();
+    Bootstrap.instance(args[0]);
   }
 }
