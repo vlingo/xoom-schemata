@@ -15,7 +15,7 @@ public class BootstrapTest {
 
   @Test
   public void testThatBootstrapStartsServerCleanly() throws Exception {
-    final Bootstrap bootstrap = Bootstrap.instance();
+    final Bootstrap bootstrap = Bootstrap.instance("dev");
 
     assertNotNull(bootstrap);
   }
