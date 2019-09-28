@@ -10,6 +10,7 @@ package io.vlingo.schemata.infra.persistence;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.jdbi.v3.core.statement.SqlStatement;
 
@@ -33,7 +34,9 @@ import io.vlingo.schemata.model.Unit;
 import io.vlingo.schemata.model.UnitState;
 import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.State.TextState;
+import io.vlingo.symbio.store.DataFormat;
 import io.vlingo.symbio.store.common.jdbc.Configuration;
+import io.vlingo.symbio.store.common.jdbc.DatabaseType;
 import io.vlingo.symbio.store.dispatch.Dispatchable;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.MapQueryExpression;
@@ -43,14 +46,57 @@ import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnHSQLDB;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiPersistMapper;
 
-public class SchemataObjectStore {
-
-    private JdbiOnDatabase jdbi;
+public abstract class SchemataObjectStore {
     private final Map<Class<?>, StateObjectMapper> mappersLookup;
 
-    public SchemataObjectStore(final Configuration configuration) throws Exception {
-        initializeDatabase(configuration);
+    protected JdbiOnDatabase jdbi;
+
+    public static SchemataObjectStore instance(final String runtimeType) throws Exception {
+
+      final Properties properties = new java.util.Properties();
+      final String propertiesFile = "/vlingo-schemata-" + runtimeType + ".properties";
+      properties.load(Properties.class.getResourceAsStream(propertiesFile));
+
+      final io.vlingo.symbio.store.common.jdbc.Configuration configuration = jdbcConfiguration(properties);
+
+      final String classname = properties.getProperty("database.type");
+      final Class<?> type = Class.forName(classname);
+      final SchemataObjectStore schemataObjectStore = (SchemataObjectStore) type.newInstance();
+      schemataObjectStore.initializeDatabase(configuration);
+      return schemataObjectStore;
+    }
+
+    private static Configuration jdbcConfiguration(final Properties properties) throws Exception {
+      final DatabaseType databaseType = DatabaseType.databaseType(properties.getProperty("database.url"));
+
+      return new Configuration(
+              databaseType,
+              Configuration.interestOf(databaseType),
+              properties.getProperty("database.driver"),
+              DataFormat.Native,
+              properties.getProperty("database.url"),
+              properties.getProperty("database.name"),
+              properties.getProperty("database.username"),
+              properties.getProperty("database.password"),
+              false,          // useSSL
+              properties.getProperty("database.originator"),
+              true);
+    }
+
+    public SchemataObjectStore() throws Exception {
         mappersLookup = new HashMap<>(5);
+    }
+
+    public void initializeDatabase(final Configuration configuration) throws Exception {
+        jdbi = JdbiOnHSQLDB.openUsing(configuration);
+        jdbi.createCommonTables();
+
+        this.createOrganizationStateTable();
+        this.createUnitStateTable();
+        this.createContextStateTable();
+        this.createSchemaStateTable();
+        this.createSchemaVersionStateTable();
+        this.createDependencyStateTable();
     }
 
     public Collection<StateObjectMapper> persistentMappers()  {
@@ -229,136 +275,10 @@ public class SchemataObjectStore {
         registry.register(schemaVersionInfo);
     }
 
-    private void initializeDatabase(final Configuration configuration) throws Exception {
-        jdbi = JdbiOnHSQLDB.openUsing(configuration);
-        jdbi.createCommonTables();
-
-        this.createOrganizationStateTable();
-        this.createUnitStateTable();
-        this.createContextStateTable();
-        this.createSchemaStateTable();
-        this.createSchemaVersionStateTable();
-        this.createDependencyStateTable();
-    }
-
-    private void createOrganizationStateTable() {
-        jdbi.handle().execute(
-                "CREATE TABLE IF NOT EXISTS TBL_ORGANIZATIONS (" +
-                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "organizationId VARCHAR (50) NOT NULL, " +
-                "name VARCHAR(128) NOT NULL, " +
-                "description VARCHAR(8000) " +
-
-//                "UNIQUE (name) " +
-                ")");
-
-//        jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS ORG_ALL_INDEX ON TBL_ORGANIZATIONS (organizationId)");
-    }
-
-    private void createUnitStateTable() {
-        jdbi.handle().execute(
-                "CREATE TABLE IF NOT EXISTS TBL_UNITS (" +
-                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "unitId VARCHAR(50) NOT NULL, " +
-                "organizationId VARCHAR (50) NOT NULL, " +
-                "name VARCHAR(128) NOT NULL, " +
-                "description VARCHAR(8000) " +
-
-//                "UNIQUE (organizationId, name) " +
-                ")");
-
-//        jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_PARENT_INDEX ON TBL_UNITS (organizationId)");
-//        jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_ALL_INDEX ON TBL_UNITS (organizationId, unitId)");
-    }
-
-    private void createContextStateTable() {
-        jdbi.handle().execute(
-                "CREATE TABLE IF NOT EXISTS TBL_CONTEXTS (" +
-                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "contextId VARCHAR(50) NOT NULL, " +
-                "unitId VARCHAR(50) NOT NULL, " +
-                "organizationId VARCHAR (50) NOT NULL, " +
-                "namespace VARCHAR(256) NOT NULL, " +
-                "description VARCHAR(8000) " +
-
-//                "UNIQUE (unitId, namespace) " +
-                ")");
-
-//        jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS CONTEXT_PARENT_INDEX ON TBL_CONTEXTS (organizationId, unitId)");
-//        jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS CONTEXT_ALL_INDEX ON TBL_CONTEXTS (organizationId, unitId, contextId)");
-    }
-
-    private void createSchemaStateTable() {
-        jdbi.handle().execute(
-                "CREATE TABLE IF NOT EXISTS TBL_SCHEMAS (" +
-                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "schemaId VARCHAR(50) NOT NULL, " +
-                "contextId VARCHAR(50) NOT NULL, " +
-                "unitId VARCHAR(50) NOT NULL, " +
-                "organizationId VARCHAR (50) NOT NULL, " +
-                "category VARCHAR(25) NOT NULL, " +
-                "scope VARCHAR(25) NOT NULL, " +
-                "name VARCHAR(128) NOT NULL, " +
-                "description VARCHAR(8000) " +
-
-//                "UNIQUE (contextId, category, name) " +
-                ")");
-
-//        jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMA_PARENT_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId)");
-//        jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMA_ALL_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId, schemaId)");
-    }
-
-    private void createSchemaVersionStateTable() {
-        final int specificationWidth;
-
-        switch (jdbi.databaseType()) {
-        case Postgres:
-          specificationWidth = 65536;
-          break;
-        case HSQLDB:
-          specificationWidth = 8000;
-          break;
-        default:
-          specificationWidth = 4000;
-          break;
-        }
-
-        jdbi.handle().execute(
-                "CREATE TABLE IF NOT EXISTS TBL_SCHEMAVERSIONS (" +
-                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-                "schemaVersionId VARCHAR(50) NOT NULL, " +
-                "schemaId VARCHAR(50) NOT NULL, " +
-                "contextId VARCHAR(50) NOT NULL, " +
-                "unitId VARCHAR(50) NOT NULL, " +
-                "organizationId VARCHAR (50) NOT NULL, " +
-                "specification VARCHAR(" + specificationWidth + ") NOT NULL, " +
-                "description VARCHAR(8000), " +
-                "status VARCHAR(16) NOT NULL, " +
-                "previousVersion VARCHAR(20) NOT NULL, " +
-                "currentVersion VARCHAR(20) NOT NULL " +
-
-//                "UNIQUE (schemaId, currentVersion) " +
-                ")");
-
-//        jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_PARENT_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId)");
-//        jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_ALL_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId, schemaVersionId)");
-    }
-
-    private void createDependencyStateTable() {
-        jdbi.handle().execute(
-                "CREATE TABLE IF NOT EXISTS TBL_DEPENDENCIES (" +
-                "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
-
-                "sourceOrganizationId VARCHAR (50) NOT NULL, " +
-                "sourceUnitId VARCHAR(50) NOT NULL, " +
-                "sourceContextId VARCHAR(50) NOT NULL, " +
-                "sourceSchemaId VARCHAR(50) NOT NULL, " +
-                "sourceSchemaVersionId VARCHAR(50) NOT NULL, " +
-
-                "dependentOrganizationId VARCHAR (50) NOT NULL, " +
-                "dependentUnitId VARCHAR(50) NOT NULL, " +
-                "dependentContextId VARCHAR(50) NOT NULL " +
-
-                ")");
-    }
+    protected abstract void createOrganizationStateTable();
+    protected abstract void createUnitStateTable();
+    protected abstract void createContextStateTable();
+    protected abstract void createSchemaStateTable();
+    protected abstract void createSchemaVersionStateTable();
+    protected abstract void createDependencyStateTable();
 }
