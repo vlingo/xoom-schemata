@@ -17,7 +17,6 @@ import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.Schemata;
-import io.vlingo.schemata.infra.persistence.JDBCConfiguration;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.query.CodeQueries;
 import io.vlingo.schemata.query.ContextQueries;
@@ -27,7 +26,6 @@ import io.vlingo.schemata.query.SchemaQueries;
 import io.vlingo.schemata.query.SchemaVersionQueries;
 import io.vlingo.schemata.query.UnitQueries;
 import io.vlingo.symbio.store.DataFormat;
-import io.vlingo.symbio.store.common.jdbc.Configuration;
 import io.vlingo.symbio.store.common.jdbc.hsqldb.HSQLDBConfigurationProvider;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
@@ -52,8 +50,7 @@ public abstract class ResourceTest {
     world.stageNamed(Schemata.StageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
     stage = world.stageNamed(Schemata.StageName);
 
-    final Configuration configuration = JDBCConfiguration.jdbcConfiguration();
-    final SchemataObjectStore schemataObjectStore = new SchemataObjectStore(configuration);
+    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("dev");
     registry = new ObjectTypeRegistry(world);
     objectStore = schemataObjectStore.objectStoreFor(world, new NoopDispatcher(), schemataObjectStore.persistentMappers());
     schemataObjectStore.register(registry, objectStore);
