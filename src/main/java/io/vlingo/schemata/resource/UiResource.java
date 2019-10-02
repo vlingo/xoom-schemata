@@ -7,6 +7,25 @@
 
 package io.vlingo.schemata.resource;
 
+import static io.vlingo.http.Response.Status.InternalServerError;
+import static io.vlingo.http.Response.Status.MovedPermanently;
+import static io.vlingo.http.Response.Status.NotFound;
+import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.ResponseHeader.ContentLength;
+import static io.vlingo.http.ResponseHeader.ContentType;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.activation.MimetypesFileTypeMap;
+
 import io.vlingo.common.Completes;
 import io.vlingo.http.Body;
 import io.vlingo.http.Header;
@@ -19,22 +38,6 @@ import io.vlingo.http.resource.RequestHandler3.Handler3;
 import io.vlingo.http.resource.RequestHandler4.Handler4;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
-
-import javax.activation.MimetypesFileTypeMap;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static io.vlingo.http.Response.Status.*;
-import static io.vlingo.http.ResponseHeader.ContentLength;
-import static io.vlingo.http.ResponseHeader.ContentType;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
 
 /**
  * Serves the files making up the UI from the classpath.
