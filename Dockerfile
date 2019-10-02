@@ -12,7 +12,8 @@ RUN cd /home/project && mvn -Pfrontend package
 FROM openjdk:8-slim
 
 ENV JAVA_OPTS=""
+ENV VLINGO_ENV="dev"
 
 COPY --from=packager "/home/project/target/vlingo-schemata-*-jar-with-dependencies.jar" "/app.jar"
 
-ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar
+ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar $VLINGO_ENV
