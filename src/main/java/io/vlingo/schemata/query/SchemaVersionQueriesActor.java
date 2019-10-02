@@ -11,7 +11,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Tuple2;
+import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.lattice.query.StateObjectQueryActor;
 import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
@@ -35,6 +38,8 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
             "AND contextId = :contextId " +
             "AND schemaId = :schemaId " +
             "AND currentVersion = :currentVersion";
+
+  Tuple2<SchemaVersionData,SemanticVersion> tempCurrentVersion;
 
   private final Map<String,String> parameters;
 
@@ -78,6 +83,9 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
 
   @Override
   public Completes<SchemaVersionData> schemaVersionOfVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String version) {
+    if (version.equals(GreatestVersion)) {
+      return queryGreatest(organizationId, unitId, contextId, schemaId);
+    }
     parameters.clear();
     parameters.put("organizationId", organizationId);
     parameters.put("unitId", unitId);
@@ -86,6 +94,25 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
     parameters.put("currentVersion", version);
 
     return queryOne(ByCurrentVersion, parameters);
+  }
+
+  private Completes<SchemaVersionData> queryGreatest(final String organizationId, final String unitId, final String contextId, final String schemaId) {
+    final CompletesEventually completesEventually = completesEventually();
+    tempCurrentVersion = Tuple2.from(SchemaVersionData.none(), SemanticVersion.from(SchemaVersionData.none().currentVersion));
+
+    schemaVersions(organizationId, unitId, contextId, schemaId)
+      .andThenTo(versions -> {
+        versions.forEach(schemaVersion -> {
+          final SemanticVersion semanticVersion = SemanticVersion.from(schemaVersion.currentVersion);
+          if (semanticVersion.isGreaterThan(tempCurrentVersion._2)) {
+            tempCurrentVersion = Tuple2.from(schemaVersion, semanticVersion);
+          }
+        });
+        completesEventually.with(tempCurrentVersion._1);
+        return Completes.withSuccess(tempCurrentVersion._1);
+      });
+
+    return completes();
   }
 
   private Completes<SchemaVersionData> queryOne(final String query, final Map<String,String> parameters) {

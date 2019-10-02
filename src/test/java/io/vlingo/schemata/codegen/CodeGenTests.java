@@ -22,19 +22,20 @@ import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
+import io.vlingo.schemata.codegen.processor.types.CacheTypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
 
 public abstract class CodeGenTests {
     protected static final long TIMEOUT = 500L;
 
     private World world;
-    private InMemoryTypeResolver typeResolver;
+    private CacheTypeResolver typeResolver;
     private TypeParser typeParser;
 
     @Before
     public void setUp() throws Exception {
         world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
-        typeResolver = new InMemoryTypeResolver();
+        typeResolver = new CacheTypeResolver();
         typeParser = world.actorFor(TypeParser.class, AntlrTypeParser.class);
     }
 

@@ -18,27 +18,45 @@ public class PathData {
 
   public final String reference;
 
-  public static PathData from(final String reference) {
-    return new PathData(reference);
+  public static PathData versionOptional(final String reference) {
+    return new PathData(reference, true);
   }
 
-  public PathData(final String reference) {
-    this.reference = reference;
+  public static PathData withVersion(final String reference) {
+    return new PathData(reference, false);
+  }
 
-    final String[] parts = reference.split(Schemata.ReferenceSeparator);
+  public boolean hasVersion() {
+    return !version.isEmpty();
+  }
 
-    assert parts.length == 5 : "The reference path must have five parts: org:unit:context:schema:version";
-
-    this.organization = parts[0];
-    this.unit = parts[1];
-    this.context = parts[2];
-    this.schema = parts[3];
-    this.version = parts[4];
+  public String versionOrElse(final String whenNoVersion) {
+    return hasVersion() ? version : whenNoVersion;
   }
 
   @Override
   public String toString() {
     return "PathData [organization=" + organization + ", unit=" + unit + ", context=" + context + ", schema=" + schema
             + ", version=" + version + "]";
+  }
+
+  private PathData(final String reference, final boolean versionOptional) {
+    this.reference = reference;
+
+    final String[] parts = reference.split(Schemata.ReferenceSeparator);
+
+    if (!versionOptional && parts.length != 5) {
+      throw new IllegalArgumentException("The reference path must have five parts: org:unit:context:schema:version");
+    }
+
+    if (parts.length < 4) {
+      throw new IllegalArgumentException("The reference path must have five parts: org:unit:context:schema[:version]");
+    }
+
+    this.organization = parts[0].trim();
+    this.unit = parts[1].trim();
+    this.context = parts[2].trim();
+    this.schema = parts[3].trim();
+    this.version = parts.length == 5 ? parts[4].trim() : "";
   }
 }

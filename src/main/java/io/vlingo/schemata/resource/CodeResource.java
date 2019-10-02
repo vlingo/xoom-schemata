@@ -117,7 +117,7 @@ public class CodeResource extends ResourceHandler {
 
     try {
       auth = AuthorizationData.with(header);
-      path = PathData.from(reference);
+      path = PathData.withVersion(reference);
       final Tuple3<String,String,String> ids = auth.dependentAsIds();
       return Collector.startingWith(auth, path, ContextData.identity(ids._1, ids._2, ids._3));
     } catch (Exception e) {

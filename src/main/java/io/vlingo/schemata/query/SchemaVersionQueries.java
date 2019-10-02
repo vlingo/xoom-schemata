@@ -13,6 +13,8 @@ import io.vlingo.common.Completes;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public interface SchemaVersionQueries {
+  public final static String GreatestVersion = "99999.99999.99999";
+
   Completes<List<SchemaVersionData>> schemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId);
   Completes<SchemaVersionData> schemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId);
   Completes<SchemaVersionData> schemaVersionOfVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String version);

@@ -5,19 +5,18 @@
 // was not distributed with this file, You can obtain
 // one at https://mozilla.org/MPL/2.0/.
 
-package io.vlingo.schemata.codegen;
+package io.vlingo.schemata.codegen.processor.types;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
-import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 
-public class InMemoryTypeResolver implements TypeResolver {
+public class CacheTypeResolver implements TypeResolver {
     private final Map<String, TypeDefinition> types;
 
-    public InMemoryTypeResolver() {
+    public CacheTypeResolver() {
         types = new HashMap<>();
     }
 

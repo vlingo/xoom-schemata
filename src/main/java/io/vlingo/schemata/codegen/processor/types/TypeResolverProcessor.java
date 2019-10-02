@@ -42,14 +42,21 @@ public class TypeResolverProcessor extends Actor implements Processor {
     }
 
     private FieldDefinition resolveType(FieldDefinition fieldDefinition) {
-        Type typeNode = fieldDefinition.type;
+      final Type typeNode = fieldDefinition.type;
 
-        if (typeNode instanceof BasicType) {
-            BasicType basicType = (BasicType) typeNode;
-            return new FieldDefinition(resolver.resolve(basicType.typeName, simple(basicType.typeName)).map(definition -> (Type) definition).orElse(basicType), fieldDefinition.version, fieldDefinition.name, fieldDefinition.defaultValue);
-        }
+      if (typeNode instanceof BasicType) {
+          final BasicType basicType = (BasicType) typeNode;
 
-        return fieldDefinition;
+          final Type type =
+                  resolver
+                    .resolve(basicType.typeName, simple(basicType.typeName))
+                    .map(definition -> (Type) definition)
+                    .orElse(basicType);
+
+          return new FieldDefinition(type, fieldDefinition.version, fieldDefinition.name, fieldDefinition.defaultValue);
+      }
+
+      return fieldDefinition;
     }
 
     private String simple(final String typeName) {

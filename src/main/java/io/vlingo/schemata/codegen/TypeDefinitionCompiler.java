@@ -21,6 +21,7 @@ import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
+import io.vlingo.schemata.codegen.processor.types.CacheTypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
 
@@ -64,7 +65,7 @@ public interface TypeDefinitionCompiler {
    */
   static TypeDefinitionCompiler forBackend(final Stage stage, final Class<? extends Actor> backendType) {
     final TypeParser typeParser = stage.actorFor(TypeParser.class, AntlrTypeParser.class);
-    final TypeResolver typeResolver = new InMemoryTypeResolver();
+    final TypeResolver typeResolver = new CacheTypeResolver();
 
     return stage.actorFor(TypeDefinitionCompiler.class, TypeDefinitionCompilerActor.class,
             typeParser,
