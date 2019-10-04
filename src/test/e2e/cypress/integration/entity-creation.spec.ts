@@ -33,7 +33,6 @@ describe('Entity Creation Tests', function () {
 
         cy.visit('/#/unit')
         cy.fieldContent('UnitID').should('be.empty')
-        cy.selectOption('Organization', orgName)
         cy.fillField('Name', unitName)
         cy.fillField('Description', faker.lorem.sentence())
         cy.contains('button', 'Create').click()
@@ -51,15 +50,12 @@ describe('Entity Creation Tests', function () {
         cy.contains('button', 'Create').click()
 
         cy.visit('/#/unit')
-        cy.selectOption('Organization', orgName)
         cy.fillField('Name', unitName)
         cy.fillField('Description', 'foo')
         cy.contains('button', 'Create').click()
 
         cy.visit('/#/context')
         cy.fieldContent('ContextID').should('be.empty')
-        cy.selectOption('Organization', orgName)
-        cy.selectOption('Unit', unitName)
         cy.fillField('Namespace', namespace)
         cy.fillField('Description', faker.lorem.sentence())
         cy.contains('button', 'Create').click()
@@ -78,23 +74,17 @@ describe('Entity Creation Tests', function () {
         cy.contains('button', 'Create').click()
 
         cy.visit('/#/unit')
-        cy.selectOption('Organization', orgName)
         cy.fillField('Name', unitName)
         cy.fillField('Description', 'foo')
         cy.contains('button', 'Create').click()
 
         cy.visit('/#/context')
-        cy.selectOption('Organization', orgName)
-        cy.selectOption('Unit', unitName)
         cy.fillField('Namespace', namespace)
         cy.fillField('Description', 'foo')
         cy.contains('button', 'Create').click()
 
         cy.visit('/#/schema')
         cy.fieldContent('SchemaID').should('be.empty')
-        cy.selectOption('Organization', orgName)
-        cy.selectOption('Unit', unitName)
-        cy.selectOption('Context', namespace)
         cy.fillField('Name', name)
         cy.selectOption('Category', faker.random.arrayElement(['Command', 'Data', 'Document', 'Envelope', 'Event', 'Unknown']))
         cy.selectOption('Scope', faker.random.arrayElement(['Public', 'Private']))
@@ -121,23 +111,17 @@ describe('Entity Creation Tests', function () {
         cy.contains('button', 'Create').click()
 
         cy.visit('/#/unit')
-        cy.selectOption('Organization', orgName)
         cy.fillField('Name', unitName)
         cy.fillField('Description', 'foo')
         cy.contains('button', 'Create').click()
 
         cy.visit('/#/context')
-        cy.selectOption('Organization', orgName)
-        cy.selectOption('Unit', unitName)
         cy.fillField('Namespace', namespace)
         cy.fillField('Description', 'foo')
         cy.contains('button', 'Create').click()
 
         cy.visit('/#/schema')
         cy.fieldContent('SchemaID').should('be.empty')
-        cy.selectOption('Organization', orgName)
-        cy.selectOption('Unit', unitName)
-        cy.selectOption('Context', namespace)
         cy.fillField('Name', schema)
         cy.selectOption('Category', faker.random.arrayElement(['Command', 'Data', 'Document', 'Envelope', 'Event', 'Unknown']))
         cy.selectOption('Scope', faker.random.arrayElement(['Public', 'Private']))
@@ -147,19 +131,15 @@ describe('Entity Creation Tests', function () {
 
         cy.visit('/#/schemaVersion')
         cy.fieldContent('SchemaVersionID').should('be.empty')
-        cy.selectOption('Organization', orgName)
-        cy.selectOption('Unit', unitName)
-        cy.selectOption('Context', namespace)
-        cy.selectOption('Schema', schema)
         cy.fillField('Previous Version', prevVersion)
         cy.fillField('Current Version', currentVersion)
         cy.selectOption('Status', faker.random.arrayElement(['Draft', 'Published', 'Deprecated', 'Removed']))
         cy.fillEditor('#description-editor', faker.lorem.sentence())
         cy.fillEditor('#specification-editor', 'event SalutationHappened {\n' +
             '    type eventType')
-        cy.contains('button', 'Create').click({force: true})
+        cy.wait(250).contains('button', 'Create').click({force: true})
 
-        cy.fieldContent('SchemaVersionID').should('not.be.empty')
+        cy.wait(250).fieldContent('SchemaVersionID').should('not.be.empty')
     });
 
 });
