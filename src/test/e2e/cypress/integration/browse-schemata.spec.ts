@@ -24,8 +24,7 @@ describe('Entity Creation Tests', function () {
         let prevVersion = majorMinorVersion + '.' + patchVersion
         let currentVersion = majorMinorVersion + '.' + (patchVersion + 1)
         let spec = 'event SalutationHappened {\n' +
-            '    type eventType\n' +
-            '}'
+            '    type eventType'
         let desc = faker.lorem.sentence()
 
         // Create Entities
@@ -67,8 +66,8 @@ describe('Entity Creation Tests', function () {
         cy.fillField('Previous Version', prevVersion)
         cy.fillField('Current Version', currentVersion)
         cy.selectOption('Status', faker.random.arrayElement(['Draft', 'Published', 'Deprecated', 'Removed']))
-        cy.fillField('Description', desc)
-        cy.fillField('Specification', spec)
+        cy.fillEditor('#description-editor', desc)
+        cy.fillEditor('#specification-editor', spec)
         cy.contains('button', 'Create').click()
 
         // Assert visibility in treeview
@@ -86,7 +85,8 @@ describe('Entity Creation Tests', function () {
         cy.contains('.v-list-item__title', currentVersion).click()
 
         // Assert spec & desc
-        cy.contains('code',spec)
+        cy.contains('code','event SalutationHappened')
+        cy.contains('code','type eventType')
         cy.contains('.v-tab', 'Description').click()
         cy.contains('.v-window-item--active',desc)
 

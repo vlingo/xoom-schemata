@@ -154,11 +154,11 @@ describe('Entity Creation Tests', function () {
         cy.fillField('Previous Version', prevVersion)
         cy.fillField('Current Version', currentVersion)
         cy.selectOption('Status', faker.random.arrayElement(['Draft', 'Published', 'Deprecated', 'Removed']))
-        cy.fillField('Description', faker.lorem.sentence())
-        cy.fillField('Specification', 'event SalutationHappened {\n' +
-            '    type eventType\n' +
-            '}')
-        cy.contains('button', 'Create').click()
+        cy.fillEditor('#description-editor', faker.lorem.sentence())
+        cy.fillEditor('#specification-editor', 'event SalutationHappened {\n' +
+            '    type eventType')
+        cy.contains('button', 'Create').click({force: true})
+
         cy.fieldContent('SchemaVersionID').should('not.be.empty')
     });
 

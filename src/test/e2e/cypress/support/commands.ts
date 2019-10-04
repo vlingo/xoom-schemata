@@ -7,20 +7,28 @@
 // ***********************************************
 
 Cypress.Commands.add("fillField", (label: string, text: string) => {
-    cy.contains('label', new RegExp("^"+label+"$"))
+    cy.contains('label', new RegExp("^" + label + "$"))
         .next('input,textarea').type(text)
 })
 
+Cypress.Commands.add("fillEditor", (id: string, text: string) => {
+    cy.get(id)
+        .click()
+        .focused()
+        .type('{ctrl}a')
+        .type(text)
+})
+
 Cypress.Commands.add("fieldContent", (label: string) => {
-    cy.contains('label', new RegExp("^"+label+"$"))
+    cy.contains('label', new RegExp("^" + label + "$"))
         .next('input,textarea').invoke('val')
 })
 
 Cypress.Commands.add("selectOption", (label: string, optionLabel: string) => {
-    cy.contains('label', new RegExp("^"+label+"$"))
+    cy.contains('label', new RegExp("^" + label + "$"))
         .next('input')
-        .type(optionLabel.substr(0,optionLabel.length-1))
+        .type(optionLabel.substr(0, optionLabel.length - 1))
         .get('.v-select-list')
-        .contains('.v-list-item',optionLabel)
+        .contains('.v-list-item', optionLabel)
         .click({force: true})
 })

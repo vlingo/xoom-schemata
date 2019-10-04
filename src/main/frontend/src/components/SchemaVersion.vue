@@ -90,6 +90,7 @@
                         <label class="v-label theme--light"
                                :class="{'primary--text':descriptionEditorActive}">Description</label>
                         <editor
+                                id="description-editor"
                                 @change="activateDescriptionEditor"
                                 v-model="description"
                                 theme="vs-dark"
@@ -103,6 +104,7 @@
                                :class="{'primary--text':specificationEditorActive}"
                         >Specification</label>
                         <editor
+                                id="specification-editor"
                                 v-model="specification"
                                 @change="activateSpecificationEditor"
                                 theme="vs-dark"
