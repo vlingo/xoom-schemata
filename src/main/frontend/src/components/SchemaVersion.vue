@@ -86,19 +86,34 @@
                         ></v-autocomplete>
                     </v-col>
 
-                    <v-col class="d-flex" cols="12" lg="6">
-                        <v-textarea
+                    <v-col cols="12">
+                        <label class="v-label theme--light"
+                               :class="{'primary--text':descriptionEditorActive}">Description</label>
+                        <editor
+                                id="description-editor"
+                                @change="activateDescriptionEditor"
                                 v-model="description"
-                                label="Description"
-                                required
-                        ></v-textarea>
+                                theme="vs-dark"
+                                language="markdown"
+                                height="200"
+                                :options="editorOptions"
+                        ></editor>
                     </v-col>
-                    <v-col class="d-flex" cols="12" lg="6">
-                        <v-textarea
+                    <v-col cols="12">
+                        <label class="v-label theme--light"
+                               :class="{'primary--text':specificationEditorActive}"
+                        >Specification</label>
+                        <editor
+                                id="specification-editor"
                                 v-model="specification"
-                                label="Specification"
-                                required
-                        ></v-textarea>
+                                @change="activateSpecificationEditor"
+                                theme="vs-dark"
+                                language="javascript"
+                                height="500"
+                                :options="editorOptions"
+                        ></editor>
+
+
                     </v-col>
                 </v-row>
             </v-form>
@@ -116,8 +131,11 @@
 <script>
     import {mapFields} from 'vuex-map-fields';
     import Repository from '@/api/SchemataRepository'
+    import editor from 'monaco-editor-vue';
 
     export default {
+        components: {editor},
+
         data: () => {
             return {
                 schemaVersionId: '',
@@ -134,6 +152,12 @@
                     contexts: false,
                     versions: false,
                     schemata: false,
+                },
+                descriptionEditorActive: false,
+                specificationEditorActive: false,
+
+                editorOptions: {
+                    automaticLayout: true,
                 }
             }
         },
@@ -233,6 +257,14 @@
                         let response = err.response ? err.response.data + ' - ' : ''
                         vm.$store.commit('raiseError', {message: response + err})
                     })
+            },
+            activateDescriptionEditor() {
+                this.descriptionEditorActive = true
+                this.specificationEditorActive = false
+            },
+            activateSpecificationEditor() {
+                this.descriptionEditorActive = false
+                this.specificationEditorActive = true
             }
         }
     }

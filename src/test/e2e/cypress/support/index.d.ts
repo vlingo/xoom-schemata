@@ -9,6 +9,12 @@ declare namespace Cypress {
         fillField(label: string, text: string): Chainable<Element>
 
         /**
+         * Fill a vue-monaco-editor field identified by its id
+         * @example cy.fillEditor('#specification-editor','schema MySpec {}')
+         */
+        fillEditor(label: string, text: string): Chainable<Element>
+
+        /**
          * Return the value a Vuetify text(area) field identified by its label
          * @example cy.fieldContent('Name')
          */

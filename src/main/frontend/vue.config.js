@@ -1,5 +1,7 @@
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
+
 module.exports = {
-    publicPath: './',
+    publicPath: '/app/',
     devServer: {
         proxy: {
             '/organizations': {
@@ -13,4 +15,11 @@ module.exports = {
             }
         },
     },
+    chainWebpack: config => {
+        config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
+            {
+                languages: ['javascript', 'markdown']
+            }
+        ])
+    }
 }

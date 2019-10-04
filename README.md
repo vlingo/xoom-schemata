@@ -1,3 +1,4 @@
+
 # vlingo-schemata
 
 [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/vlingo-platform-java/schemata)
@@ -153,7 +154,7 @@ $ # run Boostrap.main from your IDE
 $ cd <project root>/src/main/frontend
 $ npm run serve &
 $ cd <project root>/src/test/e2e
-$ CYPRESS_BASE_URL=http://localhost:8080 npx cypress open
+$ CYPRESS_BASE_URL=http://localhost:8080/app npx cypress open
 ```
 In case you want to run the tests against `vlingo-schemata` running within a docker container,
 you can simple start it like this to match the E2E base URL default: 
@@ -162,6 +163,6 @@ you can simple start it like this to match the E2E base URL default:
 
 ```
 $ cd <project root>/src/test/e2e
-$ export CYPRESS_BASE_URL=http://localhost:9019 # default
+$ export CYPRESS_BASE_URL=http://localhost:9019/app # default
 $ npx cypress open
 ```
