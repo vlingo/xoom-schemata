@@ -1,5 +1,5 @@
 module.exports = {
-    publicPath: './',
+    publicPath: '/app/',
     devServer: {
         proxy: {
             '/organizations': {
