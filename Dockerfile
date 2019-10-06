@@ -2,11 +2,12 @@
 FROM maven:3.6.2-jdk-8-slim as packager
 
 ## Allow docker to cache the maven dependencies in a separate layer for faster builds
-COPY pom.xml /home/project/pom.xml
-RUN cd /home/project && mvn dependency:go-offline -B
+## THIS IS CURRENTLY DEACTIVATED as otherwise stale (non -SNAPSHOT) dependencies will be cached.
+# COPY pom.xml /home/project/pom.xml
+# RUN cd /home/project && mvn dependency:go-offline -B
 
 ADD . /home/project
-RUN cd /home/project && mvn -Pfrontend package
+RUN cd /home/project && mvn clean -Pfrontend package
 
 # Second stage: Create runtime image
 FROM openjdk:8-slim
