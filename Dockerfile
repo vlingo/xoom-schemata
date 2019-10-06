@@ -10,7 +10,7 @@ ADD . /home/project
 RUN cd /home/project && mvn clean -Pfrontend package
 
 # Second stage: Create runtime image
-FROM openjdk:8-jre-alpine
+FROM openjdk:8-jdk-alpine
 
 ENV JAVA_OPTS=""
 ENV VLINGO_ENV="dev"
