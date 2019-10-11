@@ -170,23 +170,7 @@
                 'version'
             ]),
         },
-        watch: {
-            description() {
-                this.schemaVersionId = ''
-            },
-            specification() {
-                this.schemaVersionId = ''
-            },
-            status() {
-                this.schemaVersionId = ''
-            },
-            previousVersion() {
-                this.schemaVersionId = ''
-            },
-            currentVersion() {
-                this.schemaVersionId = ''
-            }
-        },
+        watch: {},
 
         asyncComputed: {
             async organizations() {
