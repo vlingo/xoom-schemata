@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8u151-jdk
+      - image: circleci/openjdk:8-jdk
     steps:
       - checkout
       - restore_cache:
@@ -45,7 +45,7 @@ jobs:
           destination: screenshots
   image:
     docker:
-      - image: circleci/jdk:8
+      - image:  circleci/openjdk:8-jdk
     steps:
       - checkout
       - setup_remote_docker:
