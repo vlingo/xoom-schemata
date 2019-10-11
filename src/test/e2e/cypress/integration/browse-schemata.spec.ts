@@ -1,6 +1,6 @@
 import * as faker from 'faker';
 
-describe('Entity Creation Tests', function () {
+describe('Schemata View Tests', function () {
     before(() => {
     });
 
