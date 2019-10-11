@@ -9,7 +9,7 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
             - v1-dependencies-
-      - run: mvn -B clean package -Pfrontend
+      - run: mvn -B -Dmaven.repo.local=/tmp/.m2 clean package -Pfrontend
       - persist_to_workspace:
           root: ~/project
           paths:
