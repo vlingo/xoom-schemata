@@ -2,7 +2,7 @@ import Repository from '@/api/SchemataRepository'
 import {mapFields} from 'vuex-map-fields';
 
 export default {
-    data:() => {
+    data: () => {
         return {
             loading: {
                 organizations: false,
@@ -73,6 +73,5 @@ export default {
             this.loading.scopes = false
             return result
         },
-
     },
 }

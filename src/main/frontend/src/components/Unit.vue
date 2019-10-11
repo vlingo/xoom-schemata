@@ -49,6 +49,7 @@
             </v-form>
         </v-card-text>
         <v-card-actions>
+            <v-btn color="info" @click="clearForm">New</v-btn>
             <v-spacer></v-spacer>
             <v-btn color="primary"
                    :disabled="!valid"

@@ -16,7 +16,12 @@ export default {
                 this.valid = true
             }
         },
-        reset() {
+        clearForm() {
+            this.organization = undefined
+            this.unit = undefined
+            this.context = undefined
+            this.schema = undefined
+            this.version = undefined
             this.$refs.form.reset()
         },
         resetValidation() {

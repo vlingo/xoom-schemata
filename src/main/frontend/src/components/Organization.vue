@@ -37,10 +37,10 @@
             </v-form>
         </v-card-text>
         <v-card-actions>
+            <v-btn color="info" @click="clearForm">New</v-btn>
             <v-spacer></v-spacer>
             <v-btn color="primary" @click="createOrganization"
-                   :disabled="!valid">Create
-            </v-btn>
+                   :disabled="!(valid && !organizationId)">Create</v-btn>
             <v-btn color="secondary" to="/unit"
                    :disabled="!organizationId">Create Unit
             </v-btn>
