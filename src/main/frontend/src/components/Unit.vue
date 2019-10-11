@@ -109,6 +109,8 @@
                             vm.unitId = created.unitId
                             vm.name = created.name
                             vm.description = created.description
+
+                            vm.$store.commit('raiseNotification', {message: `Unit '${vm.name}' created.`, type: 'success'})
                         }
                     )
                     .catch(function (err) {

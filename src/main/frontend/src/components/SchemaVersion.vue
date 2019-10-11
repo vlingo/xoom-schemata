@@ -235,6 +235,8 @@
                             vm.status = created.status
                             vm.previousVersion = created.previousVersion
                             vm.currentVersion = created.currentVersion
+
+                            vm.$store.commit('raiseNotification', {message: `Schema v${vm.currentVersion} created.`, type: 'success'})
                         }
                     )
                     .catch(function (err) {

@@ -200,6 +200,8 @@
                             vm.scope = created.scope
                             vm.category = created.category
                             vm.description = created.description
+
+                            vm.$store.commit('raiseNotification', {message: `Schema '${vm.name}' created.`, type: 'success'})
                         }
                     )
                     .catch(function (err) {

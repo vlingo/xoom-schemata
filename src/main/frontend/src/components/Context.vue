@@ -132,6 +132,8 @@
                             vm.contextId = created.contextId
                             vm.namespace = created.namespace
                             vm.description = created.description
+
+                            vm.$store.commit('raiseNotification', {message: `Context '${vm.namespace}' created.`, type: 'success'})
                         }
                     )
                     .catch(function (err) {
