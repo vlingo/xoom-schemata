@@ -81,6 +81,8 @@
                             vm.organizationId = created.organizationId
                             vm.name = created.name
                             vm.description = created.description
+
+                            vm.$store.commit('raiseNotification', {message: `Organization '${vm.name}' created.`, type:'success'})
                         }
                     )
                     .catch(function (err) {

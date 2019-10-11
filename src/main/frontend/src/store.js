@@ -8,6 +8,7 @@ export default new Vuex.Store({
   strict: true,
   state: {
     error: undefined,
+    notification: undefined,
     schemaVersion: undefined,
     selected: undefined,
     organization: undefined,
@@ -25,6 +26,15 @@ export default new Vuex.Store({
 
     dismissError (state) {
       state.error = undefined
+    },
+
+    raiseNotification (state, notification) {
+      notification.type = notification.type || 'info'
+      state.notification = notification
+    },
+
+    dismissNotification (state) {
+      state.notification = undefined
     },
 
     selectSchema (state, selected) {

@@ -37,25 +37,34 @@
             </v-list>
         </v-navigation-drawer>
 
-        <v-alert
+        <v-snackbar
                 v-if="$store.state.error"
-                class="mt-5 ml-2 mr-2 mb-0 pt-0 pb-0 error elevation-15"
-                style="z-index: 10"
+                v-model="showError"
+                :timeout="0"
+                top
+                color="error"
         >
-            <v-row align="center">
-                <v-col class="grow">{{$store.state.error.message}}</v-col>
-                <v-col class="shrink">
-                    <v-btn icon dark @click="$store.commit('dismissError')">
-                        <v-icon>{{icons.close}}</v-icon>
-                    </v-btn>
-                </v-col>
-            </v-row>
-        </v-alert>
+            {{$store.state.error.message}}
+            <v-btn icon dark @click="showError = false">
+                <v-icon>{{icons.close}}</v-icon>
+            </v-btn>
+        </v-snackbar>
+        <v-snackbar
+                v-if="$store.state.notification"
+                v-model="showNotification"
+                :timeout="3000"
+                top
+                :color="$store.state.notification.type"
+        >
+            {{$store.state.notification.message}}
+            <v-btn icon dark @click="showNotification = false">
+                <v-icon>{{icons.close}}</v-icon>
+            </v-btn>
+        </v-snackbar>
         <v-content>
 
             <v-container
-                    class="grid-list-md fill-height"
-                    :class="$store.state.error ? 'mt-0' : 'mt-8'"
+                    class="grid-list-md fill-height mt-8"
                     fluid
             >
                 <router-view/>
@@ -82,6 +91,8 @@
         data() {
             return {
                 drawer: true,
+                showError: false,
+                showNotification: false,
                 menu: [
                     {route: '/schemata', title: 'Browse Schemata', icon: mdiHome},
                     {route: '/editor', title: 'Edit Schema Version', icon: mdiPencil},
@@ -97,6 +108,31 @@
                     close: mdiCloseCircleOutline
                 }
             }
+        },
+        watch: {
+            showError: function (val) {
+                if(!val) {
+                    this.$store.commit('dismissError')
+                }
+            },
+            showNotification: function (val) {
+                if(!val) {
+                    this.$store.commit('dismissNotification')
+                }
+            },
+        },
+        created: function () {
+            this.$store.watch(state => state.error, () => {
+                if (this.$store.state.error) {
+                    this.showError = true
+                }
+            })
+            this.$store.watch(state => state.notification, () => {
+                if (this.$store.state.notification) {
+                    this.showNotification = true
+                }
+            })
+
         }
     }
 </script>
