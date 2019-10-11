@@ -4,7 +4,7 @@
         <v-card-text>
             <v-form
                     ref="form"
-                    lazy-validation
+                    v-model="valid"
             >
                 <v-row>
                     <v-col class="d-flex" cols="12">
@@ -18,6 +18,7 @@
                         <v-autocomplete
                                 :items="organizations"
                                 label="Organization"
+                                :rules="[rules.notEmpty]"
                                 :loading="loading.organizations"
                                 return-object
                                 item-value="organizationId"
@@ -30,6 +31,7 @@
                         <v-autocomplete
                                 :items="units"
                                 label="Unit"
+                                :rules="[rules.notEmpty]"
                                 :loading="loading.units"
                                 return-object
                                 item-value="unitId"
@@ -43,6 +45,7 @@
                                 :items="contexts"
                                 label="Context"
                                 :loading="loading.contexts"
+                                :rules="[rules.notEmpty]"
                                 return-object
                                 item-value="contextId"
                                 item-text="namespace"
@@ -52,6 +55,7 @@
                     <v-col class="d-flex" cols="12">
                         <v-text-field
                                 v-model="name"
+                                :rules="[rules.notEmpty]"
                                 label="Name"
                                 required
                         ></v-text-field>
@@ -60,6 +64,7 @@
                         <v-autocomplete
                                 :items="categories"
                                 label="Category"
+                                :rules="[rules.notEmpty]"
                                 :loading="loading.categories"
                                 v-model="category"
                         ></v-autocomplete>
@@ -68,6 +73,7 @@
                         <v-autocomplete
                                 :items="scopes"
                                 label="Scope"
+                                :rules="[rules.notEmpty]"
                                 :loading="loading.scopes"
                                 v-model="scope"
                         ></v-autocomplete>
@@ -78,6 +84,7 @@
                     <v-col class="d-flex" cols="12">
                         <v-textarea
                                 v-model="description"
+                                :rules="[rules.notEmpty]"
                                 label="Description"
                                 required
                         ></v-textarea>
@@ -86,9 +93,10 @@
             </v-form>
         </v-card-text>
         <v-card-actions>
+            <v-btn color="info" @click="clearForm">New</v-btn>
             <v-spacer></v-spacer>
             <v-btn color="primary"
-                   :disabled="!name || !description || !organization || !unit || !context"
+                   :disabled="!valid"
                    @click="createSchema">Create
             </v-btn>
             <v-btn color="secondary" to="/schemaVersion"
@@ -99,10 +107,13 @@
 </template>
 
 <script>
-    import {mapFields} from 'vuex-map-fields';
+    import selectboxLoaders from '@/mixins/selectbox-loaders'
+    import validationRules from '@/mixins/form-validation-rules'
     import Repository from '@/api/SchemataRepository'
 
     export default {
+        mixins: [selectboxLoaders, validationRules],
+
         data: () => {
             return {
                 schemaId: '',
@@ -110,76 +121,7 @@
                 description: '',
                 category: '',
                 scope: '',
-                loading: {
-                    organizations: false,
-                    units: false,
-                    contexts: false,
-                    categories: false,
-                    scopes: false
-                }
             }
-        },
-        computed: {
-            ...mapFields([
-                'organization',
-                'unit',
-                'context',
-                'schema'
-            ]),
-        },
-        watch: {
-            name() {
-                this.schemaId = ''
-            },
-            description() {
-                this.schemaId = ''
-            },
-            category() {
-                this.schemaId = ''
-            },
-            scope() {
-                this.schemaId = ''
-            }
-        },
-
-        asyncComputed: {
-            async organizations() {
-                this.loading.organizations = true
-                const result = await Repository.getOrganizations()
-                this.loading.organizations = false
-                return result
-            },
-            async units() {
-                if (!this.organization) return []
-
-                this.loading.organizations = true
-                const result = await Repository.getUnits(this.organization.organizationId)
-                this.loading.organizations = false
-                return result
-            },
-            async contexts() {
-                if (!this.organization || !this.unit) return []
-
-                this.loading.contexts = true
-                const result = await Repository.getContexts(
-                    this.organization.organizationId,
-                    this.unit.unitId
-                )
-                this.loading.contexts = false
-                return result
-            },
-            async categories() {
-                this.loading.categories = true
-                const result = await Repository.getCategories()
-                this.loading.categories = false
-                return result
-            },
-            async scopes() {
-                this.loading.scopes = true
-                const result = await Repository.getScopes()
-                this.loading.scopes = false
-                return result
-            },
         },
 
         methods: {
@@ -200,6 +142,11 @@
                             vm.scope = created.scope
                             vm.category = created.category
                             vm.description = created.description
+
+                            vm.$store.commit('raiseNotification', {
+                                message: `Schema '${vm.name}' created.`,
+                                type: 'success'
+                            })
                         }
                     )
                     .catch(function (err) {

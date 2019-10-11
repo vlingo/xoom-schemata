@@ -4,7 +4,7 @@
         <v-card-text>
             <v-form
                     ref="form"
-                    lazy-validation
+                    v-model="valid"
             >
                 <v-row>
                     <v-col class="d-flex" cols="12">
@@ -18,6 +18,7 @@
                         <v-autocomplete
                                 :items="organizations"
                                 label="Organization"
+                                :rules="[rules.notEmpty]"
                                 :loading="loading.organizations"
                                 return-object
                                 item-value="organizationId"
@@ -30,6 +31,7 @@
                         <v-autocomplete
                                 :items="units"
                                 label="Unit"
+                                :rules="[rules.notEmpty]"
                                 :loading="loading.units"
                                 return-object
                                 item-value="unitId"
@@ -41,6 +43,7 @@
                     <v-col class="d-flex" cols="12">
                         <v-text-field
                                 v-model="namespace"
+                                :rules="[rules.notEmpty]"
                                 label="Namespace"
                                 required
                         ></v-text-field>
@@ -50,6 +53,7 @@
                     <v-col class="d-flex" cols="12">
                         <v-textarea
                                 v-model="description"
+                                :rules="[rules.notEmpty]"
                                 label="Description"
                                 required
                         ></v-textarea>
@@ -58,9 +62,10 @@
             </v-form>
         </v-card-text>
         <v-card-actions>
+            <v-btn color="info" @click="clearForm">New</v-btn>
             <v-spacer></v-spacer>
             <v-btn color="primary"
-                   :disabled="!namespace || !description || !organization||!unit"
+                   :disabled="!valid"
                    @click="createUnit">Create
             </v-btn>
             <v-btn color="secondary" to="/schema"
@@ -71,52 +76,20 @@
 </template>
 
 <script>
-    import {mapFields} from 'vuex-map-fields';
     import Repository from '@/api/SchemataRepository'
+    import selectboxLoaders from '@/mixins/selectbox-loaders'
+    import validationRules from '@/mixins/form-validation-rules'
 
     export default {
+        mixins: [selectboxLoaders, validationRules],
+
+
         data: () => {
             return {
                 contextId: '',
                 namespace: '',
                 description: '',
-                loading: {
-                    organizations: false,
-                    units: false
-                }
             }
-        },
-        computed: {
-            ...mapFields([
-                'organization',
-                'unit',
-                'context'
-            ]),
-        },
-        watch: {
-            namespace() {
-                this.contextId = ''
-            },
-            description() {
-                this.contextId = ''
-            }
-        },
-
-        asyncComputed: {
-            async organizations() {
-                this.loading.organizations = true
-                const result = await Repository.getOrganizations()
-                this.loading.organizations = false
-                return result
-            },
-            async units() {
-                if (!this.organization) return []
-
-                this.loading.organizations = true
-                const result = await Repository.getUnits(this.organization.organizationId)
-                this.loading.organizations = false
-                return result
-            },
         },
 
         methods: {
@@ -132,6 +105,11 @@
                             vm.contextId = created.contextId
                             vm.namespace = created.namespace
                             vm.description = created.description
+
+                            vm.$store.commit('raiseNotification', {
+                                message: `Context '${vm.namespace}' created.`,
+                                type: 'success'
+                            })
                         }
                     )
                     .catch(function (err) {

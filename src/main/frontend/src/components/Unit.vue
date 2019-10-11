@@ -4,7 +4,7 @@
         <v-card-text>
             <v-form
                     ref="form"
-                    lazy-validation
+                    v-model="valid"
             >
                 <v-row>
                     <v-col class="d-flex" cols="12">
@@ -18,6 +18,7 @@
                         <v-autocomplete
                                 :items="organizations"
                                 label="Organization"
+                                :rules="[rules.notEmpty]"
                                 :loading="loading.organizations"
                                 return-object
                                 item-value="organizationId"
@@ -30,6 +31,7 @@
                         <v-text-field
                                 v-model="name"
                                 label="Name"
+                                :rules="[rules.notEmpty]"
                                 required
                         ></v-text-field>
                     </v-col>
@@ -39,6 +41,7 @@
                         <v-textarea
                                 v-model="description"
                                 label="Description"
+                                :rules="[rules.notEmpty]"
                                 required
                         ></v-textarea>
                     </v-col>
@@ -46,9 +49,10 @@
             </v-form>
         </v-card-text>
         <v-card-actions>
+            <v-btn color="info" @click="clearForm">New</v-btn>
             <v-spacer></v-spacer>
             <v-btn color="primary"
-                   :disabled="!name || !description || !organization "
+                   :disabled="!valid"
                    @click="createUnit">Create
             </v-btn>
             <v-btn color="secondary" to="/context"
@@ -59,42 +63,19 @@
 </template>
 
 <script>
-    import {mapFields} from 'vuex-map-fields';
     import Repository from '@/api/SchemataRepository'
+    import selectboxLoaders from '@/mixins/selectbox-loaders'
+    import validationRules from '@/mixins/form-validation-rules'
 
     export default {
+        mixins: [selectboxLoaders, validationRules],
+
         data: () => {
             return {
                 unitId: '',
                 name: '',
                 description: '',
-                loading: {
-                    organizations: false,
-                }
             }
-        },
-        computed: {
-            ...mapFields([
-                'organization',
-                'unit',
-            ]),
-        },
-        watch: {
-            name() {
-                this.unitId = ''
-            },
-            description() {
-                this.unitId = ''
-            }
-        },
-
-        asyncComputed: {
-            async organizations() {
-                this.loading.organizations = true
-                const result = await Repository.getOrganizations()
-                this.loading.organizations = false
-                return result
-            },
         },
 
         methods: {
@@ -109,6 +90,8 @@
                             vm.unitId = created.unitId
                             vm.name = created.name
                             vm.description = created.description
+
+                            vm.$store.commit('raiseNotification', {message: `Unit '${vm.name}' created.`, type: 'success'})
                         }
                     )
                     .catch(function (err) {
