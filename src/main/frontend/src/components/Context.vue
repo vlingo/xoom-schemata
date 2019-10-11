@@ -71,52 +71,18 @@
 </template>
 
 <script>
-    import {mapFields} from 'vuex-map-fields';
     import Repository from '@/api/SchemataRepository'
+    import selectboxLoaders from '@/mixins/selectbox-loaders'
 
     export default {
+        mixins: [selectboxLoaders],
+
         data: () => {
             return {
                 contextId: '',
                 namespace: '',
                 description: '',
-                loading: {
-                    organizations: false,
-                    units: false
-                }
             }
-        },
-        computed: {
-            ...mapFields([
-                'organization',
-                'unit',
-                'context'
-            ]),
-        },
-        watch: {
-            namespace() {
-                this.contextId = ''
-            },
-            description() {
-                this.contextId = ''
-            }
-        },
-
-        asyncComputed: {
-            async organizations() {
-                this.loading.organizations = true
-                const result = await Repository.getOrganizations()
-                this.loading.organizations = false
-                return result
-            },
-            async units() {
-                if (!this.organization) return []
-
-                this.loading.organizations = true
-                const result = await Repository.getUnits(this.organization.organizationId)
-                this.loading.organizations = false
-                return result
-            },
         },
 
         methods: {
@@ -133,7 +99,10 @@
                             vm.namespace = created.namespace
                             vm.description = created.description
 
-                            vm.$store.commit('raiseNotification', {message: `Context '${vm.namespace}' created.`, type: 'success'})
+                            vm.$store.commit('raiseNotification', {
+                                message: `Context '${vm.namespace}' created.`,
+                                type: 'success'
+                            })
                         }
                     )
                     .catch(function (err) {

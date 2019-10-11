@@ -47,28 +47,17 @@
 </template>
 
 <script>
-    import {mapFields} from 'vuex-map-fields';
     import Repository from '@/api/SchemataRepository'
+    import selectboxLoaders from '@/mixins/selectbox-loaders'
 
     export default {
+        mixins: [selectboxLoaders],
+
         data: () => {
             return {
                 organizationId: '',
                 name: '',
                 description: '',
-            }
-        },
-        computed: {
-            ...mapFields([
-                'organization',
-            ]),
-        },
-        watch: {
-            name() {
-                this.organizationId = ''
-            },
-            description() {
-                this.organizationId = ''
             }
         },
 
@@ -82,7 +71,10 @@
                             vm.name = created.name
                             vm.description = created.description
 
-                            vm.$store.commit('raiseNotification', {message: `Organization '${vm.name}' created.`, type:'success'})
+                            vm.$store.commit('raiseNotification', {
+                                message: `Organization '${vm.name}' created.`,
+                                type: 'success'
+                            })
                         }
                     )
                     .catch(function (err) {

@@ -59,42 +59,18 @@
 </template>
 
 <script>
-    import {mapFields} from 'vuex-map-fields';
     import Repository from '@/api/SchemataRepository'
+    import selectboxLoaders from '@/mixins/selectbox-loaders'
 
     export default {
+        mixins: [selectboxLoaders],
+
         data: () => {
             return {
                 unitId: '',
                 name: '',
                 description: '',
-                loading: {
-                    organizations: false,
-                }
             }
-        },
-        computed: {
-            ...mapFields([
-                'organization',
-                'unit',
-            ]),
-        },
-        watch: {
-            name() {
-                this.unitId = ''
-            },
-            description() {
-                this.unitId = ''
-            }
-        },
-
-        asyncComputed: {
-            async organizations() {
-                this.loading.organizations = true
-                const result = await Repository.getOrganizations()
-                this.loading.organizations = false
-                return result
-            },
         },
 
         methods: {

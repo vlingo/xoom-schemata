@@ -99,10 +99,13 @@
 </template>
 
 <script>
-    import {mapFields} from 'vuex-map-fields';
+    import selectboxLoaders from '@/mixins/selectbox-loaders'
+
     import Repository from '@/api/SchemataRepository'
 
     export default {
+        mixins: [selectboxLoaders],
+
         data: () => {
             return {
                 schemaId: '',
@@ -110,76 +113,7 @@
                 description: '',
                 category: '',
                 scope: '',
-                loading: {
-                    organizations: false,
-                    units: false,
-                    contexts: false,
-                    categories: false,
-                    scopes: false
-                }
             }
-        },
-        computed: {
-            ...mapFields([
-                'organization',
-                'unit',
-                'context',
-                'schema'
-            ]),
-        },
-        watch: {
-            name() {
-                this.schemaId = ''
-            },
-            description() {
-                this.schemaId = ''
-            },
-            category() {
-                this.schemaId = ''
-            },
-            scope() {
-                this.schemaId = ''
-            }
-        },
-
-        asyncComputed: {
-            async organizations() {
-                this.loading.organizations = true
-                const result = await Repository.getOrganizations()
-                this.loading.organizations = false
-                return result
-            },
-            async units() {
-                if (!this.organization) return []
-
-                this.loading.organizations = true
-                const result = await Repository.getUnits(this.organization.organizationId)
-                this.loading.organizations = false
-                return result
-            },
-            async contexts() {
-                if (!this.organization || !this.unit) return []
-
-                this.loading.contexts = true
-                const result = await Repository.getContexts(
-                    this.organization.organizationId,
-                    this.unit.unitId
-                )
-                this.loading.contexts = false
-                return result
-            },
-            async categories() {
-                this.loading.categories = true
-                const result = await Repository.getCategories()
-                this.loading.categories = false
-                return result
-            },
-            async scopes() {
-                this.loading.scopes = true
-                const result = await Repository.getScopes()
-                this.loading.scopes = false
-                return result
-            },
         },
 
         methods: {
@@ -201,7 +135,10 @@
                             vm.category = created.category
                             vm.description = created.description
 
-                            vm.$store.commit('raiseNotification', {message: `Schema '${vm.name}' created.`, type: 'success'})
+                            vm.$store.commit('raiseNotification', {
+                                message: `Schema '${vm.name}' created.`,
+                                type: 'success'
+                            })
                         }
                     )
                     .catch(function (err) {

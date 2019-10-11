@@ -109,11 +109,9 @@
                                 @change="activateSpecificationEditor"
                                 theme="vs-dark"
                                 language="javascript"
-                                height="500"
+                                height="300"
                                 :options="editorOptions"
                         ></editor>
-
-
                     </v-col>
                 </v-row>
             </v-form>
@@ -129,13 +127,13 @@
 </template>
 
 <script>
-    import {mapFields} from 'vuex-map-fields';
+    import selectboxLoaders from '@/mixins/selectbox-loaders'
     import Repository from '@/api/SchemataRepository'
     import editor from 'monaco-editor-vue';
 
     export default {
         components: {editor},
-
+        mixins: [selectboxLoaders],
         data: () => {
             return {
                 schemaVersionId: '',
@@ -146,13 +144,6 @@
                 currentVersion: '',
                 statuses: ['Draft', 'Published', 'Deprecated', 'Removed'],
 
-                loading: {
-                    organizations: false,
-                    units: false,
-                    contexts: false,
-                    versions: false,
-                    schemata: false,
-                },
                 descriptionEditorActive: false,
                 specificationEditorActive: false,
 
@@ -160,58 +151,6 @@
                     automaticLayout: true,
                 }
             }
-        },
-        computed: {
-            ...mapFields([
-                'organization',
-                'unit',
-                'context',
-                'schema',
-                'version'
-            ]),
-        },
-        watch: {},
-
-        asyncComputed: {
-            async organizations() {
-                this.loading.organizations = true
-                const result = await Repository.getOrganizations()
-                this.loading.organizations = false
-                return result
-            },
-            async units() {
-                if (!this.organization) return []
-
-                this.loading.organizations = true
-                const result = await Repository.getUnits(this.organization.organizationId)
-                this.loading.organizations = false
-                return result
-            },
-            async contexts() {
-                if (!this.organization || !this.unit) return []
-
-                this.loading.contexts = true
-                const result = await Repository.getContexts(
-                    this.organization.organizationId,
-                    this.unit.unitId
-                )
-                this.loading.contexts = false
-                return result
-            },
-            async schemata() {
-                if (!this.organization || !this.unit || !this.context) return []
-
-                this.loading.schemata = true
-                const result = await Repository.getSchemata(
-                    this.organization.organizationId,
-                    this.unit.unitId,
-                    this.context.contextId,
-                )
-
-                this.loading.schemata = false
-                return result
-            },
-
         },
 
         methods: {
