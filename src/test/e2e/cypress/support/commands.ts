@@ -8,7 +8,9 @@
 
 Cypress.Commands.add("fillField", (label: string, text: string) => {
     cy.contains('label', new RegExp("^" + label + "$"))
-        .next('input,textarea').type(text)
+        .next('input,textarea')
+        .clear()
+        .type(text)
 })
 
 Cypress.Commands.add("fillEditor", (id: string, text: string) => {

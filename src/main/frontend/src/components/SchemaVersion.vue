@@ -4,7 +4,7 @@
         <v-card-text>
             <v-form
                     ref="form"
-                    lazy-validation
+                    v-model="valid"
             >
                 <v-row>
                     <v-col class="d-flex" cols="12">
@@ -18,6 +18,7 @@
                         <v-autocomplete
                                 :items="organizations"
                                 label="Organization"
+                                :rules="[rules.notEmpty]"
                                 :loading="loading.organizations"
                                 return-object
                                 item-value="organizationId"
@@ -30,6 +31,7 @@
                         <v-autocomplete
                                 :items="units"
                                 label="Unit"
+                                :rules="[rules.notEmpty]"
                                 :loading="loading.units"
                                 return-object
                                 item-value="unitId"
@@ -42,6 +44,7 @@
                         <v-autocomplete
                                 :items="contexts"
                                 label="Context"
+                                :rules="[rules.notEmpty]"
                                 :loading="loading.contexts"
                                 return-object
                                 item-value="contextId"
@@ -55,6 +58,7 @@
                                 label="Schema"
                                 :loading="loading.schema"
                                 return-object
+                                :rules="[rules.notEmpty]"
                                 item-value="schemaId"
                                 item-text="name"
                                 v-model="schema"
@@ -65,6 +69,7 @@
                     <v-col class="d-flex" cols="4">
                         <v-text-field
                                 v-model="previousVersion"
+                                :rules="[rules.notEmpty,rules.versionNumber]"
                                 label="Previous Version"
                                 required
                         ></v-text-field>
@@ -73,6 +78,7 @@
                     <v-col class="d-flex" cols="4">
                         <v-text-field
                                 v-model="currentVersion"
+                                :rules="[rules.notEmpty,rules.versionNumber]"
                                 label="Current Version"
                                 required
                         ></v-text-field>
@@ -81,6 +87,7 @@
                     <v-col class="d-flex" cols="4">
                         <v-autocomplete
                                 :items="statuses"
+                                :rules="[rules.notEmpty]"
                                 label="Status"
                                 v-model="status"
                         ></v-autocomplete>
@@ -119,7 +126,7 @@
         <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="primary"
-                   :disabled="!status || !previousVersion || !currentVersion ||!description ||!specification || !description || !organization || !unit || !context || !schema"
+                   :disabled="!valid || !description || !specification"
                    @click="createSchemaVersion">Create
             </v-btn>
         </v-card-actions>
@@ -130,10 +137,12 @@
     import selectboxLoaders from '@/mixins/selectbox-loaders'
     import Repository from '@/api/SchemataRepository'
     import editor from 'monaco-editor-vue';
+    import validationRules from '@/mixins/form-validation-rules'
 
     export default {
+        mixins: [selectboxLoaders, validationRules],
+
         components: {editor},
-        mixins: [selectboxLoaders],
         data: () => {
             return {
                 schemaVersionId: '',
@@ -175,7 +184,10 @@
                             vm.previousVersion = created.previousVersion
                             vm.currentVersion = created.currentVersion
 
-                            vm.$store.commit('raiseNotification', {message: `Schema v${vm.currentVersion} created.`, type: 'success'})
+                            vm.$store.commit('raiseNotification', {
+                                message: `Schema v${vm.currentVersion} created.`,
+                                type: 'success'
+                            })
                         }
                     )
                     .catch(function (err) {
