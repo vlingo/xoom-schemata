@@ -137,9 +137,9 @@ describe('Entity Creation Tests', function () {
         cy.fillEditor('#description-editor', faker.lorem.sentence())
         cy.fillEditor('#specification-editor', 'event SalutationHappened {\n' +
             '    type eventType')
-        cy.wait(250).contains('button', 'Create').click({force: true})
+        cy.contains('button', 'Create').click()
 
-        cy.wait(250).fieldContent('SchemaVersionID').should('not.be.empty')
+        cy.fieldContent('SchemaVersionID').should('not.be.empty')
     });
 
 });

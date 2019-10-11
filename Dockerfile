@@ -7,7 +7,7 @@ FROM maven:3.6.2-jdk-8-slim as packager
 # RUN cd /home/project && mvn dependency:go-offline -B
 
 ADD . /home/project
-RUN cd /home/project && mvn clean -Pfrontend package
+RUN cd /home/project && mvn -B clean -Pfrontend package
 
 # Second stage: Create runtime image
 FROM openjdk:8-jdk-alpine
