@@ -109,3 +109,86 @@ GET http://localhost:9019/schema/categories
 Accept: application/json
 
 ###
+
+
+// Reproduce https://github.com/vlingo/vlingo-schemata/issues/55
+POST http://localhost:9019/organizations
+Content-Type: application/json
+
+{
+  "organizationId": "",
+  "name": "org",
+  "description": "My organization."
+}
+> {% client.global.set('orgId', response.body.organizationId) %}
+
+
+### Create Unit
+POST  http://localhost:9019/organizations/{{orgId}}/units
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "",
+  "name": "unit",
+  "description": "My unit."
+}
+
+> {% client.global.set('unitId', response.body.unitId) %}
+
+### Create Context
+POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "{{unitId}}",
+  "contextId": "",
+  "namespace": "context",
+  "description": "Schemata Context."
+}
+
+> {% client.global.set('contextId', response.body.contextId) %}
+
+### Create Schema
+POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "{{unitId}}",
+  "contextId": "{{contextId}}",
+  "schemaId": "",
+  "category": "Event",
+  "name": "SchemaDefinedFoo",
+  "scope": "Private",
+  "description": "Schemata was defined event."
+}
+
+> {% client.global.set('schemaId', response.body.schemaId) %}
+
+
+### Create Schema Version
+POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "{{unitId}}",
+  "contextId": "{{contextId}}",
+  "schemaId": "{{schemaId}}",
+  "schemaVersionId": "",
+  "description": "Initial revision.",
+  "specification": "event SchemaDefined { type eventType }",
+  "status": "Published",
+  "previousVersion": "0.0.0",
+  "currentVersion": "1.0.0"
+}
+> {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
+
+
+### this crashes the compiler
+GET http://localhost:9019/code/org:unit:context:schema:1.0.0/java
+Accept: application/json
+
+###
