@@ -48,8 +48,8 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_PARENT_INDEX ON TBL_UNITS (organizationId)");
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_ALL_INDEX ON TBL_UNITS (organizationId, unitId)");
 
-    jdbi.handle().execute("ALTER TABLE TBL_UNITS DROP CONSTRAINT IF EXISTS UNIT_ALL_UNIQUE");
-    jdbi.handle().execute("ALTER TABLE TBL_UNITS ADD CONSTRAINT UNIT_ALL_UNIQUE UNIQUE (organizationId, name)");
+      jdbi.handle().execute("ALTER TABLE TBL_UNITS DROP CONSTRAINT IF EXISTS UNIT_ALL_UNIQUE");
+      jdbi.handle().execute("ALTER TABLE TBL_UNITS ADD CONSTRAINT UNIT_ALL_UNIQUE UNIQUE (organizationId, name)");
   }
 
   @Override
