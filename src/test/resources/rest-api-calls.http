@@ -160,7 +160,7 @@ Content-Type: application/json
   "contextId": "{{contextId}}",
   "schemaId": "",
   "category": "Event",
-  "name": "SchemaDefinedFoo",
+  "name": "schema",
   "scope": "Private",
   "description": "Schemata was defined event."
 }
