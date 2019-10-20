@@ -20,10 +20,17 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
               "name VARCHAR(128) NOT NULL, " +
               "description VARCHAR(8000) " +
 
-              "UNIQUE (name) " +
               ")");
 
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS ORG_ALL_INDEX ON TBL_ORGANIZATIONS (organizationId)");
+
+      /*
+      Dropping the constraint and recreating it afterwards is not an optimal solution once we have actual data.
+
+      TODO: Refactor to find out if constraint already exists or switch to a schema migration tool like flyway or liquibase
+       */
+      jdbi.handle().execute("ALTER TABLE TBL_ORGANIZATIONS DROP CONSTRAINT IF EXISTS ORGANIZATION_UNIQUE");
+      jdbi.handle().execute("ALTER TABLE TBL_ORGANIZATIONS ADD CONSTRAINT ORGANIZATION_UNIQUE UNIQUE (name)");
   }
 
   @Override
@@ -36,11 +43,13 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
               "name VARCHAR(128) NOT NULL, " +
               "description VARCHAR(8000) " +
 
-              "UNIQUE (organizationId, name) " +
               ")");
 
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_PARENT_INDEX ON TBL_UNITS (organizationId)");
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_ALL_INDEX ON TBL_UNITS (organizationId, unitId)");
+
+      jdbi.handle().execute("ALTER TABLE TBL_UNITS DROP CONSTRAINT IF EXISTS UNIT_ALL_UNIQUE");
+      jdbi.handle().execute("ALTER TABLE TBL_UNITS ADD CONSTRAINT UNIT_ALL_UNIQUE UNIQUE (organizationId, name)");
   }
 
   @Override
@@ -54,11 +63,13 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
               "namespace VARCHAR(256) NOT NULL, " +
               "description VARCHAR(8000) " +
 
-              "UNIQUE (unitId, namespace) " +
               ")");
 
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS CONTEXT_PARENT_INDEX ON TBL_CONTEXTS (organizationId, unitId)");
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS CONTEXT_ALL_INDEX ON TBL_CONTEXTS (organizationId, unitId, contextId)");
+
+      jdbi.handle().execute("ALTER TABLE TBL_CONTEXTS DROP CONSTRAINT IF EXISTS CONTEXT_ALL_UNIQUE");
+      jdbi.handle().execute("ALTER TABLE TBL_CONTEXTS ADD CONSTRAINT CONTEXT_ALL_UNIQUE UNIQUE (organizationId, unitId, namespace)");
   }
 
   @Override
@@ -75,11 +86,14 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
               "name VARCHAR(128) NOT NULL, " +
               "description VARCHAR(8000) " +
 
-              "UNIQUE (contextId, category, name) " +
               ")");
 
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMA_PARENT_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId)");
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMA_ALL_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId, schemaId)");
+
+      jdbi.handle().execute("ALTER TABLE TBL_SCHEMAS DROP CONSTRAINT IF EXISTS SCHEMA_ALL_UNIQUE");
+      jdbi.handle().execute("ALTER TABLE TBL_SCHEMAS ADD CONSTRAINT SCHEMA_ALL_UNIQUE UNIQUE (organizationId, unitId, contextId, name)");
+
   }
 
   @Override
@@ -112,11 +126,13 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
               "previousVersion VARCHAR(20) NOT NULL, " +
               "currentVersion VARCHAR(20) NOT NULL " +
 
-              "UNIQUE (schemaId, currentVersion) " +
               ")");
 
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_PARENT_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId)");
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_ALL_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId, schemaVersionId)");
+
+      jdbi.handle().execute("ALTER TABLE TBL_SCHEMAVERSIONS DROP CONSTRAINT IF EXISTS SCHEMAVERSIION_ALL_UNIQUE");
+      jdbi.handle().execute("ALTER TABLE TBL_SCHEMAVERSIONS ADD CONSTRAINT SCHEMAVERSIION_ALL_UNIQUE UNIQUE (organizationId, unitId, contextId, schemaId, currentVersion)");
   }
 
   @Override
