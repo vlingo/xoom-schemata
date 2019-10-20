@@ -7,18 +7,6 @@
 
 package io.vlingo.schemata.resource;
 
-import static io.vlingo.http.RequestHeader.Authorization;
-import static io.vlingo.http.Response.Status.BadRequest;
-import static io.vlingo.http.Response.Status.InternalServerError;
-import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.Schemata.StageName;
-import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -28,15 +16,20 @@ import io.vlingo.http.Request;
 import io.vlingo.http.Response;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
+import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.query.QueryResultsCollector;
-import io.vlingo.schemata.resource.data.AuthorizationData;
-import io.vlingo.schemata.resource.data.ContextData;
-import io.vlingo.schemata.resource.data.OrganizationData;
-import io.vlingo.schemata.resource.data.PathData;
-import io.vlingo.schemata.resource.data.SchemaData;
-import io.vlingo.schemata.resource.data.SchemaVersionData;
-import io.vlingo.schemata.resource.data.UnitData;
+import io.vlingo.schemata.resource.data.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static io.vlingo.http.RequestHeader.Authorization;
+import static io.vlingo.http.Response.Status.*;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
+import static io.vlingo.schemata.Schemata.StageName;
+import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
 
 //
 // like this:
@@ -58,7 +51,9 @@ public class CodeResource extends ResourceHandler {
   }
 
   public Completes<Response> queryCodeForLanguage(final String reference, final String language) {
-    final Collector collector = given(context().request, reference);
+    // FIXME: temporary workaround for missing context in handler, see #55
+    final Request request = context() == null ? null : context().request;
+    final Collector collector = given(request, reference);
 
     return Queries.forCode()
             .schemaVersionFor(collector.authorization, collector.path, collector)
@@ -74,11 +69,11 @@ public class CodeResource extends ResourceHandler {
               logger.debug("COMPILING: " + collector.schemaVersion().specification);
               return compile(collector.path.reference, collector.schemaVersion(), language);
             })
-            .andThenTo(code    -> {
+            .andThenTo(code -> {
               logger.debug("CODE: \n" + code);
               return recordDependency(code, collector);
             })
-            .andThenTo(code    -> {
+            .andThenTo(code -> {
               logger.debug("SUCCESS: \n" + code);
               return Completes.withSuccess(Response.of(Ok, code));
             })
@@ -95,10 +90,10 @@ public class CodeResource extends ResourceHandler {
   @Override
   public Resource<?> routes() {
     return resource("Code Resource", 1,
-      get("/code/{reference}/{language}")
-        .param(String.class)
-        .param(String.class)
-        .handle(this::queryCodeForLanguage));
+            get("/code/{reference}/{language}")
+                    .param(String.class)
+                    .param(String.class)
+                    .handle(this::queryCodeForLanguage));
   }
 
   //////////////////////////////////
@@ -113,12 +108,15 @@ public class CodeResource extends ResourceHandler {
   private Collector given(final Request request, final String reference) {
     AuthorizationData auth = null;
     PathData path = null;
-    final String header = request.headerValueOr(Authorization, "");
+
+    // FIXME: temporary workaround for missing context in handler, see #55
+    String mockAuth = mockAuth(reference);
+    final String header = request == null ? mockAuth : request.headerValueOr(Authorization, mockAuth);
 
     try {
       auth = AuthorizationData.with(header);
       path = PathData.withVersion(reference);
-      final Tuple3<String,String,String> ids = auth.dependentAsIds();
+      final Tuple3<String, String, String> ids = auth.dependentAsIds();
       return Collector.startingWith(auth, path, ContextData.identity(ids._1, ids._2, ids._3));
     } catch (Exception e) {
       if (auth == null) {
@@ -126,6 +124,22 @@ public class CodeResource extends ResourceHandler {
       }
       throw new IllegalArgumentException("Reference path is invalid: " + reference);
     }
+  }
+
+  // FIXME: temporary workaround for missing context in handler, see #55
+  private String mockAuth(String reference) {
+    final String[] parts = reference.split(Schemata.ReferenceSeparator);
+
+    OrganizationData organization = Queries.forOrganizations().organizationNamed(parts[0]).await();
+    UnitData unit = Queries.forUnits().unitNamed(organization.organizationId, parts[1]).await();
+    ContextData context = Queries.forContexts().contextOfNamespace(organization.organizationId, unit.unitId, parts[2]).await();
+
+    return AuthorizationData.AuthorizationType +
+                    " source = " + organization.organizationId +
+                    "    dependent = " +
+                    organization.organizationId + Schemata.ReferenceSeparator +
+                    unit.unitId + Schemata.ReferenceSeparator +
+                    context.contextId;
   }
 
   private Completes<ContextData> queryContextWith(final ContextData contextIds, final Collector collector) {
