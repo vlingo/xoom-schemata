@@ -8,11 +8,12 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.ResponseHeader.ContentType;
 import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.headers;
 import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
@@ -25,35 +26,42 @@ import static io.vlingo.schemata.Schemata.StageName;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
+import io.vlingo.http.Body;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Organization;
-import io.vlingo.schemata.query.OrganizationQueries;
+import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.OrganizationData;
 
 public class OrganizationResource extends ResourceHandler {
   private final OrganizationCommands commands;
-  private final OrganizationQueries queries;
   private final Stage stage;
 
-  public OrganizationResource(final World world, final OrganizationQueries queries) {
+  public OrganizationResource(final World world) {
     this.stage = world.stageNamed(StageName);
-    this.queries = queries;
     this.commands = new OrganizationCommands(this.stage, 10);
   }
 
   public Completes<Response> defineWith(final OrganizationData data) {
+    if (!Naming.isValid(data.name)) {
+      return Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
+    }
+
     return Organization.with(stage, data.name, data.description)
-            .andThenTo(state -> {
+            .andThenTo(3000, state -> {
                 final String location = organizationLocation(state.organizationId);
-                final Headers<ResponseHeader> headers = headers(of(Location, location));
+                final Headers<ResponseHeader> headers = Headers.of(
+                        of(Location, location),
+                        of(ContentType, "application/json; charset=UTF-8")
+                );
                 final String serialized = serialized(OrganizationData.from(state));
 
-                return Completes.withSuccess(Response.of(Created, headers, serialized));
+                return Completes.withSuccess(Response.of(Created, headers, Body.from(serialized.getBytes(), Body.Encoding.UTF8)));
               })
             .otherwise(response -> Response.of(Conflict, serialized(OrganizationData.from(NoId, data.name, data.description))));
   }
@@ -65,31 +73,30 @@ public class OrganizationResource extends ResourceHandler {
   }
 
   public Completes<Response> renameTo(final String organizationId, final String name) {
+    if (Naming.isValid(name)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(name)));
+    }
+
     return commands
             .renameTo(OrganizationId.existing(organizationId), name).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(OrganizationData.from(state)))));
   }
 
   public Completes<Response> queryOrganizations() {
-    System.out.println("***** QUERY ORGS");
-//    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(OrganizationData.from("123", "Org", "My org.")))));
-    return queries
-      .organizations()
-      .andThenTo(organizations ->
-        Completes.withSuccess(Response.of(Ok, serialized(organizations))));
+    return Queries.forOrganizations()
+            .organizations()
+            .andThenTo(organizations -> Completes.withSuccess(Response.of(Ok, serialized(organizations))));
   }
 
   public Completes<Response> queryOrganization(final String organizationId) {
-    System.out.println("***** QUERY ORG: " + organizationId);
-    return queries
+    return Queries.forOrganizations()
             .organization(organizationId)
-            .andThenTo(organization ->
-              Completes.withSuccess(Response.of(Ok, serialized(organization))));
+            .andThenTo(organization -> Completes.withSuccess(Response.of(Ok, serialized(organization))));
   }
 
   @Override
   public Resource<?> routes() {
-    return resource("Organization Resource",
+    return resource("Organization Resource", 1,
       post("/organizations")
         .body(OrganizationData.class)
         .handle(this::defineWith),

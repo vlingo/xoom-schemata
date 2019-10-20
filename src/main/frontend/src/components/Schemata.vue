@@ -1,31 +1,40 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-    <v-card class="xs12">
+    <v-card height="45vh" id="schemata-treeview">
         <v-card-title>
             <v-text-field
                     v-model="search"
                     label="Search"
                     clearable
                     hide-details
-                    clear-icon="close"
+                    :clear-icon="icons.clear"
             ></v-text-field>
         </v-card-title>
         <v-card-text>
             <v-treeview
+                    dense
                     :items="items"
                     :search="search"
                     :filter="filter"
                     :load-children="loadChildren"
+                    open-on-click
                     return-object
                     activatable
                     transition
-                    :active.sync="selected"
-                    @update:active="$emit('input', $event[0])"
+                    :active.sync="schema"
+                    :open.sync="open"
             >
                 <template v-slot:prepend="{ item }">
-                    <v-icon
-                            v-if="item.children"
-                            v-text="`md-${item.id === 1 ? 'home' : 'folder'}`"
-                    ></v-icon>
+                    <v-tooltip right v-if="item.category  && icons.categories[item.category]">
+                        <template v-slot:activator="{ on }">
+                            <v-icon v-on="on">
+                                {{icons.categories[item.category]}}
+                            </v-icon>
+
+                        </template>
+                        <span>{{item.category}}</span>
+                    </v-tooltip>
+
+
                 </template>
             </v-treeview>
         </v-card-text>
@@ -33,107 +42,132 @@
 </template>
 
 <script>
+    import Repository from '@/api/SchemataRepository'
+    import {
+        mdiClose,
+        mdiCogs,
+        mdiDatabase,
+        mdiEmailOpen,
+        mdiFileDocument,
+        mdiHelpCircle,
+        mdiPlaylistPlay
+    } from '@mdi/js'
+
     export default {
         data: () => ({
             items: [],
             search: null,
-            selected: [],
+            open: [],
+            icons: {
+                close: mdiClose,
+                categories: {
+                    Command: mdiCogs,
+                    Data: mdiDatabase,
+                    Document: mdiFileDocument,
+                    Envelope: mdiEmailOpen,
+                    Event: mdiPlaylistPlay,
+                    Unknown: mdiHelpCircle
+                }
+            }
+
         }),
         computed: {
             filter() {
                 return (item, search, textKey) => item[textKey].indexOf(search) > -1
             },
+            schema: {
+                get() {
+                    return [this.$store.schema]
+                },
+                set(value) {
+                    this.$store.commit('selectSchema', value[0])
+                }
+            },
+
         },
         created() {
-            this.loadSchemata()
+            this.loadOrganizations()
         },
         methods: {
-            loadSchemata() {
+            loadOrganizations() {
                 let vm = this
-                fetch('/api/organizations')
-                    .then(
-                        function (response) {
-                            if (response.status !== 200) {
-                                vm.$emit('vs-error', {status: response.status, message: response.text()})
-                                return;
-                            }
-
-                            response.json().then(function (data) {
-                                for (let organization of data) {
-                                    vm.items.push({
-                                        id: organization.id,
-                                        name: organization.name,
-                                        type: 'organization',
-                                        children: organization.units.map(u => {
-                                            return {
-                                                id: u.id,
-                                                name: u.name,
-                                                type: 'unit',
-                                                children: u.contexts.map(c => {
-                                                    return {
-                                                        id: u.id + "-" + c.id,
-                                                        name: c.name,
-                                                        type: 'context',
-                                                        contextId: c.id,
-                                                        organizationId: organization.id,
-                                                        unitId: u.id,
-                                                        children: []
-                                                    }
-                                                })
-                                            }
-                                        }),
-                                    })
-                                }
-                            });
+                Repository.getOrganizations()
+                    .then(data => {
+                        for (let organization of data) {
+                            organization.id = organization.organizationId
+                            organization.type = 'organization'
+                            organization.children = []
+                            vm.items.push(organization)
                         }
-                    )
-                    .catch(function (err) {
-                        vm.$emit('vs-error', {status: 0, message: err})
-                    });
+                    })
             },
+
             async loadChildren(item) {
-                if (item.type !== 'context')
-                    return // only load additional items when a context is selected
-
                 let vm = this
-                return fetch(`/api/schemata/${item.organizationId}/${item.unitId}/${item.contextId}`)
-                    .then(
-                        function (response) {
-                            if (response.status !== 200) {
-                                vm.$emit('vs-error', {status: response.status, message: response.text()})
-                                return;
-                            }
+                let loadPromise = undefined
+                switch (item.type) {
+                    case 'organization':
+                        loadPromise = this.loadUnits(item)
+                        break
+                    case 'unit':
+                        loadPromise = this.loadContexts(item)
+                        break
+                    case 'context':
+                        loadPromise = this.loadSchemata(item)
+                        break
+                    default:
+                        loadPromise = new Promise(() => {
+                            throw Error(`Unknown type ${item.type} requested. Current selections: ${JSON.stringify(item)}.`)
+                        })
+                }
+                loadPromise.catch(function (err) {
+                    vm.$store.commit('raiseError', {message: err})
+                });
+                return loadPromise
+            },
 
-                            response.json().then(function (data) {
-                                for (let schemaType of Object.keys(data)) {
-                                    item.children.push({
-                                        id: schemaType,
-                                        name: schemaType,
-                                        type: 'schemaType',
-                                        children: data[schemaType].map(s => {
-                                            return {
-                                                id: s.id,
-                                                name: s.id,
-                                                type: 'schema',
-                                                organizationId: item.organizationId,
-                                                unitId:item.unitId,
-                                                contextId: item.contextId,
-                                                versions: s.versions
-                                            }
-                                        })
-                                    })
-                                }
-                            });
+            async loadUnits(org) {
+                return Repository.getUnits(org.id)
+                    .then(data => {
+                        for (let unit of data) {
+                            unit.id = unit.unitId
+                            unit.type = 'unit'
+                            unit.children = []
+                            org.children.push(unit)
                         }
-                    )
-                    .catch(function (err) {
-                        vm.$emit('vs-error', {status: 0, message: err})
-                    });
+                    })
+
+
+            },
+            async loadContexts(unit) {
+                return Repository.getContexts(unit.organizationId, unit.unitId)
+                    .then(data => {
+                        for (let context of data) {
+                            context.id = context.contextId
+                            context.name = context.namespace
+                            context.type = 'context'
+                            context.children = []
+                            unit.children.push(context)
+                        }
+                    })
+            }
+            ,
+            async loadSchemata(context) {
+                return Repository.getSchemata(context.organizationId, context.unitId, context.contextId)
+                    .then(data => {
+                        for (let schema of data) {
+                            schema.id = schema.schemaId
+                            schema.type = 'schema'
+                            context.children.push(schema)
+                        }
+                    })
             }
         }
     }
 </script>
 
 <style>
-
+    .v-card {
+        overflow-y: auto
+    }
 </style>

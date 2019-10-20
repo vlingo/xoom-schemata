@@ -7,6 +7,10 @@
 
 package io.vlingo.schemata.resource.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.schemata.model.SchemaVersionState;
 
 public class SchemaVersionData {
@@ -21,18 +25,28 @@ public class SchemaVersionData {
   public final String previousVersion;
   public final String currentVersion;
 
-  public static SchemaVersionData from(final SchemaVersionState version) {
+  public static SchemaVersionData from(final SchemaVersionState state) {
     return new SchemaVersionData(
-            version.schemaVersionId.organizationId().value,
-            version.schemaVersionId.unitId().value,
-            version.schemaVersionId.contextId().value,
-            version.schemaVersionId.schemaId.value,
-            version.schemaVersionId.value,
-            version.specification.value,
-            version.description,
-            version.status.value,
-            version.previousVersion.value,
-            version.currentVersion.value);
+            state.schemaVersionId.organizationId().value,
+            state.schemaVersionId.unitId().value,
+            state.schemaVersionId.contextId().value,
+            state.schemaVersionId.schemaId.value,
+            state.schemaVersionId.value,
+            state.specification.value,
+            state.description,
+            state.status.value,
+            state.previousVersion.value,
+            state.currentVersion.value);
+  }
+
+  public static List<SchemaVersionData> from(final List<SchemaVersionState> states) {
+    final List<SchemaVersionData> data = new ArrayList<>(states.size());
+
+    for (final SchemaVersionState state : states) {
+      data.add(SchemaVersionData.from(state));
+    }
+
+    return data;
   }
 
   public static SchemaVersionData from(
@@ -74,11 +88,48 @@ public class SchemaVersionData {
           nextVersion);
   }
 
+  public static SchemaVersionData none() {
+    return just("", "", "", "", "");
+  }
+
+  public static boolean hasSpecification(final String specification) {
+    return specification != null && !specification.isEmpty();
+  }
+
+  public boolean isNone() {
+    return organizationId.isEmpty() && unitId.isEmpty() && contextId.isEmpty() && schemaId.isEmpty() && schemaVersionId.isEmpty();
+  }
+
+  public static boolean validVersions(final String previousVersion, final String currentVersion) {
+    try {
+      final SemanticVersion previousSemantic = SemanticVersion.from(previousVersion);
+      final SemanticVersion currentSemantic = SemanticVersion.from(currentVersion);
+
+      return (
+          currentSemantic.isNonZero() &&
+          currentSemantic.isCompatibleWith(previousSemantic) &&
+          currentSemantic.isGreaterThan(previousSemantic));
+
+    } catch (Exception e) {
+      // fall through
+    }
+
+    return false;
+  }
+
+  public boolean hasSpecification() {
+    return hasSpecification(specification);
+  }
+
+  public boolean validVersions() {
+    return validVersions(previousVersion, currentVersion);
+  }
+
   @Override
   public String toString() {
     return "SchemaVersionData [organizationId=" + organizationId + ", unitId=" + unitId + ", contextId=" + contextId
-            + ", schemaId=" + schemaId + ", schemaVersionId=" + schemaVersionId + ", description=" + description
-            + ", specification=" + specification + ", status=" + status + ", previousVersion=" + previousVersion
+            + ", schemaId=" + schemaId + ", schemaVersionId=" + schemaVersionId + ", specification=" + specification
+            + ", description=" + description + ", status=" + status + ", previousVersion=" + previousVersion
             + ", currentVersion=" + currentVersion + "]";
   }
 

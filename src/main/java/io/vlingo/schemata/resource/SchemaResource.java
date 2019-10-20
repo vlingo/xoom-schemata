@@ -8,11 +8,12 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.ResponseHeader.ContentType;
 import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.headers;
 import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
@@ -21,8 +22,6 @@ import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.SchemasPath;
 import static io.vlingo.schemata.Schemata.StageName;
-
-import java.util.Arrays;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -35,36 +34,49 @@ import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Category;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Schema;
-import io.vlingo.schemata.query.SchemaQueries;
+import io.vlingo.schemata.model.Scope;
+import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.SchemaData;
 
 public class SchemaResource extends ResourceHandler {
   private final SchemaCommands commands;
-  private final SchemaQueries queries;
   private final Stage stage;
 
-  public SchemaResource(final World world, final SchemaQueries queries) {
+  public SchemaResource(final World world) {
     this.stage = world.stageNamed(StageName);
-    this.queries = queries;
     this.commands = new SchemaCommands(this.stage, 10);
   }
 
   public Completes<Response> defineWith(final String organizationId, final String unitId, final String contextId, final SchemaData data) {
-    return Schema.with(stage, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(data.category), data.name, data.description)
-            .andThenTo(state -> {
+    if (!Naming.isValid(data.name)) {
+      return Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
+    }
+
+    return Schema.with(stage, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(data.category), Scope.valueOf(data.scope), data.name, data.description)
+            .andThenTo(3000, state -> {
                 final String location = schemaLocation(state.schemaId);
-                final Headers<ResponseHeader> headers = headers(of(Location, location));
+                final Headers<ResponseHeader> headers = Headers.of(
+                        of(Location, location),
+                        of(ContentType, "application/json; charset=UTF-8")
+                );
                 final String serialized = serialized(SchemaData.from(state));
 
                 return Completes.withSuccess(Response.of(Created, headers, serialized));
               })
-            .otherwise(response -> Response.of(Conflict, serialized(SchemaData.from(organizationId, unitId, contextId, NoId, data.category, data.name, data.description))));
+            .otherwise(response -> Response.of(Conflict, serialized(SchemaData.from(organizationId, unitId, contextId, NoId, data.category, data.scope, data.name, data.description))));
   }
 
   public Completes<Response> categorizeAs(final String organizationId, final String unitId, final String contextId, final String schemaId, final String category) {
     return commands
             .categorizeAs(SchemaId.existing(organizationId, unitId, contextId, schemaId), Category.valueOf(category)).answer()
+            .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));
+  }
+
+  public Completes<Response> scopeAs(final String organizationId, final String unitId, final String contextId, final String schemaId, final String scope) {
+    return commands
+            .scopeAs(SchemaId.existing(organizationId, unitId, contextId, schemaId), Scope.valueOf(scope)).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));
   }
 
@@ -75,24 +87,38 @@ public class SchemaResource extends ResourceHandler {
   }
 
   public Completes<Response> renameTo(final String organizationId, final String unitId, final String contextId, final String schemaId, final String name) {
+    if (Naming.isValid(name)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(name)));
+    }
+
     return commands
             .renameTo(SchemaId.existing(organizationId, unitId, contextId, schemaId), name).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));
   }
 
   public Completes<Response> querySchemas(final String organizationId, final String unitId, final String contextId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId + " SCHEMAS");
-    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(SchemaData.from("O1", "U1", "C1", "S1", "Event", "Schema1", "My schema 1.")))));
+    return Queries.forSchemas()
+            .schemas(organizationId, unitId, contextId)
+            .andThenTo(schemas -> Completes.withSuccess(Response.of(Ok, serialized(schemas))));
   }
 
   public Completes<Response> querySchema(final String organizationId, final String unitId, final String contextId, final String schemaId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId + " SCHEMA: " + schemaId);
-    return Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from("O1", "U1", "C1", "S1", "Event", "Schema1", "My schema 1."))));
+    return Queries.forSchemas()
+            .schema(organizationId, unitId, contextId, schemaId)
+            .andThenTo(schema -> Completes.withSuccess(Response.of(Ok, serialized(schema))));
+  }
+
+  public Completes<Response> querySchemaCategories() {
+    return Completes.withSuccess(Response.of(Ok, serialized(Category.values())));
+  }
+
+  public Completes<Response> querySchemaScopes() {
+    return Completes.withSuccess(Response.of(Ok, serialized(Scope.values())));
   }
 
   @Override
   public Resource<?> routes() {
-    return resource("Schema Resource",
+    return resource("Schema Resource", 1,
       post("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas")
         .param(String.class)
         .param(String.class)
@@ -106,6 +132,13 @@ public class SchemaResource extends ResourceHandler {
         .param(String.class)
         .body(String.class)
         .handle(this::categorizeAs),
+      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/scope")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(String.class)
+        .handle(this::scopeAs),
       patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/description")
         .param(String.class)
         .param(String.class)
@@ -130,7 +163,11 @@ public class SchemaResource extends ResourceHandler {
         .param(String.class)
         .param(String.class)
         .param(String.class)
-        .handle(this::querySchema));
+        .handle(this::querySchema),
+      get("/schema/categories")
+        .handle(this::querySchemaCategories),
+      get("/schema/scopes")
+        .handle(this::querySchemaScopes));
   }
 
   private String schemaLocation(final SchemaId schemaId) {

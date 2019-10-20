@@ -14,6 +14,8 @@ public class Schemata {
 
   public static final String NoId = "(id?)";
 
+  public static final String ReferenceSeparator = ":";
+
   //==========================
   // Paths
   //==========================

@@ -8,11 +8,12 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.ResponseHeader.ContentType;
 import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.headers;
 import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
@@ -21,8 +22,6 @@ import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.ContextsPath;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.StageName;
-
-import java.util.Arrays;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -35,25 +34,31 @@ import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Context;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.schemata.query.ContextQueries;
+import io.vlingo.schemata.model.Naming;
+import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.ContextData;
 
 public class ContextResource extends ResourceHandler {
   private final ContextCommands commands;
-  private final ContextQueries queries;
   private final Stage stage;
 
-  public ContextResource(final World world, final ContextQueries queries) {
+  public ContextResource(final World world) {
     this.stage = world.stageNamed(StageName);
-    this.queries = queries;
     this.commands = new ContextCommands(this.stage, 10);
   }
 
   public Completes<Response> defineWith(final String organizationId, final String unitId, final ContextData data) {
+    if (Naming.isValid(data.namespace)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.namespace)));
+    }
+
     return Context.with(stage, UnitId.existing(organizationId, unitId), data.namespace, data.description)
-            .andThenTo(state -> {
+            .andThenTo(3000, state -> {
                 final String location = contextLocation(state.contextId);
-                final Headers<ResponseHeader> headers = headers(of(Location, location));
+                final Headers<ResponseHeader> headers = Headers.of(
+                        of(Location, location),
+                        of(ContentType, "application/json; charset=UTF-8")
+                );
                 final String serialized = serialized(ContextData.from(state));
 
                 return Completes.withSuccess(Response.of(Created, headers, serialized));
@@ -68,24 +73,30 @@ public class ContextResource extends ResourceHandler {
   }
 
   public Completes<Response> moveToNamespace(final String organizationId, final String unitId, final String contextId, final String namespace) {
+    if (Naming.isValid(namespace)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(namespace)));
+    }
+
     return commands
             .moveToNamespace(ContextId.existing(organizationId, unitId, contextId), namespace).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(ContextData.from(state)))));
   }
 
   public Completes<Response> queryContexts(final String organizationId, final String unitId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXTS");
-    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(ContextData.from("O1", "U1", "C1", "Context1", "My context 1.")))));
+    return Queries.forContexts()
+            .contexts(organizationId, unitId)
+            .andThenTo(contexts -> Completes.withSuccess(Response.of(Ok, serialized(contexts))));
   }
 
   public Completes<Response> queryContext(final String organizationId, final String unitId, final String contextId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId + " CONTEXT: " + contextId);
-    return Completes.withSuccess(Response.of(Ok, serialized(ContextData.from("O1", "U1", "C1", "Context1", "My context 1."))));
+    return Queries.forContexts()
+            .context(organizationId, unitId, contextId)
+            .andThenTo(context -> Completes.withSuccess(Response.of(Ok, serialized(context))));
   }
 
   @Override
   public Resource<?> routes() {
-    return resource("Context Resource",
+    return resource("Context Resource", 1,
       post("/organizations/{organizationId}/units/{unitId}/contexts")
         .param(String.class)
         .param(String.class)

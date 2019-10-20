@@ -59,7 +59,7 @@ public class OrganizationEntityTest {
   @Test
   public void testThatOrganizationDefinedIsEquals() {
     final OrganizationState state = organization.defineWith("name", "description").await();
-    Assert.assertEquals(OrganizationState.unidentified(), state.persistenceId());
+    Assert.assertNotEquals(OrganizationState.unidentified(), state.persistenceId());
     Assert.assertEquals(organizationId.value, state.organizationId.value);
     Assert.assertEquals("name", state.name);
     Assert.assertEquals("description", state.description);

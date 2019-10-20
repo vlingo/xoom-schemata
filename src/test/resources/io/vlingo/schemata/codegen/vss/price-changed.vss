@@ -1,0 +1,5 @@
+event PriceChanged {
+    version eventVersion
+    timestamp occurredOn
+    Org:Unit:Context:Schema:Price newPrice
+}

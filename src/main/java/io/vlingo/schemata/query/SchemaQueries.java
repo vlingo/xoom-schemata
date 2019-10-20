@@ -15,4 +15,5 @@ import io.vlingo.schemata.resource.data.SchemaData;
 public interface SchemaQueries {
   Completes<List<SchemaData>> schemas(final String organizationId, final String unitId, final String contextId);
   Completes<SchemaData> schema(final String organizationId, final String unitId, final String contextId, final String schemaId);
+  Completes<SchemaData> schemaNamed(final String organizationId, final String unitId, final String contextId, final String name);
 }

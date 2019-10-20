@@ -1,19 +1,16 @@
 <template>
-    <v-container class="fluid grid-list-md">
-        <v-alert v-model="hasError" dismissible type="error">{{error}}</v-alert>
-        <v-flex class="xs12">
-            <Schemata v-model="schema" v-on:vs-error="onError"/>
-        </v-flex>
+        <v-row>
+        <v-col cols="12" class="pt-0">
+            <Schemata @vs-error="onError"/>
+        </v-col>
 
-        <v-layout row wrap>
-            <v-flex class="xs12 md3">
-                <Versions :schema="schema" v-model="version"/>
-            </v-flex>
-            <v-flex class="xs12 md9">
-                <Properties :schema="schema" :version="version" v-on:vs-error="onError"/>
-            </v-flex>
-        </v-layout>
-    </v-container>
+        <v-col cols="12" md="3" class="pt-0">
+            <Versions @vs-error="onError"/>
+        </v-col>
+        <v-col cols="12" md="9" class="pt-0">
+            <Properties @vs-error="onError"/>
+        </v-col>
+        </v-row>
 </template>
 
 <script>
@@ -28,8 +25,6 @@
             Properties
         },
         data: () => ({
-            schema: [],
-            version: undefined,
             error: false,
         }),
         computed: {
@@ -45,7 +40,7 @@
         },
         methods: {
             async onError(event) {
-                this.error = await event.message + ` (HTTP ${event.status})`
+                this.error = await event.message
             }
         }
     }

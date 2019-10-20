@@ -7,18 +7,12 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.Collections;
-import java.util.List;
-
 import io.vlingo.common.Completes;
-import io.vlingo.common.Tuple2;
-import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.UnitDefined;
 import io.vlingo.schemata.model.Events.UnitDescribed;
 import io.vlingo.schemata.model.Events.UnitRenamed;
 import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.symbio.Source;
 
 public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   private UnitState state;
@@ -43,23 +37,22 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  protected Tuple2<UnitState, List<Source<DomainEvent>>> whenNewState() {
-    return state.isIdentified() ? null : Tuple2.from(state, Collections.emptyList());
-  }
-
-  @Override
   protected String id() {
     return String.valueOf(state.persistenceId());
   }
 
   @Override
-  protected void persistentObject(final UnitState persistentObject) {
-    this.state = persistentObject;
+  protected UnitState stateObject() {
+    return state;
   }
 
   @Override
-  protected Class<UnitState> persistentObjectType() {
+  protected void stateObject(final UnitState stateObject) {
+    this.state = stateObject;
+  }
+
+  @Override
+  protected Class<UnitState> stateObjectType() {
     return UnitState.class;
   }
 }

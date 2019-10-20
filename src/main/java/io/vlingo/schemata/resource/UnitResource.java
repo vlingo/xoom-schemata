@@ -8,11 +8,12 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.BadRequest;
 import static io.vlingo.http.Response.Status.Conflict;
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.ResponseHeader.ContentType;
 import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.headers;
 import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
@@ -21,8 +22,6 @@ import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.StageName;
 import static io.vlingo.schemata.Schemata.UnitsPath;
-
-import java.util.Arrays;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -34,26 +33,32 @@ import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Unit;
-import io.vlingo.schemata.query.UnitQueries;
+import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.UnitData;
 
 public class UnitResource extends ResourceHandler {
   private final UnitCommands commands;
-  private final UnitQueries queries;
   private final Stage stage;
 
-  public UnitResource(final World world, final UnitQueries queries) {
+  public UnitResource(final World world) {
     this.stage = world.stageNamed(StageName);
-    this.queries = queries;
     this.commands = new UnitCommands(this.stage, 10);
   }
 
   public Completes<Response> defineWith(final String organizationId, final UnitData data) {
+    if (!Naming.isValid(data.name)) {
+      return Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
+    }
+
     return Unit.with(stage, OrganizationId.existing(organizationId), data.name, data.description)
-            .andThenTo(state -> {
+            .andThenTo(3000, state -> {
                 final String location = unitLocation(state.unitId);
-                final Headers<ResponseHeader> headers = headers(of(Location, location));
+                final Headers<ResponseHeader> headers =Headers.of(
+                        of(Location, location),
+                        of(ContentType, "application/json; charset=UTF-8")
+                );
                 final String serialized = serialized(UnitData.from(state));
 
                 return Completes.withSuccess(Response.of(Created, headers, serialized));
@@ -68,24 +73,30 @@ public class UnitResource extends ResourceHandler {
   }
 
   public Completes<Response> renameTo(final String organizationId, final String unitId, final String name) {
+    if (Naming.isValid(name)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(name)));
+    }
+
     return commands
             .renameTo(UnitId.existing(organizationId, unitId), name).answer()
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(UnitData.from(state)))));
   }
 
   public Completes<Response> queryUnits(final String organizationId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNITS");
-    return Completes.withSuccess(Response.of(Ok, serialized(Arrays.asList(UnitData.from("O1", "U1", "Unit1", "My unit 1.")))));
+    return Queries.forUnits()
+            .units(organizationId)
+            .andThenTo(units -> Completes.withSuccess(Response.of(Ok, serialized(units))));
   }
 
   public Completes<Response> queryUnit(final String organizationId, final String unitId) {
-    System.out.println("***** QUERY ORG: " + organizationId + " UNIT: " + unitId);
-    return Completes.withSuccess(Response.of(Ok, serialized(UnitData.from("O1", "U1", "Unit1", "My unit 1."))));
+    return Queries.forUnits()
+            .unit(organizationId, unitId)
+            .andThenTo(unit -> Completes.withSuccess(Response.of(Ok, serialized(unit))));
   }
 
   @Override
   public Resource<?> routes() {
-    return resource("Unit Resource",
+    return resource("Unit Resource", 1,
       post("/organizations/{organizationId}/units")
         .param(String.class)
         .body(UnitData.class)

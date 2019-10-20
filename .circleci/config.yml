@@ -2,23 +2,20 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:8u151-jdk
+      - image: circleci/openjdk:8-jdk
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v2-mvn-dependencies-{{ checksum "pom.xml" }}
-            - v2-mvn-dependencies-
-      - restore_cache:
-          keys:
             - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
             - v1-dependencies-
-      - run: mvn -B -Pfrontend package
+      - run: mvn -B clean package -Pfrontend
       - persist_to_workspace:
           root: ~/project
           paths:
             - target/
             - src/main/frontend/
+            - src/test/e2e/
       - store_test_results:
           path: target/surefire-reports
       - save_cache:
@@ -26,13 +23,52 @@ jobs:
             - target/node
             - src/main/frontend/node_modules
           key: v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v2-mvn-dependencies-{{ checksum "pom.xml" }}
-
+  e2e-test:
+    docker:
+      - image: circleci/openjdk:8-jdk-node-browsers
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run: |
+          java -jar ~/project/target/vlingo-schemata-*-jar-with-dependencies.jar dev &
+          export CYPRESS_BASE_URL=http://localhost:9019/app
+          cd ~/project/src/test/e2e
+          npm install
+          npm run test-multiple
+      - store_test_results:
+          path: src/test/e2e/multiple-results
+      - store_artifacts:
+          path: src/test/e2e/cypress/videos
+          destination: videos
+      - store_artifacts:
+          path: src/test/e2e/cypress/screenshots
+          destination: screenshots
+  image:
+    docker:
+      - image:  circleci/openjdk:8-jdk
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run: |
+          docker build . -t vlingo/vlingo-schemata
+      - run: |
+          echo "$DOCKER_TOKEN" | docker login --username $DOCKER_USER --password-stdin
+          docker push vlingo/vlingo-schemata
 workflows:
   version: 2
   default-workflow:
     jobs:
       - build
+      - e2e-test:
+          requires:
+            - build
+      - image:
+          requires:
+            - e2e-test
+          filters:
+            branches:
+              only:
+                - master
+
+

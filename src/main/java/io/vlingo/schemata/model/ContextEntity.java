@@ -7,18 +7,12 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.Collections;
-import java.util.List;
-
 import io.vlingo.common.Completes;
-import io.vlingo.common.Tuple2;
-import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.ContextDefined;
 import io.vlingo.schemata.model.Events.ContextDescribed;
 import io.vlingo.schemata.model.Events.ContextRenamed;
 import io.vlingo.schemata.model.Id.ContextId;
-import io.vlingo.symbio.Source;
 
 
 public class ContextEntity extends ObjectEntity<ContextState> implements Context {
@@ -48,23 +42,22 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  protected Tuple2<ContextState, List<Source<DomainEvent>>> whenNewState() {
-    return state.isIdentified() ? null : Tuple2.from(state, Collections.emptyList());
-  }
-
-  @Override
   protected String id() {
     return String.valueOf(state.persistenceId());
   }
 
   @Override
-  protected void persistentObject(final ContextState persistentObject) {
-    this.state = persistentObject;
+  protected ContextState stateObject() {
+    return state;
   }
 
   @Override
-  protected Class<ContextState> persistentObjectType() {
+  protected void stateObject(final ContextState stateObject) {
+    this.state = stateObject;
+  }
+
+  @Override
+  protected Class<ContextState> stateObjectType() {
     return ContextState.class;
   }
 }

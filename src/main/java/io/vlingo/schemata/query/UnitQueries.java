@@ -15,4 +15,5 @@ import io.vlingo.schemata.resource.data.UnitData;
 public interface UnitQueries {
   Completes<List<UnitData>> units(final String organizationId);
   Completes<UnitData> unit(final String organizationId, final String unitId);
+  Completes<UnitData> unitNamed(final String organizationId, final String name);
 }

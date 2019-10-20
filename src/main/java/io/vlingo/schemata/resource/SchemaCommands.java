@@ -19,6 +19,7 @@ import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Schema;
 import io.vlingo.schemata.model.SchemaEntity;
 import io.vlingo.schemata.model.SchemaState;
+import io.vlingo.schemata.model.Scope;
 
 class SchemaCommands {
   private final CommandRouter router;
@@ -44,6 +45,27 @@ class SchemaCommands {
               .delivers(categorizedAs)
               .answers(Completes.using(stage.scheduler()))
               .handledBy(categorizedAs);
+
+    router.route(command);
+
+    return command;
+  }
+
+  RoutableCommand<Schema,Command,SchemaState> scopeAs(
+          final SchemaId schemaId,
+          final Scope scope) {
+
+    final ScopeAs scopeAs = new ScopeAs(scope);
+
+    RoutableCommand<Schema,Command,SchemaState> command =
+            RoutableCommand
+              .speaks(Schema.class)
+              .to(SchemaEntity.class)
+              .at(schemaId.value)
+              .named(Schema.nameFrom(schemaId))
+              .delivers(scopeAs)
+              .answers(Completes.using(stage.scheduler()))
+              .handledBy(scopeAs);
 
     router.route(command);
 
@@ -115,6 +137,19 @@ class SchemaCommands {
     @Override
     public void accept(final Schema protocol, final CategorizeAs command, final Completes<SchemaState> answer) {
       protocol.categorizeAs(command.category).andThen(state -> answer.with(state));
+    }
+  }
+
+  private static class ScopeAs extends Command implements CommandDispatcher<Schema,ScopeAs,Completes<SchemaState>> {
+    private final Scope scope;
+
+    ScopeAs(final Scope scope) {
+      this.scope = scope;
+    }
+
+    @Override
+    public void accept(final Schema protocol, final ScopeAs command, final Completes<SchemaState> answer) {
+      protocol.scopeAs(command.scope).andThen(state -> answer.with(state));
     }
   }
 

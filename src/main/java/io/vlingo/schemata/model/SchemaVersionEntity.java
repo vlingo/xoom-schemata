@@ -7,12 +7,7 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.Collections;
-import java.util.List;
-
 import io.vlingo.common.Completes;
-import io.vlingo.common.Tuple2;
-import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.SchemaVersionDefined;
 import io.vlingo.schemata.model.Events.SchemaVersionDeprecated;
@@ -21,7 +16,6 @@ import io.vlingo.schemata.model.Events.SchemaVersionPublished;
 import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
 import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
-import io.vlingo.symbio.Source;
 
 public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState> implements SchemaVersion {
   private SchemaVersionState state;
@@ -84,23 +78,22 @@ public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState>
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  protected Tuple2<SchemaVersionState, List<Source<DomainEvent>>> whenNewState() {
-    return state.isIdentified() ? null : Tuple2.from(state, Collections.emptyList());
-  }
-
-  @Override
   protected String id() {
     return String.valueOf(state.persistenceId());
   }
 
   @Override
-  protected void persistentObject(final SchemaVersionState persistentObject) {
-    this.state = persistentObject;
+  protected SchemaVersionState stateObject() {
+    return state;
   }
 
   @Override
-  protected Class<SchemaVersionState> persistentObjectType() {
+  protected void stateObject(final SchemaVersionState stateObject) {
+    this.state = stateObject;
+  }
+
+  @Override
+  protected Class<SchemaVersionState> stateObjectType() {
     return SchemaVersionState.class;
   }
 }

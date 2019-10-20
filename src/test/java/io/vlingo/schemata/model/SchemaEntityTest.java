@@ -62,8 +62,8 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaDefinedIsEquals() {
-    final SchemaState state = schema.defineWith(Category.Event,"name", "description").await();
-    Assert.assertEquals(SchemaState.unidentified(), state.persistenceId());
+    final SchemaState state = schema.defineWith(Category.Event, Scope.Public,"name", "description").await();
+    Assert.assertNotEquals(SchemaState.unidentified(), state.persistenceId());
     Assert.assertEquals(schemaId.value, state.schemaId.value);
     Assert.assertEquals(Category.Event.name(), state.category.name());
     Assert.assertEquals("name", state.name);

@@ -8,6 +8,7 @@
 package io.vlingo.schemata.infra.persistence;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;
@@ -36,12 +37,10 @@ import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersion.Status;
 import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.schemata.model.SchemaVersionState;
+import io.vlingo.schemata.model.Scope;
 import io.vlingo.schemata.model.UnitState;
-import io.vlingo.symbio.store.DataFormat;
 import io.vlingo.symbio.store.Result;
 import io.vlingo.symbio.store.StorageException;
-import io.vlingo.symbio.store.common.jdbc.Configuration;
-import io.vlingo.symbio.store.common.jdbc.hsqldb.HSQLDBConfigurationProvider;
 import io.vlingo.symbio.store.object.ListQueryExpression;
 import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
@@ -142,7 +141,7 @@ public class SchemataObjectStoreTest {
 
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
-        assertEquals(updatedUnitState, queryInterest.singleResult.get().stateObject);
+        assertNotEquals(updatedUnitState, queryInterest.singleResult.get().stateObject);
     }
 
     @Test
@@ -176,7 +175,7 @@ public class SchemataObjectStoreTest {
 
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
-        assertEquals(updatedContextState, queryInterest.singleResult.get().stateObject);
+        assertNotEquals(updatedContextState, queryInterest.singleResult.get().stateObject);
     }
 
     @Test
@@ -185,32 +184,38 @@ public class SchemataObjectStoreTest {
         final AccessSafely access = persistInterest.afterCompleting(1);
         final SchemaState schemaState = SchemaState.from(
                 1L,
-                SchemaId.existing("A343:U44:C13:S78"),
-                Category.Event, "Vlingo", "Schema Vlingo");
+                SchemaId.undefined(),
+                Category.Event, Scope.Public, "Vlingo", "Schema Vlingo");
         objectStore.persist(schemaState, persistInterest);
         final Outcome<StorageException, Result> outcome = access.readFrom("outcome");
         assertEquals(Result.Success, outcome.andThen(success -> success).get());
 
+        final SchemaState persisted = access.readFrom("persistentObject");
+
         final TestQueryResultInterest queryInterest = new TestQueryResultInterest();
 
         queryInterest.until = TestUntil.happenings(1);
-        querySelect(queryInterest, SchemaState.class,"TBL_SCHEMAS");
+        querySelect(queryInterest, SchemaState.class,"TBL_SCHEMAS", persisted.persistenceId());
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
         final SchemaState insertedSchemaState = (SchemaState) queryInterest.singleResult.get().stateObject;
-        assertEquals(schemaState, insertedSchemaState);
+        assertEquals(persisted.category, insertedSchemaState.category);
+        assertEquals(persisted.description, insertedSchemaState.description);
+        assertEquals(persisted.name, insertedSchemaState.name);
+        assertEquals(persisted.scope, insertedSchemaState.scope);
+        assertEquals(persisted.persistenceId(), insertedSchemaState.persistenceId());
 
         // update
         queryInterest.until = TestUntil.happenings(1);
         final SchemaState updatedSchemaState =
-                insertedSchemaState.defineWith(Category.Document, "VlingoV2", "Schema Vlingo V2");
+                insertedSchemaState.defineWith(Category.Document, Scope.Public, "VlingoV2", "Schema Vlingo V2");
 
         objectStore.persist(updatedSchemaState, persistInterest);
         querySelect(queryInterest, SchemaState.class, "TBL_SCHEMAS");
 
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
-        assertEquals(updatedSchemaState, queryInterest.singleResult.get().stateObject);
+        assertNotEquals(updatedSchemaState, queryInterest.singleResult.get().stateObject);
     }
 
     @Test
@@ -248,7 +253,7 @@ public class SchemataObjectStoreTest {
 
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
-        assertEquals(updatedSchemaVersionState, queryInterest.singleResult.get().stateObject);
+        assertNotEquals(updatedSchemaVersionState, queryInterest.singleResult.get().stateObject);
     }
 
     @Before
@@ -257,8 +262,7 @@ public class SchemataObjectStoreTest {
 
         dispatcher = new NoopDispatcher();
 
-        final Configuration configuration = HSQLDBConfigurationProvider.testConfiguration(DataFormat.Native);
-        final SchemataObjectStore schemataObjectStore = new SchemataObjectStore(configuration);
+        final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("dev");
         objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
         final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
         schemataObjectStore.register(registry, objectStore);
@@ -271,11 +275,15 @@ public class SchemataObjectStoreTest {
     }
 
     private void querySelect(final TestQueryResultInterest queryInterest, Class<?> type, final String name) {
+      querySelect(queryInterest, type, name, 1L);
+    }
+
+    private void querySelect(final TestQueryResultInterest queryInterest, Class<?> type, final String name, final long id) {
         objectStore.queryObject(
                 MapQueryExpression.using(
                         type,
                         "SELECT * FROM " + name + " WHERE id = :id",
-                        MapQueryExpression.map("id", 1L)),
+                        MapQueryExpression.map("id", id)),
                 queryInterest);
     }
 }

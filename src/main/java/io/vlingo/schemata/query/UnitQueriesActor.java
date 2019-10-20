@@ -7,27 +7,71 @@
 
 package io.vlingo.schemata.query;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
+import io.vlingo.lattice.query.StateObjectQueryActor;
+import io.vlingo.schemata.model.UnitState;
 import io.vlingo.schemata.resource.data.UnitData;
-import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
+import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.object.ObjectStore;
+import io.vlingo.symbio.store.object.QueryExpression;
 
-public class UnitQueriesActor extends Actor implements UnitQueries {
-  private final JdbiOnDatabase jdbi;
+public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueries {
+  private static final String QueryAll =
+          "SELECT * FROM TBL_UNITS " +
+          "WHERE organizationId = :organizationId";
 
-  public UnitQueriesActor(final JdbiOnDatabase jdbi) {
-    this.jdbi = jdbi;
+  private static final String ById =
+          "SELECT * FROM TBL_UNITS " +
+          "WHERE organizationId = :organizationId " +
+          "AND unitId = :unitId";
+
+  private static final String ByName =
+          "SELECT * FROM TBL_UNITS " +
+          "WHERE organizationId = :organizationId " +
+          "AND name = :name";
+
+  private final Map<String,String> parameters;
+
+  public UnitQueriesActor(final ObjectStore objectStore) {
+    super(objectStore);
+    this.parameters = new HashMap<>(2);
   }
 
   @Override
   public Completes<List<UnitData>> units(final String organizationId) {
-    return null;
+    parameters.clear();
+    parameters.put("organizationId", organizationId);
+
+    final QueryExpression query = MapQueryExpression.using(UnitState.class, QueryAll, parameters);
+
+    return queryAll(UnitState.class, query, (List<UnitState> states) -> UnitData.from(states));
   }
 
   @Override
   public Completes<UnitData> unit(final String organizationId, final String unitId) {
-    return null;
+    parameters.clear();
+    parameters.put("organizationId", organizationId);
+    parameters.put("unitId", unitId);
+
+    return queryOne(ById, parameters);
+  }
+
+  @Override
+  public Completes<UnitData> unitNamed(final String organizationId, final String name) {
+    parameters.clear();
+    parameters.put("organizationId", organizationId);
+    parameters.put("name", name);
+
+    return queryOne(ByName, parameters);
+  }
+
+  private Completes<UnitData> queryOne(final String query, final Map<String,String> parameters) {
+    final QueryExpression expression = MapQueryExpression.using(UnitState.class, query, parameters);
+
+    return queryObject(UnitState.class, expression, (UnitState state) -> UnitData.from(state));
   }
 }

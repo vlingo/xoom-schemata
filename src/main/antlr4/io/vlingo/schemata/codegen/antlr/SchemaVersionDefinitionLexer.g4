@@ -11,44 +11,45 @@ lexer grammar SchemaVersionDefinitionLexer;
 // schema types
 ///////////////////////////////
 
-COMMAND:	        'command';
-DATA:           'data';
-DOCUMENT	:       'document';
-ENVELOPE	:       'envelope';
-EVENT:          'event';
-METADATA	:       'metadata';
+COMMAND   :      'command';
+DATA      :      'data';
+DOCUMENT  :      'document';
+ENVELOPE  :      'envelope';
+EVENT     :      'event';
+METADATA  :      'metadata';
 
 ///////////////////////////////
 // attribute types
 ///////////////////////////////
 
-BOOLEAN:        'boolean';
-BYTE:           'byte';
-CHAR:           'char';
-DOUBLE:         'double';
-FLOAT:          'float';
-INT:            'int';
-LONG:           'long';
-SHORT:          'short';
-STRING:			'string';
+BOOLEAN   :        'boolean';
+BYTE      :        'byte';
+CHAR      :        'char';
+DOUBLE    :        'double';
+FLOAT     :        'float';
+INT       :        'int';
+LONG      :        'long';
+SHORT     :        'short';
+STRING    :        'string';
 
-TIMESTAMP:      'timestamp';
-TYPE:           'type';
-VERSION:        'version';
+TIMESTAMP :        'timestamp';
+TYPE      :        'type';
+VERSION   :        'version';
 
 
 ///////////////////////////////
 // operators and separators
 ///////////////////////////////
 
-ASSIGN:         '=';
-ARRAY:          '[]';
-COMMA:          ',';
-DOT:            '.';
-MINUS:          '-';
-LBRACE:         '{';
-RBRACE:         '}';
-SEMI:           ';';
+ASSIGN    :        '=';
+ARRAY     :        '[]';
+COMMA     :        ',';
+DOT       :        '.';
+MINUS     :        '-';
+LBRACE    :        '{';
+RBRACE    :        '}';
+SEMI      :        ';';
+COLON     :        ':';
 
 ///////////////////////////////
 // whitespace and comments
@@ -125,9 +126,12 @@ NULL_LITERAL
 
 
 TYPE_IDENTIFIER
-  : CapitalLetter LetterOrDigit*
+  : CapitalLetter LetterOrDigit* (COLON TYPE_IDENTIFIER)* (SEMANTIC_VERSION)?
   ;
 
+SEMANTIC_VERSION
+  : Digits DOT Digits DOT Digits
+  ;
 
 IDENTIFIER
   : Letter LetterOrDigit*
