@@ -9,6 +9,16 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
             - v1-dependencies-
+      - run:
+          name: buildSnapshotishDependencies
+          command: |
+            cd /tmp
+            for proj in common wire actors cluster symbio symbio-jdbc lattice http; do
+            git clone https://github.com/vlingo/vlingo-$proj.git
+            cd vlingo-$proj
+            mvn -DskipTests install
+            cd ..
+            done
       - run: mvn -B clean package -Pfrontend
       - persist_to_workspace:
           root: ~/project
