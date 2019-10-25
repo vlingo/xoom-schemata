@@ -175,6 +175,11 @@ public class SchemataObjectStoreTest {
 
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
+
+        // assert updates
+        assertEquals(updatedContextState.contextId.value, ((ContextState) queryInterest.singleResult.get().stateObject).contextId.value);
+        assertEquals(updatedContextState.namespace, ((ContextState) queryInterest.singleResult.get().stateObject).namespace);
+        assertEquals(updatedContextState.description, ((ContextState) queryInterest.singleResult.get().stateObject).description);
         assertNotEquals(updatedContextState, queryInterest.singleResult.get().stateObject);
     }
 
