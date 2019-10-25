@@ -23,6 +23,7 @@ jobs:
       - persist_to_workspace:
           root: ~/project
           paths:
+            - Dockerfile
             - target/
             - src/main/frontend/
             - src/test/e2e/
