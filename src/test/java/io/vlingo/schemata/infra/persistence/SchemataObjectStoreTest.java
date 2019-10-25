@@ -175,7 +175,6 @@ public class SchemataObjectStoreTest {
         querySelect(queryInterest, ContextState.class, "TBL_CONTEXTS");
 
         queryInterest.until.completes();
-        persistInterest.afterCompleting(1);
         assertNotNull(queryInterest.singleResult.get());
 
         // assert updates
@@ -271,7 +270,7 @@ public class SchemataObjectStoreTest {
 
         dispatcher = new NoopDispatcher();
 
-        final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("prod");
+        final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("dev");
         objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
         final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
         schemataObjectStore.register(registry, objectStore);
