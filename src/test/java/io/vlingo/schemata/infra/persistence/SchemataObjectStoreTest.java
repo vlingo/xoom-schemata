@@ -170,17 +170,21 @@ public class SchemataObjectStoreTest {
         final ContextState updatedContextState =
                 insertedContextState.defineWith("io.vlingoV2", "Context Vlingo V2");
 
-        objectStore.persist(updatedContextState, persistInterest);
+        //objectStore.persist(updatedContextState, persistInterest);
+        objectStore.persist(updatedContextState, updatedContextState.persistenceId(), persistInterest);
         querySelect(queryInterest, ContextState.class, "TBL_CONTEXTS");
 
         queryInterest.until.completes();
+        persistInterest.afterCompleting(1);
         assertNotNull(queryInterest.singleResult.get());
 
         // assert updates
-        assertEquals(updatedContextState.contextId.value, ((ContextState) queryInterest.singleResult.get().stateObject).contextId.value);
-        assertEquals(updatedContextState.namespace, ((ContextState) queryInterest.singleResult.get().stateObject).namespace);
-        assertEquals(updatedContextState.description, ((ContextState) queryInterest.singleResult.get().stateObject).description);
-        assertNotEquals(updatedContextState, queryInterest.singleResult.get().stateObject);
+        final ContextState updated = (ContextState) queryInterest.singleResult.get().stateObject;
+        assertEquals(updatedContextState.contextId.value, updated.contextId.value);
+        assertEquals(updatedContextState.namespace, updated.namespace);
+        assertEquals(updatedContextState.description, updated.description);
+        assertNotEquals(insertedContextState.namespace, updated.namespace);
+        assertNotEquals(insertedContextState.description, updated.description);
     }
 
     @Test
@@ -267,7 +271,7 @@ public class SchemataObjectStoreTest {
 
         dispatcher = new NoopDispatcher();
 
-        final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("dev");
+        final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("prod");
         objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
         final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
         schemataObjectStore.register(registry, objectStore);
