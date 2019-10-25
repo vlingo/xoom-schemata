@@ -10,7 +10,7 @@ jobs:
             - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
             - v1-dependencies-
       - run:
-          name: buildSnapshotishDependencies
+          name: buildSnapshottishDependencies
           command: |
             cd /tmp
             for proj in common wire actors cluster symbio symbio-jdbc lattice http; do
