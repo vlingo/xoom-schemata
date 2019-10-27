@@ -25,9 +25,8 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS ORG_ALL_INDEX ON TBL_ORGANIZATIONS (organizationId)");
 
       /*
-      Dropping the constraint and recreating it afterwards is not an optimal solution once we have actual data.
-
-      TODO: Refactor to find out if constraint already exists or switch to a schema migration tool like flyway or liquibase
+       * Dropping the constraint and recreating it afterwards is not an optimal solution once we have actual data.
+       * TODO: Refactor to find out if constraint already exists or switch to a schema migration tool like flyway or liquibase
        */
       jdbi.handle().execute("ALTER TABLE TBL_ORGANIZATIONS DROP CONSTRAINT IF EXISTS ORGANIZATION_UNIQUE");
       jdbi.handle().execute("ALTER TABLE TBL_ORGANIZATIONS ADD CONSTRAINT ORGANIZATION_UNIQUE UNIQUE (name)");
@@ -92,7 +91,7 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMA_ALL_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId, schemaId)");
 
       jdbi.handle().execute("ALTER TABLE TBL_SCHEMAS DROP CONSTRAINT IF EXISTS SCHEMA_ALL_UNIQUE");
-      jdbi.handle().execute("ALTER TABLE TBL_SCHEMAS ADD CONSTRAINT SCHEMA_ALL_UNIQUE UNIQUE (organizationId, unitId, contextId, name)");
+      jdbi.handle().execute("ALTER TABLE TBL_SCHEMAS ADD CONSTRAINT SCHEMA_ALL_UNIQUE UNIQUE (organizationId, unitId, contextId, category, name)");
 
   }
 
