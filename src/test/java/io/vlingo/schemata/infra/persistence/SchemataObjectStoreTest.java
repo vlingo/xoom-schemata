@@ -403,7 +403,7 @@ public class SchemataObjectStoreTest {
                 .withCategory(Category.Data)
                 .withDescription("updated description")
                 .withName("updated name");
-        
+
         objectStore.persist(updatedState, insertedState.persistenceId(), persistInterest);
 
         queryInterest.until = TestUntil.happenings(1);
@@ -475,7 +475,7 @@ public class SchemataObjectStoreTest {
 
         dispatcher = new NoopDispatcher();
 
-        final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("prod");
+        final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("dev");
         objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
         final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
         schemataObjectStore.register(registry, objectStore);
