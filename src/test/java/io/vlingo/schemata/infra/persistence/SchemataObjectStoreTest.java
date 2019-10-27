@@ -264,9 +264,9 @@ public class SchemataObjectStoreTest {
         SchemaVersionState result = (SchemaVersionState) queryInterest.singleResult.get().stateObject;
         assertEquals(insertedSchemaVersionState.persistenceId(), result.persistenceId());
         assertEquals(updatedSchemaVersionState.description, result.description);
-        assertEquals(insertedSchemaVersionState.specification, result.specification);
-        assertEquals(insertedSchemaVersionState.currentVersion, result.currentVersion);
-        assertEquals(insertedSchemaVersionState.previousVersion, result.previousVersion);
+        assertEquals(updatedSchemaVersionState.specification.value, result.specification.value);
+        assertEquals(updatedSchemaVersionState.currentVersion.value, result.currentVersion.value);
+        assertEquals(updatedSchemaVersionState.previousVersion.value, result.previousVersion.value);
     }
 
     @Test
