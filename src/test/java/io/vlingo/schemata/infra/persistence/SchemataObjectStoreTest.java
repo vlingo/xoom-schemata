@@ -107,7 +107,10 @@ public class SchemataObjectStoreTest {
 
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
-        assertEquals(updatedOrganizationState, queryInterest.singleResult.get().stateObject);
+        OrganizationState result = ((OrganizationState) queryInterest.singleResult.get().stateObject);
+        assertEquals(insertedOrganizationState.persistenceId(), result.persistenceId());
+        assertEquals(updatedOrganizationState.description, result.description);
+        assertEquals(insertedOrganizationState.name, result.name);
     }
 
     @Test
@@ -136,12 +139,16 @@ public class SchemataObjectStoreTest {
         final UnitState updatedUnitState =
                 insertedUnitState.defineWith("VlingoV2", "Unit Vlingo V2");
 
-        objectStore.persist(updatedUnitState, persistInterest);
+        objectStore.persist(updatedUnitState, insertedUnitState.persistenceId(), persistInterest);
         querySelect(queryInterest, UnitState.class, "TBL_UNITS");
 
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
-        assertNotEquals(updatedUnitState, queryInterest.singleResult.get().stateObject);
+
+        UnitState result = (UnitState) queryInterest.singleResult.get().stateObject;
+        assertEquals(insertedUnitState.persistenceId(), result.persistenceId());
+        assertEquals(updatedUnitState.description, result.description);
+        assertEquals(updatedUnitState.name, result.name);
     }
 
     @Test
@@ -170,8 +177,7 @@ public class SchemataObjectStoreTest {
         final ContextState updatedContextState =
                 insertedContextState.defineWith("io.vlingoV2", "Context Vlingo V2");
 
-        //objectStore.persist(updatedContextState, persistInterest);
-        objectStore.persist(updatedContextState, updatedContextState.persistenceId(), persistInterest);
+        objectStore.persist(updatedContextState, contextState.persistenceId(), persistInterest);
         querySelect(queryInterest, ContextState.class, "TBL_CONTEXTS");
 
         queryInterest.until.completes();
@@ -205,6 +211,7 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, SchemaState.class,"TBL_SCHEMAS", persisted.persistenceId());
         queryInterest.until.completes();
+
         assertNotNull(queryInterest.singleResult.get());
         final SchemaState insertedSchemaState = (SchemaState) queryInterest.singleResult.get().stateObject;
         assertEquals(persisted.category, insertedSchemaState.category);
@@ -218,12 +225,18 @@ public class SchemataObjectStoreTest {
         final SchemaState updatedSchemaState =
                 insertedSchemaState.defineWith(Category.Document, Scope.Public, "VlingoV2", "Schema Vlingo V2");
 
-        objectStore.persist(updatedSchemaState, persistInterest);
-        querySelect(queryInterest, SchemaState.class, "TBL_SCHEMAS");
+        objectStore.persist(updatedSchemaState, insertedSchemaState.persistenceId(), persistInterest);
+        querySelect(queryInterest, SchemaState.class, "TBL_SCHEMAS", insertedSchemaState.persistenceId());
 
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
-        assertNotEquals(updatedSchemaState, queryInterest.singleResult.get().stateObject);
+        SchemaState result = (SchemaState) queryInterest.singleResult.get().stateObject;
+        assertEquals(insertedSchemaState.persistenceId(), result.persistenceId());
+        assertEquals(updatedSchemaState.name, result.name);
+        assertEquals(updatedSchemaState.description, result.description);
+        assertEquals(updatedSchemaState.schemaId, result.schemaId);
+        assertEquals(updatedSchemaState.category, result.category);
+        assertEquals(updatedSchemaState.scope, result.scope);
     }
 
     @Test
@@ -256,12 +269,17 @@ public class SchemataObjectStoreTest {
         final SchemaVersionState updatedSchemaVersionState =
                 insertedSchemaVersionState.defineWith("Schema Version Vlingo V2", Specification.of("SpecV2"), Version.of("1.0.0"), Version.of("2.0.0"));
 
-        objectStore.persist(updatedSchemaVersionState, persistInterest);
+        objectStore.persist(updatedSchemaVersionState, insertedSchemaVersionState.persistenceId(), persistInterest);
         querySelect(queryInterest, SchemaVersionState.class, "TBL_SCHEMAVERSIONS");
 
         queryInterest.until.completes();
         assertNotNull(queryInterest.singleResult.get());
-        assertNotEquals(updatedSchemaVersionState, queryInterest.singleResult.get().stateObject);
+        SchemaVersionState result = (SchemaVersionState) queryInterest.singleResult.get().stateObject;
+        assertEquals(insertedSchemaVersionState.persistenceId(), result.persistenceId());
+        assertEquals(updatedSchemaVersionState.description, result.description);
+        assertEquals(insertedSchemaVersionState.specification, result.specification);
+        assertEquals(insertedSchemaVersionState.currentVersion, result.currentVersion);
+        assertEquals(insertedSchemaVersionState.previousVersion, result.previousVersion);
     }
 
     @Before
