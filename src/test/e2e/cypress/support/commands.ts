@@ -26,6 +26,15 @@ Cypress.Commands.add("fieldContent", (label: string) => {
         .next('input,textarea').invoke('val')
 })
 
+Cypress.Commands.add("editorContent", (id: string) => {
+    cy.get(id)
+        .get('.monaco-editor .lines-content')
+        .then(content => content.text()
+            .replace(/\s+/g, ' ')
+            .trim()
+        )
+})
+
 Cypress.Commands.add("selectOption", (label: string, optionLabel: string) => {
     cy.contains('label', new RegExp("^" + label + "$"))
         .next('input')

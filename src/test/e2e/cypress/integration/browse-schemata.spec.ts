@@ -85,14 +85,16 @@ describe('Schemata View Tests', function () {
         cy.contains('.v-list-item__title', currentVersion).click()
 
         // Assert spec & desc
-        cy.contains('.view-lines','event SalutationHappened')
-        cy.contains('.view-lines','type eventType')
+        cy.editorContent('#specification-editor').should('contain','event SalutationHappened')
+        cy.editorContent('#specification-editor').should('contain','type eventType')
+
+
         cy.contains('.v-tab', 'Description').click()
         cy.contains('.v-window-item--active',desc)
 
     });
 
-    it('can update a schema specification schemata', function () {
+    it('can update schema version specification', function () {
         // Setup
         let orgName = faker.company.companyName()
         let unitName = faker.lorem.word()
@@ -167,6 +169,17 @@ describe('Schemata View Tests', function () {
         cy.fillEditor('#specification-editor', 'foo bar baz')
         cy.contains('button', 'Save').click()
 
+        // Reload and navigate to schema version
+        cy.reload()
+        cy.visit("/#/schemata")
+            .fillField('Search', orgName)
+        cy.contains('.v-treeview-node__label', orgName).click()
+        cy.contains('.v-treeview-node__label', unitName).click()
+        cy.contains('.v-treeview-node__label', namespace).click()
+        cy.contains('.v-treeview-node__label', schema).click()
+        cy.contains('.v-list-item__title', currentVersion).click()
+
+        cy.editorContent('#specification-editor').should('contain','foo bar baz')
     });
 
 });
