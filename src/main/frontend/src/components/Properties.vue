@@ -1,6 +1,6 @@
 <template>
     <v-card height="48vh" id="schemata-properties">
-        <v-card-text>
+        <v-card-text v-if="version">
             <v-alert v-if="status && status !== 'Published'" :value="true" type="warning" dense outlined>
                 Status <b>{{status}}</b>. Do not use in production.
             </v-alert>
