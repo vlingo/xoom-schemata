@@ -17,7 +17,11 @@
                 </v-tab-item>
             </v-tabs>
         </v-card-text>
-
+        <v-card-actions>
+            <v-btn outlined color="primary"><v-icon>{{icons.publish}}</v-icon>Publish</v-btn>
+            <v-btn outlined color="warning"><v-icon>{{icons.deprecate}}</v-icon>Deprecate</v-btn>
+            <v-btn outlined color="error"><v-icon>{{icons.delete}}</v-icon>Remove</v-btn>
+        </v-card-actions>
     </v-card>
 
 
@@ -25,9 +29,19 @@
 
 <script>
     import {mapFields} from 'vuex-map-fields';
+    import {mdiDelete, mdiLabel, mdiLabelOff} from '@mdi/js'
     import marked from 'marked'
 
     export default {
+        data: function () {
+            return {
+                icons: {
+                    publish: mdiLabel,
+                    delete: mdiDelete,
+                    deprecate: mdiLabelOff
+                }
+            }
+        },
         computed: {
             ...mapFields([
                 'schema',
