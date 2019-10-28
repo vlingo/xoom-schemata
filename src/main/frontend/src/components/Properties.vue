@@ -1,5 +1,5 @@
 <template>
-    <v-card height="45vh" id="schemata-properties">
+    <v-card height="48vh" id="schemata-properties">
         <v-card-text>
             <v-alert v-if="status && status !== 'Published'" :value="true" type="warning" dense outlined>
                 Status <b>{{status}}</b>. Do not use in production.
@@ -30,11 +30,23 @@
                             id="description-editor"
                             v-model="currentDescription"
                             theme="vs-dark"
-                            language="javascript"
+                            language="markdown"
                             height="200"
                             :options="editorOptions"
                     ></editor>
+                    <v-dialog v-model="previewDialog">
+                        <v-card>
+                            <v-card-title class="headline">{{schema.name}} v{{version.currentVersion}}</v-card-title>
+                            <v-divider></v-divider>
+                            <br>
+                            <v-card-text v-html="compiledDescription()"></v-card-text>
+                        </v-card>
+                    </v-dialog>
                     <br>
+                    <v-btn color="secondary"
+                           :disabled="readOnly"
+                           @click="previewDialog = true">Preview
+                    </v-btn>&nbsp;
                     <v-btn color="info"
                            :disabled="readOnly"
                            @click="saveDescription">Save
@@ -59,6 +71,7 @@
             return {
                 currentSpecification: undefined,
                 currentDescription: undefined,
+                previewDialog: false,
             }
         },
 
@@ -98,7 +111,7 @@
         },
         methods: {
             compiledDescription: function () {
-                return marked(this.description)
+                return marked(this.currentDescription ?? '')
             },
             saveSpecification: function () {
                 let vm = this
