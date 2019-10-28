@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getField, updateField } from 'vuex-map-fields';
+import {getField, updateField} from 'vuex-map-fields';
 
 Vue.use(Vuex)
 
@@ -37,11 +37,14 @@ export default new Vuex.Store({
       state.notification = undefined
     },
 
-    selectSchema (state, selected) {
-      state.schema = selected
-    },
     selectOrganization (state, selected) {
       state.organization = selected
+    },
+    selectSchema(state, selected) {
+      state.schema = selected
+    },
+    selectSchemaVersion (state, selected) {
+      state.version = selected
     },
 
   },

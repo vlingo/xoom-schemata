@@ -18,9 +18,21 @@
             </v-tabs>
         </v-card-text>
         <v-card-actions>
-            <v-btn outlined color="primary"><v-icon>{{icons.publish}}</v-icon>Publish</v-btn>
-            <v-btn outlined color="warning"><v-icon>{{icons.deprecate}}</v-icon>Deprecate</v-btn>
-            <v-btn outlined color="error"><v-icon>{{icons.delete}}</v-icon>Remove</v-btn>
+            <v-btn outlined color="primary" @click="publish"
+                   :disabled="status !== 'Draft'">
+                <v-icon>{{icons.publish}}</v-icon>
+                Publish
+            </v-btn>
+            <v-btn outlined color="warning" @click="deprecate"
+                   :disabled="status !== 'Published' && status !== 'Draft'">
+                <v-icon>{{icons.deprecate}}</v-icon>
+                Deprecate
+            </v-btn>
+            <v-btn outlined color="error" @click="remove"
+                   :disabled="status !== 'Deprecated' && status !== 'Draft'">
+                <v-icon>{{icons.delete}}</v-icon>
+                Remove
+            </v-btn>
         </v-card-actions>
     </v-card>
 
@@ -31,6 +43,8 @@
     import {mapFields} from 'vuex-map-fields';
     import {mdiDelete, mdiLabel, mdiLabelOff} from '@mdi/js'
     import marked from 'marked'
+    import Repository from '@/api/SchemataRepository'
+
 
     export default {
         data: function () {
@@ -61,6 +75,41 @@
         methods: {
             compiledDescription: function () {
                 return marked(this.description)
+            },
+
+            publish() {
+                this._setStatus('Published')
+            },
+            deprecate() {
+                this._setStatus('Deprecated')
+            },
+            remove() {
+                this._setStatus('Removed')
+            },
+
+            _setStatus(status) {
+                let vm = this
+                Repository.setSchemaVersionStatus(
+                    this.version.organizationId,
+                    this.version.unitId,
+                    this.version.contextId,
+                    this.version.schemaId,
+                    this.version.schemaVersionId,
+                    status
+                )
+                    .then((response) => {
+
+                            vm.$store.commit('raiseNotification', {
+                                message: `Status for ${vm.schema.name} v${vm.version.currentVersion} set to ${status}.`,
+                                type: 'success'
+                            })
+                            vm.$store.commit('selectSchemaVersion', response.data)
+                        }
+                    )
+                    .catch(function (err) {
+                        let response = err.response ? err.response.data + ' - ' : ''
+                        vm.$store.commit('raiseError', {message: response + err})
+                    })
             }
         }
     }

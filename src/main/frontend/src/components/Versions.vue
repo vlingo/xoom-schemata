@@ -26,7 +26,7 @@
 </template>
 
 <script>
-    import {mdiDelete, mdiPencil, mdiTag} from '@mdi/js'
+    import {mdiDelete, mdiLabel, mdiLabelOff, mdiPencil} from '@mdi/js'
     import Repository from '@/api/SchemataRepository'
     import {mapFields} from 'vuex-map-fields';
 
@@ -76,13 +76,15 @@
                 if (!version) return '';
                 switch (version.status) {
                     case 'Published':
-                        return mdiTag
+                        return mdiLabel
                     case 'Draft':
                         return mdiPencil
+                    case 'Deprecated':
+                        return mdiLabelOff
                     case 'Removed':
                         return mdiDelete
                     default:
-                        return 'insert_drive_file'
+                        return ''
                 }
             }
         }

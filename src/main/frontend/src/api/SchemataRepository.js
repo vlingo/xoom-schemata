@@ -8,7 +8,8 @@ const resources = {
     categories: () => '/schema/categories',
     scopes: () => '/schema/scopes',
     schemata: (o, u, c) => `/organizations/${o}/units/${u}/contexts/${c}/schemas`,
-    versions: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`
+    versions: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`,
+    versionStatus: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/status`
 }
 
 function ensure(response, status) {
@@ -126,6 +127,22 @@ export default {
             }
         )
             .then(ensureCreated)
+            .then(response => response.data)
+    },
+    setSchemaVersionStatus(
+        organization, unit, context, schema, version, status) {
+        let config = {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            responseType: 'text'
+        };
+        return Repository.patch(
+            resources.versionStatus(organization, unit, context, schema, version),
+            status,
+            config
+        )
+            .then(ensureOk)
             .then(response => response.data)
     },
 }
