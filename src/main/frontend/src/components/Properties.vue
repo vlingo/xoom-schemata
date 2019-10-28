@@ -1,7 +1,7 @@
 <template>
     <v-card height="45vh" id="schemata-properties">
         <v-card-text>
-            <v-alert v-if="status && status !== 'Published'" :value="true" type="warning" outlined>
+            <v-alert v-if="status && status !== 'Published'" :value="true" type="warning" dense outlined>
                 Status <b>{{status}}</b>. Do not use in production.
             </v-alert>
             <v-tabs>
@@ -14,10 +14,14 @@
                             v-model="currentSpecification"
                             theme="vs-dark"
                             language="javascript"
-                            height="300"
+                            height="200"
                             :options="editorOptions"
                     ></editor>
-
+                    <br>
+                    <v-btn color="info"
+                           :disabled="status !== 'Draft'"
+                           @click="saveSpecification">Save
+                    </v-btn>
                 </v-tab-item>
 
                 <v-tab-item>
@@ -25,13 +29,6 @@
                 </v-tab-item>
             </v-tabs>
         </v-card-text>
-        <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="info"
-                   :disabled="status !== 'Draft'"
-                   @click="saveSpecification">Save
-            </v-btn>
-        </v-card-actions>
     </v-card>
 
 
@@ -110,13 +107,4 @@
 </script>
 
 <style>
-    .v-card {
-        overflow-y: auto
-    }
-
-    code {
-        width: 100%;
-        font-size: larger;
-        font-weight: lighter;
-    }
 </style>
