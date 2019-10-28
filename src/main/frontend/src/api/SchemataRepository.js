@@ -9,7 +9,8 @@ const resources = {
     scopes: () => '/schema/scopes',
     schemata: (o, u, c) => `/organizations/${o}/units/${u}/contexts/${c}/schemas`,
     versions: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`,
-    schemaSpecification: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/specification`
+    schemaSpecification: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/specification`,
+    schemaDescription: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/description`
 }
 
 function ensure(response, status) {
@@ -140,6 +141,22 @@ export default {
         return Repository.patch(
             resources.schemaSpecification(organization, unit, context, schema, version),
             specification,
+            config
+        )
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+    saveSchemaVersionDescription(
+        organization, unit, context, schema, version, description) {
+        let config = {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            responseType: 'text'
+        };
+        return Repository.patch(
+            resources.schemaDescription(organization, unit, context, schema, version),
+            description,
             config
         )
             .then(ensureOk)

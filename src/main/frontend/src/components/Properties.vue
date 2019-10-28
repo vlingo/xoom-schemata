@@ -19,13 +19,26 @@
                     ></editor>
                     <br>
                     <v-btn color="info"
-                           :disabled="status !== 'Draft'"
+                           :disabled="readOnly"
                            @click="saveSpecification">Save
                     </v-btn>
                 </v-tab-item>
 
                 <v-tab-item>
-                    <div v-html="compiledDescription()"></div>
+                    <div v-if="readOnly" v-html="compiledDescription()"></div>
+                    <editor v-if="!readOnly"
+                            id="description-editor"
+                            v-model="currentDescription"
+                            theme="vs-dark"
+                            language="javascript"
+                            height="200"
+                            :options="editorOptions"
+                    ></editor>
+                    <br>
+                    <v-btn color="info"
+                           :disabled="readOnly"
+                           @click="saveDescription">Save
+                    </v-btn>
                 </v-tab-item>
             </v-tabs>
         </v-card-text>
@@ -45,6 +58,7 @@
         data: function () {
             return {
                 currentSpecification: undefined,
+                currentDescription: undefined,
             }
         },
 
@@ -56,7 +70,7 @@
 
             editorOptions() {
                 return {
-                    readOnly: this.status !== 'Draft',
+                    readOnly: this.readOnly,
                     automaticLayout: true,
                 }
             },
@@ -70,10 +84,16 @@
             status() {
                 return this.version?.status ?? ''
             },
+            readOnly() {
+                return this.status !== 'Draft'
+            }
         },
         watch: {
             specification(val) {
                 this.currentSpecification = val
+            },
+            description(val) {
+                this.currentDescription = val
             }
         },
         methods: {
@@ -93,6 +113,28 @@
                     .then(() => {
                             vm.$store.commit('raiseNotification', {
                                 message: `Specification for ${vm.schema.name} v${vm.version.currentVersion} updated.`,
+                                type: 'success'
+                            })
+                        }
+                    )
+                    .catch(function (err) {
+                        let response = err.response ? err.response.data + ' - ' : ''
+                        vm.$store.commit('raiseError', {message: response + err})
+                    })
+            },
+            saveDescription: function () {
+                let vm = this
+                Repository.saveSchemaVersionDescription(
+                    this.version.organizationId,
+                    this.version.unitId,
+                    this.version.contextId,
+                    this.version.schemaId,
+                    this.version.schemaVersionId,
+                    this.currentDescription
+                )
+                    .then(() => {
+                            vm.$store.commit('raiseNotification', {
+                                message: `Description for ${vm.schema.name} v${vm.version.currentVersion} updated.`,
                                 type: 'success'
                             })
                         }
