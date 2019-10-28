@@ -16,6 +16,7 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
       jdbi.handle().execute(
               "CREATE TABLE IF NOT EXISTS TBL_ORGANIZATIONS (" +
               "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+              "dataVersion BIGINT, " +
               "organizationId VARCHAR (50) NOT NULL, " +
               "name VARCHAR(128) NOT NULL, " +
               "description VARCHAR(8000) " +
@@ -38,6 +39,7 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
       jdbi.handle().execute(
               "CREATE TABLE IF NOT EXISTS TBL_UNITS (" +
               "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+              "dataVersion BIGINT, " +
               "unitId VARCHAR(50) NOT NULL, " +
               "organizationId VARCHAR (50) NOT NULL, " +
               "name VARCHAR(128) NOT NULL, " +
@@ -57,6 +59,7 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
       jdbi.handle().execute(
               "CREATE TABLE IF NOT EXISTS TBL_CONTEXTS (" +
               "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+              "dataVersion BIGINT, " +
               "contextId VARCHAR(50) NOT NULL, " +
               "unitId VARCHAR(50) NOT NULL, " +
               "organizationId VARCHAR (50) NOT NULL, " +
@@ -77,6 +80,7 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
       jdbi.handle().execute(
               "CREATE TABLE IF NOT EXISTS TBL_SCHEMAS (" +
               "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+              "dataVersion BIGINT, " +
               "schemaId VARCHAR(50) NOT NULL, " +
               "contextId VARCHAR(50) NOT NULL, " +
               "unitId VARCHAR(50) NOT NULL, " +
@@ -115,6 +119,7 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
       jdbi.handle().execute(
               "CREATE TABLE IF NOT EXISTS TBL_SCHEMAVERSIONS (" +
               "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+              "dataVersion BIGINT, " +
               "schemaVersionId VARCHAR(50) NOT NULL, " +
               "schemaId VARCHAR(50) NOT NULL, " +
               "contextId VARCHAR(50) NOT NULL, " +
@@ -140,6 +145,7 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
       jdbi.handle().execute(
               "CREATE TABLE IF NOT EXISTS TBL_DEPENDENCIES (" +
               "id BIGINT GENERATED ALWAYS AS IDENTITY(START WITH 1 INCREMENT BY 1) PRIMARY KEY, " +
+              "dataVersion BIGINT, " +
 
               "sourceOrganizationId VARCHAR (50) NOT NULL, " +
               "sourceUnitId VARCHAR(50) NOT NULL, " +

@@ -24,20 +24,20 @@ public class UnitState extends StateObject {
     return new UnitState(unitId);
   }
 
-  public static UnitState from(final long id, final UnitId unitId, final String name, final String description) {
-    return new UnitState(id, unitId, name, description);
+  public static UnitState from(final long id, final long version, final UnitId unitId, final String name, final String description) {
+    return new UnitState(id, version, unitId, name, description);
   }
 
   public UnitState defineWith(final String name, final String description) {
-    return new UnitState(this.persistenceId(), this.unitId, name, description);
+    return new UnitState(this.persistenceId(), this.version() + 1, this.unitId, name, description);
   }
 
   public UnitState withDescription(final String description) {
-    return new UnitState(this.persistenceId(), this.unitId, this.name, description);
+    return new UnitState(this.persistenceId(), this.version() + 1, this.unitId, this.name, description);
   }
 
   public UnitState withName(final String name) {
-    return new UnitState(this.persistenceId(), this.unitId, name, this.description);
+    return new UnitState(this.persistenceId(), this.version() + 1, this.unitId, name, this.description);
   }
 
   @Override
@@ -68,17 +68,18 @@ public class UnitState extends StateObject {
   @Override
   public String toString() {
     return "UnitState[persistenceId=" + persistenceId() +
+            " version=" + version() +
             " unitId=" + unitId.value +
             " name=" + name +
             " description=" + description + "]";
   }
 
   private UnitState(final UnitId unitId) {
-    this(Unidentified, unitId, "", "");
+    this(Unidentified, 0, unitId, "", "");
   }
 
-  private UnitState(final long id, final UnitId unitId, final String name, final String description) {
-    super(id);
+  private UnitState(final long id, final long version, final UnitId unitId, final String name, final String description) {
+    super(id, version);
     this.unitId = unitId;
     this.name = name;
     this.description = description;

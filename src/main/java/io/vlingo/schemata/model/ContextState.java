@@ -24,20 +24,20 @@ public class ContextState extends StateObject {
     return new ContextState(contextId);
   }
 
-  public static ContextState from(final long id, final ContextId contextId, final String namespace, final String description) {
-    return new ContextState(id, contextId, namespace, description);
+  public static ContextState from(final long id, final long version, final ContextId contextId, final String namespace, final String description) {
+    return new ContextState(id, version, contextId, namespace, description);
   }
 
   public ContextState defineWith(final String namespace, final String description) {
-    return new ContextState(this.persistenceId(), this.contextId, namespace, description);
+    return new ContextState(this.persistenceId(), this.version() + 1, this.contextId, namespace, description);
   }
 
   public ContextState withDescription(final String description) {
-    return new ContextState(this.persistenceId(), this.contextId, this.namespace, description);
+    return new ContextState(this.persistenceId(), this.version() + 1, this.contextId, this.namespace, description);
   }
 
   public ContextState withNamespace(final String namespace) {
-    return new ContextState(this.persistenceId(), this.contextId, namespace, this.description);
+    return new ContextState(this.persistenceId(), this.version() + 1, this.contextId, namespace, this.description);
   }
 
   @Override
@@ -69,17 +69,18 @@ public class ContextState extends StateObject {
   @Override
   public String toString() {
     return "ContextState[persistenceId=" + persistenceId() +
+            " version=" + version() +
             " contextId=" + contextId.value +
             " description=" + description +
             " namespace=" + namespace + "]";
   }
 
   private ContextState(final ContextId contextId) {
-    this(Unidentified, contextId, "", "");
+    this(Unidentified, 0, contextId, "", "");
   }
 
-  private ContextState(final long id, final ContextId contextId, final String namespace, final String description) {
-    super(id);
+  private ContextState(final long id, final long version, final ContextId contextId, final String namespace, final String description) {
+    super(id, version);
     this.contextId = contextId;
     this.namespace = namespace;
     this.description = description;

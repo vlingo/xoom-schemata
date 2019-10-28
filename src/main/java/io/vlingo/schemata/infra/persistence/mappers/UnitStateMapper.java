@@ -21,6 +21,7 @@ public class UnitStateMapper implements RowMapper<UnitState> {
     public UnitState map(ResultSet rs, StatementContext ctx) throws SQLException {
         return UnitState.from(
                 rs.getLong("id"),
+                rs.getLong("dataVersion"),
                 UnitId.existing(
                         rs.getString("organizationId"),
                         rs.getString("unitId")),

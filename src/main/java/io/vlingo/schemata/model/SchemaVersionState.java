@@ -29,6 +29,7 @@ public class SchemaVersionState extends StateObject {
 
   public static SchemaVersionState from(
           final long id,
+          final long version,
           final SchemaVersionId schemaVersionId,
           final SchemaVersion.Specification specification,
           final String description,
@@ -37,6 +38,7 @@ public class SchemaVersionState extends StateObject {
           final SchemaVersion.Version currentVersion) {
     return new SchemaVersionState(
             id,
+            version,
             schemaVersionId,
             specification,
             description,
@@ -46,31 +48,31 @@ public class SchemaVersionState extends StateObject {
   }
 
   public SchemaVersionState asPublished() {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.specification, this.description, SchemaVersion.Status.Published, this.previousVersion, this.currentVersion);
+    return new SchemaVersionState(this.persistenceId(), this.version() + 1, this.schemaVersionId, this.specification, this.description, SchemaVersion.Status.Published, this.previousVersion, this.currentVersion);
   }
 
   public SchemaVersionState asDeprecated() {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.specification, this.description, SchemaVersion.Status.Deprecated, this.previousVersion, this.currentVersion);
+    return new SchemaVersionState(this.persistenceId(), this.version() + 1, this.schemaVersionId, this.specification, this.description, SchemaVersion.Status.Deprecated, this.previousVersion, this.currentVersion);
   }
 
   public SchemaVersionState asRemoved() {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.specification, this.description, SchemaVersion.Status.Removed, this.previousVersion, this.currentVersion);
+    return new SchemaVersionState(this.persistenceId(), this.version() + 1, this.schemaVersionId, this.specification, this.description, SchemaVersion.Status.Removed, this.previousVersion, this.currentVersion);
   }
 
   public SchemaVersionState defineWith(final String description, final SchemaVersion.Specification specification, final SchemaVersion.Version previousVersion, final SchemaVersion.Version currentVersion) {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, specification, description, SchemaVersion.Status.Draft, previousVersion, currentVersion);
+    return new SchemaVersionState(this.persistenceId(), this.version() + 1, this.schemaVersionId, specification, description, SchemaVersion.Status.Draft, previousVersion, currentVersion);
   }
 
   public SchemaVersionState withSpecification(final SchemaVersion.Specification specification) {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, specification, this.description, this.status, this.previousVersion, this.currentVersion);
+    return new SchemaVersionState(this.persistenceId(), this.version() + 1, this.schemaVersionId, specification, this.description, this.status, this.previousVersion, this.currentVersion);
   }
 
   public SchemaVersionState withDescription(final String description) {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.specification, description, this.status, this.previousVersion, this.currentVersion);
+    return new SchemaVersionState(this.persistenceId(), this.version() + 1, this.schemaVersionId, this.specification, description, this.status, this.previousVersion, this.currentVersion);
   }
 
   public SchemaVersionState withVersion(final SchemaVersion.Version currentVersion) {
-    return new SchemaVersionState(this.persistenceId(), this.schemaVersionId, this.specification, this.description, this.status, this.previousVersion, currentVersion);
+    return new SchemaVersionState(this.persistenceId(), this.version() + 1, this.schemaVersionId, this.specification, this.description, this.status, this.previousVersion, currentVersion);
   }
 
   @Override
@@ -104,6 +106,7 @@ public class SchemaVersionState extends StateObject {
   @Override
   public String toString() {
     return "SchemaVersionState[persistenceId=" + persistenceId() +
+            " version=" + version() +
             " schemaVersionId=" + schemaVersionId.value +
             " specification=" + specification +
             " description=" + description +
@@ -113,7 +116,7 @@ public class SchemaVersionState extends StateObject {
   }
 
   private SchemaVersionState(final SchemaVersionId schemaVersionId) {
-    this(Unidentified,
+    this(Unidentified, 0,
          schemaVersionId,
          new SchemaVersion.Specification("(unknown)"),
          "",
@@ -124,13 +127,14 @@ public class SchemaVersionState extends StateObject {
 
   private SchemaVersionState(
           final long id,
+          final long version,
           final SchemaVersionId schemaVersionId,
           final SchemaVersion.Specification specification,
           final String description,
           final SchemaVersion.Status status,
           final SchemaVersion.Version previousVersion,
           final SchemaVersion.Version currentVersion) {
-    super(id);
+    super(id, version);
     this.schemaVersionId = schemaVersionId;
     this.specification = specification;
     this.description = description;

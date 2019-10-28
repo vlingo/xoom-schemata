@@ -7,19 +7,21 @@
 
 package io.vlingo.schemata.infra.persistence.mappers;
 
-import io.vlingo.schemata.model.Id.OrganizationId;
-import io.vlingo.schemata.model.OrganizationState;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.schemata.model.OrganizationState;
 
 public class OrganizationStateMapper  implements RowMapper<OrganizationState> {
     @Override
     public OrganizationState map(ResultSet rs, StatementContext ctx) throws SQLException {
         return OrganizationState.from(
                 rs.getLong("id"),
+                rs.getLong("dataVersion"),
                 OrganizationId.existing(rs.getString("organizationId")),
                 rs.getString("name"),
                 rs.getString("description"));

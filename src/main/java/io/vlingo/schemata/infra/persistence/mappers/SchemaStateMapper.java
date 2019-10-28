@@ -23,6 +23,7 @@ public class SchemaStateMapper implements RowMapper<SchemaState> {
     public SchemaState map(ResultSet rs, StatementContext ctx) throws SQLException {
         return SchemaState.from(
                 rs.getLong("id"),
+                rs.getLong("dataVersion"),
                 SchemaId.existing(
                         rs.getString("organizationId"),
                         rs.getString("unitId"),
