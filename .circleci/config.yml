@@ -9,10 +9,21 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
             - v1-dependencies-
+      - run:
+          name: buildSnapshottishDependencies
+          command: |
+            cd /tmp
+            for proj in common wire actors cluster symbio symbio-jdbc lattice http; do
+            git clone https://github.com/vlingo/vlingo-$proj.git
+            cd vlingo-$proj
+            mvn -DskipTests install
+            cd ..
+            done
       - run: mvn -B clean package -Pfrontend
       - persist_to_workspace:
           root: ~/project
           paths:
+            - Dockerfile
             - target/
             - src/main/frontend/
             - src/test/e2e/
@@ -47,7 +58,8 @@ jobs:
     docker:
       - image:  circleci/openjdk:8-jdk
     steps:
-      - checkout
+      - attach_workspace:
+          at: ~/project
       - setup_remote_docker:
           docker_layer_caching: false
       - run: |
