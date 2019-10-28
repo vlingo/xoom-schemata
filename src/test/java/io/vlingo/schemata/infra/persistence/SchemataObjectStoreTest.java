@@ -55,6 +55,7 @@ public class SchemataObjectStoreTest {
         final AccessSafely access = persistInterest.afterCompleting(1);
         final OrganizationState organizationState = OrganizationState.from(
                 1L,
+                1L,
                 OrganizationId.existing("A343"),
                 orgName, "Organization Vlingo");
         objectStore.persist(organizationState, persistInterest);
@@ -67,8 +68,8 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, OrganizationState.class, "TBL_ORGANIZATIONS");
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
-        final OrganizationState insertedOrganizationState = (OrganizationState) queryInterest.singleResult.get().stateObject;
+        assertNotNull(queryInterest.single());
+        final OrganizationState insertedOrganizationState = (OrganizationState) queryInterest.single().stateObject;
         assertEquals(organizationState, insertedOrganizationState);
 
         // List
@@ -81,20 +82,22 @@ public class SchemataObjectStoreTest {
                         Arrays.asList(1L)),
                 queryInterest);
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
-        assertEquals(organizationState, queryInterest.singleResult.get().stateObject);
+        assertNotNull(queryInterest.single());
+        assertEquals(organizationState, queryInterest.single().stateObject);
 
         // update
         queryInterest.until = TestUntil.happenings(1);
         final OrganizationState updatedOrganizationState =
                 insertedOrganizationState.withDescription("Organization Vlingo V2");
 
-        objectStore.persist(updatedOrganizationState, queryInterest.singleResult.get().updateId, persistInterest);
+        objectStore.persist(updatedOrganizationState, queryInterest.single().updateId, persistInterest);
         querySelect(queryInterest, OrganizationState.class, "TBL_ORGANIZATIONS");
 
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
-        OrganizationState result = ((OrganizationState) queryInterest.singleResult.get().stateObject);
+        assertNotNull(queryInterest.single());
+        assertEquals(updatedOrganizationState, queryInterest.single().stateObject);
+
+        OrganizationState result = ((OrganizationState) queryInterest.single().stateObject);
         assertEquals(insertedOrganizationState.persistenceId(), result.persistenceId());
         assertEquals(updatedOrganizationState.description, result.description);
         assertEquals(insertedOrganizationState.name, result.name);
@@ -105,6 +108,7 @@ public class SchemataObjectStoreTest {
         final TestPersistResultInterest persistInterest = new TestPersistResultInterest();
         final AccessSafely access = persistInterest.afterCompleting(1);
         final UnitState unitState = UnitState.from(
+                1L,
                 1L,
                 UnitId.existing("A343:U44"),
                 "Vlingo", "Unit Vlingo");
@@ -117,8 +121,8 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, UnitState.class, "TBL_UNITS");
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
-        final UnitState insertedUnitState = (UnitState) queryInterest.singleResult.get().stateObject;
+        assertNotNull(queryInterest.single());
+        final UnitState insertedUnitState = (UnitState) queryInterest.single().stateObject;
         assertEquals(unitState, insertedUnitState);
 
         // update
@@ -130,9 +134,10 @@ public class SchemataObjectStoreTest {
         querySelect(queryInterest, UnitState.class, "TBL_UNITS");
 
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
+        assertEquals(updatedUnitState, queryInterest.single().stateObject);
 
-        UnitState result = (UnitState) queryInterest.singleResult.get().stateObject;
+        UnitState result = (UnitState) queryInterest.single().stateObject;
         assertEquals(insertedUnitState.persistenceId(), result.persistenceId());
         assertEquals(updatedUnitState.description, result.description);
         assertEquals(updatedUnitState.name, result.name);
@@ -143,6 +148,7 @@ public class SchemataObjectStoreTest {
         final TestPersistResultInterest persistInterest = new TestPersistResultInterest();
         final AccessSafely access = persistInterest.afterCompleting(1);
         final ContextState contextState = ContextState.from(
+                1L,
                 1L,
                 ContextId.existing("A343:U44:C13"),
                 "io.vlingo", "Context Vlingo");
@@ -155,8 +161,8 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, ContextState.class, "TBL_CONTEXTS");
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
-        final ContextState insertedContextState = (ContextState) queryInterest.singleResult.get().stateObject;
+        assertNotNull(queryInterest.single());
+        final ContextState insertedContextState = (ContextState) queryInterest.single().stateObject;
         assertEquals(contextState, insertedContextState);
 
         // update
@@ -168,10 +174,11 @@ public class SchemataObjectStoreTest {
         querySelect(queryInterest, ContextState.class, "TBL_CONTEXTS");
 
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
+        assertEquals(updatedContextState, queryInterest.single().stateObject);
 
         // assert updates
-        final ContextState updated = (ContextState) queryInterest.singleResult.get().stateObject;
+        final ContextState updated = (ContextState) queryInterest.single().stateObject;
         assertEquals(updatedContextState.contextId.value, updated.contextId.value);
         assertEquals(updatedContextState.namespace, updated.namespace);
         assertEquals(updatedContextState.description, updated.description);
@@ -184,6 +191,7 @@ public class SchemataObjectStoreTest {
         final TestPersistResultInterest persistInterest = new TestPersistResultInterest();
         final AccessSafely access = persistInterest.afterCompleting(1);
         final SchemaState schemaState = SchemaState.from(
+                1L,
                 1L,
                 SchemaId.undefined(),
                 Category.Event, Scope.Public, "Vlingo", "Schema Vlingo");
@@ -199,8 +207,9 @@ public class SchemataObjectStoreTest {
         querySelect(queryInterest, SchemaState.class, "TBL_SCHEMAS", persisted.persistenceId());
         queryInterest.until.completes();
 
-        assertNotNull(queryInterest.singleResult.get());
-        final SchemaState insertedSchemaState = (SchemaState) queryInterest.singleResult.get().stateObject;
+        assertNotNull(queryInterest.single());
+        final SchemaState insertedSchemaState = (SchemaState) queryInterest.single().stateObject;
+
         assertEquals(persisted.category, insertedSchemaState.category);
         assertEquals(persisted.description, insertedSchemaState.description);
         assertEquals(persisted.name, insertedSchemaState.name);
@@ -216,8 +225,9 @@ public class SchemataObjectStoreTest {
         querySelect(queryInterest, SchemaState.class, "TBL_SCHEMAS", insertedSchemaState.persistenceId());
 
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
-        SchemaState result = (SchemaState) queryInterest.singleResult.get().stateObject;
+        assertNotNull(queryInterest.single());
+        assertEquals(updatedSchemaState, queryInterest.single().stateObject);
+        SchemaState result = (SchemaState) queryInterest.single().stateObject;
         assertEquals(insertedSchemaState.persistenceId(), result.persistenceId());
         assertEquals(updatedSchemaState.name, result.name);
         assertEquals(updatedSchemaState.description, result.description);
@@ -231,6 +241,7 @@ public class SchemataObjectStoreTest {
         final TestPersistResultInterest persistInterest = new TestPersistResultInterest();
         final AccessSafely access = persistInterest.afterCompleting(1);
         final SchemaVersionState schemaVersionState = SchemaVersionState.from(
+                1L,
                 1L,
                 SchemaVersionId.existing("A343:U44:C13:S78:SV778"),
                 Specification.of("Spec"),
@@ -247,8 +258,8 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, SchemaVersionState.class, "TBL_SCHEMAVERSIONS");
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
-        final SchemaVersionState insertedSchemaVersionState = (SchemaVersionState) queryInterest.singleResult.get().stateObject;
+        assertNotNull(queryInterest.single());
+        final SchemaVersionState insertedSchemaVersionState = (SchemaVersionState) queryInterest.single().stateObject;
         assertEquals(schemaVersionState, insertedSchemaVersionState);
 
         // update
@@ -260,8 +271,8 @@ public class SchemataObjectStoreTest {
         querySelect(queryInterest, SchemaVersionState.class, "TBL_SCHEMAVERSIONS");
 
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
-        SchemaVersionState result = (SchemaVersionState) queryInterest.singleResult.get().stateObject;
+        assertNotNull(queryInterest.single());
+        SchemaVersionState result = (SchemaVersionState) queryInterest.single().stateObject;
         assertEquals(insertedSchemaVersionState.persistenceId(), result.persistenceId());
         assertEquals(updatedSchemaVersionState.description, result.description);
         assertEquals(updatedSchemaVersionState.specification.value, result.specification.value);
@@ -283,9 +294,9 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, OrganizationState.class, "TBL_ORGANIZATIONS", "organizationId", state.organizationId.value);
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
 
-        final OrganizationState insertedState = (OrganizationState) queryInterest.singleResult.get().stateObject;
+        final OrganizationState insertedState = (OrganizationState) queryInterest.single().stateObject;
         assertEquals(state.name, insertedState.name);
         assertEquals(state.description, insertedState.description);
 
@@ -295,9 +306,9 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, OrganizationState.class, "TBL_ORGANIZATIONS", insertedState.persistenceId());
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
 
-        OrganizationState result = ((OrganizationState) queryInterest.singleResult.get().stateObject);
+        OrganizationState result = ((OrganizationState) queryInterest.single().stateObject);
         assertEquals(insertedState.persistenceId(), result.persistenceId());
         assertEquals(updatedState.description, result.description);
         assertEquals(updatedState.name, result.name);
@@ -317,9 +328,9 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, UnitState.class, "TBL_UNITS", "unitId", state.unitId.value);
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
 
-        final UnitState insertedState = (UnitState) queryInterest.singleResult.get().stateObject;
+        final UnitState insertedState = (UnitState) queryInterest.single().stateObject;
         assertEquals(state.name, insertedState.name);
         assertEquals(state.description, insertedState.description);
 
@@ -329,9 +340,9 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, UnitState.class, "TBL_UNITS", insertedState.persistenceId());
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
 
-        UnitState result = ((UnitState) queryInterest.singleResult.get().stateObject);
+        UnitState result = ((UnitState) queryInterest.single().stateObject);
         assertEquals(insertedState.persistenceId(), result.persistenceId());
         assertEquals(updatedState.description, result.description);
         assertEquals(updatedState.name, result.name);
@@ -351,9 +362,9 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, ContextState.class, "TBL_CONTEXTS", "contextId", state.contextId.value);
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
 
-        final ContextState insertedState = (ContextState) queryInterest.singleResult.get().stateObject;
+        final ContextState insertedState = (ContextState) queryInterest.single().stateObject;
         assertEquals(state.namespace, insertedState.namespace);
         assertEquals(state.description, insertedState.description);
 
@@ -363,9 +374,9 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, ContextState.class, "TBL_CONTEXTS", insertedState.persistenceId());
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
 
-        ContextState result = ((ContextState) queryInterest.singleResult.get().stateObject);
+        ContextState result = ((ContextState) queryInterest.single().stateObject);
         assertEquals(insertedState.persistenceId(), result.persistenceId());
         assertEquals(updatedState.description, result.description);
         assertEquals(updatedState.namespace, result.namespace);
@@ -389,9 +400,9 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, SchemaState.class, "TBL_SCHEMAS", "schemaId", state.schemaId.value);
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
 
-        final SchemaState insertedState = (SchemaState) queryInterest.singleResult.get().stateObject;
+        final SchemaState insertedState = (SchemaState) queryInterest.single().stateObject;
         assertEquals(state.schemaId.value, insertedState.schemaId.value);
         assertEquals(state.category, insertedState.category);
         assertEquals(state.scope, insertedState.scope);
@@ -409,9 +420,9 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, SchemaState.class, "TBL_SCHEMAS", insertedState.persistenceId());
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
 
-        SchemaState result = ((SchemaState) queryInterest.singleResult.get().stateObject);
+        SchemaState result = ((SchemaState) queryInterest.single().stateObject);
         assertEquals(insertedState.persistenceId(), result.persistenceId());
         assertEquals(updatedState.schemaId.value, result.schemaId.value);
         assertEquals(updatedState.category, result.category);
@@ -438,9 +449,9 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, SchemaVersionState.class, "TBL_SCHEMAVERSIONS", "schemaVersionId", state.schemaVersionId.value);
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
 
-        final SchemaVersionState insertedState = (SchemaVersionState) queryInterest.singleResult.get().stateObject;
+        final SchemaVersionState insertedState = (SchemaVersionState) queryInterest.single().stateObject;
         assertEquals(state.schemaVersionId.value, insertedState.schemaVersionId.value);
         assertEquals(state.status, insertedState.status);
         assertEquals(state.previousVersion.value, insertedState.previousVersion.value);
@@ -457,9 +468,10 @@ public class SchemataObjectStoreTest {
         queryInterest.until = TestUntil.happenings(1);
         querySelect(queryInterest, SchemaVersionState.class, "TBL_SCHEMAVERSIONS", insertedState.persistenceId());
         queryInterest.until.completes();
-        assertNotNull(queryInterest.singleResult.get());
+        assertNotNull(queryInterest.single());
+        assertEquals(updatedState, queryInterest.single().stateObject);
 
-        SchemaVersionState result = ((SchemaVersionState) queryInterest.singleResult.get().stateObject);
+        SchemaVersionState result = ((SchemaVersionState) queryInterest.single().stateObject);
         assertEquals(insertedState.persistenceId(), result.persistenceId());
         assertEquals(updatedState.schemaVersionId.value, result.schemaVersionId.value);
         assertEquals(updatedState.previousVersion.value, result.previousVersion.value);

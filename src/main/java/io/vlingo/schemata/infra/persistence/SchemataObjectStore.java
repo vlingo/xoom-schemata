@@ -104,9 +104,9 @@ public abstract class SchemataObjectStore {
                 StateObjectMapper.with(
                         OrganizationState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO TBL_ORGANIZATIONS(organizationId, name, description) " +
-                                        "VALUES (:organizationId.value, :name, :description) ",
-                                "UPDATE TBL_ORGANIZATIONS SET name = :name, description = :description " +
+                                "INSERT INTO TBL_ORGANIZATIONS(dataVersion, organizationId, name, description) " +
+                                        "VALUES (:version, :organizationId.value, :name, :description) ",
+                                "UPDATE TBL_ORGANIZATIONS SET dataVersion = :version, name = :name, description = :description " +
                                 "WHERE id = :persistenceId",
                                 SqlStatement::bindFields,
                                 SqlStatement::bindMethods),
@@ -118,9 +118,9 @@ public abstract class SchemataObjectStore {
                 StateObjectMapper.with(
                         UnitState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO TBL_UNITS(unitId, organizationId, name, description) " +
-                                        "VALUES (:unitId.value, :unitId.organizationId.value, :name, :description) ",
-                                "UPDATE TBL_UNITS SET name = :name, description = :description " +
+                                "INSERT INTO TBL_UNITS(dataVersion, unitId, organizationId, name, description) " +
+                                        "VALUES (:version, :unitId.value, :unitId.organizationId.value, :name, :description) ",
+                                "UPDATE TBL_UNITS SET dataVersion = :version, name = :name, description = :description " +
                                 "WHERE id = :persistenceId",
                                 SqlStatement::bindFields,
                                 SqlStatement::bindMethods),
@@ -132,10 +132,10 @@ public abstract class SchemataObjectStore {
                 StateObjectMapper.with(
                         ContextState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO TBL_CONTEXTS(contextId, unitId, organizationId, namespace, description) " +
-                                        "VALUES (:contextId.value, :contextId.unitId.value, " +
+                                "INSERT INTO TBL_CONTEXTS(dataVersion, contextId, unitId, organizationId, namespace, description) " +
+                                        "VALUES (:version, :contextId.value, :contextId.unitId.value, " +
                                         ":contextId.unitId.organizationId.value, :namespace, :description) ",
-                                "UPDATE TBL_CONTEXTS SET namespace = :namespace, description = :description " +
+                                "UPDATE TBL_CONTEXTS SET dataVersion = :version, namespace = :namespace, description = :description " +
                                 "WHERE id = :persistenceId",
                                 SqlStatement::bindFields,
                                 SqlStatement::bindMethods),
@@ -147,10 +147,10 @@ public abstract class SchemataObjectStore {
                 StateObjectMapper.with(
                         SchemaState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO TBL_SCHEMAS(schemaId, contextId, unitId, organizationId, category, scope, name, description) " +
-                                        "VALUES (:schemaId.value, :schemaId.contextId.value, :schemaId.contextId.unitId.value, " +
+                                "INSERT INTO TBL_SCHEMAS(dataVersion, schemaId, contextId, unitId, organizationId, category, scope, name, description) " +
+                                        "VALUES (:version, :schemaId.value, :schemaId.contextId.value, :schemaId.contextId.unitId.value, " +
                                         ":schemaId.contextId.unitId.organizationId.value, :category, :scope, :name, :description) ",
-                                "UPDATE TBL_SCHEMAS SET category = :category, scope = :scope, name = :namespace, description = :description " +
+                                "UPDATE TBL_SCHEMAS SET dataVersion = :version, category = :category, scope = :scope, name = :namespace, description = :description " +
                                 "WHERE id = :persistenceId",
                                 SqlStatement::bindFields,
                                 SqlStatement::bindMethods),
@@ -162,13 +162,13 @@ public abstract class SchemataObjectStore {
                 StateObjectMapper.with(
                         SchemaVersionState.class,
                         JdbiPersistMapper.with(
-                                "INSERT INTO TBL_SCHEMAVERSIONS(schemaVersionId, schemaId, contextId, unitId, organizationId, " +
+                                "INSERT INTO TBL_SCHEMAVERSIONS(dataVersion, schemaVersionId, schemaId, contextId, unitId, organizationId, " +
                                         "description, specification, status, previousVersion, currentVersion) " +
-                                        "VALUES (:schemaVersionId.value, :schemaVersionId.schemaId.value, " +
+                                        "VALUES (:version, :schemaVersionId.value, :schemaVersionId.schemaId.value, " +
                                         ":schemaVersionId.schemaId.contextId.value, :schemaVersionId.schemaId.contextId.unitId.value, " +
                                         ":schemaVersionId.schemaId.contextId.unitId.organizationId.value, :description, " +
                                         ":specification.value, :status.value, :previousVersion.value, :currentVersion.value)",
-                                "UPDATE TBL_SCHEMAVERSIONS SET description = :description, specification = :specification.value, " +
+                                "UPDATE TBL_SCHEMAVERSIONS SET dataVersion = :version, description = :description, specification = :specification.value, " +
                                         "status = :status.value, previousVersion = :previousVersion.value, currentVersion = :currentVersion.value " +
                                 "WHERE id = :persistenceId",
                                 SqlStatement::bindFields,

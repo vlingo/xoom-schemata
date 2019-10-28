@@ -24,6 +24,7 @@ public class SchemaVersionStateMapper implements RowMapper<SchemaVersionState> {
     public SchemaVersionState map(ResultSet rs, StatementContext ctx) throws SQLException {
         return SchemaVersionState.from(
                 rs.getLong("id"),
+                rs.getLong("dataVersion"),
                 SchemaVersionId.existing(
                         rs.getString("organizationId"),
                         rs.getString("unitId"),

@@ -26,28 +26,28 @@ public class SchemaState extends StateObject {
     return new SchemaState(schemaId);
   }
 
-  public static SchemaState from(final long id, final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
-    return new SchemaState(id, schemaId, category, scope, name, description);
+  public static SchemaState from(final long id, final long version, final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+    return new SchemaState(id, version, schemaId, category, scope, name, description);
   }
 
   public SchemaState defineWith(final Category category, final Scope scope, final String name, final String description) {
-    return new SchemaState(this.persistenceId(), this.schemaId, category, scope, name, description);
+    return new SchemaState(this.persistenceId(), this.version() + 1, this.schemaId, category, scope, name, description);
   }
 
   public SchemaState withCategory(final Category category) {
-    return new SchemaState(this.persistenceId(), this.schemaId, category, this.scope, this.name, this.description);
+    return new SchemaState(this.persistenceId(), this.version() + 1, this.schemaId, category, this.scope, this.name, this.description);
   }
 
   public SchemaState withScope(final Scope scope) {
-    return new SchemaState(this.persistenceId(), this.schemaId, this.category, scope, this.name, this.description);
+    return new SchemaState(this.persistenceId(), this.version() + 1, this.schemaId, this.category, scope, this.name, this.description);
   }
 
   public SchemaState withDescription(final String description) {
-    return new SchemaState(this.persistenceId(), this.schemaId, this.category, this.scope, this.name, description);
+    return new SchemaState(this.persistenceId(), this.version() + 1, this.schemaId, this.category, this.scope, this.name, description);
   }
 
   public SchemaState withName(final String name) {
-    return new SchemaState(this.persistenceId(), this.schemaId, this.category, this.scope, name, this.description);
+    return new SchemaState(this.persistenceId(), this.version() + 1, this.schemaId, this.category, this.scope, name, this.description);
   }
 
   @Override
@@ -80,6 +80,7 @@ public class SchemaState extends StateObject {
   @Override
   public String toString() {
     return "SchemaState[persistenceId=" + persistenceId() +
+            " version=" + version() +
             " schemaId=" + schemaId.value +
             " category=" + category.name() +
             " scope=" + scope.name() +
@@ -88,11 +89,11 @@ public class SchemaState extends StateObject {
   }
 
   private SchemaState(SchemaId schemaId) {
-    this(Unidentified, schemaId, Category.Unknown, Scope.Private, "", "");
+    this(Unidentified, 0, schemaId, Category.Unknown, Scope.Private, "", "");
   }
 
-  private SchemaState(final long id, final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
-    super(id);
+  private SchemaState(final long id, final long version, final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+    super(id, version);
     this.schemaId = schemaId;
     this.category = category;
     this.scope = scope;

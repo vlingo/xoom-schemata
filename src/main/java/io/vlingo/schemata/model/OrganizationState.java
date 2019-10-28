@@ -24,20 +24,20 @@ public class OrganizationState extends StateObject {
     return new OrganizationState(organizationId);
   }
 
-  public static OrganizationState from(final long id, final OrganizationId organizationId, final String name, final String description) {
-    return new OrganizationState(id, organizationId, name, description);
+  public static OrganizationState from(final long id, final long version, final OrganizationId organizationId, final String name, final String description) {
+    return new OrganizationState(id, version, organizationId, name, description);
   }
 
   public OrganizationState defineWith(final String name, final String description) {
-    return new OrganizationState(this.persistenceId(), this.organizationId, name, description);
+    return new OrganizationState(this.persistenceId(), this.version() + 1, this.organizationId, name, description);
   }
 
   public OrganizationState withDescription(final String description) {
-    return new OrganizationState(this.persistenceId(), this.organizationId, this.name, description);
+    return new OrganizationState(this.persistenceId(), this.version() + 1, this.organizationId, this.name, description);
   }
 
   public OrganizationState withName(final String name) {
-    return new OrganizationState(this.persistenceId(), this.organizationId, name, this.description);
+    return new OrganizationState(this.persistenceId(), this.version() + 1, this.organizationId, name, this.description);
   }
 
   @Override
@@ -66,17 +66,18 @@ public class OrganizationState extends StateObject {
   @Override
   public String toString() {
     return "OrganizationState[persistenceId=" + persistenceId() +
+            " version=" + version() +
             " organizationId=" + organizationId.value +
             " name=" + name +
             " description=" + description + "]";
   }
 
   private OrganizationState(final OrganizationId organizationId) {
-    this(Unidentified, organizationId, "", "");
+    this(Unidentified, 0, organizationId, "", "");
   }
 
-  private OrganizationState(final long id, final OrganizationId organizationId, final String name, final String description) {
-    super(id);
+  private OrganizationState(final long id, final long version, final OrganizationId organizationId, final String name, final String description) {
+    super(id, version);
     this.organizationId = organizationId;
     this.name = name;
     this.description = description;

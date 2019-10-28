@@ -7,28 +7,44 @@
 
 package io.vlingo.schemata.infra.persistence;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import io.vlingo.actors.testkit.TestUntil;
 import io.vlingo.common.Outcome;
 import io.vlingo.symbio.store.Result;
 import io.vlingo.symbio.store.StorageException;
 import io.vlingo.symbio.store.object.ObjectStoreReader;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 public class TestQueryResultInterest implements ObjectStoreReader.QueryResultInterest {
-    public AtomicReference<ObjectStoreReader.QueryMultiResults> multiResults = new AtomicReference<>();
-    public AtomicReference<ObjectStoreReader.QuerySingleResult> singleResult = new AtomicReference<>();
+    private AtomicReference<ObjectStoreReader.QueryMultiResults> multiResults = new AtomicReference<>();
+    private AtomicReference<ObjectStoreReader.QuerySingleResult> singleResult = new AtomicReference<>();
     public TestUntil until;
 
     @Override
     public void queryAllResultedIn(final Outcome<StorageException, Result> outcome, final ObjectStoreReader.QueryMultiResults results, final Object object) {
+      synchronized (this) {
         multiResults.set(results);
         until.happened();
+      }
     }
 
     @Override
     public void queryObjectResultedIn(final Outcome<StorageException, Result> outcome, final ObjectStoreReader.QuerySingleResult result, final Object object) {
+      synchronized (this) {
         singleResult.set(result);
         until.happened();
+      }
+    }
+
+    public ObjectStoreReader.QueryMultiResults multi() {
+      synchronized (this) {
+        return multiResults.get();
+      }
+    }
+
+    public ObjectStoreReader.QuerySingleResult single() {
+      synchronized (this) {
+        return singleResult.get();
+      }
     }
 }

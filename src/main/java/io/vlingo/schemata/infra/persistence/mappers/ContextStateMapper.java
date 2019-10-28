@@ -21,6 +21,7 @@ public class ContextStateMapper implements RowMapper<ContextState> {
     public ContextState map(ResultSet rs, StatementContext ctx) throws SQLException {
         return ContextState.from(
                 rs.getLong("id"),
+                rs.getLong("dataVersion"),
                 ContextId.existing(
                         rs.getString("organizationId"),
                         rs.getString("unitId"),
