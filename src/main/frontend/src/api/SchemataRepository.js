@@ -116,12 +116,11 @@ export default {
     },
     createSchemaVersion(
         organization, unit, context, schema,
-        specification, description, status, previousVersion, currentVersion) {
+        specification, description, previousVersion, currentVersion) {
         return Repository.post(resources.versions(organization, unit, context, schema),
             {
                 schemaVersionId: '',
                 specification: specification,
-                status: status,
                 previousVersion: previousVersion,
                 currentVersion: currentVersion,
                 description: description
