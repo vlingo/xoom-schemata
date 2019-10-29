@@ -121,8 +121,7 @@
                     this.version.contextId,
                     this.version.schemaId,
                     this.version.schemaVersionId,
-                    this.currentSpecification
-                )
+                    status)
                     .then(() => {
                             vm.$store.commit('raiseNotification', {
                                 message: `Specification for ${vm.schema.name} v${vm.version.currentVersion} updated.`,
