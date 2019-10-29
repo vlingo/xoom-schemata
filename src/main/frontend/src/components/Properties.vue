@@ -48,7 +48,6 @@
         </v-card-actions>
     </v-card>
 
-
 </template>
 
 <script>
@@ -122,9 +121,10 @@
                     this.version.schemaId,
                     this.version.schemaVersionId,
                     status)
+                    .then(response => vm.$store.dispatch('selectSchemaVersion', response.data))
                     .then(() => {
                             vm.$store.commit('raiseNotification', {
-                                message: `Specification for ${vm.schema.name} v${vm.version.currentVersion} updated.`,
+                                message: `Status for ${vm.schema.name} updated.`,
                                 type: 'success'
                             })
                         }
@@ -145,6 +145,7 @@
                     this.version.schemaVersionId,
                     this.currentSpecification
                 )
+                    .then(response => vm.$store.dispatch('selectSchemaVersion', response.data))
                     .then(() => {
                             vm.$store.commit('raiseNotification', {
                                 message: `Specification for ${vm.schema.name} v${vm.version.currentVersion} updated.`,
