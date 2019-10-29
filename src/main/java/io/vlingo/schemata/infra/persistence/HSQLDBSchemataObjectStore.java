@@ -20,11 +20,10 @@ public class HSQLDBSchemataObjectStore extends SchemataObjectStore {
               "organizationId VARCHAR (50) NOT NULL, " +
               "name VARCHAR(128) NOT NULL, " +
               "description VARCHAR(8000) " +
-
-//              "UNIQUE (name) " +
               ")");
 
-//      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS ORG_ALL_INDEX ON TBL_ORGANIZATIONS (organizationId)");
+      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS ORG_ALL_INDEX ON TBL_ORGANIZATIONS (organizationId)");
+      jdbi.handle().execute("ALTER TABLE TBL_ORGANIZATIONS ADD CONSTRAINT IF NOT EXISTS ORGANIZATION_UNIQUE UNIQUE (name)");
   }
 
   @Override
@@ -37,12 +36,11 @@ public class HSQLDBSchemataObjectStore extends SchemataObjectStore {
               "organizationId VARCHAR (50) NOT NULL, " +
               "name VARCHAR(128) NOT NULL, " +
               "description VARCHAR(8000) " +
-
-//              "UNIQUE (organizationId, name) " +
               ")");
 
-//      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_PARENT_INDEX ON TBL_UNITS (organizationId)");
-//      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_ALL_INDEX ON TBL_UNITS (organizationId, unitId)");
+      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_PARENT_INDEX ON TBL_UNITS (organizationId)");
+      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_ALL_INDEX ON TBL_UNITS (organizationId, unitId)");
+      jdbi.handle().execute("ALTER TABLE TBL_UNITS ADD CONSTRAINT IF NOT EXISTS UNIT_ALL_UNIQUE UNIQUE (organizationId, name)");
   }
 
   @Override
@@ -56,12 +54,12 @@ public class HSQLDBSchemataObjectStore extends SchemataObjectStore {
               "organizationId VARCHAR (50) NOT NULL, " +
               "namespace VARCHAR(256) NOT NULL, " +
               "description VARCHAR(8000) " +
-
-//              "UNIQUE (unitId, namespace) " +
               ")");
 
-//      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS CONTEXT_PARENT_INDEX ON TBL_CONTEXTS (organizationId, unitId)");
-//      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS CONTEXT_ALL_INDEX ON TBL_CONTEXTS (organizationId, unitId, contextId)");
+      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS CONTEXT_PARENT_INDEX ON TBL_CONTEXTS (organizationId, unitId)");
+      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS CONTEXT_ALL_INDEX ON TBL_CONTEXTS (organizationId, unitId, contextId)");
+
+      jdbi.handle().execute("ALTER TABLE TBL_CONTEXTS ADD CONSTRAINT IF NOT EXISTS CONTEXT_ALL_UNIQUE UNIQUE (organizationId, unitId, namespace)");
   }
 
   @Override
@@ -78,12 +76,11 @@ public class HSQLDBSchemataObjectStore extends SchemataObjectStore {
               "scope VARCHAR(25) NOT NULL, " +
               "name VARCHAR(128) NOT NULL, " +
               "description VARCHAR(8000) " +
-
-//              "UNIQUE (contextId, category, name) " +
               ")");
 
-//      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMA_PARENT_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId)");
-//      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMA_ALL_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId, schemaId)");
+      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMA_PARENT_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId)");
+      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMA_ALL_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId, schemaId)");
+      jdbi.handle().execute("ALTER TABLE TBL_SCHEMAS ADD CONSTRAINT IF NOT EXISTS SCHEMA_ALL_UNIQUE UNIQUE (organizationId, unitId, contextId, category, name)");
   }
 
   @Override
@@ -120,8 +117,9 @@ public class HSQLDBSchemataObjectStore extends SchemataObjectStore {
 //              "UNIQUE (schemaId, currentVersion) " +
               ")");
 
-//      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_PARENT_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId)");
-//      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_ALL_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId, schemaVersionId)");
+      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_PARENT_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId)");
+      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_ALL_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId, schemaVersionId)");
+      jdbi.handle().execute("ALTER TABLE TBL_SCHEMAVERSIONS ADD CONSTRAINT IF NOT EXISTS SCHEMAVERSIION_ALL_UNIQUE UNIQUE (organizationId, unitId, contextId, schemaId, currentVersion)");
   }
 
   @Override
