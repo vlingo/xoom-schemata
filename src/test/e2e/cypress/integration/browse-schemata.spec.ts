@@ -65,7 +65,6 @@ describe('Schemata View Tests', function () {
         cy.selectOption('Schema', schema)
         cy.fillField('Previous Version', prevVersion)
         cy.fillField('Current Version', currentVersion)
-        cy.selectOption('Status', faker.random.arrayElement(['Draft', 'Published', 'Deprecated', 'Removed']))
         cy.fillEditor('#description-editor', desc)
         cy.fillEditor('#specification-editor', spec)
         cy.contains('button', 'Create').click()
