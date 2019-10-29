@@ -15,6 +15,14 @@ declare namespace Cypress {
         fillEditor(label: string, text: string): Chainable<Element>
 
         /**
+         * Get the contents of a vue-monaco-editor field identified by its id.
+         * Note that whitespace is simplified, all consecutive whitespaces are reduced to one
+         * and leading and trailing whitespace is removed.
+         * @example cy.editorContent('#specification-editor')
+         */
+        editorContent(id: string): Chainable<Element>
+
+        /**
          * Return the value a Vuetify text(area) field identified by its label
          * @example cy.fieldContent('Name')
          */
