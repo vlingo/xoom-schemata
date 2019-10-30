@@ -9,7 +9,9 @@ const resources = {
     scopes: () => '/schema/scopes',
     schemata: (o, u, c) => `/organizations/${o}/units/${u}/contexts/${c}/schemas`,
     versions: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`,
-    schemaSpecification: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/specification`
+    versionStatus: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/status`,
+    schemaSpecification: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/specification`,
+    sources: (o, u, c, s, v, lang) => `/code/${o}:${u}:${c}:${s}:${v}/${lang}`,
 }
 
 function ensure(response, status) {
@@ -141,6 +143,40 @@ export default {
             resources.schemaSpecification(organization, unit, context, schema, version),
             specification,
             config
+        )
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+
+    setSchemaVersionStatus(
+        organization, unit, context, schema, version, status) {
+
+        let config = {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            responseType: 'text'
+        };
+        return Repository.patch(
+            resources.versionStatus(organization, unit, context, schema, version),
+            status,
+            config
+        )
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+
+    loadSourceJava(
+        organization, unit, context, schema, version, language) {
+
+        let config = {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            responseType: 'text'
+        };
+        return Repository.get(
+            resources.sources(organization, unit, context, schema, "java"),
         )
             .then(ensureOk)
             .then(response => response.data)
