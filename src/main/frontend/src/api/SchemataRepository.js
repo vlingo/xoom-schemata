@@ -3,19 +3,19 @@ import Repository from '@/api/Repository'
 
 const resources = {
     organizations: () => '/organizations',
-    organization: (o) => `/organizations/${o}/units`,
-    units: (o) => `/organizations/${o}/units`,
-    unit: (o, u) => `/organizations/${o}/units/${u}`,
-    contexts: (o, u) => `/organizations/${o}/units/${u}/contexts`,
-    context: (o, u, c) => `/organizations/${o}/units/${u}/contexts/${c}`,
+    organization: (o) => `${resources.organizations()}/${o}`,
+    units: (o) => `${resources.organization(o)}/units`,
+    unit: (o, u) => `${resources.units(o)}/${u}`,
+    contexts: (o, u) => `${resources.unit(o, u)}/contexts`,
+    context: (o, u, c) => `${resources.contexts(o, u)}/${c}`,
     categories: () => '/schema/categories',
     scopes: () => '/schema/scopes',
-    schemata: (o, u, c) => `/organizations/${o}/units/${u}/contexts/${c}/schemas`,
-    schema: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}`,
-    versions: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`,
-    version: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}`,
-    versionStatus: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/status`,
-    schemaSpecification: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/specification`,
+    schemata: (o, u, c) => `${resources.context(o, u, c)}/schemas`,
+    schema: (o, u, c, s) => `${resources.schemata(o, u, c)}/${s}`,
+    versions: (o, u, c, s) => `${resources.schema(o, u, c, s)}/versions`,
+    version: (o, u, c, s, v) => `${resources.versions(o, u, c, s)}/${v}`,
+    versionStatus: (o, u, c, s, v) => `${resources.version(o, u, c, s, v)}/status`,
+    schemaSpecification: (o, u, c, s, v) => `${resources.version(o, u, c, s, v)}/specification`,
     sources: (o, u, c, s, v, lang) => `/code/${o}:${u}:${c}:${s}:${v}/${lang}`,
 }
 
@@ -194,7 +194,7 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
-    loadSourceJava(
+    loadSource(
         organization, unit, context, schema, version, language) {
         let config = {
             headers: {
@@ -203,7 +203,7 @@ export default {
             responseType: 'text'
         };
         return Repository.get(
-            resources.sources(organization, unit, context, schema, version, "java"),
+            resources.sources(organization, unit, context, schema, version, language),
         )
             .then(ensureOk)
             .then(response => response.data)
