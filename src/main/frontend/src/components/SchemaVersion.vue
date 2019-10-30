@@ -177,6 +177,7 @@
                                 message: `Schema v${vm.currentVersion} created.`,
                                 type: 'success'
                             })
+                            vm.$store.dispatch('loadVersions')
                         }
                     )
                     .catch(function (err) {

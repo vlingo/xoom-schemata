@@ -59,7 +59,7 @@ export default new Vuex.Store({
             this.dispatch('loadVersions')
         },
         selectSchemaVersion(context, selected) {
-            this.commit('updateSchemaVersion', selected)
+            context.commit('updateSchemaVersion', selected)
         },
         loadVersions(context) {
             if (!(context.state.schema)) {
