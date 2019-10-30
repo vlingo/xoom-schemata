@@ -117,12 +117,11 @@ export default {
     },
     createSchemaVersion(
         organization, unit, context, schema,
-        specification, description, status, previousVersion, currentVersion) {
+        specification, description, previousVersion, currentVersion) {
         return Repository.post(resources.versions(organization, unit, context, schema),
             {
                 schemaVersionId: '',
                 specification: specification,
-                status: status,
                 previousVersion: previousVersion,
                 currentVersion: currentVersion,
                 description: description
@@ -147,7 +146,6 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
-
     setSchemaVersionStatus(
         organization, unit, context, schema, version, status) {
 
@@ -165,10 +163,8 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
-
     loadSourceJava(
         organization, unit, context, schema, version, language) {
-
         let config = {
             headers: {
                 'Content-Type': 'application/json'
