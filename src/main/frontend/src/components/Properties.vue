@@ -153,6 +153,7 @@
                     this.currentSpecification
                 )
                     .then(response => vm.$store.dispatch('selectSchemaVersion', response))
+                    .then(() => vm.$store.dispatch('loadVersions'))
                     .then(() => {
                             vm.$store.commit('raiseNotification', {
                                 message: `Specification for ${vm.schema.name} v${vm.version.currentVersion} updated.`,
