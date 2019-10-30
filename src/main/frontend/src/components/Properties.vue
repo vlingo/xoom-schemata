@@ -38,17 +38,29 @@
                         Remove
                     </v-btn>
                     <v-spacer></v-spacer>
-                    <v-btn color="info"
-                           :disabled="status !== 'Draft'"
-                           @click="saveSpecification">Save
-                    </v-btn>
-                    <v-btn color="info"
+                    <v-btn outlined color="info"
                            :disabled="!version"
                            @click="loadSources">
                         <v-icon>{{icons.source}}</v-icon>
                         Source
                     </v-btn>
+                    <v-btn color="info"
+                           :disabled="status !== 'Draft'"
+                           @click="saveSpecification">Save
+                    </v-btn>
                 </v-card-actions>
+                <v-dialog v-model="sourceDialog">
+                    <v-card>
+                        <editor
+                                id="source-editor"
+                                v-model="sources.java"
+                                theme="vs-dark"
+                                language="java"
+                                height="400"
+                                :options="{ readOnly: true, automaticLayout: true }"
+                        ></editor>
+                    </v-card>
+                </v-dialog>
             </v-tab-item>
 
             <v-tab-item>
@@ -64,7 +76,7 @@
 
 <script>
     import {mapFields} from 'vuex-map-fields';
-    import {mdiDelete, mdiLabel, mdiLabelOff,mdiSourcePull} from '@mdi/js'
+    import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull} from '@mdi/js'
     import marked from 'marked'
     import Repository from '@/api/SchemataRepository'
     import editor from 'monaco-editor-vue';
@@ -79,6 +91,10 @@
                     delete: mdiDelete,
                     deprecate: mdiLabelOff,
                     source: mdiSourcePull
+                },
+                sourceDialog: false,
+                sources: {
+                    java: undefined,
                 }
             }
         },
@@ -174,6 +190,7 @@
                     })
             },
             loadSources() {
+                let vm = this
                 Repository.loadSources(
                     this.version.organizationId,
                     this.version.unitId,
@@ -182,6 +199,14 @@
                     this.version.schemaVersionId,
                     "java"
                 )
+                    .then(response => {
+                        vm.sources.java = response
+                        vm.sourceDialog = true
+                    })
+                    .catch(function (err) {
+                        let response = err.response ? err.response.data + ' - ' : ''
+                        vm.$store.commit('raiseError', {message: response + err})
+                    })
             }
         }
     }
