@@ -87,12 +87,14 @@ describe('Schemata View Tests', function () {
         cy.contains('button', 'Deprecate').should('be.enabled')
         cy.contains('button', 'Remove').should('be.enabled')
         cy.get('.v-chip.warning')
+        cy.contains('button', 'Save').should('be.enabled')
 
         //Publish
         cy.contains('button', 'Publish').click()
         cy.contains('button', 'Publish').should('be.disabled')
         cy.contains('button', 'Deprecate').should('be.enabled')
         cy.contains('button', 'Remove').should('be.disabled')
+        cy.contains('button', 'Save').should('be.disabled')
 
         //Deprecate
         cy.contains('button', 'Deprecate').click()
@@ -100,6 +102,7 @@ describe('Schemata View Tests', function () {
         cy.contains('button', 'Deprecate').should('be.disabled')
         cy.contains('button', 'Remove').should('be.enabled')
         cy.get('.v-chip.warning')
+        cy.contains('button', 'Save').should('be.disabled')
 
         //Remove
         cy.contains('button', 'Remove').click()
@@ -107,7 +110,7 @@ describe('Schemata View Tests', function () {
         cy.contains('button', 'Deprecate').should('be.disabled')
         cy.contains('button', 'Remove').should('be.disabled')
         cy.get('.v-chip.warning')
-
+        cy.contains('button', 'Save').should('be.disabled')
     });
 
     it('can update schema version specification', function () {
