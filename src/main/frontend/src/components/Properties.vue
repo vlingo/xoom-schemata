@@ -1,14 +1,17 @@
 <template>
     <v-card height="45vh" id="schemata-properties">
-        <v-card-text>
-            <v-alert v-if="status && status !== 'Published'" :value="true" type="warning" dense outlined>
-                Status <b>{{status}}</b>. Do not use in production.
-            </v-alert>
-            <v-tabs>
-                <v-tab>Specification</v-tab>
-                <v-tab>Description</v-tab>
 
-                <v-tab-item>
+        <v-tabs>
+            <v-tab>Specification</v-tab>
+            <v-tab>Description</v-tab>
+            <v-spacer></v-spacer>
+            <v-chip label color="warning" v-if="status && status !== 'Published'" class="mt-3 mr-3">
+                Status&nbsp;<b>{{status}}</b>. Do not use in production.
+            </v-chip>
+
+
+            <v-tab-item>
+                <v-card-text>
                     <editor
                             id="specification-editor"
                             v-model="currentSpecification"
@@ -17,35 +20,38 @@
                             height="200"
                             :options="editorOptions"
                     ></editor>
-                    <br>
+                </v-card-text>
+                <v-card-actions>
+                    <v-btn outlined color="primary" @click="publish"
+                           :disabled="status !== 'Draft'">
+                        <v-icon>{{icons.publish}}</v-icon>
+                        Publish
+                    </v-btn>
+                    <v-btn outlined color="warning" @click="deprecate"
+                           :disabled="status !== 'Published' && status !== 'Draft'">
+                        <v-icon>{{icons.deprecate}}</v-icon>
+                        Deprecate
+                    </v-btn>
+                    <v-btn outlined color="error" @click="remove"
+                           :disabled="status !== 'Deprecated' && status !== 'Draft'">
+                        <v-icon>{{icons.delete}}</v-icon>
+                        Remove
+                    </v-btn>
+                    <v-spacer></v-spacer>
                     <v-btn color="info"
                            :disabled="status !== 'Draft'"
                            @click="saveSpecification">Save
                     </v-btn>
-                </v-tab-item>
+                </v-card-actions>
+            </v-tab-item>
 
-                <v-tab-item>
+            <v-tab-item>
+                <v-card-text>
                     <div v-html="compiledDescription()"></div>
-                </v-tab-item>
-            </v-tabs>
-        </v-card-text>
-        <v-card-actions>
-            <v-btn outlined color="primary" @click="publish"
-                   :disabled="status !== 'Draft'">
-                <v-icon>{{icons.publish}}</v-icon>
-                Publish
-            </v-btn>
-            <v-btn outlined color="warning" @click="deprecate"
-                   :disabled="status !== 'Published' && status !== 'Draft'">
-                <v-icon>{{icons.deprecate}}</v-icon>
-                Deprecate
-            </v-btn>
-            <v-btn outlined color="error" @click="remove"
-                   :disabled="status !== 'Deprecated' && status !== 'Draft'">
-                <v-icon>{{icons.delete}}</v-icon>
-                Remove
-            </v-btn>
-        </v-card-actions>
+                </v-card-text>
+            </v-tab-item>
+        </v-tabs>
+
     </v-card>
 
 </template>
@@ -163,4 +169,5 @@
 </script>
 
 <style>
+
 </style>
