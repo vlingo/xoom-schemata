@@ -42,6 +42,12 @@
                            :disabled="status !== 'Draft'"
                            @click="saveSpecification">Save
                     </v-btn>
+                    <v-btn color="info"
+                           :disabled="!version"
+                           @click="loadSources">
+                        <v-icon>{{icons.source}}</v-icon>
+                        Source
+                    </v-btn>
                 </v-card-actions>
             </v-tab-item>
 
@@ -58,7 +64,7 @@
 
 <script>
     import {mapFields} from 'vuex-map-fields';
-    import {mdiDelete, mdiLabel, mdiLabelOff} from '@mdi/js'
+    import {mdiDelete, mdiLabel, mdiLabelOff,mdiSourcePull} from '@mdi/js'
     import marked from 'marked'
     import Repository from '@/api/SchemataRepository'
     import editor from 'monaco-editor-vue';
@@ -71,7 +77,8 @@
                 icons: {
                     publish: mdiLabel,
                     delete: mdiDelete,
-                    deprecate: mdiLabelOff
+                    deprecate: mdiLabelOff,
+                    source: mdiSourcePull
                 }
             }
         },
@@ -165,6 +172,16 @@
                         let response = err.response ? err.response.data + ' - ' : ''
                         vm.$store.commit('raiseError', {message: response + err})
                     })
+            },
+            loadSources() {
+                Repository.loadSources(
+                    this.version.organizationId,
+                    this.version.unitId,
+                    this.version.contextId,
+                    this.version.schemaId,
+                    this.version.schemaVersionId,
+                    "java"
+                )
             }
         }
     }
