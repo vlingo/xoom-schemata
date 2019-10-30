@@ -12,6 +12,9 @@ module.exports = {
             },
             '/categories': {
                 target: 'http://localhost:9019/'
+            },
+            '/code': {
+                target: 'http://localhost:9019/'
             }
         },
     },

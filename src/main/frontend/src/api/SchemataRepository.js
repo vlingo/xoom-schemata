@@ -194,7 +194,7 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
-    loadSource(
+    loadSources(
         organization, unit, context, schema, version, language) {
         let config = {
             headers: {
@@ -202,9 +202,27 @@ export default {
             },
             responseType: 'text'
         };
-        return Repository.get(
-            resources.sources(organization, unit, context, schema, version, language),
-        )
+        Promise.all([
+            this.getOrganization(organization),
+            this.getUnit(organization, unit),
+            this.getContext(organization, unit, context),
+            this.getSchema(organization, unit, context, schema),
+            this.getVersion(organization, unit, context, schema, version),
+        ]).then(([org, unit, context, schema, version]) => {
+            console.log(org);
+            console.log(unit);
+            console.log(context);
+            console.log(schema);
+            console.log(version);
+            Repository.get(
+                resources.sources(
+                    org.name,
+                    unit.name,
+                    context.namespace,
+                    schema.name,
+                    version.currentVersion,
+                    language))
+        })
             .then(ensureOk)
             .then(response => response.data)
     },
