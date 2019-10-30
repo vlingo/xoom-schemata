@@ -3,12 +3,17 @@ import Repository from '@/api/Repository'
 
 const resources = {
     organizations: () => '/organizations',
+    organization: (o) => `/organizations/${o}/units`,
     units: (o) => `/organizations/${o}/units`,
+    unit: (o, u) => `/organizations/${o}/units/${u}`,
     contexts: (o, u) => `/organizations/${o}/units/${u}/contexts`,
+    context: (o, u, c) => `/organizations/${o}/units/${u}/contexts/${c}`,
     categories: () => '/schema/categories',
     scopes: () => '/schema/scopes',
     schemata: (o, u, c) => `/organizations/${o}/units/${u}/contexts/${c}/schemas`,
+    schema: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}`,
     versions: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`,
+    version: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}`,
     versionStatus: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/status`,
     schemaSpecification: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/specification`,
     sources: (o, u, c, s, v, lang) => `/code/${o}:${u}:${c}:${s}:${v}/${lang}`,
@@ -35,9 +40,19 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
+    getOrganization(organization) {
+        return Repository.get(resources.organization(organization))
+            .then(ensureOk)
+            .then(response => response.data)
+    },
 
     getUnits(organization) {
         return Repository.get(resources.units(organization))
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+    getUnit(organization, unit) {
+        return Repository.get(resources.unit(organization, unit))
             .then(ensureOk)
             .then(response => response.data)
     },
@@ -47,6 +62,12 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
+    getContext(organization, unit, context) {
+        return Repository.get(resources.context(organization, unit, context))
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+
     getCategories() {
         return Repository.get(resources.categories())
             .then(ensureOk)
@@ -62,9 +83,19 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
+    getSchema(organization, unit, context, schema) {
+        return Repository.get(resources.schema(organization, unit, context, schema))
+            .then(ensureOk)
+            .then(response => response.data)
+    },
 
     getVersions(organization, unit, context, schema) {
         return Repository.get(resources.versions(organization, unit, context, schema))
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+    getVersion(organization, unit, context, schema, version) {
+        return Repository.get(resources.version(organization, unit, context, schema, version))
             .then(ensureOk)
             .then(response => response.data)
     },
@@ -172,7 +203,7 @@ export default {
             responseType: 'text'
         };
         return Repository.get(
-            resources.sources(organization, unit, context, schema, "java"),
+            resources.sources(organization, unit, context, schema, version, "java"),
         )
             .then(ensureOk)
             .then(response => response.data)
