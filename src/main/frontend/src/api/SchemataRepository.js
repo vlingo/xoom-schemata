@@ -9,6 +9,7 @@ const resources = {
     scopes: () => '/schema/scopes',
     schemata: (o, u, c) => `/organizations/${o}/units/${u}/contexts/${c}/schemas`,
     versions: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`,
+    versionStatus: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/status`,
     schemaSpecification: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/specification`
 }
 
@@ -115,12 +116,11 @@ export default {
     },
     createSchemaVersion(
         organization, unit, context, schema,
-        specification, description, status, previousVersion, currentVersion) {
+        specification, description, previousVersion, currentVersion) {
         return Repository.post(resources.versions(organization, unit, context, schema),
             {
                 schemaVersionId: '',
                 specification: specification,
-                status: status,
                 previousVersion: previousVersion,
                 currentVersion: currentVersion,
                 description: description
@@ -140,6 +140,24 @@ export default {
         return Repository.patch(
             resources.schemaSpecification(organization, unit, context, schema, version),
             specification,
+            config
+        )
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+    
+    setSchemaVersionStatus(
+        organization, unit, context, schema, version, status) {
+
+        let config = {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            responseType: 'text'
+        };
+        return Repository.patch(
+            resources.versionStatus(organization, unit, context, schema, version),
+            status,
             config
         )
             .then(ensureOk)
