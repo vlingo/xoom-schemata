@@ -3,14 +3,20 @@ import Repository from '@/api/Repository'
 
 const resources = {
     organizations: () => '/organizations',
-    units: (o) => `/organizations/${o}/units`,
-    contexts: (o, u) => `/organizations/${o}/units/${u}/contexts`,
+    organization: (o) => `${resources.organizations()}/${o}`,
+    units: (o) => `${resources.organization(o)}/units`,
+    unit: (o, u) => `${resources.units(o)}/${u}`,
+    contexts: (o, u) => `${resources.unit(o, u)}/contexts`,
+    context: (o, u, c) => `${resources.contexts(o, u)}/${c}`,
     categories: () => '/schema/categories',
     scopes: () => '/schema/scopes',
-    schemata: (o, u, c) => `/organizations/${o}/units/${u}/contexts/${c}/schemas`,
-    versions: (o, u, c, s) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions`,
-    versionStatus: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/status`,
-    schemaSpecification: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/specification`
+    schemata: (o, u, c) => `${resources.context(o, u, c)}/schemas`,
+    schema: (o, u, c, s) => `${resources.schemata(o, u, c)}/${s}`,
+    versions: (o, u, c, s) => `${resources.schema(o, u, c, s)}/versions`,
+    version: (o, u, c, s, v) => `${resources.versions(o, u, c, s)}/${v}`,
+    versionStatus: (o, u, c, s, v) => `${resources.version(o, u, c, s, v)}/status`,
+    schemaSpecification: (o, u, c, s, v) => `${resources.version(o, u, c, s, v)}/specification`,
+    sources: (o, u, c, s, v, lang) => `/code/${o}:${u}:${c}:${s}:${v}/${lang}`,
 }
 
 function ensure(response, status) {
@@ -34,9 +40,19 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
+    getOrganization(organization) {
+        return Repository.get(resources.organization(organization))
+            .then(ensureOk)
+            .then(response => response.data)
+    },
 
     getUnits(organization) {
         return Repository.get(resources.units(organization))
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+    getUnit(organization, unit) {
+        return Repository.get(resources.unit(organization, unit))
             .then(ensureOk)
             .then(response => response.data)
     },
@@ -46,6 +62,12 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
+    getContext(organization, unit, context) {
+        return Repository.get(resources.context(organization, unit, context))
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+
     getCategories() {
         return Repository.get(resources.categories())
             .then(ensureOk)
@@ -61,9 +83,19 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
+    getSchema(organization, unit, context, schema) {
+        return Repository.get(resources.schema(organization, unit, context, schema))
+            .then(ensureOk)
+            .then(response => response.data)
+    },
 
     getVersions(organization, unit, context, schema) {
         return Repository.get(resources.versions(organization, unit, context, schema))
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+    getVersion(organization, unit, context, schema, version) {
+        return Repository.get(resources.version(organization, unit, context, schema, version))
             .then(ensureOk)
             .then(response => response.data)
     },
@@ -145,7 +177,6 @@ export default {
             .then(ensureOk)
             .then(response => response.data)
     },
-    
     setSchemaVersionStatus(
         organization, unit, context, schema, version, status) {
 
@@ -160,6 +191,33 @@ export default {
             status,
             config
         )
+            .then(ensureOk)
+            .then(response => response.data)
+    },
+    loadSources(
+        organization, unit, context, schema, version, language) {
+        let config = {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            responseType: 'text'
+        };
+        return Promise.all([
+            this.getOrganization(organization),
+            this.getUnit(organization, unit),
+            this.getContext(organization, unit, context),
+            this.getSchema(organization, unit, context, schema),
+            this.getVersion(organization, unit, context, schema, version),
+        ]).then(([org, unit, context, schema, version]) => {
+            return Repository.get(
+                resources.sources(
+                    org.name,
+                    unit.name,
+                    context.namespace,
+                    schema.name,
+                    version.currentVersion,
+                    language), config)
+        })
             .then(ensureOk)
             .then(response => response.data)
     },
