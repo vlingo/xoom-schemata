@@ -66,7 +66,7 @@
                     </v-col>
 
 
-                    <v-col class="d-flex" cols="4">
+                    <v-col class="d-flex" cols="6">
                         <v-text-field
                                 v-model="previousVersion"
                                 :rules="[rules.notEmpty,rules.versionNumber]"
@@ -75,22 +75,13 @@
                         ></v-text-field>
                     </v-col>
 
-                    <v-col class="d-flex" cols="4">
+                    <v-col class="d-flex" cols="6">
                         <v-text-field
                                 v-model="currentVersion"
                                 :rules="[rules.notEmpty,rules.versionNumber]"
                                 label="Current Version"
                                 required
                         ></v-text-field>
-                    </v-col>
-
-                    <v-col class="d-flex" cols="4">
-                        <v-autocomplete
-                                :items="statuses"
-                                :rules="[rules.notEmpty]"
-                                label="Status"
-                                v-model="status"
-                        ></v-autocomplete>
                     </v-col>
 
                     <v-col cols="12">
@@ -149,10 +140,8 @@
                 schemaVersionId: '',
                 description: '',
                 specification: '',
-                status: 'Draft',
                 previousVersion: '',
                 currentVersion: '',
-                statuses: ['Draft', 'Published', 'Deprecated', 'Removed'],
 
                 descriptionEditorActive: false,
                 specificationEditorActive: false,
@@ -173,7 +162,6 @@
                     this.schema.schemaId,
                     this.specification,
                     this.description,
-                    this.status,
                     this.previousVersion,
                     this.currentVersion)
                     .then((created) => {
@@ -189,6 +177,7 @@
                                 message: `Schema v${vm.currentVersion} created.`,
                                 type: 'success'
                             })
+                            vm.$store.dispatch('loadVersions')
                         }
                     )
                     .catch(function (err) {

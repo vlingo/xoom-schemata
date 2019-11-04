@@ -3,7 +3,7 @@
     <v-card height="45vh" id="schemata-versions">
         <v-list dense>
             <v-list-item-group v-model="selected" color="primary">
-                <v-list-item v-for="v in versions" :key="v.id" ripple>
+                <v-list-item v-for="v in schemaVersions" :key="v.id" ripple>
                     <v-list-item-action>
                         <v-tooltip right>
                             <template v-slot:activator="{ on }">
@@ -26,8 +26,7 @@
 </template>
 
 <script>
-    import {mdiDelete, mdiPencil, mdiTag} from '@mdi/js'
-    import Repository from '@/api/SchemataRepository'
+    import {mdiDelete, mdiLabel, mdiLabelOff, mdiPencil} from '@mdi/js'
     import {mapFields} from 'vuex-map-fields';
 
     export default {
@@ -44,45 +43,31 @@
                 if (value === undefined) {
                     this.version = undefined
                 } else {
-                    this.version = this.versions[value]
+                    this.version = this.schemaVersions[value]
                 }
             }
         },
         computed: {
             ...mapFields([
                 'schema',
-                'version'
+                'schemaVersions',
+                'version',
             ]),
-        },
-        asyncComputed: {
-            async versions() {
-                if (!(this.schema)) {
-                    return
-                }
-
-                let vm = this
-                return await Repository.getVersions(
-                    this.schema.organizationId,
-                    this.schema.unitId,
-                    this.schema.contextId,
-                    this.schema.schemaId)
-                    .catch(function (err) {
-                        vm.$emit('vs-error', {status: 0, message: err})
-                    });
-            }
         },
         methods: {
             icon(version) {
                 if (!version) return '';
                 switch (version.status) {
                     case 'Published':
-                        return mdiTag
+                        return mdiLabel
                     case 'Draft':
                         return mdiPencil
+                    case 'Deprecated':
+                        return mdiLabelOff
                     case 'Removed':
                         return mdiDelete
                     default:
-                        return 'insert_drive_file'
+                        return ''
                 }
             }
         }

@@ -38,7 +38,7 @@ public class HSQLDBSchemataObjectStore extends SchemataObjectStore {
               "description VARCHAR(8000) " +
               ")");
 
-      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_PARENT_INDEX ON TBL_UNITS (organizationId)");
+      jdbi.handle().execute("CREATE INDEX IF NOT EXISTS UNIT_PARENT_INDEX ON TBL_UNITS (organizationId)");
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS UNIT_ALL_INDEX ON TBL_UNITS (organizationId, unitId)");
       jdbi.handle().execute("ALTER TABLE TBL_UNITS ADD CONSTRAINT IF NOT EXISTS UNIT_ALL_UNIQUE UNIQUE (organizationId, name)");
   }
@@ -56,7 +56,7 @@ public class HSQLDBSchemataObjectStore extends SchemataObjectStore {
               "description VARCHAR(8000) " +
               ")");
 
-      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS CONTEXT_PARENT_INDEX ON TBL_CONTEXTS (organizationId, unitId)");
+      jdbi.handle().execute("CREATE INDEX IF NOT EXISTS CONTEXT_PARENT_INDEX ON TBL_CONTEXTS (organizationId, unitId)");
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS CONTEXT_ALL_INDEX ON TBL_CONTEXTS (organizationId, unitId, contextId)");
 
       jdbi.handle().execute("ALTER TABLE TBL_CONTEXTS ADD CONSTRAINT IF NOT EXISTS CONTEXT_ALL_UNIQUE UNIQUE (organizationId, unitId, namespace)");
@@ -78,7 +78,7 @@ public class HSQLDBSchemataObjectStore extends SchemataObjectStore {
               "description VARCHAR(8000) " +
               ")");
 
-      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMA_PARENT_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId)");
+      jdbi.handle().execute("CREATE INDEX IF NOT EXISTS SCHEMA_PARENT_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId)");
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMA_ALL_INDEX ON TBL_SCHEMAS (organizationId, unitId, contextId, schemaId)");
       jdbi.handle().execute("ALTER TABLE TBL_SCHEMAS ADD CONSTRAINT IF NOT EXISTS SCHEMA_ALL_UNIQUE UNIQUE (organizationId, unitId, contextId, category, name)");
   }
@@ -117,7 +117,7 @@ public class HSQLDBSchemataObjectStore extends SchemataObjectStore {
 //              "UNIQUE (schemaId, currentVersion) " +
               ")");
 
-      jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_PARENT_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId)");
+      jdbi.handle().execute("CREATE INDEX IF NOT EXISTS SCHEMAVERSION_PARENT_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId)");
       jdbi.handle().execute("CREATE UNIQUE INDEX IF NOT EXISTS SCHEMAVERSION_ALL_INDEX ON TBL_SCHEMAVERSIONS (organizationId, unitId, contextId, schemaId, schemaVersionId)");
       jdbi.handle().execute("ALTER TABLE TBL_SCHEMAVERSIONS ADD CONSTRAINT IF NOT EXISTS SCHEMAVERSIION_ALL_UNIQUE UNIQUE (organizationId, unitId, contextId, schemaId, currentVersion)");
   }

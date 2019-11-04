@@ -133,7 +133,6 @@ describe('Entity Creation Tests', function () {
         cy.fieldContent('SchemaVersionID').should('be.empty')
         cy.fillField('Previous Version', prevVersion)
         cy.fillField('Current Version', currentVersion)
-        cy.selectOption('Status', faker.random.arrayElement(['Draft', 'Published', 'Deprecated', 'Removed']))
         cy.fillEditor('#description-editor', faker.lorem.sentence())
         cy.fillEditor('#specification-editor', 'event SalutationHappened {\n' +
             '    type eventType')

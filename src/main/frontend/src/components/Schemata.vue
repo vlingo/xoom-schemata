@@ -80,7 +80,7 @@
                     return [this.$store.schema]
                 },
                 set(value) {
-                    this.$store.commit('selectSchema', value[0])
+                    this.$store.dispatch('selectSchema', value[0])
                 }
             },
 
@@ -100,6 +100,7 @@
                             vm.items.push(organization)
                         }
                     })
+                    .catch((err) => vm.$store.commit('raiseError', {message: err}))
             },
 
             async loadChildren(item) {
