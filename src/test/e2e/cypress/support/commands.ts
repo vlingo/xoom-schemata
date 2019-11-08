@@ -43,3 +43,11 @@ Cypress.Commands.add("selectOption", (label: string, optionLabel: string) => {
         .contains('.v-list-item', optionLabel)
         .click({force: true})
 })
+
+Cypress.Commands.add("expandSchemaTree", (data: Cypress.SchemataTestData) => {
+    cy.fillField('Search', data.organization.name)
+    cy.contains('.v-treeview-node__label', data.organization.name).click()
+    cy.contains('.v-treeview-node__label', data.unit.name).click()
+    cy.contains('.v-treeview-node__label', data.context.namespace).click()
+    cy.contains('.v-treeview-node__label', data.schema.name).click()
+})
