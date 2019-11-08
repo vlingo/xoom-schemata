@@ -7,16 +7,38 @@
 
 package io.vlingo.schemata.infra.persistence;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.actors.testkit.TestUntil;
 import io.vlingo.common.Outcome;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.NoopDispatcher;
-import io.vlingo.schemata.model.*;
-import io.vlingo.schemata.model.Id.*;
+import io.vlingo.schemata.model.Category;
+import io.vlingo.schemata.model.ContextState;
+import io.vlingo.schemata.model.Id.ContextId;
+import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.schemata.model.Id.SchemaVersionId;
+import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.schemata.model.OrganizationState;
+import io.vlingo.schemata.model.SchemaState;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersion.Version;
+import io.vlingo.schemata.model.SchemaVersionState;
+import io.vlingo.schemata.model.Scope;
+import io.vlingo.schemata.model.UnitState;
 import io.vlingo.symbio.store.Result;
 import io.vlingo.symbio.store.StorageException;
 import io.vlingo.symbio.store.object.ListQueryExpression;
@@ -24,15 +46,6 @@ import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.ObjectStoreReader.QueryMode;
 import io.vlingo.symbio.store.object.StateSources;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SchemataObjectStoreTest {
@@ -306,6 +319,7 @@ public class SchemataObjectStoreTest {
         ;
     }
 
+    @SuppressWarnings("unused")
     private void querySelect(final TestQueryResultInterest queryInterest, Class<?> type, final String name, final long id) {
         objectStore.queryObject(
                 MapQueryExpression.using(
