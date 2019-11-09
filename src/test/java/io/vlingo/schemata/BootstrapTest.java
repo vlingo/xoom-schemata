@@ -14,6 +14,7 @@ import org.junit.Test;
 public class BootstrapTest {
 
   @Test
+  @Ignore
   public void testThatBootstrapStartsServerCleanly() throws Exception {
     final Bootstrap bootstrap = Bootstrap.instance("dev");
 
