@@ -9,6 +9,7 @@ package io.vlingo.schemata;
 
 import static org.junit.Assert.assertNotNull;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class BootstrapTest {
