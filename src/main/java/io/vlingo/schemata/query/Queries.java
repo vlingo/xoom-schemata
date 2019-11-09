@@ -27,7 +27,7 @@ public class Queries {
     contextQueries = stage.actorFor(ContextQueries.class, ContextQueriesActor.class, objectStore);
     schemaQueries = stage.actorFor(SchemaQueries.class, SchemaQueriesActor.class, objectStore);
     schemaVersionQueries = stage.actorFor(SchemaVersionQueries.class, SchemaVersionQueriesActor.class, objectStore);
-    codeQueries = stage.actorFor(CodeQueries.class, CodeQueriesActor.class, organizationQueries, unitQueries, contextQueries, schemaQueries, schemaVersionQueries);
+    codeQueries = stage.actorFor(CodeQueries.class, CodeQueriesActor.class, schemaVersionQueries);
   }
 
   public static OrganizationQueries forOrganizations() {
