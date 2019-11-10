@@ -40,13 +40,27 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/project
-      - run: |
-          java -jar ~/project/target/vlingo-schemata-*-jar-with-dependencies.jar dev &
-          export CYPRESS_BASE_URL=http://localhost:9019/app/
-          export API_URL=http://localhost:9019
-          cd ~/project/src/test/e2e
-          npm install
-          npm run test-multiple
+      - restore_cache:
+          keys:
+            - v1-test-dependencies-{{ checksum "src/test/e2e/package.json" }}
+            - v1-test-dependencies-
+      - run:
+          name: Get test dependencies
+          command: |
+            cd ~/project/src/test/e2e
+            npm install
+      - save_cache:
+          paths:
+            - src/test/e2e/node_modules
+          key: v1-test-dependencies-{{ checksum "src/main/frontend/package.json" }}
+      - run:
+          name: Start server & run E2E tests
+          command: |
+            java -jar ~/project/target/vlingo-schemata-*-jar-with-dependencies.jar dev &
+            export CYPRESS_BASE_URL=http://localhost:9019/app/
+            export API_URL=http://localhost:9019
+            cd ~/project/src/test/e2e
+            npm run test-multiple
       - store_test_results:
           path: src/test/e2e/multiple-results
       - store_artifacts:
