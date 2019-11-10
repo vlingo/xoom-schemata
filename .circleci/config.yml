@@ -57,6 +57,7 @@ jobs:
       - run:
           name: Start server & run E2E tests
           command: |
+            export _JAVA_OPTIONS="-Xmx3800m -Xms3800m" #FIXME: Revert this after figuring out why the server consumes so much mem (#81)
             java -jar ~/project/target/vlingo-schemata-*-jar-with-dependencies.jar dev &
             export CYPRESS_BASE_URL=http://localhost:9019/app/
             export API_URL=http://localhost:9019
