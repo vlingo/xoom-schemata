@@ -42,8 +42,8 @@ jobs:
           at: ~/project
       - restore_cache:
           keys:
-            - v1-test-dependencies-{{ checksum "src/test/e2e/package.json" }}
-            - v1-test-dependencies-
+            - v2-test-dependencies-{{ checksum "src/test/e2e/package.json" }}
+            - v2-test-dependencies-
       - run:
           name: Get test dependencies
           command: |
@@ -52,7 +52,8 @@ jobs:
       - save_cache:
           paths:
             - src/test/e2e/node_modules
-          key: v1-test-dependencies-{{ checksum "src/main/frontend/package.json" }}
+            - /home/circleci/.cache/Cypress
+          key: v2-test-dependencies-{{ checksum "src/main/frontend/package.json" }}
       - run:
           name: Start server & run E2E tests
           command: |
