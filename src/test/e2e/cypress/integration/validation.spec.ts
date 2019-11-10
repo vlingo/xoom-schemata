@@ -72,8 +72,6 @@ describe('Form Validation Tests', function () {
         cy.contains('button', 'Create').should('be.disabled')
         cy.fillField('Current Version', currentVersion).get('.v-messages__message')
         cy.contains('button', 'Create').should('be.disabled')
-        cy.selectOption('Status', faker.random.arrayElement(['Draft', 'Published', 'Deprecated', 'Removed']))
-        cy.contains('button', 'Create').should('be.disabled')
         cy.fillEditor('#description-editor', faker.lorem.sentence())
         cy.contains('button', 'Create').should('be.disabled')
         cy.fillEditor('#specification-editor', 'event SalutationHappened {\n' +
