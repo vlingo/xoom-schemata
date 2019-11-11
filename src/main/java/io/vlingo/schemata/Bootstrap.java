@@ -70,8 +70,8 @@ public class Bootstrap {
       SCHEMATA_PORT,
       Configuration.Sizing.define()
           .withDispatcherPoolSize(2)
-          .withMaxBufferPoolSize(50)
-          .withMaxMessageSize(4096),
+          .withMaxBufferPoolSize(25)
+          .withMaxMessageSize(16777215),
       Configuration.Timing.define());
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (instance != null) {
