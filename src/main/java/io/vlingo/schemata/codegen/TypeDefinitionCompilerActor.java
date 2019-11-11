@@ -7,10 +7,6 @@
 
 package io.vlingo.schemata.codegen;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.function.Function;
-
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
@@ -18,6 +14,10 @@ import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
+
+import java.io.InputStream;
+import java.util.List;
+import java.util.function.Function;
 
 public class TypeDefinitionCompilerActor extends Actor implements TypeDefinitionCompiler {
     private final TypeParser parser;
@@ -32,7 +32,29 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
 
     @Override
     public Completes<String> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version) {
-        Function<Node, Completes<Node>> process = node -> {
+        CompletesEventually eventually = completesEventually();
+
+        parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
+                .andThenTo(this.process(fullyQualifiedTypeName))
+                .andThenTo(tree -> backend.generateOutput(tree, version))
+                .andThenConsume(eventually::with);
+
+        return completes();
+    }
+
+    @Override
+    public Completes<Node> compileToAST(final InputStream typeDefinition, final String fullyQualifiedTypeName) {
+        CompletesEventually eventually = completesEventually();
+
+        parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
+                .andThenTo(this.process(fullyQualifiedTypeName))
+                .andThenConsume(eventually::with);
+
+        return completes();
+    }
+
+    private Function<Node, Completes<Node>> process(String fullyQualifiedTypeName) {
+        return node -> {
             Completes<Node> result = Completes.withSuccess(node);
             for (Processor p : processors) {
                 result = result.andThenTo(n -> p.process(n, fullyQualifiedTypeName));
@@ -40,14 +62,5 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
 
             return result;
         };
-
-        CompletesEventually eventually = completesEventually();
-
-        parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
-                .andThenTo(process)
-                .andThenTo(tree -> backend.generateOutput(tree, version))
-                .andThenConsume(eventually::with);
-
-        return completes();
     }
 }
