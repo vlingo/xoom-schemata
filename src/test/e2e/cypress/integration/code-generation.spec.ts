@@ -10,23 +10,19 @@ describe('Schemata View Tests', function () {
         cy.viewport(1280, 960)
     });
 
-    it('can browse schemata', function () {
+    it('can update schema version state', function () {
         cy.task('schemata:withTestData').then(testData => {
             let data = <Cypress.SchemataTestData><unknown>testData
+
             cy.visit("/#/schemata")
             cy.expandSchemaTree(data)
 
             // Select version
             cy.contains('.v-list-item__title', data.version.currentVersion).click()
 
-            // Assert spec & desc
-            cy.editorContent('#specification-editor').should('contain', 'event SalutationHappened')
-            cy.editorContent('#specification-editor').should('contain', 'type eventType')
+            cy.contains('button', 'Source').click()
+            cy.editorContent('#source-editor').should('contain', 'public final class SalutationHappened')
 
-            cy.contains('.v-tab', 'Description').click()
-            cy.contains('.v-window-item--active', data.version.description)
         })
-
-
     });
 });
