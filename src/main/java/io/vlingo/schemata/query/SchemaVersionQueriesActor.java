@@ -41,10 +41,10 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
 
   private static final String ByHierarchy =
           "SELECT sv.* FROM TBL_ORGANIZATIONS AS o " +
-          "JOIN TBL_UNITS AS u ON u.organizationId = o.id " +
-          "JOIN TBL_CONTEXTS AS c ON c.unitId = c.id " +
-          "JOIN TBL_SCHEMAS AS s ON s.contextId = c.id " +
-          "JOIN TBL_SCHEMAVERSIONS AS sv ON sv.schemaId = s.id " +
+          "JOIN TBL_UNITS AS u ON u.organizationId = o.organizationId " +
+          "JOIN TBL_CONTEXTS AS c ON c.unitId = u.unitId " +
+          "JOIN TBL_SCHEMAS AS s ON s.contextId = c.contextId " +
+          "JOIN TBL_SCHEMAVERSIONS AS sv ON sv.schemaId = s.schemaId " +
           "WHERE o.name = :organization AND u.name = :unit AND c.namespace = :context AND s.name = :schema AND sv.currentVersion = :currentVersion";
 
   Tuple2<SchemaVersionData,SemanticVersion> tempCurrentVersion;
