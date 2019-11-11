@@ -7,11 +7,12 @@
 
 package io.vlingo.schemata.codegen.processor.types;
 
+import io.vlingo.common.Completes;
+import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 
 public class CacheTypeResolver implements TypeResolver {
     private final Map<String, TypeDefinition> types;
@@ -21,13 +22,13 @@ public class CacheTypeResolver implements TypeResolver {
     }
 
     @Override
-    public Optional<TypeDefinition> resolve(String fullQualifiedTypeName, final String simpleTypeName) {
+    public Completes<Optional<TypeDefinition>> resolve(String fullQualifiedTypeName, final String simpleTypeName) {
         for (final TypeDefinition type : types.values()) {
           if (type.fullyQualifiedTypeName.equals(fullQualifiedTypeName) || type.typeName.equals(simpleTypeName)) {
-            return Optional.of(type);
+            return Completes.withSuccess(Optional.of(type));
           }
         }
-        return Optional.empty();
+        return Completes.withSuccess(Optional.empty());
     }
 
     public void produce(TypeDefinition typeDefinition, String version) {
