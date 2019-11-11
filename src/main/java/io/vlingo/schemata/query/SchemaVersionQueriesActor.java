@@ -12,6 +12,7 @@ import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple2;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.lattice.query.StateObjectQueryActor;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.model.SchemaVersionState;
@@ -100,7 +101,7 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
   }
 
   @Override
-  public Completes<Optional<TypeDefinition>> resolve(final String fullQualifiedTypeName) {
+  public Completes<Optional<TypeDefinition>> resolve(final TypeDefinitionMiddleware middleware, final String fullQualifiedTypeName) {
     return null;
   }
 

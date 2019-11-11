@@ -8,6 +8,7 @@
 package io.vlingo.schemata.codegen.processor.types;
 
 import io.vlingo.common.Completes;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 
 import java.util.HashMap;
@@ -22,7 +23,7 @@ public class CacheTypeResolver implements TypeResolver {
     }
 
     @Override
-    public Completes<Optional<TypeDefinition>> resolve(String fullQualifiedTypeName) {
+    public Completes<Optional<TypeDefinition>> resolve(final TypeDefinitionMiddleware middleware, final String fullQualifiedTypeName) {
         for (final TypeDefinition type : types.values()) {
           if (type.fullyQualifiedTypeName.equals(fullQualifiedTypeName)) {
             return Completes.withSuccess(Optional.of(type));

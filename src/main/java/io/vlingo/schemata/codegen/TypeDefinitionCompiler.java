@@ -10,7 +10,6 @@ package io.vlingo.schemata.codegen;
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
-import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
@@ -86,7 +85,6 @@ public interface TypeDefinitionCompiler {
    * @return {@code Completes<String>}
    */
   Completes<String> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version);
-  Completes<Node> compileToAST(final InputStream typeDefinition, final String fullyQualifiedTypeName);
 
   // INTERNAL USE ONLY
   static class __TypeDefinitionCompiler__Holder {

@@ -9,6 +9,7 @@ package io.vlingo.schemata.codegen.processor.types;
 
 import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.ast.types.BasicType;
@@ -30,12 +31,12 @@ public class TypeResolverProcessor extends Actor implements Processor {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Completes<Node> process(Node node, final String fullyQualifiedTypeName) {
+    public Completes<Node> process(final Node node, final TypeDefinitionMiddleware middleware, final String fullyQualifiedTypeName) {
         TypeDefinition type = Processor.requireBeing(node, TypeDefinition.class);
 
         List<Completes<Node>> processedTypeList = type.children.stream()
                 .map(e -> (FieldDefinition) e)
-                .map(this::resolveType)
+                .map(fieldDefinition -> this.resolveType(middleware, fieldDefinition))
                 .map(e -> (Completes) e)
                 .map(e -> (Completes<Node>) e)
                 .collect(Collectors.toList());
@@ -49,13 +50,13 @@ public class TypeResolverProcessor extends Actor implements Processor {
 
     }
 
-    private Completes<FieldDefinition> resolveType(FieldDefinition fieldDefinition) {
+    private Completes<FieldDefinition> resolveType(final TypeDefinitionMiddleware middleware, final FieldDefinition fieldDefinition) {
       final Type typeNode = fieldDefinition.type;
 
       if (typeNode instanceof BasicType) {
           final BasicType basicType = (BasicType) typeNode;
 
-          Completes<Type> resolvedType = resolver.resolve(basicType.typeName)
+          Completes<Type> resolvedType = resolver.resolve(middleware, basicType.typeName)
                   .andThen(foundType -> foundType.map(definition -> (Type) definition).orElse(basicType));
 
           return resolvedType.andThen(type ->

@@ -8,10 +8,11 @@
 package io.vlingo.schemata.codegen.processor.types;
 
 import io.vlingo.common.Completes;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 
 import java.util.Optional;
 
 public interface TypeResolver {
-    Completes<Optional<TypeDefinition>> resolve(final String fullQualifiedTypeName);
+    Completes<Optional<TypeDefinition>> resolve(final TypeDefinitionMiddleware middleware, final String fullQualifiedTypeName);
 }

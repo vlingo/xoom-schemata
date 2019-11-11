@@ -19,15 +19,17 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.function.Function;
 
-public class TypeDefinitionCompilerActor extends Actor implements TypeDefinitionCompiler {
+public class TypeDefinitionCompilerActor extends Actor implements TypeDefinitionCompiler, TypeDefinitionMiddleware {
     private final TypeParser parser;
     private final List<Processor> processors;
     private final Backend backend;
+    private final TypeDefinitionMiddleware middleware;
 
     public TypeDefinitionCompilerActor(final TypeParser parser, final List<Processor> processors, final Backend backend) {
         this.parser = parser;
         this.processors = processors;
         this.backend = backend;
+        this.middleware = selfAs(TypeDefinitionMiddleware.class);
     }
 
     @Override
@@ -53,11 +55,11 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
         return completes();
     }
 
-    private Function<Node, Completes<Node>> process(String fullyQualifiedTypeName) {
+    private Function<Node, Completes<Node>> process(final String fullyQualifiedTypeName) {
         return node -> {
             Completes<Node> result = Completes.withSuccess(node);
             for (Processor p : processors) {
-                result = result.andThenTo(n -> p.process(n, fullyQualifiedTypeName));
+                result = result.andThenTo(n -> p.process(n, middleware, fullyQualifiedTypeName));
             }
 
             return result;
