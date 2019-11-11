@@ -9,7 +9,6 @@ package io.vlingo.schemata.codegen.processor.types;
 
 import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
-import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.ast.types.BasicType;
@@ -56,7 +55,7 @@ public class TypeResolverProcessor extends Actor implements Processor {
       if (typeNode instanceof BasicType) {
           final BasicType basicType = (BasicType) typeNode;
 
-          Completes<Type> resolvedType = resolver.resolve(basicType.typeName, simple(basicType.typeName))
+          Completes<Type> resolvedType = resolver.resolve(basicType.typeName)
                   .andThen(foundType -> foundType.map(definition -> (Type) definition).orElse(basicType));
 
           return resolvedType.andThen(type ->
@@ -65,14 +64,6 @@ public class TypeResolverProcessor extends Actor implements Processor {
       }
 
       return Completes.withSuccess(fieldDefinition);
-    }
-
-    private String simple(final String typeName) {
-      final int last = typeName.lastIndexOf(Schemata.ReferenceSeparator);
-      if (last > 0) {
-        return typeName.substring(last + 1);
-      }
-      return typeName;
     }
 
     private <T> Completes<List<T>> unwrap(List<Completes<T>> completes) {

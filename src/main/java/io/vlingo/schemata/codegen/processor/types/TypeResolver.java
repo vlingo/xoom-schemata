@@ -13,5 +13,5 @@ import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import java.util.Optional;
 
 public interface TypeResolver {
-    Completes<Optional<TypeDefinition>> resolve(final String fullQualifiedTypeName, final String simpleTypeName);
+    Completes<Optional<TypeDefinition>> resolve(final String fullQualifiedTypeName);
 }

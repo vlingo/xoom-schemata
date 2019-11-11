@@ -100,7 +100,7 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
   }
 
   @Override
-  public Completes<Optional<TypeDefinition>> resolve(String fullQualifiedTypeName, String simpleTypeName) {
+  public Completes<Optional<TypeDefinition>> resolve(final String fullQualifiedTypeName) {
     return null;
   }
 

@@ -22,9 +22,9 @@ public class CacheTypeResolver implements TypeResolver {
     }
 
     @Override
-    public Completes<Optional<TypeDefinition>> resolve(String fullQualifiedTypeName, final String simpleTypeName) {
+    public Completes<Optional<TypeDefinition>> resolve(String fullQualifiedTypeName) {
         for (final TypeDefinition type : types.values()) {
-          if (type.fullyQualifiedTypeName.equals(fullQualifiedTypeName) || type.typeName.equals(simpleTypeName)) {
+          if (type.fullyQualifiedTypeName.equals(fullQualifiedTypeName)) {
             return Completes.withSuccess(Optional.of(type));
           }
         }
