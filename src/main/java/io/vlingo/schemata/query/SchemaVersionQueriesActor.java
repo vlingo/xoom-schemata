@@ -12,6 +12,7 @@ import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple2;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.lattice.query.StateObjectQueryActor;
+import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.types.TypeResolver;
@@ -21,6 +22,7 @@ import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.QueryExpression;
 
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +104,23 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
 
   @Override
   public Completes<Optional<TypeDefinition>> resolve(final TypeDefinitionMiddleware middleware, final String fullQualifiedTypeName) {
-    return null;
+    String[] parts = fullQualifiedTypeName.split(Schemata.ReferenceSeparator);
+    parameters.clear();
+    parameters.put("organizationId", parts[0]);
+    parameters.put("unitId", parts[1]);
+    parameters.put("contextId", parts[2]);
+    parameters.put("schemaId", parts[3]);
+    parameters.put("currentVersion", GreatestVersion);
+
+    if (parts.length > 4) {
+      parameters.put("currentVersion", parts[4]);
+    }
+
+    return queryOne(ByCurrentVersion, parameters)
+            .andThen(data -> data.specification)
+            .andThenTo(spec -> middleware.compileToAST(new ByteArrayInputStream(spec.getBytes()), fullQualifiedTypeName))
+            .andThen(node -> Optional.of((TypeDefinition) node))
+            .otherwise(ex -> Optional.empty());
   }
 
   private Completes<SchemaVersionData> queryGreatest(final String organizationId, final String unitId, final String contextId, final String schemaId) {
