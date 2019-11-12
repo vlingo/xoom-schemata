@@ -8,7 +8,7 @@
             <div class="flex-grow-1"></div>
 
         </v-app-bar>
-        <v-progress-linear height="5px" :indeterminate="$store.state.loading" :value="$store.state.loading ? false : 100" style="z-index: 10" fixed></v-progress-linear>
+        <v-progress-linear height="5px" :indeterminate="$store.state.loading" :value="$store.state.loading ? 0 : 100" style="z-index: 10" :background-opacity="0.3" fixed></v-progress-linear>
 
         <v-navigation-drawer
                 app
