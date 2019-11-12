@@ -184,7 +184,7 @@
                         <goal>npm</goal>
                     </goals>
                     <configuration>
-                        <arguments>npm install node-gyp</arguments>
+                        <arguments>install node-gyp</arguments>
                     </configuration>
                 </execution>
               <execution>
