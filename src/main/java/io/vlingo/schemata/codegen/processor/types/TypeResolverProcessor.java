@@ -7,18 +7,20 @@
 
 package io.vlingo.schemata.codegen.processor.types;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
-import io.vlingo.schemata.Schemata;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.ast.types.BasicType;
 import io.vlingo.schemata.codegen.ast.types.Type;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.Processor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 public class TypeResolverProcessor extends Actor implements Processor {
     private final TypeResolver resolver;
@@ -28,42 +30,58 @@ public class TypeResolverProcessor extends Actor implements Processor {
     }
 
     @Override
-    public Completes<Node> process(Node node, final String fullyQualifiedTypeName) {
+    @SuppressWarnings("unchecked")
+    public Completes<Node> process(final Node node, final TypeDefinitionMiddleware middleware, final String fullyQualifiedTypeName) {
         TypeDefinition type = Processor.requireBeing(node, TypeDefinition.class);
 
-        List<Node> processedTypes = type.children.stream()
+        List<Completes<Node>> processedTypeList = type.children.stream()
                 .map(e -> (FieldDefinition) e)
-                .map(this::resolveType)
+                .map(fieldDefinition -> this.resolveType(middleware, fieldDefinition))
+                .map(e -> (Completes) e)
+                .map(e -> (Completes<Node>) e)
                 .collect(Collectors.toList());
 
-        completesEventually().with(new TypeDefinition(type.category, fullyQualifiedTypeName, type.typeName, processedTypes));
+        Completes<List<Node>> eventuallyProcessedTypes = unwrap(processedTypeList);
+        eventuallyProcessedTypes.andFinallyConsume(processedTypes -> {
+            completesEventually().with(new TypeDefinition(type.category, fullyQualifiedTypeName, type.typeName, processedTypes));
+        });
+
         return completes();
 
     }
 
-    private FieldDefinition resolveType(FieldDefinition fieldDefinition) {
+    private Completes<FieldDefinition> resolveType(final TypeDefinitionMiddleware middleware, final FieldDefinition fieldDefinition) {
       final Type typeNode = fieldDefinition.type;
 
       if (typeNode instanceof BasicType) {
           final BasicType basicType = (BasicType) typeNode;
 
-          final Type type =
-                  resolver
-                    .resolve(basicType.typeName, simple(basicType.typeName))
-                    .map(definition -> (Type) definition)
-                    .orElse(basicType);
+          Completes<Type> resolvedType = resolver.resolve(middleware, basicType.typeName)
+                  .andThen(foundType -> foundType.map(definition -> (Type) definition).orElse(basicType));
 
-          return new FieldDefinition(type, fieldDefinition.version, fieldDefinition.name, fieldDefinition.defaultValue);
+          return resolvedType.andThen(type ->
+                  new FieldDefinition(type, fieldDefinition.version, fieldDefinition.name, fieldDefinition.defaultValue)
+          );
       }
 
-      return fieldDefinition;
+      return Completes.withSuccess(fieldDefinition);
     }
 
-    private String simple(final String typeName) {
-      final int last = typeName.lastIndexOf(Schemata.ReferenceSeparator);
-      if (last > 0) {
-        return typeName.substring(last + 1);
-      }
-      return typeName;
+    private <T> Completes<List<T>> unwrap(List<Completes<T>> completes) {
+        CountDownLatch latch = new CountDownLatch(completes.size());
+        List<T> result = new ArrayList<>(completes.size());
+        completes.forEach(complete -> {
+            complete.andThenConsume(result::add)
+                    .andFinallyConsume(e -> latch.countDown());
+        });
+
+        return Completes.withSuccess(result)
+                .andThenConsume(i -> {
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        logger().error("TypeResolverProcessor could not unwrap list of Completes<T> " + e.getMessage(), e);
+                    }
+                });
     }
 }
