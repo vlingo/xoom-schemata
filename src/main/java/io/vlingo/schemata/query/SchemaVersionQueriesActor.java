@@ -45,6 +45,14 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
             "AND schemaId = :schemaId " +
             "AND currentVersion = :currentVersion";
 
+  private static final String ByHierarchy =
+          "SELECT sv.* FROM TBL_ORGANIZATIONS AS o " +
+          "JOIN TBL_UNITS AS u ON u.organizationId = o.organizationId " +
+          "JOIN TBL_CONTEXTS AS c ON c.unitId = u.unitId " +
+          "JOIN TBL_SCHEMAS AS s ON s.contextId = c.contextId " +
+          "JOIN TBL_SCHEMAVERSIONS AS sv ON sv.schemaId = s.schemaId " +
+          "WHERE o.name = :organization AND u.name = :unit AND c.namespace = :context AND s.name = :schema AND sv.currentVersion = :currentVersion";
+
   Tuple2<SchemaVersionData,SemanticVersion> tempCurrentVersion;
 
   private final Map<String,String> parameters;
@@ -85,6 +93,18 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
     parameters.put("schemaVersionId", schemaVersionId);
 
     return queryOne(ById, parameters);
+  }
+
+  @Override
+  public Completes<SchemaVersionData> schemaVersionOf(String organization, String unit, String context, String schema, String schemaVersion) {
+    parameters.clear();
+    parameters.put("organization", organization);
+    parameters.put("unit", unit);
+    parameters.put("context", context);
+    parameters.put("schema", schema);
+    parameters.put("currentVersion", schemaVersion);
+
+    return queryOne(ByHierarchy, parameters);
   }
 
   @Override
