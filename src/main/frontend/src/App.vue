@@ -8,7 +8,7 @@
             <div class="flex-grow-1"></div>
 
         </v-app-bar>
-        <v-system-bar height="5px" color="primary" style="z-index: 10" fixed></v-system-bar>
+        <v-progress-linear height="5px" :indeterminate="$store.state.loading" :value="$store.state.loading ? false : 100" style="z-index: 10" fixed></v-progress-linear>
 
         <v-navigation-drawer
                 app
@@ -85,6 +85,7 @@
         mdiSync,
         mdiTag
     } from '@mdi/js'
+    import { mapFields } from 'vuex-map-fields';
 
     export default {
         name: 'App',
@@ -121,6 +122,11 @@
                 }
             },
         },
+      computed: {
+        ...mapFields([
+          'loading',
+        ]),
+      },
         created: function () {
             this.$store.watch(state => state.error, () => {
                 if (this.$store.state.error) {
