@@ -29,13 +29,18 @@
                             <v-icon v-on="on">
                                 {{icons.categories[item.category]}}
                             </v-icon>
-
                         </template>
                         <span>{{item.category}}</span>
                     </v-tooltip>
-
-
                 </template>
+              <template v-slot:label="{ item, open }">
+              {{item.name}}
+              <v-btn icon><v-icon >{{ icons.edit }}</v-icon></v-btn>
+
+              </template>
+              <template v-slot:append="{ item, open }">
+
+              </template>
             </v-treeview>
         </v-card-text>
     </v-card>
@@ -50,7 +55,8 @@
         mdiEmailOpen,
         mdiFileDocument,
         mdiHelpCircle,
-        mdiPlaylistPlay
+        mdiPlaylistPlay,
+        mdiPencil
     } from '@mdi/js'
 
     export default {
@@ -60,6 +66,7 @@
             open: [],
             icons: {
                 close: mdiClose,
+                edit: mdiPencil,
                 categories: {
                     Command: mdiCogs,
                     Data: mdiDatabase,
