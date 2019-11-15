@@ -26,7 +26,7 @@ import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.object.ObjectStore;
 
 public class Bootstrap {
-  private static final int SCHEMATA_PORT = 9019;
+  static final int SCHEMATA_PORT = 9019;
 
   private static Bootstrap instance;
   private final Server server;
@@ -71,7 +71,7 @@ public class Bootstrap {
       Configuration.Sizing.define()
           .withDispatcherPoolSize(2)
           .withMaxBufferPoolSize(100)
-          .withMaxMessageSize(1048576),
+          .withMaxMessageSize(4096),
       Configuration.Timing.define());
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (instance != null) {

@@ -28,11 +28,14 @@ Cypress.Commands.add("fieldContent", (label: string) => {
 
 Cypress.Commands.add("editorContent", (id: string) => {
     cy.get(id)
-        .get('.monaco-editor .lines-content')
+      .should('be.visible')
+      .within(($editor) => {
+      cy.wait(500).get('.monaco-editor .lines-content')
         .then(content => content.text()
-            .replace(/\s+/g, ' ')
-            .trim()
+          .replace(/\s+/g, ' ')
+          .trim()
         )
+    })
 })
 
 Cypress.Commands.add("selectOption", (label: string, optionLabel: string) => {
