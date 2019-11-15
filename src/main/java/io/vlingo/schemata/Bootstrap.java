@@ -26,8 +26,8 @@ import io.vlingo.symbio.store.object.ObjectStore;
 import static io.vlingo.schemata.Schemata.*;
 
 public class Bootstrap {
-   static final int SCHEMATA_PORT_API = 9019;
-   static final int SCHEMATA_PORT_UI = 9020;
+  private static final int SCHEMATA_PORT_API = 9019;
+  private static final int SCHEMATA_PORT_UI = 9020;
 
   private static Bootstrap instance;
   private final Server apiServer;
