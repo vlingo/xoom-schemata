@@ -1,4 +1,4 @@
-describe('Schemata View Tests', function () {
+describe('Code Generation Tests', function () {
     before(() => {
     });
 
@@ -10,7 +10,7 @@ describe('Schemata View Tests', function () {
         cy.viewport(1280, 960)
     });
 
-    it('can update schema version state', function () {
+    it('can generate java code', function () {
         cy.task('schemata:withTestData').then(testData => {
             let data = <Cypress.SchemataTestData><unknown>testData
 
