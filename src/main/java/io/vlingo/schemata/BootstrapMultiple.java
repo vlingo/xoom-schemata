@@ -23,7 +23,8 @@ public class BootstrapMultiple {
   private static BootstrapMultiple instance;
   private final Server server1;
   private final Server server2;
-  private final World world;
+  private final World world1;
+  private final World world2;
 
   /**
    * Demonstrates that running two servers simultaneously leads to hanging requests on both.
@@ -35,17 +36,17 @@ public class BootstrapMultiple {
    * Once you remove one of the two servers, requests on the remaining one finish as expected
    */
   public BootstrapMultiple() throws Exception {
-    world = World.startWithDefaults("test-world");
-    world.stageNamed(StageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
+    world1 = World.startWithDefaults("test-world-1");
+    world2 = World.startWithDefaults("test-world-2");
 
-    server1 = Server.startWith(world.stage(),
-      Resources.are(new TestResource(world, "foo").routes()),
+    server1 = Server.startWith(world1.stageNamed("foo"),
+      Resources.are(new TestResource(world1, "foo").routes()),
       9019,
       Configuration.Sizing.define(),
       Configuration.Timing.define());
 
-    server2 = Server.startWith(world.stage(),
-      Resources.are(new TestResource(world, "bar").routes()),
+    server2 = Server.startWith(world2.stageNamed("bar"),
+      Resources.are(new TestResource(world2, "bar").routes()),
       9020,
       Configuration.Sizing.define(),
       Configuration.Timing.define());
