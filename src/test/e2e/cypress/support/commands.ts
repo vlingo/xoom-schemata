@@ -27,8 +27,10 @@ Cypress.Commands.add("fieldContent", (label: string) => {
 })
 
 Cypress.Commands.add("editorContent", (id: string) => {
-    cy.get(id).within(($editor) => {
-      cy.get('.monaco-editor .lines-content')
+    cy.get(id)
+      .should('be.visible')
+      .within(($editor) => {
+      cy.wait(500).get('.monaco-editor .lines-content')
         .then(content => content.text()
           .replace(/\s+/g, ' ')
           .trim()
