@@ -107,7 +107,6 @@ public class UiResource extends ResourceHandler {
         String path = pathFrom(pathSegments);
         try {
             byte[] content = readFileFromClasspath(path);
-            logger.info("Serving " + path + " (" + content.length / 1024 + "kB)");
             return Completes.withSuccess(
                 Response.of(Ok,
                     Header.Headers.of(
