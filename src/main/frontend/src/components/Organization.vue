@@ -97,11 +97,6 @@ export default {
             return created
           }
         )
-        .then((created) => vm.$router.push({
-            name: 'organization',
-            params: {organizationId: created.organizationId}
-          }
-        ))
         .catch(function (err) {
           let response = err.response ? err.response.data + ' - ' : ''
           vm.$store.commit('raiseError', {message: response + err})
