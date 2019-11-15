@@ -35,27 +35,27 @@ export default new Router({
             component: e404
         },
         {
-            path: '/organization',
+            path: '/organization/:organizationId?',
             name: 'organization',
             component: Organization
         },
         {
-            path: '/unit',
+            path: '/unit:unitId?',
             name: 'unit',
             component: Unit
         },
         {
-            path: '/context',
+            path: '/context/:contextId?',
             name: 'context',
             component: Context
         },
         {
-            path: '/schema',
+            path: '/schema/:schemaId?',
             name: 'schema',
             component: Schema
         },
         {
-            path: '/schemaVersion',
+            path: '/schemaVersion/:schemaVersionId?',
             name: 'schemaVersion',
             component: SchemaVersion
         },
