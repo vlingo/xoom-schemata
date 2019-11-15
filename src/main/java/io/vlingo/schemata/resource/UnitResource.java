@@ -20,7 +20,7 @@ import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.NoId;
-import static io.vlingo.schemata.Schemata.ApiStageName;
+import static io.vlingo.schemata.Schemata.StageName;
 import static io.vlingo.schemata.Schemata.UnitsPath;
 
 import io.vlingo.actors.Stage;
@@ -43,7 +43,7 @@ public class UnitResource extends ResourceHandler {
   private final Stage stage;
 
   public UnitResource(final World world) {
-    this.stage = world.stageNamed(ApiStageName);
+    this.stage = world.stageNamed(StageName);
     this.commands = new UnitCommands(this.stage, 10);
   }
 

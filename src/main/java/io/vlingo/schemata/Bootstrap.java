@@ -7,6 +7,8 @@
 
 package io.vlingo.schemata;
 
+import static io.vlingo.schemata.Schemata.StageName;
+
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.identity.IdentityGeneratorType;
@@ -23,47 +25,37 @@ import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.object.ObjectStore;
 
-import static io.vlingo.schemata.Schemata.*;
-
 public class Bootstrap {
-  private static final int SCHEMATA_PORT_API = 9019;
-  private static final int SCHEMATA_PORT_UI = 9020;
+  private static final int SCHEMATA_PORT = 9019;
 
   private static Bootstrap instance;
-  private final Server apiServer;
-  private final World apiWorld;
-
-  private final Server uiServer;
-  private final World uiWorld;
+  private final Server server;
+  private final World world;
 
   public Bootstrap(final String runtimeType) throws Exception {
-    apiWorld = World.startWithDefaults("vlingo-schemata-api");
-    apiWorld.stageNamed(ApiStageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
-
-    uiWorld = World.startWithDefaults("vlingo-schemata-ui");
-    uiWorld.stageNamed(UiStageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
-
+    world = World.startWithDefaults("vlingo-schemata");
+    world.stageNamed(StageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
 
     final NoopDispatcher<TextEntry, TextState> dispatcher = new NoopDispatcher<>();
 
     final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(runtimeType);
-    final ObjectStore objectStore = schemataObjectStore.objectStoreFor(apiWorld, dispatcher, schemataObjectStore.persistentMappers());
-    final ObjectTypeRegistry registry = new ObjectTypeRegistry(apiWorld);
+    final ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
+    final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
     schemataObjectStore.register(registry, objectStore);
 
-    final Stage stage = apiWorld.stageNamed(ApiStageName);
+    final Stage stage = world.stageNamed(StageName);
 
     Queries.startAll(stage, objectStore);
 
-    final OrganizationResource organizationResource = new OrganizationResource(apiWorld);
-    final UnitResource unitResource = new UnitResource(apiWorld);
-    final ContextResource contextResource = new ContextResource(apiWorld);
-    final SchemaResource schemaResource = new SchemaResource(apiWorld);
-    final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(apiWorld);
-    final CodeResource codeResource = new CodeResource(apiWorld);
-    final UiResource uiResource = new UiResource(apiWorld);
+    final OrganizationResource organizationResource = new OrganizationResource(world);
+    final UnitResource unitResource = new UnitResource(world);
+    final ContextResource contextResource = new ContextResource(world);
+    final SchemaResource schemaResource = new SchemaResource(world);
+    final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world);
+    final CodeResource codeResource = new CodeResource(world);
+    final UiResource uiResource = new UiResource(world);
 
-    Resources apiResources = Resources.are(
+    Resources allResources = Resources.are(
             organizationResource.routes(),
             unitResource.routes(),
             contextResource.routes(),
@@ -73,27 +65,17 @@ public class Bootstrap {
             uiResource.routes()
     );
 
-    apiServer = Server.startWith(apiWorld.stage(),
-      apiResources,
-      SCHEMATA_PORT_API,
+    server = Server.startWith(world.stage(),
+      allResources,
+      SCHEMATA_PORT,
       Configuration.Sizing.define()
           .withDispatcherPoolSize(2)
           .withMaxBufferPoolSize(100)
-          .withMaxMessageSize(4096),
-      Configuration.Timing.define());
-
-    uiServer = Server.startWith(uiWorld.stage(),
-      apiResources,
-      SCHEMATA_PORT_UI,
-      Configuration.Sizing.define()
-        .withDispatcherPoolSize(2)
-        .withMaxBufferPoolSize(20)
-        .withMaxMessageSize(1048576),
+          .withMaxMessageSize(1048576),
       Configuration.Timing.define());
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (instance != null) {
-        instance.apiServer.stop();
-        instance.uiServer.stop();
+        instance.server.stop();
 
         System.out.println("\n");
         System.out.println("=========================");

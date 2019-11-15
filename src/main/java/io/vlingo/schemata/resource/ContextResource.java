@@ -21,7 +21,7 @@ import static io.vlingo.http.resource.ResourceBuilder.post;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.ContextsPath;
 import static io.vlingo.schemata.Schemata.NoId;
-import static io.vlingo.schemata.Schemata.ApiStageName;
+import static io.vlingo.schemata.Schemata.StageName;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -43,7 +43,7 @@ public class ContextResource extends ResourceHandler {
   private final Stage stage;
 
   public ContextResource(final World world) {
-    this.stage = world.stageNamed(ApiStageName);
+    this.stage = world.stageNamed(StageName);
     this.commands = new ContextCommands(this.stage, 10);
   }
 

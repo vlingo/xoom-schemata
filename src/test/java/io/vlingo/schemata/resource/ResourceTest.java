@@ -47,8 +47,8 @@ public abstract class ResourceTest {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setUp() throws Exception {
     world = World.startWithDefaults("test-command-router");
-    world.stageNamed(Schemata.ApiStageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
-    stage = world.stageNamed(Schemata.ApiStageName);
+    world.stageNamed(Schemata.StageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
+    stage = world.stageNamed(Schemata.StageName);
 
     final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("dev");
     registry = new ObjectTypeRegistry(world);
