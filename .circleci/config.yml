@@ -58,7 +58,7 @@ jobs:
           name: Start server & run E2E tests
           command: |
             java -jar ~/project/target/vlingo-schemata-*-jar-with-dependencies.jar dev &
-            export CYPRESS_BASE_URL=http://localhost:9020/app
+            export CYPRESS_BASE_URL=http://localhost:9019/app
             export API_URL=http://localhost:9019
             cd ~/project/src/test/e2e
             npm run test-multiple
