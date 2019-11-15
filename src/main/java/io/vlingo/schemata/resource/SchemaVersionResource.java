@@ -35,7 +35,7 @@ public class SchemaVersionResource extends ResourceHandler {
     private final Stage stage;
 
     public SchemaVersionResource(final World world) {
-        this.stage = world.stageNamed(StageName);
+        this.stage = world.stageNamed(ApiStageName);
         this.commands = new SchemaVersionCommands(this.stage, 10);
     }
 

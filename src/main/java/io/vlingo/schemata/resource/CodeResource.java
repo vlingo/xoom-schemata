@@ -28,7 +28,7 @@ import static io.vlingo.http.RequestHeader.Authorization;
 import static io.vlingo.http.Response.Status.*;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.Schemata.StageName;
+import static io.vlingo.schemata.Schemata.ApiStageName;
 import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
 
 //
@@ -46,7 +46,7 @@ public class CodeResource extends ResourceHandler {
   private final Stage stage;
 
   public CodeResource(final World world) {
-    this.stage = world.stageNamed(StageName);
+    this.stage = world.stageNamed(ApiStageName);
     this.logger = world.defaultLogger();
   }
 

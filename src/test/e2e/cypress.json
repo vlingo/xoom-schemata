@@ -4,6 +4,6 @@
   "chromeWebSecurity": false,
   "video": true,
   "env": {
-    "apiUrl": "http://localhost:9019"
+    "apiUrl": "http://localhost:9020"
   }
 }

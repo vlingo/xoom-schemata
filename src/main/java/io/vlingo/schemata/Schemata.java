@@ -34,5 +34,6 @@ public class Schemata {
   // Names
   //==========================
 
-  public static final String StageName = "vlingo-schemata-grid";
+  public static final String ApiStageName = "vlingo-schemata-grid-api";
+  public static final String UiStageName = "vlingo-schemata-grid-ui";
 }

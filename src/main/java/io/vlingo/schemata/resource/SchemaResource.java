@@ -21,7 +21,7 @@ import static io.vlingo.http.resource.ResourceBuilder.post;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.SchemasPath;
-import static io.vlingo.schemata.Schemata.StageName;
+import static io.vlingo.schemata.Schemata.ApiStageName;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -45,7 +45,7 @@ public class SchemaResource extends ResourceHandler {
   private final Stage stage;
 
   public SchemaResource(final World world) {
-    this.stage = world.stageNamed(StageName);
+    this.stage = world.stageNamed(ApiStageName);
     this.commands = new SchemaCommands(this.stage, 10);
   }
 
