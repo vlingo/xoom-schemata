@@ -1,6 +1,14 @@
 /// <reference types="cypress" />
 
 declare namespace Cypress {
+    interface SchemataTestData {
+        organization: any;
+        unit: any;
+        context: any;
+        schema: any;
+        version: any;
+    }
+
     interface Chainable {
         /**
          * Fill a Vuetify text(area) field identified by its label
@@ -33,6 +41,17 @@ declare namespace Cypress {
          * @example cy.selectOption('Color','Blue')
          */
         selectOption(label: string, OptionLabel: string): Chainable<Element>
+
+        /**
+         * Expand complete schema hierarchy tree for the given data.
+         * Requires you to currently visit a view containing the browse schemata vuetify treeview.
+         * @example
+         *   cy.task('schemata:withTestData').then(testData => {
+         *     let data = <Cypress.SchemataTestData><unknown>testData
+         *     cy.expandSchemaTree(data)
+         *   }
+         */
+        expandSchemaTree(data: Cypress.SchemataTestData): Chainable<Element>
 
     }
 }

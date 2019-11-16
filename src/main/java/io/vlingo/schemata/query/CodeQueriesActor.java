@@ -14,28 +14,13 @@ import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.schemata.resource.data.AuthorizationData;
-import io.vlingo.schemata.resource.data.OrganizationData;
 import io.vlingo.schemata.resource.data.PathData;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public class CodeQueriesActor extends Actor implements CodeQueries {
-  private final OrganizationQueries organizationQueries;
-  private final UnitQueries unitQueries;
-  private final ContextQueries contextQueries;
-  private final SchemaQueries schemaQueries;
   private final SchemaVersionQueries schemaVersionQueries;
 
-  public CodeQueriesActor(
-          final OrganizationQueries organizationQueries,
-          final UnitQueries unitQueries,
-          final ContextQueries contextQueries,
-          final SchemaQueries schemaQueries,
-          final SchemaVersionQueries schemaVersionQueries) {
-
-    this.organizationQueries = organizationQueries;
-    this.unitQueries = unitQueries;
-    this.contextQueries = contextQueries;
-    this.schemaQueries = schemaQueries;
+  public CodeQueriesActor(final SchemaVersionQueries schemaVersionQueries) {
     this.schemaVersionQueries = schemaVersionQueries;
   }
 
@@ -43,12 +28,8 @@ public class CodeQueriesActor extends Actor implements CodeQueries {
   public Completes<SchemaVersionData> schemaVersionFor(final AuthorizationData authorization, final PathData path) {
     final CompletesEventually completesEventually = completesEventually();
 
-    organizationQueries.organizationNamed(path.organization)
-      .andThenTo(organization -> validate(authorization, organization))
-      .andThenTo(organization -> unitQueries.unitNamed(organization.organizationId, path.unit))
-      .andThenTo(unit -> contextQueries.contextOfNamespace(unit.organizationId, unit.unitId, path.context))
-      .andThenTo(context -> schemaQueries.schemaNamed(context.organizationId, context.unitId, context.contextId, path.schema))
-      .andThenTo(schema -> schemaVersionQueries.schemaVersionOfVersion(schema.organizationId, schema.unitId, schema.contextId, schema.schemaId, path.version))
+    schemaVersionQueries.schemaVersionOf(path.organization, path.unit, path.context, path.schema, path.version)
+      .andThenTo(schemaVersion -> validate(authorization, schemaVersion))
       .andThenTo(schemaVersion -> { completesEventually.with(schemaVersion); return Completes.withSuccess(schemaVersion); })
       .otherwise(failure -> SchemaVersionData.none())
       .recoverFrom(exception -> SchemaVersionData.none());
@@ -70,11 +51,7 @@ public class CodeQueriesActor extends Actor implements CodeQueries {
 
       final String version = path.versionOrElse(SemanticVersion.greatest().toString());
 
-      organizationQueries.organizationNamed(path.organization)
-        .andThenTo(organization -> unitQueries.unitNamed(organization.organizationId, path.unit))
-        .andThenTo(unit -> contextQueries.contextOfNamespace(unit.organizationId, unit.unitId, path.context))
-        .andThenTo(context -> schemaQueries.schemaNamed(context.organizationId, context.unitId, context.contextId, path.schema))
-        .andThenTo(schema -> schemaVersionQueries.schemaVersionOfVersion(schema.organizationId, schema.unitId, schema.contextId, schema.schemaId, version))
+      schemaVersionQueries.schemaVersionOf(path.organization, path.unit, path.context, path.schema, path.version)
         .andThenTo(schemaVersion -> { completesEventually.with(schemaVersion); return Completes.withSuccess(schemaVersion); })
         .otherwise(failure -> SchemaVersionData.none())
         .recoverFrom(exception -> SchemaVersionData.none());
@@ -83,10 +60,8 @@ public class CodeQueriesActor extends Actor implements CodeQueries {
     return completes();
   }
 
-  private Completes<OrganizationData> validate(final AuthorizationData authorization, final OrganizationData organization) {
-    return authorization.sameSource(organization.organizationId) ?
-            Completes.withSuccess(organization) :
-            Completes.withFailure();
+  private Completes<SchemaVersionData> validate(final AuthorizationData authorization, final SchemaVersionData schemaVersion) {
+    return authorization.sameSource(schemaVersion.organizationId) ? Completes.withSuccess(schemaVersion) : Completes.withFailure();
   }
 
   private Optional<PathData> pathFrom(final String fullQualifiedTypeName) {

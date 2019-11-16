@@ -7,16 +7,25 @@
 
 package io.vlingo.schemata;
 
-import static org.junit.Assert.assertNotNull;
-
 import org.junit.Test;
+
+import java.io.IOException;
+import java.net.URL;
+
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertNotNull;
 
 public class BootstrapTest {
 
   @Test
   public void testThatBootstrapStartsServerCleanly() throws Exception {
     final Bootstrap bootstrap = Bootstrap.instance("dev");
-
     assertNotNull(bootstrap);
+
+    try {
+      new URL("http://127.0.0.1:" + Bootstrap.SCHEMATA_PORT).openConnection().connect();
+    } catch (IOException e) {
+      fail("Server did not open port " + Bootstrap.SCHEMATA_PORT + ":" + e.getMessage());
+    }
   }
 }

@@ -26,7 +26,7 @@ import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.object.ObjectStore;
 
 public class Bootstrap {
-  private static final int SCHEMATA_PORT = 9019;
+  static final int SCHEMATA_PORT = 9019;
 
   private static Bootstrap instance;
   private final Server server;
@@ -53,7 +53,7 @@ public class Bootstrap {
     final SchemaResource schemaResource = new SchemaResource(world);
     final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world);
     final CodeResource codeResource = new CodeResource(world);
-    final UiResource uiResource = new UiResource();
+    final UiResource uiResource = new UiResource(world);
 
     Resources allResources = Resources.are(
             organizationResource.routes(),
@@ -68,7 +68,10 @@ public class Bootstrap {
     server = Server.startWith(world.stage(),
       allResources,
       SCHEMATA_PORT,
-      Configuration.Sizing.define().withDispatcherPoolSize(2).withMaxMessageSize(16777215),
+      Configuration.Sizing.define()
+          .withDispatcherPoolSize(2)
+          .withMaxBufferPoolSize(100)
+          .withMaxMessageSize(4096),
       Configuration.Timing.define());
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (instance != null) {
