@@ -89,6 +89,22 @@ public final class Events {
     }
   }
 
+  public static final class OrganizationRedefined extends DomainEvent {
+    public final String organizationId;
+    public final String name;
+    public final String description;
+
+    public static OrganizationRedefined with(final OrganizationId organizationId, final String name, final String description) {
+      return new OrganizationRedefined(organizationId, name, description);
+    }
+
+    public OrganizationRedefined(final OrganizationId organizationId, final String name, final String description) {
+      this.organizationId = organizationId.value;
+      this.name = name;
+      this.description = description;
+    }
+  }
+
   public static final class OrganizationRenamed extends DomainEvent {
     public final String organizationId;
     public final String name;
