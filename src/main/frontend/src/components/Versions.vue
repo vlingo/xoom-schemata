@@ -2,8 +2,8 @@
 
     <v-card height="45vh" id="schemata-versions">
         <v-list dense>
-            <v-list-item-group v-model="selected" color="primary">
-                <v-list-item v-for="v in schemaVersions" :key="v.id" ripple>
+            <v-list-item-group v-model="selectedVersion" color="primary">
+                <v-list-item v-for="v in versions" :key="v.schemaVersionId" :value="v" ripple>
                     <v-list-item-action>
                         <v-tooltip right>
                             <template v-slot:activator="{ on }">
@@ -27,14 +27,14 @@
 
 <script>
     import {mdiDelete, mdiLabel, mdiLabelOff, mdiPencil} from '@mdi/js'
-    import {mapFields} from 'vuex-map-fields';
 
     export default {
         computed: {
-            ...mapFields([
-                'schemaVersions',
-                'selected'
-            ]),
+          selectedVersion: {
+            get(){ return this.$store.getters.schemaVersionId },
+            set(version) {this.$store.dispatch('select', version)}
+          },
+          versions() { return this.$store.getters.schemaVersions }
         },
         methods: {
             icon(version) {

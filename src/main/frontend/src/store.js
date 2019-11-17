@@ -6,7 +6,7 @@ import Repository from "@/api/SchemataRepository";
 Vue.use(Vuex)
 
 export default new Vuex.Store({
-  strict: true,
+  strict: false, //FIXME re-enable after refactoring
   state: {
     loading: false,
     error: undefined,
@@ -60,6 +60,9 @@ export default new Vuex.Store({
       if(selection?.type === 'schema') {
         context.dispatch('loadVersions')
       }
+      if(selection?.type !== 'schema' &&  !selection?.schemaVersionId) {
+        context.commit('updateSchemaVersions', [])
+      }
     },
 
     loadVersions(context) {
@@ -72,7 +75,9 @@ export default new Vuex.Store({
         context.state.selection.unitId,
         context.state.selection.contextId,
         context.state.selection.schemaId)
-        .then(response => context.commit('updateSchemaVersions', response))
+        .then(response => {
+          context.commit('updateSchemaVersions', response)
+        })
         .catch(err => context.commit('raiseError', {status: 0, message: err}));
     }
   },
@@ -82,5 +87,7 @@ export default new Vuex.Store({
     unitId: state => state.selection?.unitId ?? undefined,
     contextId: state => state.selection?.contextId ?? undefined,
     schemaId: state => state.selection?.schemaId ?? undefined,
+    schemaVersionId: state => state.selection?.schemaVersionId ?? undefined,
+    schemaVersions: state => state.schemaVersions ?? []
   }
 })
