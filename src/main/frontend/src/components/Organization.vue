@@ -121,16 +121,6 @@ export default {
         })
     }
   },
-  watch: {
-    $route(to) {
-      let id = to.params.id
-      if (id) {
-        this.load(id)
-      } else {
-        this.clearForm()
-      }
-    },
-  },
 
   mounted() {
     let idToLoad = this.$route.params.id

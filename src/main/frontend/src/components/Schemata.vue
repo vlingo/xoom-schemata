@@ -19,7 +19,7 @@
       return-object
       activatable
       transition
-      :active.sync="active"
+      :active.sync="selected"
       :open.sync="open"
     >
       <template v-slot:prepend="{ item }">
@@ -76,31 +76,14 @@ export default {
     }
 
   }),
-  watch: {
-    active: function (newSelection) {
-      let item = newSelection[0]
-      switch (item.type) {
-        case 'organization':
-          this.$store.commit('selectOrganization', item)
-          break
-        case 'unit':
-          this.$store.commit('selectUnit', item)
-          break
-        case 'context':
-          this.$store.commit('selectContext', item)
-          break
-        case 'schema':
-          this.$store.dispatch('selectSchema', item)
-          break
-        default:
-          this.$store.commit('raiseError', {message: 'Unknown selection' + JSON.stringify(item)})
-      }
-    }
-  },
   computed: {
     filter() {
       return (item, search, textKey) => item[textKey].indexOf(search) > -1
     },
+    selected: {
+      get() {return [this.$store.state.selected]},
+      set(value) {this.$store.dispatch('select', value[0])}
+    }
   },
   methods: {
     loadOrganizations() {

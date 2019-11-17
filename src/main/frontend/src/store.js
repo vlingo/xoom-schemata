@@ -11,13 +11,13 @@ export default new Vuex.Store({
     loading: false,
     error: undefined,
     notification: undefined,
-    schemaVersion: undefined,
-    selected: undefined,
+    selection: undefined,
     organization: undefined,
     unit: undefined,
     context: undefined,
     category: undefined,
     schema: undefined,
+    schemaVersion: undefined,
     schemaVersions: undefined,
   },
   mutations: {
@@ -45,53 +45,42 @@ export default new Vuex.Store({
       state.notification = undefined
     },
 
-    selectOrganization(state, selected) {
-      state.organization = selected
+    updateSelection(state, selection) {
+      state.selection = selection
     },
-    selectUnit(state, selected) {
-      state.unit = selected
-    },
-    selectContext(state, selected) {
-      state.context = selected
-    },
-    updateSchema(state, selected) {
-      state.schema = selected
-    },
-    updateSchemaVersion(state, selected) {
-      state.schemaVersion = selected
-    },
+
     updateSchemaVersions(state, versions) {
       state.schemaVersions = versions
     }
 
   },
   actions: {
-    selectSchema(context, selected) {
-      this.commit('updateSchema', selected)
-      this.dispatch('loadVersions')
+    select(context, selection) {
+      context.commit('updateSelection', selection)
+      if(selection?.type === 'schema') {
+        context.dispatch('loadVersions')
+      }
     },
-    selectSchemaVersion(context, selected) {
-      context.commit('updateSchemaVersion', selected)
-    },
+
     loadVersions(context) {
-      if (!(context.state.schema)) {
+      if (!(context.state.selection?.type === 'schema')) {
         return
       }
 
       Repository.getVersions(
-        context.state.schema.organizationId,
-        context.state.schema.unitId,
-        context.state.schema.contextId,
-        context.state.schema.schemaId)
+        context.state.selection.organizationId,
+        context.state.selection.unitId,
+        context.state.selection.contextId,
+        context.state.selection.schemaId)
         .then(response => context.commit('updateSchemaVersions', response))
         .catch(err => context.commit('raiseError', {status: 0, message: err}));
     }
   },
   getters: {
     getField,
-    organizationId: state => state.selected?.organizationId ?? undefined,
-    unitId: state => state.selected?.unitId ?? undefined,
-    contextId: state => state.selected?.contextId ?? undefined,
-    schemaId: state => state.selected?.schemaId ?? undefined,
+    organizationId: state => state.selection?.organizationId ?? undefined,
+    unitId: state => state.selection?.unitId ?? undefined,
+    contextId: state => state.selection?.contextId ?? undefined,
+    schemaId: state => state.selection?.schemaId ?? undefined,
   }
 })

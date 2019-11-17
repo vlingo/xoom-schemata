@@ -19,7 +19,7 @@ export default {
             'unit',
             'context',
             'schema',
-            'version'
+            'schemaVersion'
         ]),
     },
     asyncComputed: {

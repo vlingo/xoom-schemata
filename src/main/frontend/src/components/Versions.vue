@@ -30,28 +30,10 @@
     import {mapFields} from 'vuex-map-fields';
 
     export default {
-        data() {
-            return {
-                selected: undefined
-            }
-        },
-        watch: {
-            schema: function () {
-                this.schemaVersion = undefined
-            },
-            selected: function (value) {
-                if (value === undefined) {
-                    this.schemaVersion = undefined
-                } else {
-                    this.schemaVersion = this.schemaVersions[value]
-                }
-            }
-        },
         computed: {
             ...mapFields([
-                'schema',
                 'schemaVersions',
-                'schemaVersion',
+                'selected'
             ]),
         },
         methods: {
