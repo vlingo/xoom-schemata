@@ -60,7 +60,6 @@ export default {
   data: () => ({
     items: [],
     search: null,
-    active: [],
     open: [],
     icons: {
       close: mdiClose,
@@ -81,8 +80,8 @@ export default {
       return (item, search, textKey) => item[textKey].indexOf(search) > -1
     },
     selected: {
-      get() {return [this.$store.state.selected]},
-      set(value) {this.$store.dispatch('select', value[0])}
+      get() {return this.$store.state.selection?.schemaVersionId ? [] : [this.$store.state.selection]},
+      set(value) { this.$store.dispatch('select', value[0])}
     }
   },
   methods: {

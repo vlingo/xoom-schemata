@@ -56,11 +56,13 @@ export default new Vuex.Store({
   },
   actions: {
     select(context, selection) {
+      if(!selection) return
+
       context.commit('updateSelection', selection)
-      if(selection?.type === 'schema') {
+      if(selection.type === 'schema') {
         context.dispatch('loadVersions')
       }
-      if(selection?.type !== 'schema' &&  !selection?.schemaVersionId) {
+      if(selection.type !== 'schema' &&  !selection.schemaVersionId) {
         context.commit('updateSchemaVersions', [])
       }
     },
@@ -88,6 +90,7 @@ export default new Vuex.Store({
     contextId: state => state.selection?.contextId ?? undefined,
     schemaId: state => state.selection?.schemaId ?? undefined,
     schemaVersionId: state => state.selection?.schemaVersionId ?? undefined,
-    schemaVersions: state => state.schemaVersions ?? []
+    schemaVersions: state => state.schemaVersions ?? [],
+    schemaVersion: state => state.selection?.schemaVersionId ? state.selection.schemaVersionId : undefined
   }
 })
