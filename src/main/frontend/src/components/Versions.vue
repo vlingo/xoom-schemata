@@ -37,13 +37,13 @@
         },
         watch: {
             schema: function () {
-                this.version = undefined
+                this.schemaVersion = undefined
             },
             selected: function (value) {
                 if (value === undefined) {
-                    this.version = undefined
+                    this.schemaVersion = undefined
                 } else {
-                    this.version = this.schemaVersions[value]
+                    this.schemaVersion = this.schemaVersions[value]
                 }
             }
         },
@@ -51,7 +51,7 @@
             ...mapFields([
                 'schema',
                 'schemaVersions',
-                'version',
+                'schemaVersion',
             ]),
         },
         methods: {

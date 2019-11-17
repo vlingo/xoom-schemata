@@ -17,14 +17,12 @@
       :filter="filter"
       :load-children="loadChildren"
       return-object
-      open-on-click
       activatable
       transition
-      :active.sync="schema"
+      :active.sync="active"
       :open.sync="open"
     >
       <template v-slot:prepend="{ item }">
-      <v-btn v-if="editMode" @click="edit(item)" icon><v-icon>{{ icons.edit }}</v-icon></v-btn>
       <v-tooltip right v-if="item.category  && icons.categories[item.category]">
         <template v-slot:activator="{ on }">
         <v-icon v-on="on">
@@ -62,7 +60,7 @@ export default {
   data: () => ({
     items: [],
     search: null,
-    editMode: true,
+    active: [],
     open: [],
     icons: {
       close: mdiClose,
@@ -78,36 +76,45 @@ export default {
     }
 
   }),
+  watch: {
+    active: function (newSelection) {
+      let item = newSelection[0]
+      switch (item.type) {
+        case 'organization':
+          this.$store.commit('selectOrganization', item)
+          break
+        case 'unit':
+          this.$store.commit('selectUnit', item)
+          break
+        case 'context':
+          this.$store.commit('selectContext', item)
+          break
+        case 'schema':
+          this.$store.dispatch('selectSchema', item)
+          break
+        default:
+          this.$store.commit('raiseError', {message: 'Unknown selection' + JSON.stringify(item)})
+      }
+    }
+  },
   computed: {
     filter() {
       return (item, search, textKey) => item[textKey].indexOf(search) > -1
     },
-    schema: {
-      get() {
-        return [this.$store.schema]
-      },
-      set(value) {
-        this.$store.dispatch('selectSchema', value[0])
-      }
-    },
-
-  },
-  created() {
-    this.loadOrganizations()
   },
   methods: {
     loadOrganizations() {
       let vm = this
       Repository.getOrganizations()
-      .then(data => {
-        for (let organization of data) {
-          organization.id = organization.organizationId
-          organization.type = 'organization'
-          organization.children = []
-          vm.items.push(organization)
-        }
-      })
-      .catch((err) => vm.$store.commit('raiseError', {message: err}))
+        .then(data => {
+          for (let organization of data) {
+            organization.id = organization.organizationId
+            organization.type = 'organization'
+            organization.children = []
+            vm.items.push(organization)
+          }
+        })
+        .catch((err) => vm.$store.commit('raiseError', {message: err}))
     },
 
     async loadChildren(item) {
@@ -136,72 +143,44 @@ export default {
 
     async loadUnits(org) {
       return Repository.getUnits(org.id)
-      .then(data => {
-        for (let unit of data) {
-          unit.id = unit.unitId
-          unit.type = 'unit'
-          unit.children = []
-          org.children.push(unit)
-        }
-      })
+        .then(data => {
+          for (let unit of data) {
+            unit.id = unit.unitId
+            unit.type = 'unit'
+            unit.children = []
+            org.children.push(unit)
+          }
+        })
 
 
     },
     async loadContexts(unit) {
       return Repository.getContexts(unit.organizationId, unit.unitId)
-      .then(data => {
-        for (let context of data) {
-          context.id = context.contextId
-          context.name = context.namespace
-          context.type = 'context'
-          context.children = []
-          unit.children.push(context)
-        }
-      })
+        .then(data => {
+          for (let context of data) {
+            context.id = context.contextId
+            context.name = context.namespace
+            context.type = 'context'
+            context.children = []
+            unit.children.push(context)
+          }
+        })
     }
     ,
     async loadSchemata(context) {
       return Repository.getSchemata(context.organizationId, context.unitId, context.contextId)
-      .then(data => {
-        for (let schema of data) {
-          schema.id = schema.schemaId
-          schema.type = 'schema'
-          context.children.push(schema)
-        }
-      })
-    },
-
-    edit(item) {
-      let path
-      let id
-      switch (item.type) {
-        case 'organization':
-          path='organization'
-          id=item.organizationId
-          break
-        case 'unit':
-          path='unit'
-          id=item.unitId
-          break
-        case 'context':
-          path='context'
-          id=item.contextId
-          break
-        case 'schema':
-          path='schema'
-          id=item.schemaId
-          break
-      }
-      if(path && id) {
-        this.$router.push(`/${path}/${id}`)
-      } else {
-        this.$store.commit('raiseNotification', {
-          message: `Invalid type or ID of entity to edit. This should not happen.`,
-          type: 'warning'
+        .then(data => {
+          for (let schema of data) {
+            schema.id = schema.schemaId
+            schema.type = 'schema'
+            context.children.push(schema)
+          }
         })
-      }
-    }
-  }
+    },
+  },
+  mounted() {
+    this.loadOrganizations()
+  },
 }
 </script>
 

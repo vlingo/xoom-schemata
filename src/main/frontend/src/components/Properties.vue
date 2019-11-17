@@ -39,7 +39,7 @@
         </v-btn>
         <v-spacer></v-spacer>
         <v-btn outlined color="info"
-               :disabled="!version"
+               :disabled="!schemaVersion"
                @click="loadSources">
           <v-icon>{{icons.source}}</v-icon>
           Source
@@ -101,7 +101,7 @@ export default {
   computed: {
     ...mapFields([
       'schema',
-      'version'
+      'schemaVersion'
     ]),
 
     editorOptions() {
@@ -112,13 +112,13 @@ export default {
     },
 
     specification() {
-      return this.version?.specification ?? ''
+      return this.schemaVersion?.specification ?? ''
     },
     description() {
-      return this.version?.description ?? ''
+      return this.schemaVersion?.description ?? ''
     },
     status() {
-      return this.version?.status ?? ''
+      return this.schemaVersion?.status ?? ''
     },
   },
   watch: {
@@ -144,11 +144,11 @@ export default {
     _setStatus(status) {
       let vm = this
       Repository.setSchemaVersionStatus(
-        this.version.organizationId,
-        this.version.unitId,
-        this.version.contextId,
-        this.version.schemaId,
-        this.version.schemaVersionId,
+        this.schemaVersion.organizationId,
+        this.schemaVersion.unitId,
+        this.schemaVersion.contextId,
+        this.schemaVersion.schemaId,
+        this.schemaVersion.schemaVersionId,
         status)
       .then(response => vm.$store.dispatch('selectSchemaVersion', response))
       .then(() => vm.$store.dispatch('loadVersions'))
@@ -168,11 +168,11 @@ export default {
     saveSpecification: function () {
       let vm = this
       Repository.saveSchemaVersionSpecification(
-        this.version.organizationId,
-        this.version.unitId,
-        this.version.contextId,
-        this.version.schemaId,
-        this.version.schemaVersionId,
+        this.schemaVersion.organizationId,
+        this.schemaVersion.unitId,
+        this.schemaVersion.contextId,
+        this.schemaVersion.schemaId,
+        this.schemaVersion.schemaVersionId,
         this.currentSpecification
       )
       .then(response => vm.$store.dispatch('selectSchemaVersion', response))
@@ -192,11 +192,11 @@ export default {
     loadSources() {
       let vm = this
       Repository.loadSources(
-        this.version.organizationId,
-        this.version.unitId,
-        this.version.contextId,
-        this.version.schemaId,
-        this.version.schemaVersionId,
+        this.schemaVersion.organizationId,
+        this.schemaVersion.unitId,
+        this.schemaVersion.contextId,
+        this.schemaVersion.schemaId,
+        this.schemaVersion.schemaVersionId,
         "java"
       )
       .then(response => {

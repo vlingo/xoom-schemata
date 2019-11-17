@@ -37,12 +37,12 @@
     </v-form>
   </v-card-text>
   <v-card-actions>
-    <v-btn color="info" @click="newOrganization">New</v-btn>
+    <v-btn color="info" @click="clear">New</v-btn>
     <v-spacer></v-spacer>
-    <v-btn color="primary" @click="saveOrganization"
+    <v-btn color="primary" @click="save"
            :disabled="!(valid && organizationId)">Save
     </v-btn>
-    <v-btn color="primary" @click="createOrganization"
+    <v-btn color="primary" @click="create"
            :disabled="!(valid && !organizationId)">Create
     </v-btn>
     <v-btn color="secondary" to="/unit"
@@ -68,19 +68,8 @@ export default {
     }
   },
 
-  watch: {
-    $route(to, from) {
-      let id = to.params.organizationId
-      if (id) {
-        this.loadOrganization(id)
-      } else {
-        this.clearForm()
-      }
-    },
-  },
-
   methods: {
-    createOrganization() {
+    create() {
       let vm = this
       Repository.createOrganization(this.name, this.description)
         .then((created) => {
@@ -102,11 +91,11 @@ export default {
           vm.$store.commit('raiseError', {message: response + err})
         })
     },
-    newOrganization() {
+    clear() {
       this.clearForm()
       this.$router.push('/organization/')
     },
-    loadOrganization(organizationId) {
+    load(organizationId) {
       let vm = this
       Repository.getOrganization(organizationId)
         .then((loaded) => {
@@ -121,7 +110,7 @@ export default {
           vm.$store.commit('raiseError', {message: response + err})
         })
     },
-    saveOrganization() {
+    save() {
       let vm = this
       Repository.updateOrganization(this.organizationId, this.name, this.description)
         .then(() => {
@@ -132,10 +121,21 @@ export default {
         })
     }
   },
+  watch: {
+    $route(to) {
+      let id = to.params.id
+      if (id) {
+        this.load(id)
+      } else {
+        this.clearForm()
+      }
+    },
+  },
+
   mounted() {
-    let organizationIdToLoad = this.$route.params.organizationId
-    if (organizationIdToLoad) {
-      this.loadOrganization(organizationIdToLoad)
+    let idToLoad = this.$route.params.id
+    if (idToLoad) {
+      this.load(idToLoad)
     }
   }
 }

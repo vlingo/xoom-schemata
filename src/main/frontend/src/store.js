@@ -19,7 +19,6 @@ export default new Vuex.Store({
     category: undefined,
     schema: undefined,
     schemaVersions: undefined,
-    version: undefined
   },
   mutations: {
     updateField,
@@ -49,11 +48,17 @@ export default new Vuex.Store({
     selectOrganization(state, selected) {
       state.organization = selected
     },
+    selectUnit(state, selected) {
+      state.unit = selected
+    },
+    selectContext(state, selected) {
+      state.context = selected
+    },
     updateSchema(state, selected) {
       state.schema = selected
     },
     updateSchemaVersion(state, selected) {
-      state.version = selected
+      state.schemaVersion = selected
     },
     updateSchemaVersions(state, versions) {
       state.schemaVersions = versions

@@ -80,7 +80,6 @@
         mdiFactory,
         mdiFileDocument,
         mdiHome,
-        mdiPencil,
         mdiStore,
         mdiSync,
         mdiTag
