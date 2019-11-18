@@ -129,11 +129,6 @@ public class JavaCodeResourceTest extends ResourceTest {
               .toString());
   }
 
-  private String extractResourceIdFrom(final Response response) {
-    final String[] parts = response.headerValueOr(ResponseHeader.Location, null).split("/");
-    return parts[parts.length-1];
-  }
-
   private String reference() {
     return referenceFrom(OrgName, UnitName, ContextNamespace, SchemaName, SchemaVersionVersion100);
   }
