@@ -61,6 +61,11 @@ export default new Vuex.Store({
       }
     },
 
+    deselect(context) {
+      context.commit('updateSelection', undefined)
+    },
+
+
     loadVersions(context) {
       if (!(context.state.selection?.type === 'schema')) {
         return

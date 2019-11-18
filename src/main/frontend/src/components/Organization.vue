@@ -82,6 +82,7 @@ export default {
               message: `Organization '${vm.name}' created.`,
               type: 'success'
             })
+            vm.$store.dispatch('select', created)
 
             return created
           }
@@ -93,7 +94,7 @@ export default {
     },
     clear() {
       this.clearForm()
-      this.$router.push('/organization/')
+      this.$store.dispatch('deselect');
     },
     load(organizationId) {
       let vm = this
@@ -123,9 +124,9 @@ export default {
   },
 
   mounted() {
-    let idToLoad = this.$route.params.id
-    if (idToLoad) {
-      this.load(idToLoad)
+    let orgId = this.$store.getters.organizationId
+    if (orgId) {
+      this.load(orgId)
     }
   }
 }
