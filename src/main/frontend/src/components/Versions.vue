@@ -29,30 +29,36 @@
     import {mdiDelete, mdiLabel, mdiLabelOff, mdiPencil} from '@mdi/js'
 
     export default {
-        computed: {
-          selectedVersion: {
-            get(){ return this.$store.getters.schemaVersionId },
-            set(version) {this.$store.dispatch('select', version)}
-          },
-          versions() { return this.$store.getters.schemaVersions }
-        },
-        methods: {
-            icon(version) {
-                if (!version) return '';
-                switch (version.status) {
-                    case 'Published':
-                        return mdiLabel
-                    case 'Draft':
-                        return mdiPencil
-                    case 'Deprecated':
-                        return mdiLabelOff
-                    case 'Removed':
-                        return mdiDelete
-                    default:
-                        return ''
-                }
-            }
+      data: function() {
+        return {
+          selectedVersion: undefined
         }
+      },
+      watch: {
+        selectedVersion(newSelection) {
+          this.$store.dispatch('select', newSelection)
+        },
+      },
+      computed: {
+        versions() { return this.$store.getters.schemaVersions }
+      },
+      methods: {
+          icon(version) {
+              if (!version) return '';
+              switch (version.status) {
+                  case 'Published':
+                      return mdiLabel
+                  case 'Draft':
+                      return mdiPencil
+                  case 'Deprecated':
+                      return mdiLabelOff
+                  case 'Removed':
+                      return mdiDelete
+                  default:
+                      return ''
+              }
+          }
+      }
     }
 </script>
 
