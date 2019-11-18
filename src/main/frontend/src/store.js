@@ -12,12 +12,6 @@ export default new Vuex.Store({
     error: undefined,
     notification: undefined,
     selection: undefined,
-    organization: undefined,
-    unit: undefined,
-    context: undefined,
-    category: undefined,
-    schema: undefined,
-    schemaVersion: undefined,
     schemaVersions: undefined,
   },
   mutations: {
@@ -91,6 +85,6 @@ export default new Vuex.Store({
     schemaId: state => state.selection?.schemaId ?? undefined,
     schemaVersionId: state => state.selection?.schemaVersionId ?? undefined,
     schemaVersions: state => state.schemaVersions ?? [],
-    schemaVersion: state => state.selection?.schemaVersionId ? state.selection.schemaVersionId : undefined
+    schemaVersion: state => state.selection?.schemaVersionId ? state.selection : undefined
   }
 })

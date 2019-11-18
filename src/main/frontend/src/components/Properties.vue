@@ -75,7 +75,6 @@
 </template>
 
 <script>
-import {mapFields} from 'vuex-map-fields';
 import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull} from '@mdi/js'
 import marked from 'marked'
 import Repository from '@/api/SchemataRepository'
@@ -99,16 +98,15 @@ export default {
     }
   },
   computed: {
-    ...mapFields([
-      'schema',
-      'schemaVersion'
-    ]),
-
     editorOptions() {
       return {
         readOnly: this.status !== 'Draft',
         automaticLayout: true,
       }
+    },
+
+    schemaVersion() {
+      return this.$store.getters.schemaVersion
     },
 
     specification() {
@@ -150,11 +148,11 @@ export default {
         this.schemaVersion.schemaId,
         this.schemaVersion.schemaVersionId,
         status)
-      .then(response => vm.$store.dispatch('selectSchemaVersion', response))
+      .then(response => vm.$store.dispatch('select', response))
       .then(() => vm.$store.dispatch('loadVersions'))
       .then(() => {
           vm.$store.commit('raiseNotification', {
-            message: `Status for ${vm.schema.name} updated.`,
+            message: `Status for v${vm.schemaVersion.currentVersion} updated.`,
             type: 'success'
           })
         }
@@ -175,11 +173,11 @@ export default {
         this.schemaVersion.schemaVersionId,
         this.currentSpecification
       )
-      .then(response => vm.$store.dispatch('selectSchemaVersion', response))
+      .then(response => vm.$store.dispatch('select', response))
       .then(() => vm.$store.dispatch('loadVersions'))
       .then(() => {
           vm.$store.commit('raiseNotification', {
-            message: `Specification for ${vm.schema.name} v${vm.version.currentVersion} updated.`,
+            message: `Specification v${vm.schemaVersion.currentVersion} updated.`,
             type: 'success'
           })
         }
