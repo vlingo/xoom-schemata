@@ -49,6 +49,22 @@ public class OrganizationResourceTest extends ResourceTest {
   }
 
   @Test
+  public void testOrganizationRedefineWith() {
+    final OrganizationResource resource = new OrganizationResource(world);
+    final Response response1 = resource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
+    assertEquals(Created, response1.status);
+    final OrganizationData data1 = JsonSerialization.deserialized(response1.entity.content(), OrganizationData.class);
+    final Response response2 = resource.redefineWith(data1.organizationId, OrganizationData.just(OrgName + 1, OrgDescription + 1)).await();
+    assertNotEquals(response1.entity.content(), response2.entity.content());
+    final OrganizationData data2 = JsonSerialization.deserialized(response2.entity.content(), OrganizationData.class);
+    assertEquals(data1.organizationId, data2.organizationId);
+    assertNotEquals(data1.name, data2.name);
+    assertEquals((OrgName + 1), data2.name);
+    assertNotEquals(data1.description, data2.description);
+    assertEquals((OrgDescription + 1), data2.description);
+  }
+
+  @Test
   public void testOrganizationRenameTo() {
     final OrganizationResource resource = new OrganizationResource(world);
     final Response response1 = resource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();

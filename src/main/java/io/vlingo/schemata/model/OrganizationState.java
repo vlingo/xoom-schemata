@@ -40,6 +40,10 @@ public class OrganizationState extends StateObject {
     return new OrganizationState(this.persistenceId(), this.version() + 1, this.organizationId, name, this.description);
   }
 
+  public OrganizationState redefineWith(final String name, final String description) {
+    return new OrganizationState(this.persistenceId(), this.version() + 1, this.organizationId, name, description);
+  }
+
   @Override
   public Map<String, Object> queryMap() {
     return FluentMap.has("organizationId", organizationId.value);
