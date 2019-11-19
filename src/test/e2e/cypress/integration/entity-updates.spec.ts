@@ -52,6 +52,8 @@ describe('Entity Update Tests', function () {
   });
 
   it('can update context', function () {
+    this.skip() // Enable when working on https://github.com/vlingo/vlingo-schemata/issues/90
+
     cy.task('schemata:withTestData').then(testData => {
       let data = <Cypress.SchemataTestData><unknown>testData
 
@@ -71,6 +73,8 @@ describe('Entity Update Tests', function () {
   });
 
   it('can update schema', function () {
+    this.skip() // Enable when working on https://github.com/vlingo/vlingo-schemata/issues/90
+
     cy.task('schemata:withTestData').then(testData => {
       let data = <Cypress.SchemataTestData><unknown>testData
 
