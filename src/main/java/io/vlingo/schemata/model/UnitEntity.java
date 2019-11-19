@@ -11,6 +11,7 @@ import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.UnitDefined;
 import io.vlingo.schemata.model.Events.UnitDescribed;
+import io.vlingo.schemata.model.Events.UnitRedefined;
 import io.vlingo.schemata.model.Events.UnitRenamed;
 import io.vlingo.schemata.model.Id.UnitId;
 
@@ -29,6 +30,11 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   @Override
   public Completes<UnitState> describeAs(final String description) {
     return apply(this.state.withDescription(description), new UnitDescribed(state.unitId, description), () -> this.state);
+  }
+
+  @Override
+  public Completes<UnitState> redefineWith(final String name, final String description) {
+    return apply(this.state.redefineWith(name, description), new UnitRedefined(state.unitId, name, description), () -> this.state);
   }
 
   @Override
