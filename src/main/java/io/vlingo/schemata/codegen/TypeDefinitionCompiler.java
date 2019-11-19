@@ -15,10 +15,10 @@ import io.vlingo.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
-import io.vlingo.schemata.codegen.processor.types.CacheTypeResolver;
 import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
 import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
+import io.vlingo.schemata.query.Queries;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -65,7 +65,7 @@ public interface TypeDefinitionCompiler {
    */
   static TypeDefinitionCompiler forBackend(final Stage stage, final Class<? extends Actor> backendType) {
     final TypeParser typeParser = stage.actorFor(TypeParser.class, AntlrTypeParser.class);
-    final TypeResolver typeResolver = new CacheTypeResolver();
+    final TypeResolver typeResolver = Queries.forSchemaVersions();
 
     return stage.actorFor(TypeDefinitionCompiler.class, TypeDefinitionCompilerActor.class,
             typeParser,

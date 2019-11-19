@@ -117,7 +117,7 @@ Content-Type: application/json
 
 {
   "organizationId": "",
-  "name": "org",
+  "name": "Org",
   "description": "My organization."
 }
 > {% client.global.set('orgId', response.body.organizationId) %}
@@ -130,7 +130,7 @@ Content-Type: application/json
 {
   "organizationId": "{{orgId}}",
   "unitId": "",
-  "name": "unit",
+  "name": "Unit",
   "description": "My unit."
 }
 
@@ -144,7 +144,7 @@ Content-Type: application/json
   "organizationId": "{{orgId}}",
   "unitId": "{{unitId}}",
   "contextId": "",
-  "namespace": "context",
+  "namespace": "Context",
   "description": "Schemata Context."
 }
 
@@ -160,7 +160,7 @@ Content-Type: application/json
   "contextId": "{{contextId}}",
   "schemaId": "",
   "category": "Event",
-  "name": "schema",
+  "name": "Schema",
   "scope": "Private",
   "description": "Schemata was defined event."
 }
@@ -187,8 +187,44 @@ Content-Type: application/json
 > {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
 
 
+### Create Schema 2
+POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "{{unitId}}",
+  "contextId": "{{contextId}}",
+  "schemaId": "",
+  "category": "Event",
+  "name": "Schema2",
+  "scope": "Private",
+  "description": "Schemata was defined event."
+}
+
+> {% client.global.set('schemaId2', response.body.schemaId) %}
+
+### Create Schema Version 2 that depends on 1
+POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId2}}/versions
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "{{unitId}}",
+  "contextId": "{{contextId}}",
+  "schemaId": "{{schemaId2}}",
+  "schemaVersionId": "",
+  "description": "Initial revision.",
+  "specification": "event SchemaDefined { Org:Unit:Context:Schema:1.0.0 first }",
+  "status": "Published",
+  "previousVersion": "0.0.0",
+  "currentVersion": "1.0.0"
+}
+> {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
+
+
 ### this crashes the compiler
-GET http://localhost:9019/code/org:unit:context:schema:1.0.0/java
+GET http://localhost:9019/code/Org:Unit:Context:Schema2:1.0.0/java
 Accept: application/json
 
 ###

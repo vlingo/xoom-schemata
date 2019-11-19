@@ -7,13 +7,12 @@
 
 package io.vlingo.schemata.codegen.specs;
 
-import static org.junit.Assert.assertTrue;
+import io.vlingo.schemata.codegen.CodeGenTests;
+import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
 
-import org.junit.Test;
-
-import io.vlingo.schemata.codegen.CodeGenTests;
+import static org.junit.Assert.assertTrue;
 
 public class JavaCodeGenTests extends CodeGenTests {
   @Test
@@ -63,10 +62,12 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("public final class PriceChanged extends DomainEvent {"));
     assertTrue(result.contains("public final long occurredOn;"));
     assertTrue(result.contains("public final SchemaVersion.Version eventVersion;"));
+    assertTrue(result.contains("public final Price oldPrice;"));
     assertTrue(result.contains("public final Price newPrice;"));
-    assertTrue(result.contains("public final PriceChanged(final Price newPrice) {"));
+    assertTrue(result.contains("public final PriceChanged(final Price oldPrice, final Price newPrice) {"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
     assertTrue(result.contains("this.eventVersion = SchemaVersion.Version.of(\"0.5.1\");"));
+    assertTrue(result.contains("this.oldPrice = oldPrice;"));
     assertTrue(result.contains("this.newPrice = newPrice;"));
   }
 }
