@@ -23,8 +23,9 @@
                                 return-object
                                 item-value="organizationId"
                                 item-text="name"
-                                v-model="organization"
-
+                                v-model="organizationId"
+                                @input="selection => $store.dispatch('select',selection)"
+                                :disabled="schemaVersionId !== undefined"
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
@@ -36,8 +37,9 @@
                                 return-object
                                 item-value="unitId"
                                 item-text="name"
-                                v-model="unit"
-
+                                v-model="unitId"
+                                @input="selection => $store.dispatch('select',selection)"
+                                :disabled="schemaVersionId !== undefined"
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
@@ -49,7 +51,9 @@
                                 return-object
                                 item-value="contextId"
                                 item-text="namespace"
-                                v-model="context"
+                                v-model="contextId"
+                                @input="selection => $store.dispatch('select',selection)"
+                                :disabled="schemaVersionId !== undefined"
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
@@ -61,7 +65,9 @@
                                 :rules="[rules.notEmpty]"
                                 item-value="schemaId"
                                 item-text="name"
-                                v-model="schema"
+                                v-model="schemaId"
+                                @input="selection => $store.dispatch('select',selection)"
+                                :disabled="schemaVersionId !== undefined"
                         ></v-autocomplete>
                     </v-col>
 
@@ -72,6 +78,7 @@
                                 :rules="[rules.notEmpty,rules.versionNumber]"
                                 label="Previous Version"
                                 required
+                                :disabled="schemaVersionId !== undefined"
                         ></v-text-field>
                     </v-col>
 
@@ -81,6 +88,7 @@
                                 :rules="[rules.notEmpty,rules.versionNumber]"
                                 label="Current Version"
                                 required
+                                :disabled="schemaVersionId !== undefined"
                         ></v-text-field>
                     </v-col>
 
@@ -137,7 +145,11 @@
         components: {editor},
         data: () => {
             return {
-                schemaVersionId: '',
+                organizationId: undefined,
+                unitId: undefined,
+                contextId: undefined,
+                schemaId: undefined,
+                schemaVersionId: undefined,
                 description: '',
                 specification: '',
                 previousVersion: '',
@@ -145,21 +157,24 @@
 
                 descriptionEditorActive: false,
                 specificationEditorActive: false,
-
-                editorOptions: {
-                    automaticLayout: true,
-                }
             }
         },
-
+      computed: {
+        editorOptions() {
+          return {
+            automaticLayout: true,
+              readOnly: this.schemaVersionId !== undefined
+          }
+        }
+      },
         methods: {
             createSchemaVersion() {
                 let vm = this
                 Repository.createSchemaVersion(
-                    this.organization.organizationId,
-                    this.unit.unitId,
-                    this.context.contextId,
-                    this.schema.schemaId,
+                    this.$store.getters.organizationId,
+                    this.$store.getters.unitId,
+                    this.$store.getters.contextId,
+                    this.$store.getters.schemaId,
                     this.specification,
                     this.description,
                     this.previousVersion,
