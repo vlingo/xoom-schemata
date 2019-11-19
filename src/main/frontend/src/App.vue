@@ -21,6 +21,7 @@
             <v-list dense shaped class="mt-1">
                 <v-list-item v-for="(item,idx) in menu" :key="idx"
                              :to="item.route"
+                             :data-testid="item.title"
                              color="primary"
                 >
                     <v-divider v-if="item.divider"></v-divider>

@@ -117,7 +117,8 @@
                                 message: `Context '${vm.namespace}' created.`,
                                 type: 'success'
                             })
-                        }
+                          vm.$store.dispatch('select', created)
+                      }
                     )
                     .catch(function (err) {
                         let response = err.response ? err.response.data + ' - ' : ''

@@ -158,6 +158,7 @@
                       message: `Schema '${vm.name}' created.`,
                       type: 'success'
                     })
+                    vm.$store.dispatch('select', created)
                   }
                 )
                 .catch(function (err) {

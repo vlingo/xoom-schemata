@@ -127,7 +127,7 @@
             <v-spacer></v-spacer>
             <v-btn color="primary"
                    :disabled="!valid || !description || !specification"
-                   @click="createSchemaVersion">Create
+                   @click="create">Create
             </v-btn>
         </v-card-actions>
     </v-card>
@@ -168,7 +168,7 @@
         }
       },
         methods: {
-            createSchemaVersion() {
+            create() {
                 let vm = this
                 Repository.createSchemaVersion(
                     this.$store.getters.organizationId,
@@ -207,7 +207,31 @@
             activateSpecificationEditor() {
                 this.descriptionEditorActive = false
                 this.specificationEditorActive = true
+            },
+            load(organizationId, unitId, contextId, schemaId, schemaVersionId) {
+              let vm = this
+              Repository.getSchemaVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
+                .then((loaded) => {
+                  vm.organizationId = loaded.organizationId
+                  vm.unitId = loaded.unitId
+                  vm.contextId = loaded.contextId
+                  vm.speficication = loaded.speficication
+                  vm.description = loaded.description
+                  vm.status = loaded.status
+                  vm.previousVersion = loaded.previousVersion
+                  vm.currentVersion = loaded.currentVersion
+                })
             }
+        },
+        mounted() {
+          this.organizationId = this.$store.getters.organizationId
+          this.unitId = this.$store.getters.unitId
+          this.contextId = this.$store.getters.contextId
+          this.schemaId = this.$store.getters.schemaId
+          let schemaVersionId = this.$store.getters.schemaVersionId
+          if (this.organizationId && this.unitId && contextId && schemaId && schemaVersionId) {
+            this.load(this.organizationId, this.unitId, contextId)
+          }
         }
     }
 </script>

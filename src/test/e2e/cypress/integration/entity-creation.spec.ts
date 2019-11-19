@@ -27,17 +27,17 @@ describe('Entity Creation Tests', function () {
         cy.fillField('Description', 'foo')
         cy.contains('button', 'Create').click()
 
-        cy.visit('/#/unit')
+        cy.get('a[data-testid="Unit"]').click()
         cy.fillField('Name', unitName)
         cy.fillField('Description', 'foo')
         cy.contains('button', 'Create').click()
 
-        cy.visit('/#/context')
+        cy.get('a[data-testid="Context"]').click()
         cy.fillField('Namespace', namespace)
         cy.fillField('Description', 'foo')
         cy.contains('button', 'Create').click()
 
-        cy.visit('/#/schema')
+        cy.get('a[data-testid="Schema"]').click()
         cy.fieldContent('SchemaID').should('be.empty')
         cy.fillField('Name', schema)
         cy.selectOption('Category', faker.random.arrayElement(['Command', 'Data', 'Document', 'Envelope', 'Event', 'Unknown']))
@@ -46,7 +46,7 @@ describe('Entity Creation Tests', function () {
         cy.contains('button', 'Create').click()
         cy.fieldContent('SchemaID').should('not.be.empty')
 
-        cy.visit('/#/schemaVersion')
+      cy.get('a[data-testid="Schema Version"]').click()
         cy.fieldContent('SchemaVersionID').should('be.empty')
         cy.fillField('Previous Version', prevVersion)
         cy.fillField('Current Version', currentVersion)
