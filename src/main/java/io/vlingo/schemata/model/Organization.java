@@ -45,7 +45,7 @@ public interface Organization {
 
   Completes<OrganizationState> describeAs(final String description);
 
-  Completes<OrganizationState> redefine(final String name, final String description);
+  Completes<OrganizationState> redefineWith(final String name, final String description);
 
   Completes<OrganizationState> renameTo(final String name);
 }
