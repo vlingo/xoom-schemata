@@ -126,7 +126,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
         assertTrue(response2.entity.content().contains("Status 'Deprecated' cannot be reached from current status"));
 
         Response responseAfterTriedUpdate =
-                resource.querySchemaVersion(orgId.value, unitId.value, contextId.value, schemaId.value, data1.schemaVersionId)
+                resource.querySchemaVersionByIds(orgId.value, unitId.value, contextId.value, schemaId.value, data1.schemaVersionId)
                 .await();
 
         final SchemaVersionData data2 =
@@ -171,7 +171,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
         assertEquals(Response.Status.Conflict, response2.status);
 
         Response responseAfterTriedUpdate =
-                resource.querySchemaVersion(orgId.value, unitId.value, contextId.value, schemaId.value, data1.schemaVersionId)
+                resource.querySchemaVersionByIds(orgId.value, unitId.value, contextId.value, schemaId.value, data1.schemaVersionId)
                         .await();
 
         final SchemaVersionData data2 =

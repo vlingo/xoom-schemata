@@ -117,10 +117,16 @@ public class SchemaVersionResource extends ResourceHandler {
                 .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
     }
 
-    public Completes<Response> querySchemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
+    public Completes<Response> querySchemaVersionByIds(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
         return Queries.forSchemaVersions()
                 .schemaVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
                 .andThenTo(schemaVersion -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersion))));
+    }
+
+    public Completes<Response> querySchemaVersionByNames(final String organization, final String unit, final String context, final String schema, final String schemaVersion) {
+        return Queries.forSchemaVersions()
+                .schemaVersionOf(organization, unit, context, schema, schemaVersion)
+                .andThenTo(schemaVersionData -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersionData))));
     }
 
     @Override
@@ -169,7 +175,14 @@ public class SchemaVersionResource extends ResourceHandler {
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
-                        .handle(this::querySchemaVersion));
+                        .handle(this::querySchemaVersionByIds),
+                get("/versions?organization={organization}&unit={unit}&context={context}&schema={schema}&version={schemaVersion}")
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .handle(this::querySchemaVersionByNames));
     }
 
     private String schemaVersionLocation(final SchemaVersionId schemaVersionId) {
