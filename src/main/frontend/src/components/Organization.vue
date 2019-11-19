@@ -102,10 +102,6 @@ export default {
             vm.description = loaded.description
           }
         )
-        .catch(function (err) {
-          let response = err.response ? err.response.data + ' - ' : ''
-          vm.$store.commit('raiseError', {message: response + err})
-        })
     },
     save() {
       let vm = this
