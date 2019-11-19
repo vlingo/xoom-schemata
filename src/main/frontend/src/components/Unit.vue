@@ -94,6 +94,7 @@
                             vm.name = created.name
                             vm.description = created.description
 
+                            vm.$store.dispatch('select', created)
                             vm.$store.commit('raiseNotification', {message: `Unit '${vm.name}' created.`, type: 'success'})
                         }
                     )

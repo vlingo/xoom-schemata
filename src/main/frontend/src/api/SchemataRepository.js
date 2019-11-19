@@ -148,6 +148,13 @@ export default {
       .then(ensureCreated)
       .then(response => response.data)
   },
+  updateContext(organizationId, unitId, id, name, description) {
+    return Repository.patch(`${resources.context(organizationId, unitId, id)}/namespace`, name, jsonHeader)
+      .then(() => Repository.patch(`${resources.context(organizationId, unitId, id)}/description`, description, jsonHeader))
+      .then(ensureOk)
+      .then(response => response.data)
+  },
+
   createSchema(organization, unit, context, name, scope, category, description) {
     return Repository.post(resources.schemata(organization, unit, context),
       {
