@@ -83,9 +83,6 @@
         },
 
         methods: {
-            o(payload, w) {
-              console.log(payload,w)
-            },
             create() {
                 let vm = this
                 Repository.createUnit(
