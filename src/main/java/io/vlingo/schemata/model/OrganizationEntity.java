@@ -37,7 +37,7 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   }
 
   @Override
-  public Completes<OrganizationState> redefine(final String name, final String description) {
+  public Completes<OrganizationState> redefineWith(final String name, final String description) {
     return apply(state.redefineWith(name, description), new OrganizationRedefined(state.organizationId, name, description), () -> state);
   }
 
