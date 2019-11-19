@@ -37,7 +37,7 @@
     </v-form>
   </v-card-text>
   <v-card-actions>
-    <v-btn color="info" @click="clear">New</v-btn>
+    <v-btn color="info" @click="clearForm">New</v-btn>
     <v-spacer></v-spacer>
     <v-btn color="primary" @click="save"
            :disabled="!(valid && organizationId)">Save
@@ -91,10 +91,6 @@ export default {
           let response = err.response ? err.response.data + ' - ' : ''
           vm.$store.commit('raiseError', {message: response + err})
         })
-    },
-    clear() {
-      this.clearForm()
-      this.$store.dispatch('deselect');
     },
     load(organizationId) {
       let vm = this
