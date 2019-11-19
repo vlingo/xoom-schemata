@@ -53,5 +53,10 @@ declare namespace Cypress {
          */
         expandSchemaTree(data: Cypress.SchemataTestData): Chainable<Element>
 
+      /**
+       * Navigates to a page using the navigation drawer menu
+       * @example cy.navigateTo('Browse')
+       */
+        navigateTo(label: string): Chainable<Element>
     }
 }
