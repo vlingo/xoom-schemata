@@ -132,7 +132,9 @@
               this.$store.getters.unitId,
               this.contextId,
               this.namespace, this.description)
-              .then(() => {
+              .then((updated) => {
+                vm.$store.dispatch('select', updated)
+
                 vm.$store.commit('raiseNotification', {
                   message: `Context ${vm.name} updated.`,
                   type: 'success'

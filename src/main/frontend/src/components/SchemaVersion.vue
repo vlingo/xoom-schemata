@@ -210,7 +210,7 @@
             },
             load(organizationId, unitId, contextId, schemaId, schemaVersionId) {
               let vm = this
-              Repository.getSchemaVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
+              Repository.getVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
                 .then((loaded) => {
                   vm.organizationId = loaded.organizationId
                   vm.unitId = loaded.unitId
@@ -229,8 +229,8 @@
           this.contextId = this.$store.getters.contextId
           this.schemaId = this.$store.getters.schemaId
           let schemaVersionId = this.$store.getters.schemaVersionId
-          if (this.organizationId && this.unitId && contextId && schemaId && schemaVersionId) {
-            this.load(this.organizationId, this.unitId, contextId)
+          if (this.organizationId && this.unitId && this.contextId && this.schemaId && schemaVersionId) {
+            this.load(this.organizationId, this.unitId, this.contextId, this.schemaId, schemaVersionId)
           }
         }
     }
