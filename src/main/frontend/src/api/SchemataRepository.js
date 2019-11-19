@@ -130,6 +130,12 @@ export default {
       .then(ensureCreated)
       .then(response => response.data)
   },
+  updateUnit(organization, id, name, description) {
+    return Repository.patch(`${resources.unit(organization, id)}/name`, name, jsonHeader)
+      .then(() => Repository.patch(`${resources.unit(organization,id)}/description`, description, jsonHeader))
+      .then(ensureOk)
+      .then(response => response.data)
+  },
 
   createContext(organization, unit, namespace, description) {
     return Repository.post(resources.contexts(organization, unit),

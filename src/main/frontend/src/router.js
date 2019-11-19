@@ -40,7 +40,7 @@ export default new Router({
             component: Organization
         },
         {
-            path: '/unit:unitId?',
+            path: '/unit',
             name: 'unit',
             component: Unit
         },
