@@ -16,11 +16,20 @@ describe('Entity Update Tests', function () {
       cy.task('schemata:withTestData').then(testData => {
         let data = <Cypress.SchemataTestData><unknown>testData
 
-        cy.visit(`/#/organization/${data.organization.organizationId}`)
+        cy.visit(`/#/schemata/`)
+        cy.fillField('Search', data.organization.name)
+        cy.contains('.v-treeview-node__label', data.organization.name).click()
+
+        cy.visit(`/#/organization/`)
         cy.fillField('Name', data.organization.name + ' - updated')
         cy.fillField('Description', data.organization.description + ' - updated')
         cy.contains('button', 'Save').click()
-        cy.reload()
+
+        cy.visit(`/#/schemata/`)
+        cy.fillField('Search', data.organization.name)
+        cy.contains('.v-treeview-node__label', data.organization.name).click()
+
+        cy.visit(`/#/organization/`)
         cy.fieldContent('Name').should('contain','- updated')
         cy.fieldContent('Description').should('contain','- updated')
       })
