@@ -337,6 +337,22 @@ public final class Events {
     }
   }
 
+  public static final class UnitRedefined extends DomainEvent {
+    public final String unitId;
+    public final String name;
+    public final String description;
+
+    public static UnitRedefined with(final UnitId unitId, final String name, final String description) {
+      return new UnitRedefined(unitId, name, description);
+    }
+
+    public UnitRedefined(final UnitId unitId, final String name, final String description) {
+      this.unitId = unitId.value;
+      this.name = name;
+      this.description = description;
+    }
+  }
+
   public static final class UnitRenamed extends DomainEvent {
     public final String unitId;
     public final String name;
