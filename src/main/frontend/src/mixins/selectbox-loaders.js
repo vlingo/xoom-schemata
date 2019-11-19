@@ -1,5 +1,4 @@
 import Repository from '@/api/SchemataRepository'
-import {mapFields} from 'vuex-map-fields';
 
 export default {
     data: () => {

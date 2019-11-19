@@ -22,8 +22,9 @@
                                 :loading="loading.organizations"
                                 item-value="organizationId"
                                 item-text="name"
+                                @input="o => $store.dispatch('select',o)"
+                                :disabled="unitId !== undefined"
                                 v-model="organizationId"
-
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12">
@@ -82,6 +83,9 @@
         },
 
         methods: {
+            o(payload, w) {
+              console.log(payload,w)
+            },
             create() {
                 let vm = this
                 Repository.createUnit(
@@ -127,11 +131,11 @@
         },
 
       mounted() {
-        this.organizationId = this.$store.getters.organizationId
-        let unitId = this.$store.getters.unitId
-        if (this.organizationId && unitId) {
-          this.load(this.organizationId,unitId)
-        }
+          this.organizationId = this.$store.getters.organizationId
+          let unitId = this.$store.getters.unitId
+          if (this.organizationId && unitId) {
+            this.load(this.organizationId,unitId)
+          }
       }
     }
 </script>

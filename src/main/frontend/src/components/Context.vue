@@ -24,7 +24,8 @@
                                 item-value="organizationId"
                                 item-text="name"
                                 v-model="organizationId"
-
+                                :disabled="contextId !== undefined"
+                                @input="o => $store.dispatch('select',o)"
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
@@ -37,7 +38,8 @@
                                 item-value="unitId"
                                 item-text="name"
                                 v-model="unitId"
-
+                                :disabled="contextId !== undefined"
+                                @input="u => $store.dispatch('select',u)"
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12">
@@ -68,7 +70,7 @@
                  :disabled="!(valid && contextId)">Save
           </v-btn>
           <v-btn color="primary"
-                   :disabled="!valid"
+                   :disabled="!(valid && !contextId)"
                    @click="create">Create
             </v-btn>
             <v-btn color="secondary" to="/schema"
@@ -101,8 +103,8 @@
             create() {
                 let vm = this
                 Repository.createContext(
-                    this.organizationId,
-                    this.unitId,
+                    this.$store.getters.organizationId,
+                    this.$store.getters.unitId,
                     this.namespace,
                     this.description)
                     .then((created) => {
@@ -124,7 +126,11 @@
             },
           save() {
             let vm = this
-            Repository.updateContext(this.organizationId, this.unitId, this.contextId, this.namespace, this.description)
+            Repository.updateContext(
+              this.$store.getters.organizationId,
+              this.$store.getters.unitId,
+              this.contextId,
+              this.namespace, this.description)
               .then(() => {
                 vm.$store.commit('raiseNotification', {
                   message: `Context ${vm.name} updated.`,
