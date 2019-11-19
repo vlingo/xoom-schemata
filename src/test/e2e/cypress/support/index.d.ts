@@ -58,5 +58,12 @@ declare namespace Cypress {
        * @example cy.navigateTo('Browse')
        */
         navigateTo(label: string): Chainable<Element>
+
+      /**
+       * Selects an item from the schemata tree based on its label.
+       * Must be called with the current test data, see also expandSchemaTree
+       * @example cy.selectFromTree(testData, 'Browse')
+       */
+      selectFromTree(data: Cypress.SchemataTestData, label: string): Chainable<Element>
     }
 }

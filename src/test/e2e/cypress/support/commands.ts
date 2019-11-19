@@ -57,5 +57,10 @@ Cypress.Commands.add("expandSchemaTree", (data: Cypress.SchemataTestData) => {
 
 Cypress.Commands.add("navigateTo", (label: string) => {
   cy.get(`a[data-testid="${label}"]`).click()
+})
 
+Cypress.Commands.add("selectFromTree", (data: Cypress.SchemataTestData, label: string) => {
+  cy.visit(`/#/schemata/`)
+  cy.expandSchemaTree(data)
+  cy.contains('.v-treeview-node__label', label).click()
 })

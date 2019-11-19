@@ -189,6 +189,7 @@
                   vm.organizationId = loaded.organizationId
                   vm.unitId = loaded.unitId
                   vm.contextId = loaded.contextId
+                  vm.schemaId = loaded.schemaId
                   vm.name = loaded.name
                   vm.category = loaded.category
                   vm.scope = loaded.scope
