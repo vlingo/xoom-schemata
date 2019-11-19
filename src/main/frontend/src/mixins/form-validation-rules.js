@@ -23,6 +23,7 @@ export default {
             this.schema = undefined
             this.version = undefined
             this.$refs.form.reset()
+            this.$store.dispatch('deselect');
         },
         resetValidation() {
             this.$refs.form.resetValidation()
