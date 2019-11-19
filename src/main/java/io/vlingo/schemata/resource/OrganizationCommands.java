@@ -116,7 +116,7 @@ class OrganizationCommands {
 
     @Override
     public void accept(final Organization protocol, final RedefineWith command, final Completes<OrganizationState> answer) {
-      protocol.redefine(command.name, command.description).andThen(state -> answer.with(state));
+      protocol.redefineWith(command.name, command.description).andThen(state -> answer.with(state));
     }
   }
 
