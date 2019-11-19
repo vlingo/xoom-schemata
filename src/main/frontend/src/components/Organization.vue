@@ -106,7 +106,8 @@ export default {
     save() {
       let vm = this
       Repository.updateOrganization(this.organizationId, this.name, this.description)
-        .then(() => {
+        .then((updated) => {
+          vm.$store.dispatch('select', updated)
           vm.$store.commit('raiseNotification', {
             message: `Organization ${vm.name} updated.`,
             type: 'success'

@@ -104,8 +104,9 @@
             },
           save() {
             let vm = this
-            Repository.updateUnit(this.organizationId, this.organizationId, this.name, this.description)
-              .then(() => {
+            Repository.updateUnit(this.organizationId, this.unitId, this.name, this.description)
+              .then((updated) => {
+                vm.$store.dispatch('select', updated)
                 vm.$store.commit('raiseNotification', {
                   message: `Unit ${vm.name} updated.`,
                   type: 'success'
@@ -125,10 +126,10 @@
         },
 
       mounted() {
-        let orgId = this.$store.getters.organizationId
+        this.organizationId = this.$store.getters.organizationId
         let unitId = this.$store.getters.unitId
-        if (orgId && unitId) {
-          this.load(orgId,unitId)
+        if (this.organizationId && unitId) {
+          this.load(this.organizationId,unitId)
         }
       }
     }
