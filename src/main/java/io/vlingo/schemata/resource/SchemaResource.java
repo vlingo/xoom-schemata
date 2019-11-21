@@ -18,6 +18,7 @@ import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
+import static io.vlingo.http.resource.ResourceBuilder.put;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.SchemasPath;
@@ -163,6 +164,13 @@ public class SchemaResource extends ResourceHandler {
         .param(String.class)
         .body(String.class)
         .handle(this::renameTo),
+      put("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(SchemaData.class)
+        .handle(this::redefineWith),
       get("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas")
         .param(String.class)
         .param(String.class)
