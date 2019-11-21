@@ -71,6 +71,26 @@ public class SchemaResourceTest extends ResourceTest {
   }
 
   @Test
+  public void testSchemaRedefineWith() {
+    final SchemaResource resource = new SchemaResource(world);
+    final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaData.just(SchemaCategory, SchemaScope, SchemaName, SchemaDescription)).await();
+    assertEquals(Created, response1.status);
+    final SchemaData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaData.class);
+    final Response response2 = resource.redefineWith(data1.organizationId, data1.unitId, data1.contextId, data1.schemaId, SchemaData.just(Category.Data.name(), Scope.Private.name(), SchemaName + 1, SchemaDescription + 1)).await();
+    assertNotEquals(response1.entity.content(), response2.entity.content());
+    final SchemaData data2 = JsonSerialization.deserialized(response2.entity.content(), SchemaData.class);
+    assertEquals(data1.unitId, data2.unitId);
+    assertNotEquals(data1.category, data2.category);
+    assertEquals(Category.Data.name(), data2.category);
+    assertNotEquals(data1.scope, data2.scope);
+    assertEquals(Scope.Private.name(), data2.scope);
+    assertNotEquals(data1.name, data2.name);
+    assertEquals((SchemaName + 1), data2.name);
+    assertNotEquals(data1.description, data2.description);
+    assertEquals((SchemaDescription + 1), data2.description);
+  }
+
+  @Test
   public void testSchemaRenameTo() {
     final SchemaResource resource = new SchemaResource(world);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaData.just(SchemaCategory, SchemaScope, SchemaName, SchemaDescription)).await();
