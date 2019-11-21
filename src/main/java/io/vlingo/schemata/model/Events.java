@@ -45,17 +45,33 @@ public final class Events {
     }
   }
 
-  public static final class ContextRenamed extends DomainEvent {
+  public static final class ContextMovedToNamespace extends DomainEvent {
     public final String contextId;
     public final String namespace;
 
-    public static ContextRenamed with(final ContextId contextId, final String namespace) {
-      return new ContextRenamed(contextId, namespace);
+    public static ContextMovedToNamespace with(final ContextId contextId, final String namespace) {
+      return new ContextMovedToNamespace(contextId, namespace);
     }
 
-    public ContextRenamed(final ContextId contextId, String namespace) {
+    public ContextMovedToNamespace(final ContextId contextId, String namespace) {
       this.contextId = contextId.value;
       this.namespace = namespace;
+    }
+  }
+
+  public static final class ContextRedefined extends DomainEvent {
+    public final String contextId;
+    public final String name;
+    public final String description;
+
+    public static ContextRedefined with(final ContextId contextId, final String namespace, final String description) {
+      return new ContextRedefined(contextId, namespace, description);
+    }
+
+    public ContextRedefined(final ContextId contextId, final String name, final String description) {
+      this.contextId = contextId.value;
+      this.name = name;
+      this.description = description;
     }
   }
 
