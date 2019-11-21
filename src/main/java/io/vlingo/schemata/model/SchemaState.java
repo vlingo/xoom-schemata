@@ -50,6 +50,10 @@ public class SchemaState extends StateObject {
     return new SchemaState(this.persistenceId(), this.version() + 1, this.schemaId, this.category, this.scope, name, this.description);
   }
 
+  public SchemaState redefineWith(final Category category, final Scope scope, final String name, final String description) {
+    return new SchemaState(this.persistenceId(), this.version() + 1, this.schemaId, category, scope, name, description);
+  }
+
   @Override
   public Map<String, Object> queryMap() {
     return FluentMap
