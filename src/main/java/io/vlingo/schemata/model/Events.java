@@ -197,6 +197,26 @@ public final class Events {
     }
   }
 
+  public static final class SchemaRedefined extends DomainEvent {
+    public final String schemaId;
+    public final String category;
+    public final String scope;
+    public final String name;
+    public final String description;
+
+    public static SchemaRedefined with(final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+      return new SchemaRedefined(schemaId, category, scope, name, description);
+    }
+
+    public SchemaRedefined(final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+      this.schemaId = schemaId.value;
+      this.category = category.name();
+      this.scope = scope.name();
+      this.name = name;
+      this.description = description;
+    }
+  }
+
   public static final class SchemaRenamed extends DomainEvent {
     public final String schemaId;
     public final String name;
