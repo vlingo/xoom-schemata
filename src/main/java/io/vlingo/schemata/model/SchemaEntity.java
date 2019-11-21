@@ -12,6 +12,7 @@ import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.SchemaCategorized;
 import io.vlingo.schemata.model.Events.SchemaDefined;
 import io.vlingo.schemata.model.Events.SchemaDescribed;
+import io.vlingo.schemata.model.Events.SchemaRedefined;
 import io.vlingo.schemata.model.Events.SchemaRenamed;
 import io.vlingo.schemata.model.Events.SchemaScoped;
 import io.vlingo.schemata.model.Id.SchemaId;
@@ -44,6 +45,14 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
   @Override
   public Completes<SchemaState> describeAs(String description) {
     return apply(this.state.withDescription(description), SchemaDescribed.with(state.schemaId, description), () -> this.state);
+  }
+
+  @Override
+  public Completes<SchemaState> redefineWith(final Category category, final Scope scope, final String name, final String description) {
+    return apply(
+            this.state.redefineWith(category, scope, name, description),
+            SchemaRedefined.with(state.schemaId, category, scope, name, description),
+            () -> this.state);
   }
 
   @Override
