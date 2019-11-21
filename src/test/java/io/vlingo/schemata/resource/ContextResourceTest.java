@@ -51,7 +51,7 @@ public class ContextResourceTest extends ResourceTest {
   }
 
   @Test
-  public void testContextRenameTo() {
+  public void testContextMovedToNamespace() {
     final ContextResource resource = new ContextResource(world);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     assertEquals(Created, response1.status);
@@ -62,5 +62,21 @@ public class ContextResourceTest extends ResourceTest {
     assertEquals(data1.unitId, data2.unitId);
     assertNotEquals(data1.namespace, data2.namespace);
     assertEquals((ContextNamespace + 1), data2.namespace);
+  }
+
+  @Test
+  public void testContextRedefined() {
+    final ContextResource resource = new ContextResource(world);
+    final Response response1 = resource.defineWith(OrgId, UnitId, ContextData.just(ContextNamespace, ContextDescription)).await();
+    assertEquals(Created, response1.status);
+    final ContextData data1 = JsonSerialization.deserialized(response1.entity.content(), ContextData.class);
+    final Response response2 = resource.redefineWith(data1.organizationId, data1.unitId, data1.contextId, ContextData.just(ContextNamespace + 1, ContextDescription + 1)).await();
+    assertNotEquals(response1.entity.content(), response2.entity.content());
+    final ContextData data2 = JsonSerialization.deserialized(response2.entity.content(), ContextData.class);
+    assertEquals(data1.unitId, data2.unitId);
+    assertNotEquals(data1.namespace, data2.namespace);
+    assertEquals((ContextNamespace + 1), data2.namespace);
+    assertNotEquals(data1.description, data2.description);
+    assertEquals((ContextDescription + 1), data2.description);
   }
 }
