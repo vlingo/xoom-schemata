@@ -93,6 +93,30 @@ class SchemaCommands {
     return command;
   }
 
+  public RoutableCommand<Schema, Command, SchemaState> redefineWith(
+          final SchemaId schemaId,
+          final Category category,
+          final Scope scope,
+          final String name,
+          final String description) {
+
+    final RedefineWith redefineWith = new RedefineWith(category, scope, name, description);
+
+    RoutableCommand<Schema,Command,SchemaState> command =
+            RoutableCommand
+              .speaks(Schema.class)
+              .to(SchemaEntity.class)
+              .at(schemaId.value)
+              .named(Schema.nameFrom(schemaId))
+              .delivers(redefineWith)
+              .answers(Completes.using(stage.scheduler()))
+              .handledBy(redefineWith);
+
+    router.route(command);
+
+    return command;
+  }
+
   RoutableCommand<Schema,Command,SchemaState> renameTo(
           final SchemaId schemaId,
           final String name) {
@@ -153,16 +177,35 @@ class SchemaCommands {
     }
   }
 
-  private static class RenameTo extends Command implements CommandDispatcher<Schema,RenameTo,Completes<SchemaState>> {
-    private final String namespace;
+  private static class RedefineWith extends Command implements CommandDispatcher<Schema,RedefineWith,Completes<SchemaState>> {
+    private final Category category;
+    private final Scope scope;
+    private final String name;
+    private final String description;
 
-    RenameTo(final String namespace) {
-      this.namespace = namespace;
+    RedefineWith(final Category category, final Scope scope, final String name, final String description) {
+      this.category = category;
+      this.scope = scope;
+      this.name = name;
+      this.description = description;
+    }
+
+    @Override
+    public void accept(final Schema protocol, final RedefineWith command, final Completes<SchemaState> answer) {
+      protocol.redefineWith(command.category, command.scope, command.name, command.description).andThen(state -> answer.with(state));
+    }
+  }
+
+  private static class RenameTo extends Command implements CommandDispatcher<Schema,RenameTo,Completes<SchemaState>> {
+    private final String name;
+
+    RenameTo(final String name) {
+      this.name = name;
     }
 
     @Override
     public void accept(final Schema protocol, final RenameTo command, final Completes<SchemaState> answer) {
-      protocol.renameTo(command.namespace).andThen(state -> answer.with(state));
+      protocol.renameTo(command.name).andThen(state -> answer.with(state));
     }
   }
 }
