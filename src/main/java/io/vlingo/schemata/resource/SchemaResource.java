@@ -96,6 +96,16 @@ public class SchemaResource extends ResourceHandler {
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));
   }
 
+  public Completes<Response> redefineWith(final String organizationId, final String unitId, final String contextId, final String schemaId, final SchemaData data) {
+    if (Naming.isValid(data.name)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
+    }
+
+    return commands
+            .redefineWith(SchemaId.existing(organizationId, unitId, contextId, schemaId), Category.valueOf(data.category), Scope.valueOf(data.scope), data.name, data.description).answer()
+            .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));
+  }
+
   public Completes<Response> querySchemas(final String organizationId, final String unitId, final String contextId) {
     return Queries.forSchemas()
             .schemas(organizationId, unitId, contextId)
