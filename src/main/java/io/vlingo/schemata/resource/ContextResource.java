@@ -82,6 +82,16 @@ public class ContextResource extends ResourceHandler {
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(ContextData.from(state)))));
   }
 
+  public Completes<Response> redefineWith(final String organizationId, final String unitId, final String contextId, final ContextData data) {
+    if (Naming.isValid(data.namespace)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.namespace)));
+    }
+
+    return commands
+            .redefineWith(ContextId.existing(organizationId, unitId, contextId), data.namespace, data.description).answer()
+            .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(ContextData.from(state)))));
+  }
+
   public Completes<Response> queryContexts(final String organizationId, final String unitId) {
     return Queries.forContexts()
             .contexts(organizationId, unitId)
