@@ -201,7 +201,6 @@ public class SchemataObjectStoreTest {
     }
 
     @Test
-    @Ignore
     public void testThatObjectStoreInsertsSchemaStateAndQuerys() {
         final SchemaId schemaId =SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique())));
         final TestPersistResultInterest persistInterest = new TestPersistResultInterest();
@@ -243,7 +242,7 @@ public class SchemataObjectStoreTest {
         assertEquals(insertedSchemaState.persistenceId(), result.persistenceId());
         assertEquals(updatedSchemaState.name, result.name);
         assertEquals(updatedSchemaState.description, result.description);
-        assertEquals(updatedSchemaState.schemaId, result.schemaId);
+        assertEquals(updatedSchemaState.schemaId.value, result.schemaId.value);
         assertEquals(updatedSchemaState.category, result.category);
         assertEquals(updatedSchemaState.scope, result.scope);
     }

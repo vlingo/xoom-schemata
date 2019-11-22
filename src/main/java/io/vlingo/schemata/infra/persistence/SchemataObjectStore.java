@@ -150,7 +150,7 @@ public abstract class SchemataObjectStore {
                                 "INSERT INTO TBL_SCHEMAS(dataVersion, schemaId, contextId, unitId, organizationId, category, scope, name, description) " +
                                         "VALUES (:version, :schemaId.value, :schemaId.contextId.value, :schemaId.contextId.unitId.value, " +
                                         ":schemaId.contextId.unitId.organizationId.value, :category, :scope, :name, :description) ",
-                                "UPDATE TBL_SCHEMAS SET dataVersion = :version, category = :category, scope = :scope, name = :namespace, description = :description " +
+                                "UPDATE TBL_SCHEMAS SET dataVersion = :version, category = :category, scope = :scope, name = :name, description = :description " +
                                 "WHERE id = :persistenceId",
                                 SqlStatement::bindFields,
                                 SqlStatement::bindMethods),

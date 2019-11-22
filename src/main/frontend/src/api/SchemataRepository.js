@@ -115,8 +115,11 @@ export default {
       .then(response => response.data)
   },
   updateOrganization(id, name, description) {
-    return Repository.patch(`${resources.organization(id)}/name`, name, jsonHeader)
-      .then(() => Repository.patch(`${resources.organization(id)}/description`, description, jsonHeader))
+    return Repository.put(resources.organization(id), {
+        organizationId: id,
+        name: name,
+        description: description
+      })
       .then(ensureOk)
       .then(response => response.data)
   },
@@ -132,8 +135,11 @@ export default {
       .then(response => response.data)
   },
   updateUnit(organization, id, name, description) {
-    return Repository.patch(`${resources.unit(organization, id)}/name`, name, jsonHeader)
-      .then(() => Repository.patch(`${resources.unit(organization,id)}/description`, description, jsonHeader))
+    return Repository.put(resources.unit(organization, id), {
+        unitId: id,
+        name: name,
+        description: description
+      })
       .then(ensureOk)
       .then(response => response.data)
   },
@@ -144,14 +150,16 @@ export default {
         contextId: '',
         namespace: namespace,
         description: description
-      }
-      )
+      })
       .then(ensureCreated)
       .then(response => response.data)
   },
-  updateContext(organizationId, unitId, id, name, description) {
-    return Repository.patch(`${resources.context(organizationId, unitId, id)}/namespace`, name, jsonHeader)
-      .then(() => Repository.patch(`${resources.context(organizationId, unitId, id)}/description`, description, jsonHeader))
+  updateContext(organizationId, unitId, id, namespace, description) {
+    return Repository.put(resources.context(organizationId, unitId, id), {
+        contextId: id,
+        namespace: namespace,
+        description: description
+      })
       .then(ensureOk)
       .then(response => response.data)
   },
@@ -159,21 +167,23 @@ export default {
   createSchema(organization, unit, context, name, scope, category, description) {
     return Repository.post(resources.schemata(organization, unit, context),
       {
-        contextId: '',
+        schemaId: '',
         name: name,
         scope: scope,
         category: category,
         description: description
-      }
-      )
+      })
       .then(ensureCreated)
       .then(response => response.data)
   },
   updateSchema(organizationId, unitId, contextId, id, name, category, scope, description) {
-    return Repository.patch(`${resources.schema(organizationId, unitId, contextId, id)}/name`, name, jsonHeader)
-      .then(() => Repository.patch(`${resources.context(organizationId, unitId, id)}/category`, category, jsonHeader))
-      .then(() => Repository.patch(`${resources.context(organizationId, unitId, id)}/scope`, scope, jsonHeader))
-      .then(() => Repository.patch(`${resources.context(organizationId, unitId, id)}/description`, description, jsonHeader))
+    return Repository.put(resources.schema(organizationId, unitId, contextId, id), {
+        schemaId: id,
+        name: name,
+        scope: scope,
+        category: category,
+        description: description
+      })
       .then(ensureOk)
       .then(response => response.data)
   },
