@@ -20,11 +20,12 @@ describe('Schemata View Tests', function () {
             cy.contains('.v-list-item__title', data.version.currentVersion).click()
 
             // Assert spec & desc
+            cy.contains('.v-tab', 'Specification').click()
             cy.editorContent('#specification-editor').should('contain', 'event SalutationHappened')
             cy.editorContent('#specification-editor').should('contain', 'type eventType')
 
             cy.contains('.v-tab', 'Description').click()
-            cy.contains('.v-window-item--active', data.version.description)
+            cy.editorContent('#description-editor').should('contain', data.version.description)
         })
 
 
