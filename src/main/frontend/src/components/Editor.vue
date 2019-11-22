@@ -105,7 +105,7 @@
                 'context',
                 'category',
                 'schema',
-                'version'
+                'schemaVersion'
             ]),
         },
         asyncComputed: {

@@ -20,11 +20,11 @@
                                 label="Organization"
                                 :rules="[rules.notEmpty]"
                                 :loading="loading.organizations"
-                                return-object
                                 item-value="organizationId"
                                 item-text="name"
-                                v-model="organization"
-
+                                @input="o => $store.dispatch('select',o)"
+                                :disabled="unitId !== undefined"
+                                v-model="organizationId"
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12">
@@ -51,9 +51,12 @@
         <v-card-actions>
             <v-btn color="info" @click="clearForm">New</v-btn>
             <v-spacer></v-spacer>
+          <v-btn color="primary" @click="save"
+                 :disabled="!(valid && unitId)">Save
+          </v-btn>
             <v-btn color="primary"
-                   :disabled="!valid"
-                   @click="createUnit">Create
+                   :disabled="!(valid && !unitId)"
+                   @click="create">Create
             </v-btn>
             <v-btn color="secondary" to="/context"
                    :disabled="!unitId">Create Context
@@ -72,25 +75,27 @@
 
         data: () => {
             return {
-                unitId: '',
-                name: '',
-                description: '',
+                organizationId: undefined,
+                unitId: undefined,
+                name: undefined,
+                description: undefined,
             }
         },
 
         methods: {
-            createUnit() {
+            create() {
                 let vm = this
                 Repository.createUnit(
-                    this.organization.organizationId,
+                    this.organizationId,
                     this.name,
                     this.description)
                     .then((created) => {
-                            vm.unit = created
+                            vm.organizationId = created.organizationId
                             vm.unitId = created.unitId
                             vm.name = created.name
                             vm.description = created.description
 
+                            vm.$store.dispatch('select', created)
                             vm.$store.commit('raiseNotification', {message: `Unit '${vm.name}' created.`, type: 'success'})
                         }
                     )
@@ -98,7 +103,36 @@
                         let response = err.response ? err.response.data + ' - ' : ''
                         vm.$store.commit('raiseError', {message: response + err})
                     })
-            }
-        }
+            },
+          save() {
+            let vm = this
+            Repository.updateUnit(this.organizationId, this.unitId, this.name, this.description)
+              .then((updated) => {
+                vm.$store.dispatch('select', updated)
+                vm.$store.commit('raiseNotification', {
+                  message: `Unit ${vm.name} updated.`,
+                  type: 'success'
+                })
+              })
+          },
+          load(organizationId, unitId) {
+            let vm = this
+            Repository.getUnit(organizationId, unitId)
+              .then((loaded) => {
+                vm.organizationId = loaded.organizationId
+                vm.unitId = loaded.unitId
+                vm.name = loaded.name
+                vm.description = loaded.description
+              })
+          }
+        },
+
+      mounted() {
+          this.organizationId = this.$store.getters.organizationId
+          let unitId = this.$store.getters.unitId
+          if (this.organizationId && unitId) {
+            this.load(this.organizationId,unitId)
+          }
+      }
     }
 </script>

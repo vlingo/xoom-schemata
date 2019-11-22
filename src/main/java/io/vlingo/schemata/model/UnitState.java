@@ -40,6 +40,10 @@ public class UnitState extends StateObject {
     return new UnitState(this.persistenceId(), this.version() + 1, this.unitId, name, this.description);
   }
 
+  public UnitState redefineWith(final String name, final String description) {
+    return new UnitState(this.persistenceId(), this.version() + 1, this.unitId, name, description);
+  }
+
   @Override
   public Map<String, Object> queryMap() {
     return FluentMap

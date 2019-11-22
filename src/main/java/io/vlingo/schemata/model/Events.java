@@ -45,17 +45,33 @@ public final class Events {
     }
   }
 
-  public static final class ContextRenamed extends DomainEvent {
+  public static final class ContextMovedToNamespace extends DomainEvent {
     public final String contextId;
     public final String namespace;
 
-    public static ContextRenamed with(final ContextId contextId, final String namespace) {
-      return new ContextRenamed(contextId, namespace);
+    public static ContextMovedToNamespace with(final ContextId contextId, final String namespace) {
+      return new ContextMovedToNamespace(contextId, namespace);
     }
 
-    public ContextRenamed(final ContextId contextId, String namespace) {
+    public ContextMovedToNamespace(final ContextId contextId, String namespace) {
       this.contextId = contextId.value;
       this.namespace = namespace;
+    }
+  }
+
+  public static final class ContextRedefined extends DomainEvent {
+    public final String contextId;
+    public final String name;
+    public final String description;
+
+    public static ContextRedefined with(final ContextId contextId, final String namespace, final String description) {
+      return new ContextRedefined(contextId, namespace, description);
+    }
+
+    public ContextRedefined(final ContextId contextId, final String name, final String description) {
+      this.contextId = contextId.value;
+      this.name = name;
+      this.description = description;
     }
   }
 
@@ -85,6 +101,22 @@ public final class Events {
 
     public OrganizationDescribed(final OrganizationId organizationId, final String description) {
       this.organizationId = organizationId.value;
+      this.description = description;
+    }
+  }
+
+  public static final class OrganizationRedefined extends DomainEvent {
+    public final String organizationId;
+    public final String name;
+    public final String description;
+
+    public static OrganizationRedefined with(final OrganizationId organizationId, final String name, final String description) {
+      return new OrganizationRedefined(organizationId, name, description);
+    }
+
+    public OrganizationRedefined(final OrganizationId organizationId, final String name, final String description) {
+      this.organizationId = organizationId.value;
+      this.name = name;
       this.description = description;
     }
   }
@@ -162,6 +194,26 @@ public final class Events {
     public SchemaScoped(final SchemaId schemaId, final Scope scope) {
       this.schemaId = schemaId.value;
       this.scope = scope.name();
+    }
+  }
+
+  public static final class SchemaRedefined extends DomainEvent {
+    public final String schemaId;
+    public final String category;
+    public final String scope;
+    public final String name;
+    public final String description;
+
+    public static SchemaRedefined with(final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+      return new SchemaRedefined(schemaId, category, scope, name, description);
+    }
+
+    public SchemaRedefined(final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+      this.schemaId = schemaId.value;
+      this.category = category.name();
+      this.scope = scope.name();
+      this.name = name;
+      this.description = description;
     }
   }
 
@@ -317,6 +369,22 @@ public final class Events {
 
     public UnitDescribed(final UnitId unitId, final String description) {
       this.unitId = unitId.value;
+      this.description = description;
+    }
+  }
+
+  public static final class UnitRedefined extends DomainEvent {
+    public final String unitId;
+    public final String name;
+    public final String description;
+
+    public static UnitRedefined with(final UnitId unitId, final String name, final String description) {
+      return new UnitRedefined(unitId, name, description);
+    }
+
+    public UnitRedefined(final UnitId unitId, final String name, final String description) {
+      this.unitId = unitId.value;
+      this.name = name;
       this.description = description;
     }
   }

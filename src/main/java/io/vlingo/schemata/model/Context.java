@@ -48,4 +48,6 @@ public interface Context {
   Completes<ContextState> describeAs(final String description);
 
   Completes<ContextState> moveToNamespace(final String namespace);
+
+  Completes<ContextState> redefineWith(final String namespace, final String description);
 }

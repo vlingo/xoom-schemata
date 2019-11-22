@@ -7,6 +7,8 @@
 
 package io.vlingo.schemata.resource;
 
+import io.vlingo.http.Response;
+import io.vlingo.http.ResponseHeader;
 import org.junit.Before;
 
 import io.vlingo.actors.Stage;
@@ -75,5 +77,10 @@ public abstract class ResourceTest {
                     "",
                     "MAIN",
                     true));
+  }
+
+  protected String extractResourceIdFrom(final Response response) {
+    final String[] parts = response.headerValueOr(ResponseHeader.Location, null).split("/");
+    return parts[parts.length-1];
   }
 }

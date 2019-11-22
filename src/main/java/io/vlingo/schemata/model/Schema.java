@@ -44,4 +44,6 @@ public interface Schema {
   Completes<SchemaState> describeAs(final String description);
 
   Completes<SchemaState> renameTo(final String name);
+
+  Completes<SchemaState> redefineWith(final Category category, final Scope scope, final String name, final String description);
 }

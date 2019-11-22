@@ -23,8 +23,9 @@
                                 return-object
                                 item-value="organizationId"
                                 item-text="name"
-                                v-model="organization"
-
+                                v-model="organizationId"
+                                @input="selection => $store.dispatch('select',selection)"
+                                :disabled="schemaVersionId !== undefined"
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
@@ -36,8 +37,9 @@
                                 return-object
                                 item-value="unitId"
                                 item-text="name"
-                                v-model="unit"
-
+                                v-model="unitId"
+                                @input="selection => $store.dispatch('select',selection)"
+                                :disabled="schemaVersionId !== undefined"
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
@@ -49,7 +51,9 @@
                                 return-object
                                 item-value="contextId"
                                 item-text="namespace"
-                                v-model="context"
+                                v-model="contextId"
+                                @input="selection => $store.dispatch('select',selection)"
+                                :disabled="schemaVersionId !== undefined"
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
@@ -61,36 +65,31 @@
                                 :rules="[rules.notEmpty]"
                                 item-value="schemaId"
                                 item-text="name"
-                                v-model="schema"
+                                v-model="schemaId"
+                                @input="selection => $store.dispatch('select',selection)"
+                                :disabled="schemaVersionId !== undefined"
                         ></v-autocomplete>
                     </v-col>
 
 
-                    <v-col class="d-flex" cols="4">
+                    <v-col class="d-flex" cols="6">
                         <v-text-field
                                 v-model="previousVersion"
                                 :rules="[rules.notEmpty,rules.versionNumber]"
                                 label="Previous Version"
                                 required
+                                :disabled="schemaVersionId !== undefined"
                         ></v-text-field>
                     </v-col>
 
-                    <v-col class="d-flex" cols="4">
+                    <v-col class="d-flex" cols="6">
                         <v-text-field
                                 v-model="currentVersion"
                                 :rules="[rules.notEmpty,rules.versionNumber]"
                                 label="Current Version"
                                 required
+                                :disabled="schemaVersionId !== undefined"
                         ></v-text-field>
-                    </v-col>
-
-                    <v-col class="d-flex" cols="4">
-                        <v-autocomplete
-                                :items="statuses"
-                                :rules="[rules.notEmpty]"
-                                label="Status"
-                                v-model="status"
-                        ></v-autocomplete>
                     </v-col>
 
                     <v-col cols="12">
@@ -128,7 +127,7 @@
             <v-spacer></v-spacer>
             <v-btn color="primary"
                    :disabled="!valid || !description || !specification"
-                   @click="createSchemaVersion">Create
+                   @click="create">Create
             </v-btn>
         </v-card-actions>
     </v-card>
@@ -146,34 +145,38 @@
         components: {editor},
         data: () => {
             return {
-                schemaVersionId: '',
+                organizationId: undefined,
+                unitId: undefined,
+                contextId: undefined,
+                schemaId: undefined,
+                schemaVersionId: undefined,
                 description: '',
                 specification: '',
-                status: 'Draft',
                 previousVersion: '',
                 currentVersion: '',
-                statuses: ['Draft', 'Published', 'Deprecated', 'Removed'],
 
                 descriptionEditorActive: false,
                 specificationEditorActive: false,
-
-                editorOptions: {
-                    automaticLayout: true,
-                }
             }
         },
-
+      computed: {
+        editorOptions() {
+          return {
+            automaticLayout: true,
+              readOnly: this.schemaVersionId !== undefined
+          }
+        }
+      },
         methods: {
-            createSchemaVersion() {
+            create() {
                 let vm = this
                 Repository.createSchemaVersion(
-                    this.organization.organizationId,
-                    this.unit.unitId,
-                    this.context.contextId,
-                    this.schema.schemaId,
+                    this.$store.getters.organizationId,
+                    this.$store.getters.unitId,
+                    this.$store.getters.contextId,
+                    this.$store.getters.schemaId,
                     this.specification,
                     this.description,
-                    this.status,
                     this.previousVersion,
                     this.currentVersion)
                     .then((created) => {
@@ -189,6 +192,7 @@
                                 message: `Schema v${vm.currentVersion} created.`,
                                 type: 'success'
                             })
+                            vm.$store.dispatch('loadVersions')
                         }
                     )
                     .catch(function (err) {
@@ -203,7 +207,31 @@
             activateSpecificationEditor() {
                 this.descriptionEditorActive = false
                 this.specificationEditorActive = true
+            },
+            load(organizationId, unitId, contextId, schemaId, schemaVersionId) {
+              let vm = this
+              Repository.getVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
+                .then((loaded) => {
+                  vm.organizationId = loaded.organizationId
+                  vm.unitId = loaded.unitId
+                  vm.contextId = loaded.contextId
+                  vm.speficication = loaded.speficication
+                  vm.description = loaded.description
+                  vm.status = loaded.status
+                  vm.previousVersion = loaded.previousVersion
+                  vm.currentVersion = loaded.currentVersion
+                })
             }
+        },
+        mounted() {
+          this.organizationId = this.$store.getters.organizationId
+          this.unitId = this.$store.getters.unitId
+          this.contextId = this.$store.getters.contextId
+          this.schemaId = this.$store.getters.schemaId
+          let schemaVersionId = this.$store.getters.schemaVersionId
+          if (this.organizationId && this.unitId && this.contextId && this.schemaId && schemaVersionId) {
+            this.load(this.organizationId, this.unitId, this.contextId, this.schemaId, schemaVersionId)
+          }
         }
     }
 </script>

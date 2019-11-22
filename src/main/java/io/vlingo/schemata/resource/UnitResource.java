@@ -18,6 +18,7 @@ import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
+import static io.vlingo.http.resource.ResourceBuilder.put;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.StageName;
@@ -72,6 +73,16 @@ public class UnitResource extends ResourceHandler {
               .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(UnitData.from(state)))));
   }
 
+  public Completes<Response> redefineWith(final String organizationId, final String unitId, final UnitData data) {
+    if (Naming.isValid(data.name)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
+    }
+
+    return commands
+            .redefineWith(UnitId.existing(organizationId, unitId), data.name, data.description).answer()
+            .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(UnitData.from(state)))));
+  }
+
   public Completes<Response> renameTo(final String organizationId, final String unitId, final String name) {
     if (Naming.isValid(name)) {
       Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(name)));
@@ -101,6 +112,11 @@ public class UnitResource extends ResourceHandler {
         .param(String.class)
         .body(UnitData.class)
         .handle(this::defineWith),
+      put("/organizations/{organizationId}/units/{unitId}")
+        .param(String.class)
+        .param(String.class)
+        .body(UnitData.class)
+        .handle(this::redefineWith),
       patch("/organizations/{organizationId}/units/{unitId}/description")
         .param(String.class)
         .param(String.class)

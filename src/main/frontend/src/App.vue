@@ -8,7 +8,7 @@
             <div class="flex-grow-1"></div>
 
         </v-app-bar>
-        <v-system-bar height="5px" color="primary" style="z-index: 10" fixed></v-system-bar>
+        <v-progress-linear height="5px" :indeterminate="$store.state.loading" :value="$store.state.loading ? 0 : 100" style="z-index: 10" :background-opacity="0.3" fixed></v-progress-linear>
 
         <v-navigation-drawer
                 app
@@ -21,6 +21,7 @@
             <v-list dense shaped class="mt-1">
                 <v-list-item v-for="(item,idx) in menu" :key="idx"
                              :to="item.route"
+                             :data-testid="item.title"
                              color="primary"
                 >
                     <v-divider v-if="item.divider"></v-divider>
@@ -80,11 +81,11 @@
         mdiFactory,
         mdiFileDocument,
         mdiHome,
-        mdiPencil,
         mdiStore,
         mdiSync,
         mdiTag
     } from '@mdi/js'
+    import { mapFields } from 'vuex-map-fields';
 
     export default {
         name: 'App',
@@ -94,14 +95,13 @@
                 showError: false,
                 showNotification: false,
                 menu: [
-                    {route: '/schemata', title: 'Browse Schemata', icon: mdiHome},
-                    {route: '/editor', title: 'Edit Schema Version', icon: mdiPencil},
+                    {route: '/schemata', title: 'Browse', icon: mdiHome},
                     {divider: true},
-                    {route: '/organization', title: 'New Organization', icon: mdiFactory},
-                    {route: '/unit', title: 'New Unit', icon: mdiStore},
-                    {route: '/context', title: 'New Context', icon: mdiEllipseOutline},
-                    {route: '/schema', title: 'New Schema', icon: mdiFileDocument},
-                    {route: '/schemaVersion', title: 'New Schema Version', icon: mdiTag},
+                    {route: '/organization', title: 'Organization', icon: mdiFactory},
+                    {route: '/unit', title: 'Unit', icon: mdiStore},
+                    {route: '/context', title: 'Context', icon: mdiEllipseOutline},
+                    {route: '/schema', title: 'Schema', icon: mdiFileDocument},
+                    {route: '/schemaVersion', title: 'Schema Version', icon: mdiTag},
                 ],
                 icons: {
                     sync: mdiSync,
@@ -121,6 +121,11 @@
                 }
             },
         },
+      computed: {
+        ...mapFields([
+          'loading',
+        ]),
+      },
         created: function () {
             this.$store.watch(state => state.error, () => {
                 if (this.$store.state.error) {

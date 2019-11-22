@@ -45,15 +45,15 @@ describe('Basic Application Tests', function () {
         cy.visit('/')
             .get('#schemata-navigation-toggle').click()
 
-        cy.contains('.v-list-item__title', 'New Organization').click()
+        cy.contains('.v-list-item__title', 'Organization').click()
             .get('#schemata-view-organization').contains('label','OrganizationID')
-        cy.contains('.v-list-item__title', 'New Unit').click()
+        cy.contains('.v-list-item__title', 'Unit').click()
             .get('#schemata-view-unit').contains('label','UnitID')
-        cy.contains('.v-list-item__title', 'New Context').click()
+        cy.contains('.v-list-item__title', 'Context').click()
             .get('#schemata-view-context').contains('label','ContextID')
-        cy.contains('.v-list-item__title', 'New Schema Version').click()
+        cy.contains('.v-list-item__title', 'Schema Version').click()
             .get('#schemata-view-schema-version').contains('label','SchemaVersionID')
-        cy.contains('.v-list-item__title', 'New Schema').click()
+        cy.contains('.v-list-item__title', 'Schema').click()
             .get('#schemata-view-schema').contains('label','SchemaID')
     });
 

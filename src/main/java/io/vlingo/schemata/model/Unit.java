@@ -39,5 +39,7 @@ public interface Unit {
 
   Completes<UnitState> describeAs(final String description);
 
+  Completes<UnitState> redefineWith(final String name, final String description);
+
   Completes<UnitState> renameTo(final String name);
 }

@@ -7,10 +7,6 @@
 
 package io.vlingo.schemata.codegen;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.function.Function;
-
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
@@ -19,35 +15,54 @@ import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 
-public class TypeDefinitionCompilerActor extends Actor implements TypeDefinitionCompiler {
+import java.io.InputStream;
+import java.util.List;
+import java.util.function.Function;
+
+public class TypeDefinitionCompilerActor extends Actor implements TypeDefinitionCompiler, TypeDefinitionMiddleware {
     private final TypeParser parser;
     private final List<Processor> processors;
     private final Backend backend;
+    private final TypeDefinitionMiddleware middleware;
 
     public TypeDefinitionCompilerActor(final TypeParser parser, final List<Processor> processors, final Backend backend) {
         this.parser = parser;
         this.processors = processors;
         this.backend = backend;
+        this.middleware = selfAs(TypeDefinitionMiddleware.class);
     }
 
     @Override
     public Completes<String> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version) {
-        Function<Node, Completes<Node>> process = node -> {
-            Completes<Node> result = Completes.withSuccess(node);
-            for (Processor p : processors) {
-                result = result.andThenTo(n -> p.process(n, fullyQualifiedTypeName));
-            }
-
-            return result;
-        };
-
         CompletesEventually eventually = completesEventually();
 
         parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
-                .andThenTo(process)
+                .andThenTo(this.process(fullyQualifiedTypeName))
                 .andThenTo(tree -> backend.generateOutput(tree, version))
                 .andThenConsume(eventually::with);
 
         return completes();
+    }
+
+    @Override
+    public Completes<Node> compileToAST(final InputStream typeDefinition, final String fullyQualifiedTypeName) {
+        CompletesEventually eventually = completesEventually();
+
+        parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
+                .andThenTo(this.process(fullyQualifiedTypeName))
+                .andThenConsume(eventually::with);
+
+        return completes();
+    }
+
+    private Function<Node, Completes<Node>> process(final String fullyQualifiedTypeName) {
+        return node -> {
+            Completes<Node> result = Completes.withSuccess(node);
+            for (Processor p : processors) {
+                result = result.andThenTo(n -> p.process(n, middleware, fullyQualifiedTypeName));
+            }
+
+            return result;
+        };
     }
 }

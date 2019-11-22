@@ -18,6 +18,7 @@ import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
+import static io.vlingo.http.resource.ResourceBuilder.put;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.NoId;
 import static io.vlingo.schemata.Schemata.SchemasPath;
@@ -96,6 +97,16 @@ public class SchemaResource extends ResourceHandler {
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));
   }
 
+  public Completes<Response> redefineWith(final String organizationId, final String unitId, final String contextId, final String schemaId, final SchemaData data) {
+    if (Naming.isValid(data.name)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
+    }
+
+    return commands
+            .redefineWith(SchemaId.existing(organizationId, unitId, contextId, schemaId), Category.valueOf(data.category), Scope.valueOf(data.scope), data.name, data.description).answer()
+            .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaData.from(state)))));
+  }
+
   public Completes<Response> querySchemas(final String organizationId, final String unitId, final String contextId) {
     return Queries.forSchemas()
             .schemas(organizationId, unitId, contextId)
@@ -153,6 +164,13 @@ public class SchemaResource extends ResourceHandler {
         .param(String.class)
         .body(String.class)
         .handle(this::renameTo),
+      put("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(SchemaData.class)
+        .handle(this::redefineWith),
       get("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas")
         .param(String.class)
         .param(String.class)

@@ -31,21 +31,21 @@ describe('Form Validation Tests', function () {
         cy.fillField('Description', 'foo')
         cy.contains('button', 'Create').click()
 
-        cy.visit('/#/unit')
+        cy.navigateTo("Unit")
         cy.contains('button', 'Create').should('be.disabled')
         cy.fillField('Name', unitName)
         cy.contains('button', 'Create').should('be.disabled')
         cy.fillField('Description', 'foo')
         cy.contains('button', 'Create').click()
 
-        cy.visit('/#/context')
+        cy.navigateTo("Context")
         cy.contains('button', 'Create').should('be.disabled')
         cy.fillField('Namespace', namespace)
         cy.contains('button', 'Create').should('be.disabled')
         cy.fillField('Description', 'foo')
         cy.contains('button', 'Create').click()
 
-        cy.visit('/#/schema')
+        cy.navigateTo("Schema")
         cy.fieldContent('SchemaID').should('be.empty')
         cy.contains('button', 'Create').should('be.disabled')
         cy.fillField('Name', schema)
@@ -58,7 +58,7 @@ describe('Form Validation Tests', function () {
         cy.contains('button', 'Create').click()
         cy.fieldContent('SchemaID').should('not.be.empty')
 
-        cy.visit('/#/schemaVersion')
+        cy.navigateTo("Schema Version")
         cy.fieldContent('SchemaVersionID').should('be.empty')
         cy.contains('button', 'Create').should('be.disabled')
 
@@ -71,8 +71,6 @@ describe('Form Validation Tests', function () {
         cy.fillField('Current Version', "A.b:Florgs").get('.v-messages__message')
         cy.contains('button', 'Create').should('be.disabled')
         cy.fillField('Current Version', currentVersion).get('.v-messages__message')
-        cy.contains('button', 'Create').should('be.disabled')
-        cy.selectOption('Status', faker.random.arrayElement(['Draft', 'Published', 'Deprecated', 'Removed']))
         cy.contains('button', 'Create').should('be.disabled')
         cy.fillEditor('#description-editor', faker.lorem.sentence())
         cy.contains('button', 'Create').should('be.disabled')

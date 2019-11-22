@@ -2,8 +2,8 @@
 
     <v-card height="48vh" id="schemata-versions">
         <v-list dense>
-            <v-list-item-group v-model="selected" color="primary">
-                <v-list-item v-for="v in versions" :key="v.id" ripple>
+            <v-list-item-group v-model="selectedVersion" color="primary">
+                <v-list-item v-for="v in versions" :key="v.schemaVersionId" :value="v" ripple>
                     <v-list-item-action>
                         <v-tooltip right>
                             <template v-slot:activator="{ on }">
@@ -26,66 +26,39 @@
 </template>
 
 <script>
-    import {mdiDelete, mdiPencil, mdiTag} from '@mdi/js'
-    import Repository from '@/api/SchemataRepository'
-    import {mapFields} from 'vuex-map-fields';
+    import {mdiDelete, mdiLabel, mdiLabelOff, mdiPencil} from '@mdi/js'
 
     export default {
-        data() {
-            return {
-                selected: undefined
-            }
-        },
-        watch: {
-            schema: function () {
-                this.version = undefined
-            },
-            selected: function (value) {
-                if (value === undefined) {
-                    this.version = undefined
-                } else {
-                    this.version = this.versions[value]
-                }
-            }
-        },
-        computed: {
-            ...mapFields([
-                'schema',
-                'version'
-            ]),
-        },
-        asyncComputed: {
-            async versions() {
-                if (!(this.schema)) {
-                    return
-                }
-
-                let vm = this
-                return await Repository.getVersions(
-                    this.schema.organizationId,
-                    this.schema.unitId,
-                    this.schema.contextId,
-                    this.schema.schemaId)
-                    .catch(function (err) {
-                        vm.$emit('vs-error', {status: 0, message: err})
-                    });
-            }
-        },
-        methods: {
-            icon(version) {
-                if (!version) return '';
-                switch (version.status) {
-                    case 'Published':
-                        return mdiTag
-                    case 'Draft':
-                        return mdiPencil
-                    case 'Removed':
-                        return mdiDelete
-                    default:
-                        return 'insert_drive_file'
-                }
-            }
+      data: function() {
+        return {
+          selectedVersion: undefined
         }
+      },
+      watch: {
+        selectedVersion(newSelection) {
+          this.$store.dispatch('select', newSelection)
+        },
+      },
+      computed: {
+        versions() { return this.$store.getters.schemaVersions }
+      },
+      methods: {
+          icon(version) {
+              if (!version) return '';
+              switch (version.status) {
+                  case 'Published':
+                      return mdiLabel
+                  case 'Draft':
+                      return mdiPencil
+                  case 'Deprecated':
+                      return mdiLabelOff
+                  case 'Removed':
+                      return mdiDelete
+                  default:
+                      return ''
+              }
+          }
+      }
     }
 </script>
 

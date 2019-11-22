@@ -11,7 +11,8 @@ import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.ContextDefined;
 import io.vlingo.schemata.model.Events.ContextDescribed;
-import io.vlingo.schemata.model.Events.ContextRenamed;
+import io.vlingo.schemata.model.Events.ContextMovedToNamespace;
+import io.vlingo.schemata.model.Events.ContextRedefined;
 import io.vlingo.schemata.model.Id.ContextId;
 
 
@@ -38,7 +39,14 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   @Override
   public Completes<ContextState> moveToNamespace(final String namespace) {
     assert (namespace != null && !namespace.isEmpty());
-    return apply(state.withNamespace(namespace), ContextRenamed.with(state.contextId, namespace), () -> state);
+    return apply(state.withNamespace(namespace), ContextMovedToNamespace.with(state.contextId, namespace), () -> state);
+  }
+
+  @Override
+  public Completes<ContextState> redefineWith(final String namespace, final String description) {
+    assert (namespace != null && !namespace.isEmpty());
+    assert (description != null && !description.isEmpty());
+    return apply(state.redefineWith(namespace, description), ContextRedefined.with(this.state.contextId, namespace, description), () -> state);
   }
 
   @Override

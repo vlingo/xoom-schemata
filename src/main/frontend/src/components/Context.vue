@@ -23,8 +23,9 @@
                                 return-object
                                 item-value="organizationId"
                                 item-text="name"
-                                v-model="organization"
-
+                                v-model="organizationId"
+                                :disabled="contextId !== undefined"
+                                @input="o => $store.dispatch('select',o)"
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12" sm="6">
@@ -36,8 +37,9 @@
                                 return-object
                                 item-value="unitId"
                                 item-text="name"
-                                v-model="unit"
-
+                                v-model="unitId"
+                                :disabled="contextId !== undefined"
+                                @input="u => $store.dispatch('select',u)"
                         ></v-autocomplete>
                     </v-col>
                     <v-col class="d-flex" cols="12">
@@ -64,9 +66,12 @@
         <v-card-actions>
             <v-btn color="info" @click="clearForm">New</v-btn>
             <v-spacer></v-spacer>
-            <v-btn color="primary"
-                   :disabled="!valid"
-                   @click="createUnit">Create
+          <v-btn color="primary" @click="save"
+                 :disabled="!(valid && contextId)">Save
+          </v-btn>
+          <v-btn color="primary"
+                   :disabled="!(valid && !contextId)"
+                   @click="create">Create
             </v-btn>
             <v-btn color="secondary" to="/schema"
                    :disabled="!contextId">Create Schema
@@ -86,18 +91,20 @@
 
         data: () => {
             return {
-                contextId: '',
+                organizationId: undefined,
+                unitId: undefined,
+                contextId: undefined,
                 namespace: '',
                 description: '',
             }
         },
 
         methods: {
-            createUnit() {
+            create() {
                 let vm = this
                 Repository.createContext(
-                    this.organization.organizationId,
-                    this.unit.unitId,
+                    this.$store.getters.organizationId,
+                    this.$store.getters.unitId,
                     this.namespace,
                     this.description)
                     .then((created) => {
@@ -110,13 +117,49 @@
                                 message: `Context '${vm.namespace}' created.`,
                                 type: 'success'
                             })
-                        }
+                          vm.$store.dispatch('select', created)
+                      }
                     )
                     .catch(function (err) {
                         let response = err.response ? err.response.data + ' - ' : ''
                         vm.$store.commit('raiseError', {message: response + err})
                     })
-            }
+            },
+          save() {
+            let vm = this
+            Repository.updateContext(
+              this.$store.getters.organizationId,
+              this.$store.getters.unitId,
+              this.contextId,
+              this.namespace, this.description)
+              .then((updated) => {
+                vm.$store.dispatch('select', updated)
+
+                vm.$store.commit('raiseNotification', {
+                  message: `Context ${vm.name} updated.`,
+                  type: 'success'
+                })
+              })
+          },
+          load(organizationId, unitId, contextId) {
+            let vm = this
+            Repository.getContext(organizationId, unitId, contextId)
+              .then((loaded) => {
+                vm.organizationId = loaded.organizationId
+                vm.unitId = loaded.unitId
+                vm.contextId = loaded.contextId
+                vm.namespace = loaded.namespace
+                vm.description = loaded.description
+              })
+          }
+        },
+      mounted() {
+        this.organizationId = this.$store.getters.organizationId
+        this.unitId = this.$store.getters.unitId
+        let contextId = this.$store.getters.contextId
+        if (this.organizationId && this.unitId && contextId) {
+          this.load(this.organizationId, this.unitId, contextId)
         }
+      }
     }
 </script>

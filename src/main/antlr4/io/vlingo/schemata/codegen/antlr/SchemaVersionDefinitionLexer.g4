@@ -93,7 +93,7 @@ OCT_LITERAL
 BINARY_LITERAL
   : '0' [bB] [01] ([01_]* [01])? [lL]?
   ;
-                    
+
 FLOAT_LITERAL
   : (Digits '.' Digits? | '.' Digits) ExponentPart? [fFdD]?
   | Digits (ExponentPart [fFdD]? | [fFdD])
@@ -126,7 +126,7 @@ NULL_LITERAL
 
 
 TYPE_IDENTIFIER
-  : CapitalLetter LetterOrDigit* (COLON TYPE_IDENTIFIER)* (SEMANTIC_VERSION)?
+  : CapitalLetter LetterOrDigit* (COLON IDENTIFIER)* (COLON SEMANTIC_VERSION)?
   ;
 
 SEMANTIC_VERSION

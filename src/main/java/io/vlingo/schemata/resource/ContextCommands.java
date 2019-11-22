@@ -70,6 +70,28 @@ class ContextCommands {
     return command;
   }
 
+  public RoutableCommand<Context, Command, ContextState> redefineWith(
+          final ContextId contextId,
+          final String namespace,
+          final String description) {
+
+    final RedefineWith redefineWith = new RedefineWith(namespace, description);
+
+    RoutableCommand<Context,Command,ContextState> command =
+            RoutableCommand
+              .speaks(Context.class)
+              .to(ContextEntity.class)
+              .at(contextId.value)
+              .named(Context.nameFrom(contextId))
+              .delivers(redefineWith)
+              .answers(Completes.using(stage.scheduler()))
+              .handledBy(redefineWith);
+
+    router.route(command);
+
+    return command;
+  }
+
   private static class DescribeAs extends Command implements CommandDispatcher<Context,DescribeAs,Completes<ContextState>> {
     private final String description;
 
@@ -93,6 +115,21 @@ class ContextCommands {
     @Override
     public void accept(final Context protocol, final MoveToNamespace command, final Completes<ContextState> answer) {
       protocol.moveToNamespace(command.namespace).andThen(state -> answer.with(state));
+    }
+  }
+
+  private static class RedefineWith extends Command implements CommandDispatcher<Context,RedefineWith,Completes<ContextState>> {
+    private final String description;
+    private final String namespace;
+
+    RedefineWith(final String namespace, final String description) {
+      this.namespace = namespace;
+      this.description = description;
+    }
+
+    @Override
+    public void accept(final Context protocol, final RedefineWith command, final Completes<ContextState> answer) {
+      protocol.redefineWith(command.namespace, command.description).andThen(state -> answer.with(state));
     }
   }
 }

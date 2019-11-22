@@ -8,10 +8,11 @@
 package io.vlingo.schemata.codegen.processor;
 
 import io.vlingo.common.Completes;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.Node;
 
 public interface Processor {
-    Completes<Node> process(Node node, final String fullyQualifiedTypeName);
+    Completes<Node> process(final Node node, final TypeDefinitionMiddleware middleware, final String fullyQualifiedTypeName);
 
     @SuppressWarnings("unchecked")
     static <T extends Node> T requireBeing(Node node, Class<T> nodeClass) {

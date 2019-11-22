@@ -7,11 +7,6 @@
 
 package io.vlingo.schemata.codegen;
 
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
@@ -21,9 +16,14 @@ import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
-import io.vlingo.schemata.codegen.processor.types.CacheTypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
+import io.vlingo.schemata.query.Queries;
+
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A compiler of schema types, producing source code for a given language.
@@ -65,7 +65,7 @@ public interface TypeDefinitionCompiler {
    */
   static TypeDefinitionCompiler forBackend(final Stage stage, final Class<? extends Actor> backendType) {
     final TypeParser typeParser = stage.actorFor(TypeParser.class, AntlrTypeParser.class);
-    final TypeResolver typeResolver = new CacheTypeResolver();
+    final TypeResolver typeResolver = Queries.forSchemaVersions();
 
     return stage.actorFor(TypeDefinitionCompiler.class, TypeDefinitionCompilerActor.class,
             typeParser,
@@ -85,8 +85,6 @@ public interface TypeDefinitionCompiler {
    * @return {@code Completes<String>}
    */
   Completes<String> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version);
-
-
 
   // INTERNAL USE ONLY
   static class __TypeDefinitionCompiler__Holder {

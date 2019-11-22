@@ -50,6 +50,21 @@ public class UnitResourceTest extends ResourceTest {
   }
 
   @Test
+  public void testUnitRedefineWith() {
+    final UnitResource resource = new UnitResource(world);
+    final Response response1 = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();
+    assertEquals(Created, response1.status);
+    final UnitData data1 = JsonSerialization.deserialized(response1.entity.content(), UnitData.class);
+    final Response response2 = resource.redefineWith(data1.organizationId, data1.unitId, UnitData.just(UnitName + 1, UnitDescription + 1)).await();
+    assertNotEquals(response1.entity.content(), response2.entity.content());
+    final UnitData data2 = JsonSerialization.deserialized(response2.entity.content(), UnitData.class);
+    assertEquals(data1.unitId, data2.unitId);
+    assertNotEquals(data1.name, data2.name);
+    assertEquals((UnitName + 1), data2.name);
+    assertEquals((UnitDescription + 1), data2.description);
+  }
+
+  @Test
   public void testUnitRenameTo() {
     final UnitResource resource = new UnitResource(world);
     final Response response1 = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();

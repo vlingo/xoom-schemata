@@ -18,6 +18,7 @@ import static io.vlingo.http.ResponseHeader.of;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
+import static io.vlingo.http.resource.ResourceBuilder.put;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
 import static io.vlingo.schemata.Schemata.ContextsPath;
 import static io.vlingo.schemata.Schemata.NoId;
@@ -82,6 +83,16 @@ public class ContextResource extends ResourceHandler {
             .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(ContextData.from(state)))));
   }
 
+  public Completes<Response> redefineWith(final String organizationId, final String unitId, final String contextId, final ContextData data) {
+    if (Naming.isValid(data.namespace)) {
+      Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.namespace)));
+    }
+
+    return commands
+            .redefineWith(ContextId.existing(organizationId, unitId, contextId), data.namespace, data.description).answer()
+            .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(ContextData.from(state)))));
+  }
+
   public Completes<Response> queryContexts(final String organizationId, final String unitId) {
     return Queries.forContexts()
             .contexts(organizationId, unitId)
@@ -114,6 +125,12 @@ public class ContextResource extends ResourceHandler {
         .param(String.class)
         .body(String.class)
         .handle(this::moveToNamespace),
+      put("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}")
+        .param(String.class)
+        .param(String.class)
+        .param(String.class)
+        .body(ContextData.class)
+        .handle(this::redefineWith),
       get("/organizations/{organizationId}/units/{unitId}/contexts")
         .param(String.class)
         .param(String.class)

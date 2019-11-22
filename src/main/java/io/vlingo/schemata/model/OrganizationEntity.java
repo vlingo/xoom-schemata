@@ -11,6 +11,7 @@ import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.model.Events.OrganizationDefined;
 import io.vlingo.schemata.model.Events.OrganizationDescribed;
+import io.vlingo.schemata.model.Events.OrganizationRedefined;
 import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.schemata.model.Id.OrganizationId;
 
@@ -33,6 +34,11 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   @Override
   public Completes<OrganizationState> describeAs(final String description) {
     return apply(state.withDescription(description), new OrganizationDescribed(state.organizationId, description), () -> state);
+  }
+
+  @Override
+  public Completes<OrganizationState> redefineWith(final String name, final String description) {
+    return apply(state.redefineWith(name, description), new OrganizationRedefined(state.organizationId, name, description), () -> state);
   }
 
   @Override

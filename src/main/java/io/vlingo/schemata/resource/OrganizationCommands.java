@@ -49,6 +49,28 @@ class OrganizationCommands {
     return command;
   }
 
+  RoutableCommand<Organization,Command,OrganizationState> redefineWith(
+          final OrganizationId organizationId,
+          final String name,
+          final String description) {
+
+    final RedefineWith redefineWith = new RedefineWith(name, description);
+
+    RoutableCommand<Organization,Command,OrganizationState> command =
+            RoutableCommand
+              .speaks(Organization.class)
+              .to(OrganizationEntity.class)
+              .at(organizationId.value)
+              .named(Organization.nameFrom(organizationId))
+              .delivers(redefineWith)
+              .answers(Completes.using(stage.scheduler()))
+              .handledBy(redefineWith);
+
+    router.route(command);
+
+    return command;
+  }
+
   RoutableCommand<Organization,Command,OrganizationState> renameTo(
           final OrganizationId organizationId,
           final String name) {
@@ -80,6 +102,21 @@ class OrganizationCommands {
     @Override
     public void accept(final Organization protocol, final DescribeAs command, final Completes<OrganizationState> answer) {
       protocol.describeAs(command.description).andThen(state -> answer.with(state));
+    }
+  }
+
+  private static class RedefineWith extends Command implements CommandDispatcher<Organization,RedefineWith,Completes<OrganizationState>> {
+    private final String description;
+    private final String name;
+
+    RedefineWith(final String name, final String description) {
+      this.name = name;
+      this.description = description;
+    }
+
+    @Override
+    public void accept(final Organization protocol, final RedefineWith command, final Completes<OrganizationState> answer) {
+      protocol.redefineWith(command.name, command.description).andThen(state -> answer.with(state));
     }
   }
 

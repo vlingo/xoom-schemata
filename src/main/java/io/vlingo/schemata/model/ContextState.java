@@ -40,6 +40,10 @@ public class ContextState extends StateObject {
     return new ContextState(this.persistenceId(), this.version() + 1, this.contextId, namespace, this.description);
   }
 
+  public ContextState redefineWith(final String namespace, final String description) {
+    return new ContextState(this.persistenceId(), this.version() + 1, this.contextId, namespace, description);
+  }
+
   @Override
   public Map<String, Object> queryMap() {
     return FluentMap
