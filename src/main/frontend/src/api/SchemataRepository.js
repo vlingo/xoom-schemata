@@ -114,8 +114,11 @@ export default {
       .then(response => response.data)
   },
   updateOrganization(id, name, description) {
-    return Repository.patch(`${resources.organization(id)}/name`, name, jsonHeader)
-      .then(() => Repository.patch(`${resources.organization(id)}/description`, description, jsonHeader))
+    return Repository.put(resources.organization(id), {
+        organizationId: id,
+        name: name,
+        description: description
+      })
       .then(ensureOk)
       .then(response => response.data)
   },
