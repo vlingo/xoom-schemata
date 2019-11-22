@@ -1,6 +1,6 @@
 <template>
 
-    <v-card height="48vh" id="schemata-versions">
+    <v-card height="46vh" id="schemata-versions">
         <v-list dense>
             <v-list-item-group v-model="selectedVersion" color="primary">
                 <v-list-item v-for="v in versions" :key="v.schemaVersionId" :value="v" ripple>

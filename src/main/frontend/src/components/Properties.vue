@@ -1,99 +1,105 @@
 <template>
-<v-card height="45vh" id="schemata-properties">
+<v-card height="46vh" id="schemata-properties">
   <v-card-text v-if="schemaVersion">
-  <v-tabs>
-    <v-tab data-testid="tab-specification">Specification</v-tab>
-    <v-tab data-testid="tab-description">Description</v-tab>
-    <v-spacer></v-spacer>
-    <v-chip label color="warning" v-if="status && status !== 'Published'" class="mt-3 mr-3">
-      Status&nbsp;<b>{{status}}</b>. Do not use in production.
-    </v-chip>
+    <v-tabs>
+      <v-tab data-testid="tab-specification">Specification</v-tab>
+      <v-tab data-testid="tab-description">Description</v-tab>
+      <v-spacer></v-spacer>
+      <v-chip label color="warning" v-if="status && status !== 'Published'" class="mt-3 mr-3">
+        Status&nbsp;<b>{{status}}</b>. Do not use in production.
+      </v-chip>
 
 
-    <v-tab-item>
-      <v-card-text>
-        <editor
-          id="specification-editor"
-          v-model="currentSpecification"
-          theme="vs-dark"
-          language="javascript"
-          height="200"
-          :options="editorOptions"
-        ></editor>
-      </v-card-text>
-      <v-card-actions>
-        <v-btn outlined color="primary" @click="publish"
-               :disabled="status !== 'Draft'">
-          <v-icon>{{icons.publish}}</v-icon>
-          Publish
-        </v-btn>
-        <v-btn outlined color="warning" @click="deprecate"
-               :disabled="status !== 'Published' && status !== 'Draft'">
-          <v-icon>{{icons.deprecate}}</v-icon>
-          Deprecate
-        </v-btn>
-        <v-btn outlined color="error" @click="remove"
-               :disabled="status !== 'Deprecated' && status !== 'Draft'">
-          <v-icon>{{icons.delete}}</v-icon>
-          Remove
-        </v-btn>
-        <v-spacer></v-spacer>
-        <v-btn outlined color="info"
-               :disabled="!schemaVersion"
-               @click="loadSources">
-          <v-icon>{{icons.source}}</v-icon>
-          Source
-        </v-btn>
-        <v-btn color="info"
-               :disabled="status !== 'Draft'"
-               @click="saveSpecification">Save
-        </v-btn>
-      </v-card-actions>
-      <v-dialog v-model="sourceDialog">
-        <v-card>
+      <v-tab-item>
+        <v-card-text>
           <editor
-            id="source-editor"
-            v-model="sources.java"
+            id="specification-editor"
+            v-model="currentSpecification"
             theme="vs-dark"
-            language="java"
-            height="400"
-            :options="{ readOnly: true, automaticLayout: true }"
+            language="javascript"
+            height="200"
+            :options="editorOptions"
           ></editor>
-        </v-card>
-      </v-dialog>
-    </v-tab-item>
-
-                <v-tab-item>
-                    <div v-if="readOnly" v-html="compiledDescription()"></div>
-                    <editor v-if="!readOnly"
-                            id="description-editor"
-                            v-model="currentDescription"
-                            theme="vs-dark"
-                            language="markdown"
-                            height="200"
-                            :options="editorOptions"
-                    ></editor>
-                    <v-dialog v-model="previewDialog">
-                        <v-card>
-                            <v-card-title class="headline">v{{schemaVersion.currentVersion}}</v-card-title>
-                            <v-divider></v-divider>
-                            <br>
-                            <v-card-text v-html="compiledDescription()"></v-card-text>
-                        </v-card>
-                    </v-dialog>
-                    <br>
-                    <v-btn color="secondary"
-                           :disabled="readOnly"
-                           @click="previewDialog = true">Preview
-                    </v-btn>&nbsp;
-                    <v-btn color="info"
-                           :disabled="readOnly"
-                           @click="saveDescription">Save
-                    </v-btn>
-                </v-tab-item>
-            </v-tabs>
         </v-card-text>
-    </v-card>
+        <v-card-actions>
+          <v-btn outlined color="primary" @click="publish"
+                 :disabled="status !== 'Draft'">
+            <v-icon>{{icons.publish}}</v-icon>
+            Publish
+          </v-btn>
+          <v-btn outlined color="warning" @click="deprecate"
+                 :disabled="status !== 'Published' && status !== 'Draft'">
+            <v-icon>{{icons.deprecate}}</v-icon>
+            Deprecate
+          </v-btn>
+          <v-btn outlined color="error" @click="remove"
+                 :disabled="status !== 'Deprecated' && status !== 'Draft'">
+            <v-icon>{{icons.delete}}</v-icon>
+            Remove
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn outlined color="info"
+                 :disabled="!schemaVersion"
+                 @click="loadSources">
+            <v-icon>{{icons.source}}</v-icon>
+            Source
+          </v-btn>
+          <v-btn color="info"
+                 :disabled="status !== 'Draft'"
+                 @click="saveSpecification">Save Specification
+          </v-btn>
+        </v-card-actions>
+        <v-dialog v-model="sourceDialog">
+          <v-card>
+            <editor
+              id="source-editor"
+              v-model="sources.java"
+              theme="vs-dark"
+              language="java"
+              height="400"
+              :options="{ readOnly: true, automaticLayout: true }"
+            ></editor>
+          </v-card>
+        </v-dialog>
+      </v-tab-item>
+
+      <v-tab-item>
+        <v-card-text>
+          <div v-if="readOnly" v-html="compiledDescription()"></div>
+          <editor v-if="!readOnly"
+                  id="description-editor"
+                  v-model="currentDescription"
+                  theme="vs-dark"
+                  language="markdown"
+                  height="200"
+                  :options="editorOptions"
+          ></editor>
+        </v-card-text>
+        <v-card-actions v-if="!readOnly">
+          <v-spacer></v-spacer>
+          <v-btn color="secondary"
+                 @click="previewDialog = true">Preview
+          </v-btn>&nbsp;
+          <v-btn color="warning"
+                 :disabled="description === currentDescription"
+                 @click="currentDescription = description">Revert
+          </v-btn>&nbsp;
+          <v-btn color="info"
+                 @click="saveDescription">Save Description
+          </v-btn>
+        </v-card-actions>
+        <v-dialog v-model="previewDialog">
+          <v-card>
+            <v-card-title class="headline">v{{schemaVersion.currentVersion}}</v-card-title>
+            <v-divider></v-divider>
+            <br>
+            <v-card-text v-html="compiledDescription()"></v-card-text>
+          </v-card>
+        </v-dialog>
+      </v-tab-item>
+    </v-tabs>
+  </v-card-text>
+</v-card>
 
 
 </template>
@@ -151,11 +157,14 @@ export default {
   watch: {
     specification(val) {
       this.currentSpecification = val
+    },
+    description(val) {
+      this.currentDescription = val
     }
   },
   methods: {
     compiledDescription: function () {
-      return marked(this.description)
+      return marked(this.currentDescription)
     },
 
     publish() {
@@ -177,19 +186,19 @@ export default {
         this.schemaVersion.schemaId,
         this.schemaVersion.schemaVersionId,
         status)
-      .then(response => vm.$store.dispatch('select', response))
-      .then(() => vm.$store.dispatch('loadVersions'))
-      .then(() => {
-          vm.$store.commit('raiseNotification', {
-            message: `Status for v${vm.schemaVersion.currentVersion} updated.`,
-            type: 'success'
-          })
-        }
-      )
-      .catch(function (err) {
-        let response = err.response ? err.response.data + ' - ' : ''
-        vm.$store.commit('raiseError', {message: response + err})
-      })
+        .then(response => vm.$store.dispatch('select', response))
+        .then(() => vm.$store.dispatch('loadVersions'))
+        .then(() => {
+            vm.$store.commit('raiseNotification', {
+              message: `Status for v${vm.schemaVersion.currentVersion} updated.`,
+              type: 'success'
+            })
+          }
+        )
+        .catch(function (err) {
+          let response = err.response ? err.response.data + ' - ' : ''
+          vm.$store.commit('raiseError', {message: response + err})
+        })
     },
 
     saveSpecification: function () {
@@ -201,34 +210,34 @@ export default {
         this.schemaVersion.schemaId,
         this.schemaVersion.schemaVersionId,
         this.currentSpecification
-      )
-      .then(response => vm.$store.dispatch('select', response))
-      .then(() => vm.$store.dispatch('loadVersions'))
-      .then(() => {
-          vm.$store.commit('raiseNotification', {
-            message: `Specification v${vm.schemaVersion.currentVersion} updated.`,
-            type: 'success'
-          })
-        }
-      )
-      .catch(function (err) {
-        let response = err.response ? err.response.data + ' - ' : ''
-        vm.$store.commit('raiseError', {message: response + err})
-      })
+        )
+        .then(response => vm.$store.dispatch('select', response))
+        .then(() => vm.$store.dispatch('loadVersions'))
+        .then(() => {
+            vm.$store.commit('raiseNotification', {
+              message: `Specification for v${vm.schemaVersion.currentVersion} updated.`,
+              type: 'success'
+            })
+          }
+        )
+        .catch(function (err) {
+          let response = err.response ? err.response.data + ' - ' : ''
+          vm.$store.commit('raiseError', {message: response + err})
+        })
     },
     saveDescription: function () {
       let vm = this
       Repository.saveSchemaVersionDescription(
-        this.version.organizationId,
-        this.version.unitId,
-        this.version.contextId,
-        this.version.schemaId,
-        this.version.schemaVersionId,
+        this.schemaVersion.organizationId,
+        this.schemaVersion.unitId,
+        this.schemaVersion.contextId,
+        this.schemaVersion.schemaId,
+        this.schemaVersion.schemaVersionId,
         this.currentDescription
         )
         .then(() => {
             vm.$store.commit('raiseNotification', {
-              message: `Description for ${vm.schema.name} v${vm.version.currentVersion} updated.`,
+              message: `Description for v${vm.version.currentVersion} updated.`,
               type: 'success'
             })
           }
@@ -247,15 +256,15 @@ export default {
         this.schemaVersion.schemaId,
         this.schemaVersion.schemaVersionId,
         "java"
-      )
-      .then(response => {
-        vm.sources.java = response
-        vm.sourceDialog = true
-      })
-      .catch(function (err) {
-        let response = err.response ? err.response.data + ' - ' : ''
-        vm.$store.commit('raiseError', {message: response + err})
-      })
+        )
+        .then(response => {
+          vm.sources.java = response
+          vm.sourceDialog = true
+        })
+        .catch(function (err) {
+          let response = err.response ? err.response.data + ' - ' : ''
+          vm.$store.commit('raiseError', {message: response + err})
+        })
     }
   }
 }
