@@ -20,6 +20,7 @@ describe('Schemata View Tests', function () {
       // Select version
       cy.contains('.v-list-item__title', data.version.currentVersion).click()
 
+      cy.contains('.v-tab', 'Specification').click()
       cy.contains('button', 'Source').click()
       cy.editorContent('#source-editor').should('contain', 'public final class SalutationHappened')
     })
