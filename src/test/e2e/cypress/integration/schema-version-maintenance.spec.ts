@@ -76,4 +76,29 @@ describe('Schemata View Tests', function () {
             cy.editorContent('#specification-editor').should('contain', 'foo bar baz')
         });
     });
+
+  it('can update schema version description', function () {
+    cy.task('schemata:withTestData').then(testData => {
+      let data = <Cypress.SchemataTestData><unknown>testData
+
+      cy.visit("/#/schemata")
+      cy.expandSchemaTree(data)
+
+      // Select version
+      cy.contains('.v-list-item__title', data.version.currentVersion).click()
+
+      // Change description
+      cy.get('div[data-testid="tab-description"]').click()
+      cy.fillEditor('#description-editor', 'foo bar baz')
+      cy.contains('button', 'Save').click()
+
+      // Reload and navigate to schema version
+      cy.reload()
+      cy.visit("/#/schemata")
+      cy.expandSchemaTree(data)
+      cy.contains('.v-list-item__title', data.version.currentVersion).click()
+
+      cy.editorContent('#description-editor').should('contain', 'foo bar baz')
+    });
+  });
 });

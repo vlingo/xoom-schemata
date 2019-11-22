@@ -1,9 +1,9 @@
 <template>
 <v-card height="45vh" id="schemata-properties">
-  <v-card-text v-if="version">
+  <v-card-text v-if="schemaVersion">
   <v-tabs>
-    <v-tab>Specification</v-tab>
-    <v-tab>Description</v-tab>
+    <v-tab data-testid="tab-specification">Specification</v-tab>
+    <v-tab data-testid="tab-description">Description</v-tab>
     <v-spacer></v-spacer>
     <v-chip label color="warning" v-if="status && status !== 'Published'" class="mt-3 mr-3">
       Status&nbsp;<b>{{status}}</b>. Do not use in production.
@@ -75,7 +75,7 @@
                     ></editor>
                     <v-dialog v-model="previewDialog">
                         <v-card>
-                            <v-card-title class="headline">{{schema.name}} v{{version.currentVersion}}</v-card-title>
+                            <v-card-title class="headline">v{{schemaVersion.currentVersion}}</v-card-title>
                             <v-divider></v-divider>
                             <br>
                             <v-card-text v-html="compiledDescription()"></v-card-text>
@@ -143,6 +143,9 @@ export default {
     },
     status() {
       return this.schemaVersion?.status ?? ''
+    },
+    readOnly() {
+      return this.schemaVersion?.status !== 'Draft'
     },
   },
   watch: {
