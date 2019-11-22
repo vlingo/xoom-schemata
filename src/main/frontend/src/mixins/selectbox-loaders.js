@@ -1,5 +1,4 @@
 import Repository from '@/api/SchemataRepository'
-import {mapFields} from 'vuex-map-fields';
 
 export default {
     data: () => {
@@ -13,15 +12,6 @@ export default {
             }
         }
     },
-    computed: {
-        ...mapFields([
-            'organization',
-            'unit',
-            'context',
-            'schema',
-            'version'
-        ]),
-    },
     asyncComputed: {
         async organizations() {
             this.loading.organizations = true
@@ -30,32 +20,32 @@ export default {
             return result
         },
         async units() {
-            if (!this.organization) return []
+            if (!this.$store.getters.organizationId) return []
 
             this.loading.organizations = true
-            const result = await Repository.getUnits(this.organization.organizationId)
+            const result = await Repository.getUnits(this.$store.getters.organizationId)
             this.loading.organizations = false
             return result
         },
         async contexts() {
-            if (!this.organization || !this.unit) return []
+            if (!this.$store.getters.organizationId || !this.$store.getters.unitId) return []
 
             this.loading.contexts = true
             const result = await Repository.getContexts(
-                this.organization.organizationId,
-                this.unit.unitId
+                this.$store.getters.organizationId,
+                this.$store.getters.unitId
             )
             this.loading.contexts = false
             return result
         },
         async schemata() {
-            if (!this.organization || !this.unit || !this.context) return []
+            if (!this.$store.getters.organizationId || !this.$store.getters.unitId || !this.$store.getters.contextId) return []
 
             this.loading.schemata = true
             const result = await Repository.getSchemata(
-                this.organization.organizationId,
-                this.unit.unitId,
-                this.context.contextId,
+                this.$store.getters.organizationId,
+                this.$store.getters.unitId,
+                this.$store.getters.contextId,
             )
 
             this.loading.schemata = false

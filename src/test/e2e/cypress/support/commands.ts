@@ -49,8 +49,18 @@ Cypress.Commands.add("selectOption", (label: string, optionLabel: string) => {
 
 Cypress.Commands.add("expandSchemaTree", (data: Cypress.SchemataTestData) => {
     cy.fillField('Search', data.organization.name)
-    cy.contains('.v-treeview-node__label', data.organization.name).click()
-    cy.contains('.v-treeview-node__label', data.unit.name).click()
-    cy.contains('.v-treeview-node__label', data.context.namespace).click()
+    cy.contains('.v-treeview-node__label', data.organization.name).parent().parent().children('.v-treeview-node__toggle').click()
+    cy.contains('.v-treeview-node__label', data.unit.name).parent().parent().children('.v-treeview-node__toggle').click()
+    cy.contains('.v-treeview-node__label', data.context.namespace).parent().parent().children('.v-treeview-node__toggle').click()
     cy.contains('.v-treeview-node__label', data.schema.name).click()
+})
+
+Cypress.Commands.add("navigateTo", (label: string) => {
+  cy.get(`a[data-testid="${label}"]`).click()
+})
+
+Cypress.Commands.add("selectFromTree", (data: Cypress.SchemataTestData, label: string) => {
+  cy.visit(`/#/schemata/`)
+  cy.expandSchemaTree(data)
+  cy.contains('.v-treeview-node__label', label).click()
 })

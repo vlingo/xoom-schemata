@@ -2,8 +2,8 @@
 
     <v-card height="45vh" id="schemata-versions">
         <v-list dense>
-            <v-list-item-group v-model="selected" color="primary">
-                <v-list-item v-for="v in schemaVersions" :key="v.id" ripple>
+            <v-list-item-group v-model="selectedVersion" color="primary">
+                <v-list-item v-for="v in versions" :key="v.schemaVersionId" :value="v" ripple>
                     <v-list-item-action>
                         <v-tooltip right>
                             <template v-slot:activator="{ on }">
@@ -27,50 +27,38 @@
 
 <script>
     import {mdiDelete, mdiLabel, mdiLabelOff, mdiPencil} from '@mdi/js'
-    import {mapFields} from 'vuex-map-fields';
 
     export default {
-        data() {
-            return {
-                selected: undefined
-            }
-        },
-        watch: {
-            schema: function () {
-                this.version = undefined
-            },
-            selected: function (value) {
-                if (value === undefined) {
-                    this.version = undefined
-                } else {
-                    this.version = this.schemaVersions[value]
-                }
-            }
-        },
-        computed: {
-            ...mapFields([
-                'schema',
-                'schemaVersions',
-                'version',
-            ]),
-        },
-        methods: {
-            icon(version) {
-                if (!version) return '';
-                switch (version.status) {
-                    case 'Published':
-                        return mdiLabel
-                    case 'Draft':
-                        return mdiPencil
-                    case 'Deprecated':
-                        return mdiLabelOff
-                    case 'Removed':
-                        return mdiDelete
-                    default:
-                        return ''
-                }
-            }
+      data: function() {
+        return {
+          selectedVersion: undefined
         }
+      },
+      watch: {
+        selectedVersion(newSelection) {
+          this.$store.dispatch('select', newSelection)
+        },
+      },
+      computed: {
+        versions() { return this.$store.getters.schemaVersions }
+      },
+      methods: {
+          icon(version) {
+              if (!version) return '';
+              switch (version.status) {
+                  case 'Published':
+                      return mdiLabel
+                  case 'Draft':
+                      return mdiPencil
+                  case 'Deprecated':
+                      return mdiLabelOff
+                  case 'Removed':
+                      return mdiDelete
+                  default:
+                      return ''
+              }
+          }
+      }
     }
 </script>
 
