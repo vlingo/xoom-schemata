@@ -49,10 +49,10 @@ Cypress.Commands.add("selectOption", (label: string, optionLabel: string) => {
 
 Cypress.Commands.add("expandSchemaTree", (data: Cypress.SchemataTestData) => {
     cy.fillField('Search', data.organization.name)
-    cy.contains('.v-treeview-node__label', data.organization.name).parent().parent().children('.v-treeview-node__toggle').click()
-    cy.contains('.v-treeview-node__label', data.unit.name).parent().parent().children('.v-treeview-node__toggle').click()
-    cy.contains('.v-treeview-node__label', data.context.namespace).parent().parent().children('.v-treeview-node__toggle').click()
-    cy.contains('.v-treeview-node__label', data.schema.name).click()
+    cy.contains('.v-treeview-node__label', data.organization.name).parent().parent().children('.v-treeview-node__toggle').click({force: true})
+    cy.contains('.v-treeview-node__label', data.unit.name).parent().parent().children('.v-treeview-node__toggle').click({force: true})
+    cy.contains('.v-treeview-node__label', data.context.namespace).parent().parent().children('.v-treeview-node__toggle').click({force: true})
+    cy.contains('.v-treeview-node__label', data.schema.name).click({force: true})
 })
 
 Cypress.Commands.add("navigateTo", (label: string) => {
@@ -62,5 +62,5 @@ Cypress.Commands.add("navigateTo", (label: string) => {
 Cypress.Commands.add("selectFromTree", (data: Cypress.SchemataTestData, label: string) => {
   cy.visit(`/#/schemata/`)
   cy.expandSchemaTree(data)
-  cy.contains('.v-treeview-node__label', label).click()
+  cy.contains('.v-treeview-node__label', label).click({force: true})
 })
