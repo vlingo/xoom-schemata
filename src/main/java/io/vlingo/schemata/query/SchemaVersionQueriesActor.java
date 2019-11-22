@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class SchemaVersionQueriesActor extends StateObjectQueryActor implements SchemaVersionQueries, TypeResolver {
+public class SchemaVersionQueriesActor extends StateObjectQueryActor implements SchemaVersionQueries {
   private static final String ById =
           "SELECT * FROM TBL_SCHEMAVERSIONS " +
           "WHERE organizationId = :organizationId " +

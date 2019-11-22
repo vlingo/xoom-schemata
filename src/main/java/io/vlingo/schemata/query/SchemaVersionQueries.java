@@ -10,9 +10,10 @@ package io.vlingo.schemata.query;
 import java.util.List;
 
 import io.vlingo.common.Completes;
+import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
-public interface SchemaVersionQueries {
+public interface SchemaVersionQueries extends TypeResolver {
   public final static String GreatestVersion = "99999.99999.99999";
 
   Completes<List<SchemaVersionData>> schemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId);
