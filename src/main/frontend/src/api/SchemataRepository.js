@@ -20,8 +20,6 @@ const resources = {
   sources: (o, u, c, s, v, lang) => `/code/${o}:${u}:${c}:${s}:${v}/${lang}`,
 }
 
-const jsonHeader = {headers: {'Content-Type': 'application/json'}}
-
 function ensure(response, status) {
   if (response.status !== status) {
     throw Error(`HTTP ${response.status}: ${response.statusText} (${response.config.url}).`);
