@@ -11,8 +11,6 @@ describe('Schemata View Tests', function () {
   });
 
   it('can update schema version state', function () {
-    this.skip();
-
     cy.task('schemata:withTestData').then(testData => {
       let data = <Cypress.SchemataTestData><unknown>testData
 
@@ -56,7 +54,6 @@ describe('Schemata View Tests', function () {
   });
 
   it('can update schema version specification', function () {
-    this.skip();
     cy.task('schemata:withTestData').then(testData => {
       let data = <Cypress.SchemataTestData><unknown>testData
 
@@ -67,6 +64,7 @@ describe('Schemata View Tests', function () {
       cy.contains('.v-list-item__title', data.version.currentVersion).click()
 
       // Change spec
+      cy.get('div[data-testid="tab-specification"]').click()
       cy.fillEditor('#specification-editor', 'foo bar baz')
       cy.contains('button', 'Save Specification').click()
 
@@ -76,6 +74,7 @@ describe('Schemata View Tests', function () {
       cy.expandSchemaTree(data)
       cy.contains('.v-list-item__title', data.version.currentVersion).click()
 
+      cy.get('div[data-testid="tab-specification"]').click()
       cy.editorContent('#specification-editor').should('contain', 'foo bar baz')
     });
   });
