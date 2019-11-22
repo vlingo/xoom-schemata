@@ -85,6 +85,7 @@
                  @click="currentDescription = description">Revert
           </v-btn>&nbsp;
           <v-btn color="info"
+                 :disabled="description === currentDescription"
                  @click="saveDescription">Save Description
           </v-btn>
         </v-card-actions>
