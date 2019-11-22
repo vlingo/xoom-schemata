@@ -7,7 +7,7 @@ The vlingo/PLATFORM schema registry.
  
 ## Run
 
-You can run the registry with an in-memory database within docker using `docker run -p 9019:9019 vlingo/vlingo-schemata:demo`.
+You can run the registry with an in-memory database within docker using `docker run -p 9019:9019 vlingo/vlingo-schemata`.
 
 After building the fat jar, you can also simply execute it via `java -jar vlingo-schemata-<version>-jar-with-dependencies.jar`
 
