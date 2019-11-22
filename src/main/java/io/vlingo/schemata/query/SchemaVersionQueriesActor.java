@@ -15,7 +15,6 @@ import io.vlingo.lattice.query.StateObjectQueryActor;
 import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
-import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.object.MapQueryExpression;
@@ -45,13 +44,29 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
             "AND schemaId = :schemaId " +
             "AND currentVersion = :currentVersion";
 
-  private static final String ByHierarchy =
+  /**
+   * The combination (organization, unit, context, schema, currentVersion) is unique
+   * => the cardinal product across below tables produce exactly one row.
+   */
+  private static final String ByNames =
           "SELECT sv.* FROM TBL_ORGANIZATIONS AS o " +
           "JOIN TBL_UNITS AS u ON u.organizationId = o.organizationId " +
           "JOIN TBL_CONTEXTS AS c ON c.unitId = u.unitId " +
           "JOIN TBL_SCHEMAS AS s ON s.contextId = c.contextId " +
           "JOIN TBL_SCHEMAVERSIONS AS sv ON sv.schemaId = s.schemaId " +
           "WHERE o.name = :organization AND u.name = :unit AND c.namespace = :context AND s.name = :schema AND sv.currentVersion = :currentVersion";
+
+  /**
+   * Selects all SchemaVersions for specified (organization, unit, context, schema) parameters.
+   * The combination (organization, unit, context, schema) is unique.
+   */
+  private static final String ByNamesWoVersion =
+          "SELECT sv.* FROM TBL_ORGANIZATIONS AS o " +
+                  "JOIN TBL_UNITS AS u ON u.organizationId = o.organizationId " +
+                  "JOIN TBL_CONTEXTS AS c ON c.unitId = u.unitId " +
+                  "JOIN TBL_SCHEMAS AS s ON s.contextId = c.contextId " +
+                  "JOIN TBL_SCHEMAVERSIONS AS sv ON sv.schemaId = s.schemaId " +
+                  "WHERE o.name = :organization AND u.name = :unit AND c.namespace = :context AND s.name = :schema";
 
   Tuple2<SchemaVersionData,SemanticVersion> tempCurrentVersion;
 
@@ -63,7 +78,7 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
   }
 
   @Override
-  public Completes<List<SchemaVersionData>> schemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId) {
+  public Completes<List<SchemaVersionData>> schemaVersionsByIds(final String organizationId, final String unitId, final String contextId, final String schemaId) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
     parameters.put("unitId", unitId);
@@ -80,6 +95,18 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
                       "AND schemaId = :schemaId",
                     parameters);
 
+    return queryAll(SchemaVersionState.class, query, (List<SchemaVersionState> states) -> SchemaVersionData.from(states));
+  }
+
+  @Override
+  public Completes<List<SchemaVersionData>> schemaVersionsByNames(String organization, String unit, String context, String schema) {
+    parameters.clear();
+    parameters.put("organization", organization);
+    parameters.put("unit", unit);
+    parameters.put("context", context);
+    parameters.put("schema", schema);
+
+    final QueryExpression query = MapQueryExpression.using(SchemaVersionState.class, ByNamesWoVersion);
     return queryAll(SchemaVersionState.class, query, (List<SchemaVersionState> states) -> SchemaVersionData.from(states));
   }
 
@@ -104,7 +131,7 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
     parameters.put("schema", schema);
     parameters.put("currentVersion", schemaVersion);
 
-    return queryOne(ByHierarchy, parameters);
+    return queryOne(ByNames, parameters);
   }
 
   @Override
@@ -147,7 +174,7 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
     final CompletesEventually completesEventually = completesEventually();
     tempCurrentVersion = Tuple2.from(SchemaVersionData.none(), SemanticVersion.from(SchemaVersionData.none().currentVersion));
 
-    schemaVersions(organizationId, unitId, contextId, schemaId)
+    schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
       .andThenTo(versions -> {
         versions.forEach(schemaVersion -> {
           final SemanticVersion semanticVersion = SemanticVersion.from(schemaVersion.currentVersion);

@@ -113,7 +113,7 @@ public class SchemaVersionResource extends ResourceHandler {
 
     public Completes<Response> querySchemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId) {
         return Queries.forSchemaVersions()
-                .schemaVersions(organizationId, unitId, contextId, schemaId)
+                .schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
                 .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
     }
 

@@ -16,7 +16,8 @@ import io.vlingo.schemata.resource.data.SchemaVersionData;
 public interface SchemaVersionQueries extends TypeResolver {
   public final static String GreatestVersion = "99999.99999.99999";
 
-  Completes<List<SchemaVersionData>> schemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId);
+  Completes<List<SchemaVersionData>> schemaVersionsByIds(final String organizationId, final String unitId, final String contextId, final String schemaId);
+  Completes<List<SchemaVersionData>> schemaVersionsByNames(final String organization, final String unit, final String context, final String schema);
   Completes<SchemaVersionData> schemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId);
   Completes<SchemaVersionData> schemaVersionOf(final String organization, final String unit, final String context, final String schema, final String schemaVersion);
   Completes<SchemaVersionData> schemaVersionOfVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String version);
