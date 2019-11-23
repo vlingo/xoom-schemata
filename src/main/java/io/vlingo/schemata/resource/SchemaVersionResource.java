@@ -123,6 +123,12 @@ public class SchemaVersionResource extends ResourceHandler {
                 .andThenTo(schemaVersion -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersion))));
     }
 
+    public Completes<Response> querySchemaVersionsByNames(final String organization, final String unit, final String context, final String schema) {
+        return Queries.forSchemaVersions()
+                .schemaVersionsByNames(organization, unit, context, schema)
+                .andThenTo(schemaVersionData -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersionData))));
+    }
+
     public Completes<Response> querySchemaVersionByNames(final String organization, final String unit, final String context, final String schema, final String schemaVersion) {
         return Queries.forSchemaVersions()
                 .schemaVersionOf(organization, unit, context, schema, schemaVersion)
@@ -176,7 +182,13 @@ public class SchemaVersionResource extends ResourceHandler {
                         .param(String.class)
                         .param(String.class)
                         .handle(this::querySchemaVersionByIds),
-                get("/versions?organization={organization}&unit={unit}&context={context}&schema={schema}&version={schemaVersion}")
+                get("/versions/search?organization={organization}&unit={unit}&context={context}&schema={schema}")
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .handle(this::querySchemaVersionsByNames),
+                get("/versions/search?organization={organization}&unit={unit}&context={context}&schema={schema}&version={schemaVersion}")
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)

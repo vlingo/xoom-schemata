@@ -106,7 +106,7 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
     parameters.put("context", context);
     parameters.put("schema", schema);
 
-    final QueryExpression query = MapQueryExpression.using(SchemaVersionState.class, ByNamesWoVersion);
+    final QueryExpression query = MapQueryExpression.using(SchemaVersionState.class, ByNamesWoVersion, parameters);
     return queryAll(SchemaVersionState.class, query, (List<SchemaVersionState> states) -> SchemaVersionData.from(states));
   }
 
