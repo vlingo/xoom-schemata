@@ -150,41 +150,51 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
   }
 
   @Override
-  public Completes<Optional<TypeDefinition>> resolve(final TypeDefinitionMiddleware middleware, final String fullQualifiedTypeName) {
-    String[] parts = fullQualifiedTypeName.split(Schemata.ReferenceSeparator);
-    parameters.clear();
-    parameters.put("organizationId", parts[0]);
-    parameters.put("unitId", parts[1]);
-    parameters.put("contextId", parts[2]);
-    parameters.put("schemaId", parts[3]);
-    parameters.put("currentVersion", GreatestVersion);
+  public Completes<Optional<TypeDefinition>> resolve(final TypeDefinitionMiddleware middleware, final String fullyQualifiedTypeName) {
+    String[] parts = fullyQualifiedTypeName.split(Schemata.ReferenceSeparator);
+    Completes<SchemaVersionData> schemaVersionData;
 
     if (parts.length > 4) {
-      parameters.put("currentVersion", parts[4]);
+      schemaVersionData = schemaVersionOf(parts[0], parts[1], parts[2], parts[3], parts[4]);
+    } else {
+      schemaVersionData = queryGreatestByNames(parts[0], parts[1], parts[2], parts[3]);
     }
 
-    return queryOne(ByCurrentVersion, parameters)
+    return schemaVersionData
             .andThen(data -> data.specification)
-            .andThenTo(spec -> middleware.compileToAST(new ByteArrayInputStream(spec.getBytes()), fullQualifiedTypeName))
+            .andThenTo(spec -> middleware.compileToAST(new ByteArrayInputStream(spec.getBytes()), fullyQualifiedTypeName))
             .andThen(node -> Optional.of((TypeDefinition) node))
             .otherwise(ex -> Optional.empty());
   }
 
+  private final Completes<SchemaVersionData> queryGreatest(List<SchemaVersionData> versions) {
+      final CompletesEventually completesEventually = completesEventually();
+
+      versions.forEach(schemaVersion -> {
+          final SemanticVersion semanticVersion = SemanticVersion.from(schemaVersion.currentVersion);
+          if (semanticVersion.isGreaterThan(tempCurrentVersion._2)) {
+              tempCurrentVersion = Tuple2.from(schemaVersion, semanticVersion);
+          }
+      });
+
+      completesEventually.with(tempCurrentVersion._1);
+      return Completes.withSuccess(tempCurrentVersion._1);
+  }
+
   private Completes<SchemaVersionData> queryGreatest(final String organizationId, final String unitId, final String contextId, final String schemaId) {
-    final CompletesEventually completesEventually = completesEventually();
     tempCurrentVersion = Tuple2.from(SchemaVersionData.none(), SemanticVersion.from(SchemaVersionData.none().currentVersion));
 
     schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
-      .andThenTo(versions -> {
-        versions.forEach(schemaVersion -> {
-          final SemanticVersion semanticVersion = SemanticVersion.from(schemaVersion.currentVersion);
-          if (semanticVersion.isGreaterThan(tempCurrentVersion._2)) {
-            tempCurrentVersion = Tuple2.from(schemaVersion, semanticVersion);
-          }
-        });
-        completesEventually.with(tempCurrentVersion._1);
-        return Completes.withSuccess(tempCurrentVersion._1);
-      });
+      .andThenTo(versions -> queryGreatest(versions));
+
+    return completes();
+  }
+
+  private Completes<SchemaVersionData> queryGreatestByNames(final String organization, final String unit, final String context, final String schema) {
+    tempCurrentVersion = Tuple2.from(SchemaVersionData.none(), SemanticVersion.from(SchemaVersionData.none().currentVersion));
+
+    schemaVersionsByNames(organization, unit, context, schema)
+      .andThenTo(versions -> queryGreatest(versions));
 
     return completes();
   }

@@ -14,5 +14,5 @@ import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import java.util.Optional;
 
 public interface TypeResolver {
-    Completes<Optional<TypeDefinition>> resolve(final TypeDefinitionMiddleware middleware, final String fullQualifiedTypeName);
+    Completes<Optional<TypeDefinition>> resolve(final TypeDefinitionMiddleware middleware, final String fullyQualifiedTypeName);
 }
