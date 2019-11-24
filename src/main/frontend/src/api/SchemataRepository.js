@@ -12,14 +12,13 @@ const resources = {
   scopes: () => '/schema/scopes',
   schemata: (o, u, c) => `${resources.context(o, u, c)}/schemas`,
   schema: (o, u, c, s) => `${resources.schemata(o, u, c)}/${s}`,
+  schemaDescription: (o, u, c, s, v) => `/organizations/${o}/units/${u}/contexts/${c}/schemas/${s}/versions/${v}/description`,
+  schemaSpecification: (o, u, c, s, v) => `${resources.version(o, u, c, s, v)}/specification`,
   versions: (o, u, c, s) => `${resources.schema(o, u, c, s)}/versions`,
   version: (o, u, c, s, v) => `${resources.versions(o, u, c, s)}/${v}`,
   versionStatus: (o, u, c, s, v) => `${resources.version(o, u, c, s, v)}/status`,
-  schemaSpecification: (o, u, c, s, v) => `${resources.version(o, u, c, s, v)}/specification`,
   sources: (o, u, c, s, v, lang) => `/code/${o}:${u}:${c}:${s}:${v}/${lang}`,
 }
-
-const jsonHeader = {headers: {'Content-Type': 'application/json'}}
 
 function ensure(response, status) {
   if (response.status !== status) {
@@ -212,6 +211,22 @@ export default {
     return Repository.patch(
       resources.schemaSpecification(organization, unit, context, schema, version),
       specification,
+      config
+      )
+      .then(ensureOk)
+      .then(response => response.data)
+  },
+  saveSchemaVersionDescription(
+    organization, unit, context, schema, version, description) {
+    let config = {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      responseType: 'text'
+    };
+    return Repository.patch(
+      resources.schemaDescription(organization, unit, context, schema, version),
+      description,
       config
       )
       .then(ensureOk)
