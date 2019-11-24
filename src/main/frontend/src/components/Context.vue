@@ -136,7 +136,7 @@
                 vm.$store.dispatch('select', updated)
 
                 vm.$store.commit('raiseNotification', {
-                  message: `Context ${vm.name} updated.`,
+                  message: `Context ${vm.namespace} updated.`,
                   type: 'success'
                 })
               })
