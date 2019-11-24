@@ -23,9 +23,9 @@ public class CacheTypeResolver implements TypeResolver {
     }
 
     @Override
-    public Completes<Optional<TypeDefinition>> resolve(final TypeDefinitionMiddleware middleware, final String fullQualifiedTypeName) {
+    public Completes<Optional<TypeDefinition>> resolve(final TypeDefinitionMiddleware middleware, final String fullyQualifiedTypeName) {
         for (final TypeDefinition type : types) {
-          if (doesTypeMatch(fullQualifiedTypeName, type.fullyQualifiedTypeName)) {
+          if (doesTypeMatch(fullyQualifiedTypeName, type.fullyQualifiedTypeName)) {
             return Completes.withSuccess(Optional.of(type));
           }
         }

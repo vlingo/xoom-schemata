@@ -113,7 +113,7 @@ public class SchemaVersionResource extends ResourceHandler {
 
     public Completes<Response> querySchemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId) {
         return Queries.forSchemaVersions()
-                .schemaVersions(organizationId, unitId, contextId, schemaId)
+                .schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
                 .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
     }
 
@@ -121,6 +121,12 @@ public class SchemaVersionResource extends ResourceHandler {
         return Queries.forSchemaVersions()
                 .schemaVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
                 .andThenTo(schemaVersion -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersion))));
+    }
+
+    public Completes<Response> querySchemaVersionsByNames(final String organization, final String unit, final String context, final String schema) {
+        return Queries.forSchemaVersions()
+                .schemaVersionsByNames(organization, unit, context, schema)
+                .andThenTo(schemaVersionData -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersionData))));
     }
 
     public Completes<Response> querySchemaVersionByNames(final String organization, final String unit, final String context, final String schema, final String schemaVersion) {
@@ -176,7 +182,13 @@ public class SchemaVersionResource extends ResourceHandler {
                         .param(String.class)
                         .param(String.class)
                         .handle(this::querySchemaVersionByIds),
-                get("/versions?organization={organization}&unit={unit}&context={context}&schema={schema}&version={schemaVersion}")
+                get("/versions/search?organization={organization}&unit={unit}&context={context}&schema={schema}")
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .handle(this::querySchemaVersionsByNames),
+                get("/versions/search?organization={organization}&unit={unit}&context={context}&schema={schema}&version={schemaVersion}")
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)

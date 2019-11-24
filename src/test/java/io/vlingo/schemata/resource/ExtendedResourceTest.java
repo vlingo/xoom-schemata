@@ -14,6 +14,8 @@ import io.vlingo.schemata.model.Scope;
 import io.vlingo.schemata.resource.data.*;
 import org.junit.Test;
 
+import java.util.List;
+
 import static io.vlingo.http.Response.Status.NotFound;
 import static io.vlingo.http.Response.Status.Ok;
 import static io.vlingo.schemata.model.SchemaVersion.Status.Draft;
@@ -27,9 +29,11 @@ public class ExtendedResourceTest extends ResourceTest {
     private final ContextData contextData11 = ContextData.just("io.vlingo.lattice" , "namespace 1b descrption");
     private final SchemaData schemaData10 = SchemaData.just(Category.Event.name(), Scope.Public.name(), "SchemaDefined1", "SchemaDefined description");
     private final SchemaData schemaData11 = SchemaData.just(Category.Event.name(), Scope.Public.name(), "SchemaDefined1_1", "SchemaDefined description");
-    private final SchemaVersionData schemaVersionData10 = SchemaVersionData.just("event SchemaDefined {}", "SchemaDefined description",
+    private final SchemaVersionData schemaVersionData10 = SchemaVersionData.just("event SchemaDefined10 {}", "SchemaDefined description",
             Draft.name(), "0.0.1", "0.0.2");
-    private final SchemaVersionData schemaVersionData11 = SchemaVersionData.just("event SchemaDefined {}", "SchemaDefined description",
+    private final SchemaVersionData schemaVersionData10_2 = SchemaVersionData.just("event SchemaDefined10_2 {}", "SchemaDefined description",
+            Draft.name(), "0.0.2", "0.0.3");
+    private final SchemaVersionData schemaVersionData11 = SchemaVersionData.just("event SchemaDefined11 {}", "SchemaDefined description",
             Draft.name(), "0.0.6", "0.0.7");
 
     private final OrganizationData orgData2 = OrganizationData.just("org2", "org2 description");
@@ -71,10 +75,12 @@ public class ExtendedResourceTest extends ResourceTest {
         final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world);
         final Response schemaVersionResponse10 = schemaVersionResource.defineWith(organizationId1, unitId10, contextId10, schemaId10, schemaVersionData10).await();
         final String schemaVersionId10 = extractResourceIdFrom(schemaVersionResponse10);
+        final Response schemaVersionResponse10_2 = schemaVersionResource.defineWith(organizationId1, unitId10, contextId10, schemaId10, schemaVersionData10_2).await();
+        final String schemaVersionId10_2 = extractResourceIdFrom(schemaVersionResponse10_2);
         final Response schemaVersionResponse11 = schemaVersionResource.defineWith(organizationId1, unitId11, contextId11, schemaId11, schemaVersionData11).await();
         final String schemaVersionId11 = extractResourceIdFrom(schemaVersionResponse11);
 
-        return new String[] {schemaVersionId10, schemaVersionId11};
+        return new String[] {schemaVersionId10, schemaVersionId10_2, schemaVersionId11};
     }
 
     /**
@@ -134,6 +140,23 @@ public class ExtendedResourceTest extends ResourceTest {
         assertEquals(schemaVersionDataResponse10.schemaVersionId, schemaVersion1Ids[0]);
 
         // Select second schema version
+        final Response response10_2 = resource.querySchemaVersionByNames(orgData1.name, unitData10.name, contextData10.namespace, schemaData10.name,
+                schemaVersionData10_2.currentVersion).await();
+        assertEquals(Ok, response10_2.status);
+        final SchemaVersionData schemaVersionDataResponse10_2 = JsonSerialization.deserialized(response10_2.entity.content(), SchemaVersionData.class);
+        assertEquals(schemaVersionDataResponse10_2.status, schemaVersionData10_2.status);
+        assertEquals(schemaVersionDataResponse10_2.description, schemaVersionData10_2.description);
+        assertEquals(schemaVersionDataResponse10_2.specification, schemaVersionData10_2.specification);
+        assertEquals(schemaVersionDataResponse10_2.currentVersion, schemaVersionData10_2.currentVersion);
+        assertEquals(schemaVersionDataResponse10_2.previousVersion, schemaVersionData10_2.previousVersion);
+        assertEquals(schemaVersionDataResponse10_2.schemaVersionId, schemaVersion1Ids[1]);
+
+        final Response response10all = resource.querySchemaVersionsByNames(orgData1.name, unitData10.name, contextData10.namespace, schemaData10.name).await();
+        assertEquals(Ok, response10all.status);
+        final List<?> schemaVersionDataResponse1all = JsonSerialization.deserialized(response10all.entity.content(), List.class);
+        assertEquals(2, schemaVersionDataResponse1all.size());
+
+        // Select third schema version
         final Response response11 = resource.querySchemaVersionByNames(orgData1.name, unitData11.name, contextData11.namespace, schemaData11.name,
                 schemaVersionData11.currentVersion).await();
         assertEquals(Ok, response11.status);
@@ -143,7 +166,7 @@ public class ExtendedResourceTest extends ResourceTest {
         assertEquals(schemaVersionDataResponse11.specification, schemaVersionData11.specification);
         assertEquals(schemaVersionDataResponse11.currentVersion, schemaVersionData11.currentVersion);
         assertEquals(schemaVersionDataResponse11.previousVersion, schemaVersionData11.previousVersion);
-        assertEquals(schemaVersionDataResponse11.schemaVersionId, schemaVersion1Ids[1]);
+        assertEquals(schemaVersionDataResponse11.schemaVersionId, schemaVersion1Ids[2]);
 
 //        // Select no schema version based on mixed values
 //        final Response response01 = resource.querySchemaVersionByNames(orgData1.name, unitData10.name, contextData11.namespace, schemaData10.name,
