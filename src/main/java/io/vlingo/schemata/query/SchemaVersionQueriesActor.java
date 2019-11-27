@@ -154,7 +154,9 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
     String[] parts = fullyQualifiedTypeName.split(Schemata.ReferenceSeparator);
     Completes<SchemaVersionData> schemaVersionData;
 
-    if (parts.length > 4) {
+    if (parts.length < Schemata.MinReferenceParts) {
+      return Completes.withFailure(Optional.empty());
+    } else if (parts.length > Schemata.MinReferenceParts) {
       schemaVersionData = schemaVersionOf(parts[0], parts[1], parts[2], parts[3], parts[4]);
     } else {
       schemaVersionData = queryGreatestByNames(parts[0], parts[1], parts[2], parts[3]);

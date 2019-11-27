@@ -50,7 +50,22 @@ public class CodeResource extends ResourceHandler {
     this.logger = world.defaultLogger();
   }
 
+  private boolean isReferenceValid(final String reference) {
+    if (reference != null) {
+      final String[] parts = reference.split(Schemata.ReferenceSeparator);
+      if (parts.length >= Schemata.MinReferenceParts) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public Completes<Response> queryCodeForLanguage(final String reference, final String language) {
+    if (!isReferenceValid(reference)) {
+      return Completes.withSuccess(Response.of(Response.Status.BadRequest, "Invalid reference parameter!"));
+    }
+
     // FIXME: temporary workaround for missing context in handler, see #55
     final Request request = context() == null ? null : context().request;
     final Collector collector = given(request, reference);
