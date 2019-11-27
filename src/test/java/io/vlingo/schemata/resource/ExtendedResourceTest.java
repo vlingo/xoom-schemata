@@ -16,7 +16,6 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static io.vlingo.http.Response.Status.NotFound;
 import static io.vlingo.http.Response.Status.Ok;
 import static io.vlingo.schemata.model.SchemaVersion.Status.Draft;
 import static org.junit.Assert.assertEquals;
@@ -128,7 +127,7 @@ public class ExtendedResourceTest extends ResourceTest {
 
         // Select first schemaVersion
         SchemaVersionResource resource = new SchemaVersionResource(world);
-        final Response response10 = resource.querySchemaVersionByNames(orgData1.name, unitData10.name, contextData10.namespace, schemaData10.name,
+        final Response response10 = resource.searchSchemaVersionByNames(orgData1.name, unitData10.name, contextData10.namespace, schemaData10.name,
                 schemaVersionData10.currentVersion).await();
         assertEquals(Ok, response10.status);
         final SchemaVersionData schemaVersionDataResponse10 = JsonSerialization.deserialized(response10.entity.content(), SchemaVersionData.class);
@@ -140,7 +139,7 @@ public class ExtendedResourceTest extends ResourceTest {
         assertEquals(schemaVersionDataResponse10.schemaVersionId, schemaVersion1Ids[0]);
 
         // Select second schema version
-        final Response response10_2 = resource.querySchemaVersionByNames(orgData1.name, unitData10.name, contextData10.namespace, schemaData10.name,
+        final Response response10_2 = resource.searchSchemaVersionByNames(orgData1.name, unitData10.name, contextData10.namespace, schemaData10.name,
                 schemaVersionData10_2.currentVersion).await();
         assertEquals(Ok, response10_2.status);
         final SchemaVersionData schemaVersionDataResponse10_2 = JsonSerialization.deserialized(response10_2.entity.content(), SchemaVersionData.class);
@@ -151,13 +150,13 @@ public class ExtendedResourceTest extends ResourceTest {
         assertEquals(schemaVersionDataResponse10_2.previousVersion, schemaVersionData10_2.previousVersion);
         assertEquals(schemaVersionDataResponse10_2.schemaVersionId, schemaVersion1Ids[1]);
 
-        final Response response10all = resource.querySchemaVersionsByNames(orgData1.name, unitData10.name, contextData10.namespace, schemaData10.name).await();
+        final Response response10all = resource.searchSchemaVersionsByNames(orgData1.name, unitData10.name, contextData10.namespace, schemaData10.name).await();
         assertEquals(Ok, response10all.status);
         final List<?> schemaVersionDataResponse1all = JsonSerialization.deserialized(response10all.entity.content(), List.class);
         assertEquals(2, schemaVersionDataResponse1all.size());
 
         // Select third schema version
-        final Response response11 = resource.querySchemaVersionByNames(orgData1.name, unitData11.name, contextData11.namespace, schemaData11.name,
+        final Response response11 = resource.searchSchemaVersionByNames(orgData1.name, unitData11.name, contextData11.namespace, schemaData11.name,
                 schemaVersionData11.currentVersion).await();
         assertEquals(Ok, response11.status);
         final SchemaVersionData schemaVersionDataResponse11 = JsonSerialization.deserialized(response11.entity.content(), SchemaVersionData.class);
@@ -169,16 +168,16 @@ public class ExtendedResourceTest extends ResourceTest {
         assertEquals(schemaVersionDataResponse11.schemaVersionId, schemaVersion1Ids[2]);
 
 //        // Select no schema version based on mixed values
-//        final Response response01 = resource.querySchemaVersionByNames(orgData1.name, unitData10.name, contextData11.namespace, schemaData10.name,
+//        final Response response01 = resource.searchSchemaVersionByNames(orgData1.name, unitData10.name, contextData11.namespace, schemaData10.name,
 //                schemaVersionData11.currentVersion).await();
 //        assertEquals(NotFound, response01.status);
 //
 //        // Select no schema version based on mixed values
-//        final Response response02 = resource.querySchemaVersionByNames(orgData1.name, unitData11.name, contextData10.namespace, schemaData11.name,
+//        final Response response02 = resource.searchSchemaVersionByNames(orgData1.name, unitData11.name, contextData10.namespace, schemaData11.name,
 //                schemaVersionData10.currentVersion).await();
 //        assertEquals(NotFound, response02.status);
 
-        final Response response2 = resource.querySchemaVersionByNames(orgData2.name, unitData2.name, contextData2.namespace, schemaData2.name,
+        final Response response2 = resource.searchSchemaVersionByNames(orgData2.name, unitData2.name, contextData2.namespace, schemaData2.name,
                 schemaVersionData2.currentVersion).await();
 
         assertEquals(Ok, response2.status);
