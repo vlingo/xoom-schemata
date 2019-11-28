@@ -85,6 +85,25 @@ PATCH http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{
 'Published'
 
 
+### Create second schema version
+POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "{{unitId}}",
+  "contextId": "{{contextId}}",
+  "schemaId": "{{schemaId}}",
+  "schemaVersionId": "",
+  "description": "Updated revision.",
+  "specification": "event SchemaDefined2 { type eventType }",
+  "status": "Published",
+  "previousVersion": "1.0.0",
+  "currentVersion": "1.0.1"
+}
+> {% client.global.set('schemaVersion2Id', response.body.schemaVersionId) %}
+
+
 ###
 # Schema Queries
 
@@ -108,8 +127,22 @@ Accept: application/json
 GET http://localhost:9019/schema/categories
 Accept: application/json
 
-###
+### Search for first schema version by names
+GET http://localhost:9019/versions/search?organization=Org3&unit=Unit3&context=io.vlingo.schemata5&schema=SchemaDefinedFoo&version=1.0.0
+Accept: application/json
 
+### Search for second schema version by names
+GET http://localhost:9019/versions/search?organization=Org3&unit=Unit3&context=io.vlingo.schemata5&schema=SchemaDefinedFoo&version=1.0.1
+Accept: application/json
+
+### Search for all schema versions by names
+GET http://localhost:9019/versions/search?organization=Org3&unit=Unit3&context=io.vlingo.schemata5&schema=SchemaDefinedFoo
+Accept: application/json
+
+### Search for all schema versions by names
+
+
+###
 
 // Reproduce https://github.com/vlingo/vlingo-schemata/issues/55
 POST http://localhost:9019/organizations

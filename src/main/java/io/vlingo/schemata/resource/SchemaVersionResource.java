@@ -123,16 +123,24 @@ public class SchemaVersionResource extends ResourceHandler {
                 .andThenTo(schemaVersion -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersion))));
     }
 
-    public Completes<Response> querySchemaVersionsByNames(final String organization, final String unit, final String context, final String schema) {
+    public Completes<Response> searchSchemaVersionsByNames(final String organization, final String unit, final String context, final String schema) {
         return Queries.forSchemaVersions()
                 .schemaVersionsByNames(organization, unit, context, schema)
                 .andThenTo(schemaVersionData -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersionData))));
     }
 
-    public Completes<Response> querySchemaVersionByNames(final String organization, final String unit, final String context, final String schema, final String schemaVersion) {
+    public Completes<Response> searchSchemaVersionByNames(final String organization, final String unit, final String context, final String schema, final String schemaVersion) {
         return Queries.forSchemaVersions()
                 .schemaVersionOf(organization, unit, context, schema, schemaVersion)
                 .andThenTo(schemaVersionData -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersionData))));
+    }
+
+    public Completes<Response> searchSchemaVersions(final String schemaVersion, final String organization, final String unit, final String context, final String schema) {
+        if (schemaVersion == null) {
+            return searchSchemaVersionsByNames(organization, unit, context, schema);
+        } else {
+            return searchSchemaVersionByNames(organization, unit, context, schema, schemaVersion);
+        }
     }
 
     @Override
@@ -182,19 +190,13 @@ public class SchemaVersionResource extends ResourceHandler {
                         .param(String.class)
                         .param(String.class)
                         .handle(this::querySchemaVersionByIds),
-                get("/versions/search?organization={organization}&unit={unit}&context={context}&schema={schema}")
-                        .param(String.class)
-                        .param(String.class)
-                        .param(String.class)
-                        .param(String.class)
-                        .handle(this::querySchemaVersionsByNames),
-                get("/versions/search?organization={organization}&unit={unit}&context={context}&schema={schema}&version={schemaVersion}")
-                        .param(String.class)
-                        .param(String.class)
-                        .param(String.class)
-                        .param(String.class)
-                        .param(String.class)
-                        .handle(this::querySchemaVersionByNames));
+                get("/versions/search")
+                        .query("version", String.class, null)
+                        .query("organization", String.class)
+                        .query("unit", String.class)
+                        .query("context", String.class)
+                        .query("schema", String.class)
+                        .handle(this::searchSchemaVersions));
     }
 
     private String schemaVersionLocation(final SchemaVersionId schemaVersionId) {
