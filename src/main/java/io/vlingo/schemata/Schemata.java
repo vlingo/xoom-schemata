@@ -16,6 +16,12 @@ public class Schemata {
 
   public static final String ReferenceSeparator = ":";
 
+  /**
+   * Minimum number of parts specified in a reference.
+   * (organization, unit, context, schema, [schemaVersion])
+   */
+  public static final int MinReferenceParts = 4;
+
   //==========================
   // Paths
   //==========================
