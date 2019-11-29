@@ -20,7 +20,6 @@ import io.vlingo.http.Method;
 import io.vlingo.http.Request;
 import io.vlingo.http.RequestHeader;
 import io.vlingo.http.Response;
-import io.vlingo.http.ResponseHeader;
 import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.model.Category;
 import io.vlingo.schemata.model.Scope;

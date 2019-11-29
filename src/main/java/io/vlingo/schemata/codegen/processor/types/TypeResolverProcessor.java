@@ -7,6 +7,11 @@
 
 package io.vlingo.schemata.codegen.processor.types;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
+
 import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
@@ -17,11 +22,6 @@ import io.vlingo.schemata.codegen.ast.types.Type;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.Processor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
-
 public class TypeResolverProcessor extends Actor implements Processor {
     private final TypeResolver resolver;
 
@@ -30,7 +30,7 @@ public class TypeResolverProcessor extends Actor implements Processor {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Completes<Node> process(final Node node, final TypeDefinitionMiddleware middleware, final String fullyQualifiedTypeName) {
         TypeDefinition type = Processor.requireBeing(node, TypeDefinition.class);
 

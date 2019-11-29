@@ -7,6 +7,26 @@
 
 package io.vlingo.schemata.resource;
 
+import static io.vlingo.http.Response.Status.InternalServerError;
+import static io.vlingo.http.Response.Status.MovedPermanently;
+import static io.vlingo.http.Response.Status.NotFound;
+import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.ResponseHeader.ContentLength;
+import static io.vlingo.http.ResponseHeader.ContentType;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
+import static io.vlingo.schemata.Schemata.StageName;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.activation.MimetypesFileTypeMap;
+
 import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -23,22 +43,6 @@ import io.vlingo.http.resource.RequestHandler4.Handler4;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 
-import javax.activation.MimetypesFileTypeMap;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static io.vlingo.http.Response.Status.*;
-import static io.vlingo.http.ResponseHeader.ContentLength;
-import static io.vlingo.http.ResponseHeader.ContentType;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.Schemata.StageName;
-
 /**
  * Serves the files making up the UI from the classpath.
  * Assumes the generated UI resources to be present in
@@ -51,7 +55,9 @@ import static io.vlingo.schemata.Schemata.StageName;
  */
 public class UiResource extends ResourceHandler {
 
+    @SuppressWarnings("unused")
     private final Stage stage;
+    @SuppressWarnings("unused")
     private final Logger logger;
 
     public UiResource(final World world) {

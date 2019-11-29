@@ -49,6 +49,7 @@ public class CodeQueriesActor extends Actor implements CodeQueries {
     pathFrom(fullQualifiedTypeName).ifPresent(path -> {
       final CompletesEventually completesEventually = completesEventually();
 
+      @SuppressWarnings("unused")
       final String version = path.versionOrElse(SemanticVersion.greatest().toString());
 
       schemaVersionQueries.schemaVersionOf(path.organization, path.unit, path.context, path.schema, path.version)

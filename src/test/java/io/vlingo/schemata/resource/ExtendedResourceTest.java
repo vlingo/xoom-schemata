@@ -7,18 +7,23 @@
 
 package io.vlingo.schemata.resource;
 
+import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.schemata.model.SchemaVersion.Status.Draft;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
+import org.junit.Test;
+
 import io.vlingo.common.serialization.JsonSerialization;
 import io.vlingo.http.Response;
 import io.vlingo.schemata.model.Category;
 import io.vlingo.schemata.model.Scope;
-import io.vlingo.schemata.resource.data.*;
-import org.junit.Test;
-
-import java.util.List;
-
-import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.schemata.model.SchemaVersion.Status.Draft;
-import static org.junit.Assert.assertEquals;
+import io.vlingo.schemata.resource.data.ContextData;
+import io.vlingo.schemata.resource.data.OrganizationData;
+import io.vlingo.schemata.resource.data.SchemaData;
+import io.vlingo.schemata.resource.data.SchemaVersionData;
+import io.vlingo.schemata.resource.data.UnitData;
 
 public class ExtendedResourceTest extends ResourceTest {
     private final OrganizationData orgData1 = OrganizationData.just("Org1", "Org1 description");
@@ -116,6 +121,7 @@ public class ExtendedResourceTest extends ResourceTest {
     private void createFixture3() {
         final OrganizationResource organizationResource = new OrganizationResource(world);
         final Response organizationResponse3 = organizationResource.defineWith(orgData3).await();
+        @SuppressWarnings("unused")
         final String organizationId3 = extractResourceIdFrom(organizationResponse3);
     }
 
