@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.ActorInstantiator;
 import io.vlingo.actors.Address;
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
@@ -30,7 +31,7 @@ public interface Schema {
   static Completes<SchemaState> with(final Stage stage, final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
     final String actorName = nameFrom(schemaId);
     final Address address = stage.addressFactory().from(schemaId.value, actorName);
-    final Definition definition = Definition.has(SchemaEntity.class, Definition.parameters(schemaId), actorName);
+    final Definition definition = Definition.has(SchemaEntity.class, new SchemaInstantiator(schemaId), actorName);
     final Schema schema = stage.actorFor(Schema.class, definition, address);
     return schema.defineWith(category, scope, name, description);
   }
@@ -46,4 +47,22 @@ public interface Schema {
   Completes<SchemaState> renameTo(final String name);
 
   Completes<SchemaState> redefineWith(final Category category, final Scope scope, final String name, final String description);
+
+  static class SchemaInstantiator implements ActorInstantiator<SchemaEntity> {
+    private final SchemaId schemaId;
+
+    public SchemaInstantiator(final SchemaId schemaId) {
+      this.schemaId = schemaId;
+    }
+
+    @Override
+    public SchemaEntity instantiate() {
+      return new SchemaEntity(schemaId);
+    }
+
+    @Override
+    public Class<SchemaEntity> type() {
+      return SchemaEntity.class;
+    }
+  }
 }

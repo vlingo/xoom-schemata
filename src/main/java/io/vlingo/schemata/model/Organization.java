@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.ActorInstantiator;
 import io.vlingo.actors.Address;
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
@@ -36,7 +37,7 @@ public interface Organization {
           final String description) {
     final String actorName = nameFrom(organizationId);
     final Address address = stage.addressFactory().from(organizationId.value, actorName);
-    final Definition definition = Definition.has(OrganizationEntity.class, Definition.parameters(organizationId), actorName);
+    final Definition definition = Definition.has(OrganizationEntity.class, new OrganizationInstantiator(organizationId), actorName);
     final Organization organization = stage.actorFor(Organization.class, definition, address);
     return organization.defineWith(name, description);
   }
@@ -48,4 +49,22 @@ public interface Organization {
   Completes<OrganizationState> redefineWith(final String name, final String description);
 
   Completes<OrganizationState> renameTo(final String name);
+
+  static class OrganizationInstantiator implements ActorInstantiator<OrganizationEntity> {
+    private final OrganizationId organizationId;
+
+    public OrganizationInstantiator(final OrganizationId organizationId) {
+      this.organizationId = organizationId;
+    }
+
+    @Override
+    public OrganizationEntity instantiate() {
+      return new OrganizationEntity(organizationId);
+    }
+
+    @Override
+    public Class<OrganizationEntity> type() {
+      return OrganizationEntity.class;
+    }
+  }
 }

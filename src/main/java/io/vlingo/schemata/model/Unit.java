@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.ActorInstantiator;
 import io.vlingo.actors.Address;
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
@@ -30,7 +31,7 @@ public interface Unit {
   static Completes<UnitState> with(final Stage stage, final UnitId unitId, final String name, final String description) {
     final String actorName = nameFrom(unitId);
     final Address address = stage.addressFactory().from(unitId.value, actorName);
-    final Definition definition = Definition.has(UnitEntity.class, Definition.parameters(unitId), actorName);
+    final Definition definition = Definition.has(UnitEntity.class, new UnitInstantiator(unitId), actorName);
     final Unit unit = stage.actorFor(Unit.class, definition, address);
     return unit.defineWith(name, description);
   }
@@ -42,4 +43,22 @@ public interface Unit {
   Completes<UnitState> redefineWith(final String name, final String description);
 
   Completes<UnitState> renameTo(final String name);
+
+  static class UnitInstantiator implements ActorInstantiator<UnitEntity> {
+    private final UnitId unitId;
+
+    public UnitInstantiator(final UnitId unitId) {
+      this.unitId = unitId;
+    }
+
+    @Override
+    public UnitEntity instantiate() {
+      return new UnitEntity(unitId);
+    }
+
+    @Override
+    public Class<UnitEntity> type() {
+      return UnitEntity.class;
+    }
+  }
 }

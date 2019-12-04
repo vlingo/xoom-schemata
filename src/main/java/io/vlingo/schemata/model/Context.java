@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.ActorInstantiator;
 import io.vlingo.actors.Address;
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
@@ -38,7 +39,7 @@ public interface Context {
           final String description) {
     final String actorName = nameFrom(contextId);
     final Address address = stage.addressFactory().from(contextId.value, actorName);
-    final Definition definition = Definition.has(ContextEntity.class, Definition.parameters(contextId), actorName);
+    final Definition definition = Definition.has(ContextEntity.class, new ContextInstantiator(contextId), actorName);
     final Context context = stage.actorFor(Context.class, definition, address);
     return context.defineWith(namespace, description);
   }
@@ -50,4 +51,22 @@ public interface Context {
   Completes<ContextState> moveToNamespace(final String namespace);
 
   Completes<ContextState> redefineWith(final String namespace, final String description);
+
+  static class ContextInstantiator implements ActorInstantiator<ContextEntity> {
+    private final ContextId contextId;
+
+    public ContextInstantiator(final ContextId contextId) {
+      this.contextId = contextId;
+    }
+
+    @Override
+    public ContextEntity instantiate() {
+      return new ContextEntity(contextId);
+    }
+
+    @Override
+    public Class<ContextEntity> type() {
+      return ContextEntity.class;
+    }
+  }
 }

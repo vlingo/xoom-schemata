@@ -6,6 +6,7 @@
 // one at https://mozilla.org/MPL/2.0/.
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.ActorInstantiator;
 import io.vlingo.actors.Address;
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
@@ -50,7 +51,7 @@ public interface SchemaVersion {
 
     final String actorName = nameFrom(schemaVersionId);
     final Address address = stage.addressFactory().from(schemaVersionId.value, actorName);
-    final Definition definition = Definition.has(SchemaVersionEntity.class, Definition.parameters(schemaVersionId), actorName);
+    final Definition definition = Definition.has(SchemaVersionEntity.class, new SchemaVersionInstantiator(schemaVersionId), actorName);
     final SchemaVersion schemaVersion = stage.actorFor(SchemaVersion.class, definition, address);
     return schemaVersion.defineWith(specification, description, previousVersion, nextVersion);
   }
@@ -130,6 +131,24 @@ public interface SchemaVersion {
     @Override
     public String toString() {
       return value;
+    }
+  }
+
+  static class SchemaVersionInstantiator implements ActorInstantiator<SchemaVersionEntity> {
+    private final SchemaVersionId schemaVersionId;
+
+    public SchemaVersionInstantiator(final SchemaVersionId schemaVersionId) {
+      this.schemaVersionId = schemaVersionId;
+    }
+
+    @Override
+    public SchemaVersionEntity instantiate() {
+      return new SchemaVersionEntity(schemaVersionId);
+    }
+
+    @Override
+    public Class<SchemaVersionEntity> type() {
+      return SchemaVersionEntity.class;
     }
   }
 }
