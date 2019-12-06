@@ -1,6 +1,6 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
 <v-card height="45vh" id="schemata-treeview">
-  <v-toolbar dense>
+  <v-toolbar >
     <v-text-field
           v-model="search"
           label="Search"
@@ -9,7 +9,7 @@
           :clear-icon="icons.clear"
   ></v-text-field>
     <v-spacer></v-spacer>
-    <v-btn small icon @click="refresh" id="button-refresh-schemata-tree"><v-icon>{{ icons.refresh }}</v-icon></v-btn>
+    <v-btn icon @click="refresh" id="button-refresh-schemata-tree"><v-icon>{{ icons.refresh }}</v-icon></v-btn>
   </v-toolbar>
   <v-card-text>
     <v-treeview
