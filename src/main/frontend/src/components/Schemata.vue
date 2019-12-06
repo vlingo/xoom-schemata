@@ -9,7 +9,7 @@
           :clear-icon="icons.clear"
   ></v-text-field>
     <v-spacer></v-spacer>
-    <v-btn small icon @click="refresh"><v-icon>{{ icons.refresh }}</v-icon></v-btn>
+    <v-btn small icon @click="refresh" id="button-refresh-schemata-tree"><v-icon>{{ icons.refresh }}</v-icon></v-btn>
   </v-toolbar>
   <v-card-text>
     <v-treeview
