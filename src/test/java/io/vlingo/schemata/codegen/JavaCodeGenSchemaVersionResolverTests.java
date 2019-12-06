@@ -59,7 +59,11 @@ public class JavaCodeGenSchemaVersionResolverTests{
             ),
             world.actorFor(Backend.class, JavaBackend.class, true)
     );
-    String spec = "event Foo { string bar }";
+    String spec = "event Foo {\n" +
+            "    version eventVersion\n" +
+            "    string bar\n" +
+            "}";
+
     final String result = typeDefinitionCompiler
             .compile(
                     new ByteArrayInputStream(spec.getBytes()),
@@ -67,6 +71,7 @@ public class JavaCodeGenSchemaVersionResolverTests{
             .await();
 
     assertTrue(result.contains("public final class Foo extends DomainEvent {"));
+    assertTrue(result.contains("public final SchemaVersion.Version eventVersion;"));
     assertTrue(result.contains("public final String bar;"));
   }
 }
