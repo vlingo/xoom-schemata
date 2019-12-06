@@ -11,7 +11,6 @@ describe('Schemata View Tests', function () {
     });
 
     it('can browse schemata', function () {
-        this.skip();
         cy.task('schemata:withTestData').then(testData => {
             let data = <Cypress.SchemataTestData><unknown>testData
             cy.visit("/#/schemata")
