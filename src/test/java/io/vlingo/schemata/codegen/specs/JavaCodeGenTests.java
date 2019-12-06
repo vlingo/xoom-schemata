@@ -8,9 +8,22 @@
 package io.vlingo.schemata.codegen.specs;
 
 import io.vlingo.actors.World;
+import io.vlingo.actors.testkit.TestWorld;
 import io.vlingo.schemata.codegen.CodeGenTests;
+import io.vlingo.schemata.codegen.TypeDefinitionCompiler;
+import io.vlingo.schemata.codegen.TypeDefinitionCompilerActor;
+import io.vlingo.schemata.codegen.backend.Backend;
+import io.vlingo.schemata.codegen.backend.java.JavaBackend;
+import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
+import io.vlingo.schemata.codegen.parser.TypeParser;
+import io.vlingo.schemata.codegen.processor.Processor;
+import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
+import io.vlingo.schemata.codegen.processor.types.TypeResolver;
+import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
+import io.vlingo.schemata.query.SchemaVersionQueriesActor;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
 import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
@@ -60,29 +73,6 @@ public class JavaCodeGenTests extends CodeGenTests {
   public void testThatGeneratesAComposedTypeWithVersionedData() throws ExecutionException, InterruptedException {
     registerType("types/price", "Org:Unit:Context:Schema:Price", "1.0.0");
     final String result = compilerWithJavaBackend().compile(typeDefinition("price-changed"), "Org:Unit:Context:Schema:PriceChanged", "0.5.1").await();
-
-    assertTrue(result.contains("public final class PriceChanged extends DomainEvent {"));
-    assertTrue(result.contains("public final long occurredOn;"));
-    assertTrue(result.contains("public final SchemaVersion.Version eventVersion;"));
-    assertTrue(result.contains("public final Price oldPrice;"));
-    assertTrue(result.contains("public final Price newPrice;"));
-    assertTrue(result.contains("public final PriceChanged(final Price oldPrice, final Price newPrice) {"));
-    assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = SchemaVersion.Version.of(\"0.5.1\");"));
-    assertTrue(result.contains("this.oldPrice = oldPrice;"));
-    assertTrue(result.contains("this.newPrice = newPrice;"));
-  }
-
-  @Test
-  // Reproduces #98
-  public void testThatSpecificationsContainingBasicTypesCanBeCompiledWithSchemaVersionQueryTypeResolver() throws ExecutionException, InterruptedException {
-    World world = World.start("compiler-test");
-
-    final String result = compilerFor(world.stage(), "java")
-            .compile(
-                    typeDefinition("basic"),
-                    "Org:Unit:Context:Schema:PriceChanged:0.0.1", "0.0.1")
-            .await();
 
     assertTrue(result.contains("public final class PriceChanged extends DomainEvent {"));
     assertTrue(result.contains("public final long occurredOn;"));
