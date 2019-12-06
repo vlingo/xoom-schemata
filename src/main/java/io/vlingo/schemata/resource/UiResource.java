@@ -114,7 +114,9 @@ public class UiResource extends ResourceHandler {
         return Completes.withSuccess(
                 Response.of(MovedPermanently,
                         Header.Headers.of(
-                                ResponseHeader.of("Location", "/app/"))));
+                                ResponseHeader.of(ResponseHeader.ContentLength, 0),
+                                ResponseHeader.of("Location", "/app/")
+                                )));
     }
 
     private Completes<Response> serve(final String... pathSegments) {

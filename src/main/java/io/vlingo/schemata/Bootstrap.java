@@ -68,11 +68,9 @@ public class Bootstrap {
     server = Server.startWith(world.stage(),
       allResources,
       SCHEMATA_PORT,
-      Configuration.Sizing.define()
-          .withDispatcherPoolSize(2)
-          .withMaxBufferPoolSize(100)
-          .withMaxMessageSize(4096),
-      Configuration.Timing.define());
+            Configuration.Sizing.defineWith(10, 16, 100,
+                    65535 * 2),
+      Configuration.Timing.defineWith(200,200,2000));
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (instance != null) {
         instance.server.stop();
