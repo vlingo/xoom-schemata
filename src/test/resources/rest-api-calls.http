@@ -144,7 +144,7 @@ Accept: application/json
 
 ###
 
-// Reproduce https://github.com/vlingo/vlingo-schemata/issues/55
+// Reproduce https://github.com/vlingo/vlingo-schemata/issues/98
 POST http://localhost:9019/organizations
 Content-Type: application/json
 
@@ -212,7 +212,7 @@ Content-Type: application/json
   "schemaId": "{{schemaId}}",
   "schemaVersionId": "",
   "description": "Initial revision.",
-  "specification": "event SchemaDefined { type eventType }",
+  "specification": "event SchemaDefined { string foo }",
   "status": "Published",
   "previousVersion": "0.0.0",
   "currentVersion": "1.0.0"
@@ -220,43 +220,8 @@ Content-Type: application/json
 > {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
 
 
-### Create Schema 2
-POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
-Content-Type: application/json
 
-{
-  "organizationId": "{{orgId}}",
-  "unitId": "{{unitId}}",
-  "contextId": "{{contextId}}",
-  "schemaId": "",
-  "category": "Event",
-  "name": "Schema2",
-  "scope": "Private",
-  "description": "Schemata was defined event."
-}
-
-> {% client.global.set('schemaId2', response.body.schemaId) %}
-
-### Create Schema Version 2 that depends on 1
-POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId2}}/versions
-Content-Type: application/json
-
-{
-  "organizationId": "{{orgId}}",
-  "unitId": "{{unitId}}",
-  "contextId": "{{contextId}}",
-  "schemaId": "{{schemaId2}}",
-  "schemaVersionId": "",
-  "description": "Initial revision.",
-  "specification": "event SchemaDefined { Org:Unit:Context:Schema:1.0.0 first }",
-  "status": "Published",
-  "previousVersion": "0.0.0",
-  "currentVersion": "1.0.0"
-}
-> {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
-
-
-### this crashes the compiler
+### this makes the server hang
 GET http://localhost:9019/code/Org:Unit:Context:Schema2:1.0.0/java
 Accept: application/json
 
