@@ -16,4 +16,5 @@ public interface SchemaQueries {
   Completes<List<SchemaData>> schemas(final String organizationId, final String unitId, final String contextId);
   Completes<SchemaData> schema(final String organizationId, final String unitId, final String contextId, final String schemaId);
   Completes<SchemaData> schemaNamed(final String organizationId, final String unitId, final String contextId, final String name);
+  Completes<SchemaData> schemaVersionByNames(final String organization, final String unit, final String context, final String schema);
 }

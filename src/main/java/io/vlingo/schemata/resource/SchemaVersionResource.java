@@ -15,6 +15,7 @@ import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
+import io.vlingo.schemata.model.FullyQualifiedReference;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.schemata.model.SchemaVersion;
@@ -143,6 +144,51 @@ public class SchemaVersionResource extends ResourceHandler {
         }
     }
 
+    public Completes<Response> pushSchemaVersion(final String reference, final SchemaVersionData data) {
+
+        FullyQualifiedReference fqr;
+        try {
+            fqr = FullyQualifiedReference.from(reference);
+        } catch (IllegalArgumentException ex) {
+            return Completes.withSuccess(Response.of(
+                    BadRequest,
+                    Headers.of(of(ContentLength, ex.getMessage().length())),
+                    ex.getMessage()));
+        }
+
+        if (!fqr.isSchemaVersionReference()) {
+            final String msg = "Include the version of the schema to push";
+            return Completes.withSuccess(Response.of(
+                    BadRequest,
+                    Headers.of(of(ContentLength, msg.length())),
+                    msg));
+        }
+
+        return Queries.forSchemas().schemaVersionByNames(
+                fqr.organization,
+                fqr.unit,
+                fqr.context,
+                fqr.schema
+        ).andThenTo(schemaData -> Completes.withSuccess(SchemaVersionData.from(
+                schemaData.organizationId,
+                schemaData.unitId,
+                schemaData.contextId,
+                schemaData.schemaId,
+                null,
+                data.specification,
+                data.description,
+                SchemaVersion.Status.Draft.value,
+                data.previousVersion,
+                fqr.schemaVersion))
+        ).andThenTo(schemaVersionData -> this.defineWith(
+                schemaVersionData.organizationId,
+                schemaVersionData.unitId,
+                schemaVersionData.contextId,
+                schemaVersionData.schemaId,
+                schemaVersionData
+        ));
+    }
+
     @Override
     public Resource<?> routes() {
         return resource("SchemaVersion Resource", 1,
@@ -196,7 +242,11 @@ public class SchemaVersionResource extends ResourceHandler {
                         .query("unit", String.class)
                         .query("context", String.class)
                         .query("schema", String.class)
-                        .handle(this::searchSchemaVersions));
+                        .handle(this::searchSchemaVersions),
+                post("/versions/{reference}")
+                        .param(String.class)
+                        .body(SchemaVersionData.class)
+                        .handle(this::pushSchemaVersion));
     }
 
     private String schemaVersionLocation(final SchemaVersionId schemaVersionId) {
