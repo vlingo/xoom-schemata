@@ -1,0 +1,77 @@
+# Schema Definitions
+
+## Create master data
+
+### Create Organization
+POST http://localhost:9019/organizations
+Content-Type: application/json
+
+{
+  "organizationId": "",
+  "name": "Vlingo",
+  "description": "Vlingo Organization"
+}
+
+> {% client.global.set('orgId', response.body.organizationId) %}
+
+
+### Create Unit
+POST  http://localhost:9019/organizations/{{orgId}}/units
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "",
+  "name": "schemata",
+  "description": "Schemata Unit"
+}
+
+> {% client.global.set('unitId', response.body.unitId) %}
+
+### Create Context
+POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "{{unitId}}",
+  "contextId": "",
+  "namespace": "io.vlingo.schemata",
+  "description": "Schemata Context"
+}
+
+> {% client.global.set('contextId', response.body.contextId) %}
+
+### Create Schema
+POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
+Content-Type: application/json
+
+{
+  "organizationId": "{{orgId}}",
+  "unitId": "{{unitId}}",
+  "contextId": "{{contextId}}",
+  "schemaId": "",
+  "category": "Event",
+  "name": "SchemaDefined",
+  "scope": "Public",
+  "description": "Fired whenever a new schema is defined."
+}
+
+> {% client.global.set('schemaId', response.body.schemaId) %}
+
+
+###
+## Demo starts here
+
+### Push schema by reference
+
+POST http://localhost:9019/versions/Vlingo:schemata:io.vlingo.schemata:SchemaDefined:0.0.1
+Content-Type: application/json
+
+{
+  "description": "Updated revision.",
+  "specification": "event SchemaDefined { type eventType }",
+  "previousVersion": "0.0.0"
+}
+
+> {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
