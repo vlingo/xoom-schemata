@@ -123,6 +123,22 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
   }
 
   @Override
+  public Completes<SchemaVersionData> schemaVersion(String fullyQualifiedTypeName) {
+    String[] parts = fullyQualifiedTypeName.split(Schemata.ReferenceSeparator);
+    Completes<SchemaVersionData> schemaVersionData;
+
+    if (parts.length < Schemata.MinReferenceParts) {
+      return Completes.withSuccess(null);
+    } else if (parts.length > Schemata.MinReferenceParts) {
+      schemaVersionData = schemaVersionOf(parts[0], parts[1], parts[2], parts[3], parts[4]);
+    } else {
+      schemaVersionData = queryGreatestByNames(parts[0], parts[1], parts[2], parts[3]);
+    }
+
+    return schemaVersionData;
+  }
+
+  @Override
   public Completes<SchemaVersionData> schemaVersionOf(String organization, String unit, String context, String schema, String schemaVersion) {
     parameters.clear();
     parameters.put("organization", organization);
@@ -147,26 +163,6 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
     parameters.put("currentVersion", version);
 
     return queryOne(ByCurrentVersion, parameters);
-  }
-
-  @Override
-  public Completes<Optional<TypeDefinition>> resolve(final TypeDefinitionMiddleware middleware, final String fullyQualifiedTypeName) {
-    String[] parts = fullyQualifiedTypeName.split(Schemata.ReferenceSeparator);
-    Completes<SchemaVersionData> schemaVersionData;
-
-    if (parts.length < Schemata.MinReferenceParts) {
-      return Completes.withFailure(Optional.empty());
-    } else if (parts.length > Schemata.MinReferenceParts) {
-      schemaVersionData = schemaVersionOf(parts[0], parts[1], parts[2], parts[3], parts[4]);
-    } else {
-      schemaVersionData = queryGreatestByNames(parts[0], parts[1], parts[2], parts[3]);
-    }
-
-    return schemaVersionData
-            .andThen(data -> data.specification)
-            .andThenTo(spec -> middleware.compileToAST(new ByteArrayInputStream(spec.getBytes()), fullyQualifiedTypeName))
-            .andThen(node -> Optional.of((TypeDefinition) node))
-            .otherwise(ex -> Optional.empty());
   }
 
   private final Completes<SchemaVersionData> queryGreatest(List<SchemaVersionData> versions) {
