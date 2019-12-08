@@ -1,14 +1,16 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
 <v-card height="45vh" id="schemata-treeview">
-  <v-card-title>
+  <v-toolbar >
     <v-text-field
-      v-model="search"
-      label="Search"
-      clearable
-      hide-details
-      :clear-icon="icons.clear"
-    ></v-text-field>
-  </v-card-title>
+          v-model="search"
+          label="Search"
+          clearable
+          hide-details
+          :clear-icon="icons.clear"
+  ></v-text-field>
+    <v-spacer></v-spacer>
+    <v-btn icon @click="refresh" id="button-refresh-schemata-tree"><v-icon>{{ icons.refresh }}</v-icon></v-btn>
+  </v-toolbar>
   <v-card-text>
     <v-treeview
       dense
@@ -53,7 +55,8 @@ import {
   mdiFileDocument,
   mdiHelpCircle,
   mdiPencil,
-  mdiPlaylistPlay
+  mdiPlaylistPlay,
+  mdiRefresh
 } from '@mdi/js'
 
 export default {
@@ -64,6 +67,7 @@ export default {
     icons: {
       close: mdiClose,
       edit: mdiPencil,
+      refresh: mdiRefresh,
       categories: {
         Command: mdiCogs,
         Data: mdiDatabase,
@@ -85,6 +89,10 @@ export default {
     }
   },
   methods: {
+    refresh() {
+      this.items = []
+      this.loadOrganizations()
+    },
     loadOrganizations() {
       let vm = this
       Repository.getOrganizations()
