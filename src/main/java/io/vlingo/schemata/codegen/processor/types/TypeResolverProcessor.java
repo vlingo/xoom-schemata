@@ -68,20 +68,9 @@ public class TypeResolverProcessor extends Actor implements Processor {
     }
 
     private <T> Completes<List<T>> unwrap(List<Completes<T>> completes) {
-        CountDownLatch latch = new CountDownLatch(completes.size());
-        List<T> result = new ArrayList<>(completes.size());
-        completes.forEach(complete -> {
-            complete.andThenConsume(result::add)
-                    .andFinallyConsume(e -> latch.countDown());
-        });
+        final List<T> result = new ArrayList<>(completes.size());
+        completes.forEach(complete -> complete.andThenConsume(result::add));
 
-        return Completes.withSuccess(result)
-                .andThenConsume(i -> {
-                    try {
-                        latch.await();
-                    } catch (InterruptedException e) {
-                        logger().error("TypeResolverProcessor could not unwrap list of Completes<T> " + e.getMessage(), e);
-                    }
-                });
+        return Completes.withSuccess(result);
     }
 }
