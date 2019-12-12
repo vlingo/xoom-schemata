@@ -21,6 +21,7 @@ public class Schemata {
    * (organization, unit, context, schema, [schemaVersion])
    */
   public static final int MinReferenceParts = 4;
+  public static final int MaxReferenceParts = 5;
 
   //==========================
   // Paths

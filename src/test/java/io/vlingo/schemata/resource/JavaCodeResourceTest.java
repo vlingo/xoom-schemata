@@ -38,13 +38,16 @@ public class JavaCodeResourceTest extends ResourceTest {
     final Response response = resource.queryCodeForLanguage(reference(), "java").await();
     assertEquals(Ok, response.status);
     assertTrue(response.entity.content().contains("SchemaDefined"));
-    assertTrue(response.entity.content().equals(
+    assertEquals(
+            "package io.vlingo.schemata.event;\n" +
+            "\n" +
             "import io.vlingo.lattice.model.DomainEvent;\n" +
             "\n" +
             "public final class SchemaDefined extends DomainEvent {\n" +
-            "  public final SchemaDefined() {\n" +
+            "  public SchemaDefined() {\n" +
             "  }\n" +
-            "}\n"));
+            "}\n",
+            response.entity.content());
   }
 
   @Before
