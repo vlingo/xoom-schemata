@@ -61,8 +61,19 @@ public class JavaCodeGenSchemaVersionResolverTests{
             world.actorFor(Backend.class, JavaBackend.class, true)
     );
     String spec = "event Foo {\n" +
+            "    type eventType\n" +
             "    version eventVersion\n" +
-            "    string bar\n" +
+            "    timestamp occurredOn\n" +
+            "\n" +
+            "    boolean booleanAttribute\n"+
+            "    byte byteAttribute\n"+
+            "    char charAttribute\n"+
+            "    double doubleAttribute\n"+
+            "    float floatAttribute\n"+
+            "    int intAttribute\n"+
+            "    long longAttribute\n"+
+            "    short shortAttribute\n"+
+            "    string stringAttribute\n"+
             "}";
 
     final String result = typeDefinitionCompiler
@@ -72,7 +83,17 @@ public class JavaCodeGenSchemaVersionResolverTests{
             .await();
 
     assertTrue(result.contains("public final class Foo extends DomainEvent {"));
+    assertTrue(result.contains("public final String eventType;"));
     assertTrue(result.contains("public final SchemaVersion.Version eventVersion;"));
-    assertTrue(result.contains("public final String bar;"));
-  }
+    assertTrue(result.contains("public final long occurredOn;"));
+
+    assertTrue(result.contains("public final boolean booleanAttribute;"));
+    assertTrue(result.contains("public final byte byteAttribute;"));
+    assertTrue(result.contains("public final char charAttribute;"));
+    assertTrue(result.contains("public final double doubleAttribute;"));
+    assertTrue(result.contains("public final float floatAttribute;"));
+    assertTrue(result.contains("public final int intAttribute;"));
+    assertTrue(result.contains("public final long longAttribute;"));
+    assertTrue(result.contains("public final short shortAttribute;"));
+    assertTrue(result.contains("public final String stringAttribute;"));  }
 }
