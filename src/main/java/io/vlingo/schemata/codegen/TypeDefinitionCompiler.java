@@ -65,7 +65,7 @@ public interface TypeDefinitionCompiler {
    */
   static TypeDefinitionCompiler forBackend(final Stage stage, final Class<? extends Actor> backendType) {
     final TypeParser typeParser = stage.actorFor(TypeParser.class, AntlrTypeParser.class);
-    final TypeResolver typeResolver = Queries.forSchemaVersions();
+    final TypeResolver typeResolver = Queries.forTypeResolver();
 
     return stage.actorFor(TypeDefinitionCompiler.class, TypeDefinitionCompilerActor.class,
             typeParser,

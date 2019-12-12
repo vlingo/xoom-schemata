@@ -24,6 +24,7 @@ import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.query.SchemaVersionQueriesActor;
+import io.vlingo.schemata.query.TypeResolverQueriesActor;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.ObjectStore;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class JavaCodeGenSchemaVersionResolverTests{
     final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
     schemataObjectStore.register(registry, objectStore);
 
-    TypeResolver typeResolver = new SchemaVersionQueriesActor(objectStore);
+    TypeResolver typeResolver = new TypeResolverQueriesActor(new SchemaVersionQueriesActor(objectStore));
 
     TypeDefinitionCompiler typeDefinitionCompiler = world.actorFor(TypeDefinitionCompiler.class, TypeDefinitionCompilerActor.class,
             typeParser,
