@@ -37,6 +37,8 @@ public class Schemata {
 
   public static final String SchemaVersionsPath = "/organizations/%s/units/%s/contexts/%s/schemas/%s/versions/%s";
 
+  public static final String CodePath = "/code/%s/%s";
+
   //==========================
   // Names
   //==========================
