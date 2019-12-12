@@ -141,8 +141,8 @@ public class JavaBackend extends Actor implements Backend {
 
     private String packageOf(String category, String reference) {
         String[] referenceParts = reference.split(Schemata.ReferenceSeparator);
-        if (referenceParts.length != 4) {
-            throw new IllegalArgumentException("Invalid fully qualified type name. Valid type names look like this <organization>:<unit>:<context namespace>:<type name>.");
+        if (referenceParts.length < Schemata.MinReferenceParts) {
+            throw new IllegalArgumentException("Invalid fully qualified type name. Valid type names look like this <organization>:<unit>:<context namespace>:<type name>[:<version>].");
         }
         final String namespace = referenceParts[2];
         final String className = referenceParts[3];
