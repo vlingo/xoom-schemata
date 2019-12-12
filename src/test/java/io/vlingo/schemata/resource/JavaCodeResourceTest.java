@@ -42,7 +42,7 @@ public class JavaCodeResourceTest extends ResourceTest {
             "import io.vlingo.lattice.model.DomainEvent;\n" +
             "\n" +
             "public final class SchemaDefined extends DomainEvent {\n" +
-            "  public final SchemaDefined() {\n" +
+            "  public SchemaDefined() {\n" +
             "  }\n" +
             "}\n"));
   }
