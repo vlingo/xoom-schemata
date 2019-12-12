@@ -68,4 +68,12 @@ public class FullyQualifiedReference {
         this.schema = schema;
         this.schemaVersion = schemaVersion;
     }
+
+    @Override
+    public String toString() {
+        String ref = String.join(Schemata.ReferenceSeparator, organization, unit, context, schema);
+        return isSchemaVersionReference()
+                ? String.join(Schemata.ReferenceSeparator, ref, schemaVersion)
+                : ref;
+    }
 }
