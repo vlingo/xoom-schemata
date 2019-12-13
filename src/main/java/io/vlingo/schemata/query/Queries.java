@@ -20,6 +20,7 @@ public class Queries {
   private static SchemaQueries schemaQueries;
   private static SchemaVersionQueries schemaVersionQueries;
   private static CodeQueries codeQueries;
+  private static TypeResolverQueries typeResolverQueries;
 
   public static void startAll(final Stage stage, final ObjectStore objectStore) {
     organizationQueries = stage.actorFor(OrganizationQueries.class, OrganizationQueriesActor.class, objectStore);
@@ -28,6 +29,7 @@ public class Queries {
     schemaQueries = stage.actorFor(SchemaQueries.class, SchemaQueriesActor.class, objectStore);
     schemaVersionQueries = stage.actorFor(SchemaVersionQueries.class, SchemaVersionQueriesActor.class, objectStore);
     codeQueries = stage.actorFor(CodeQueries.class, CodeQueriesActor.class, schemaVersionQueries);
+    typeResolverQueries = stage.actorFor(TypeResolverQueries.class, TypeResolverQueriesActor.class, schemaVersionQueries);
   }
 
   public static OrganizationQueries forOrganizations() {
@@ -52,5 +54,9 @@ public class Queries {
 
   public static CodeQueries forCode() {
     return codeQueries;
+  }
+
+  public static TypeResolverQueries forTypeResolver() {
+    return typeResolverQueries;
   }
 }
