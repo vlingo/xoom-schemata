@@ -9,6 +9,8 @@ package io.vlingo.schemata;
 
 import static io.vlingo.schemata.Schemata.StageName;
 
+import java.time.LocalDateTime;
+
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.identity.IdentityGeneratorType;
@@ -20,15 +22,22 @@ import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.query.Queries;
-import io.vlingo.schemata.resource.*;
+import io.vlingo.schemata.resource.CodeResource;
+import io.vlingo.schemata.resource.ContextResource;
+import io.vlingo.schemata.resource.OrganizationResource;
+import io.vlingo.schemata.resource.SchemaResource;
+import io.vlingo.schemata.resource.SchemaVersionResource;
+import io.vlingo.schemata.resource.UiResource;
+import io.vlingo.schemata.resource.UnitResource;
 import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.object.ObjectStore;
 
 public class Bootstrap {
-  static final int SCHEMATA_PORT = 9019;
+  public static final int SCHEMATA_PORT = 9019;
 
   private static Bootstrap instance;
+  private final int port;
   private final Server server;
   private final World world;
 
@@ -65,9 +74,11 @@ public class Bootstrap {
             uiResource.routes()
     );
 
+    port = isDevRuntime(runtimeType) ? SCHEMATA_PORT + LocalDateTime.now().getSecond() + 1 : SCHEMATA_PORT;
+
     server = Server.startWith(world.stage(),
       allResources,
-      SCHEMATA_PORT,
+      port,
       Configuration.Sizing.define()
           .withDispatcherPoolSize(2)
           .withMaxBufferPoolSize(100)
@@ -97,5 +108,17 @@ public class Bootstrap {
     System.out.println("service: vlingo-schemata.");
     System.out.println("=========================");
     Bootstrap.instance(args[0]);
+  }
+
+  public int __internal__only_test_port() {
+    return port;
+  }
+
+  public World __internal__only_test_world() {
+    return world;
+  }
+
+  private boolean isDevRuntime(final String runtimeType) {
+    return "dev".equals(runtimeType);
   }
 }
