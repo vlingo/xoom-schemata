@@ -7,25 +7,21 @@
 
 package io.vlingo.schemata.query;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple2;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.lattice.query.StateObjectQueryActor;
 import io.vlingo.schemata.Schemata;
-import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
-import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.QueryExpression;
-
-import java.io.ByteArrayInputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public class SchemaVersionQueriesActor extends StateObjectQueryActor implements SchemaVersionQueries {
   private static final String ById =
