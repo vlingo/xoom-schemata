@@ -11,6 +11,7 @@ import com.squareup.javapoet.*;
 import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.DomainEvent;
+import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.ast.types.BasicType;
@@ -46,8 +47,11 @@ public class JavaBackend extends Actor implements Backend {
     private String compileJavaClass(TypeDefinition type, String version) {
         final Class<?> baseClass = baseClassOf(type);
         final String typeName = type.typeName;
+        final String typeReference = type.fullyQualifiedTypeName;
+        final String category = type.category.name().toLowerCase();
+
         final TypeSpec eventClass = getTypeSpec(type, version, baseClass, typeName);
-        JavaFile javaFile = JavaFile.builder(packageOf(typeName), eventClass).build();
+        JavaFile javaFile = JavaFile.builder(packageOf(category, typeReference), eventClass).build();
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
@@ -79,7 +83,7 @@ public class JavaBackend extends Actor implements Backend {
         ;
 
         final MethodSpec constructor = MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
+                .addModifiers(Modifier.PUBLIC)
                 .addParameters(fields.stream().filter(field -> !(field.type instanceof ComputableType)).map(this::toConstructorParameter).collect(Collectors.toList()))
                 .addCode(CodeBlock.join(initializers, "\n"))
                 .build();
@@ -95,9 +99,12 @@ public class JavaBackend extends Actor implements Backend {
         Type type = definition.type;
         if (type instanceof ComputableType) {
             switch (((ComputableType) type).typeName) {
-                case "type": return String.format("this.%s = \"%s\";", definition.name, owner.typeName);
-                case "version": return String.format("this.%s = SchemaVersion.Version.of(\"%s\");", definition.name, version);
-                case "timestamp": return String.format("this.%s = System.currentTimeMillis();", definition.name);
+                case "type":
+                    return String.format("this.%s = \"%s\";", definition.name, owner.typeName);
+                case "version":
+                    return String.format("this.%s = SchemaVersion.Version.of(\"%s\");", definition.name, version);
+                case "timestamp":
+                    return String.format("this.%s = System.currentTimeMillis();", definition.name);
             }
         }
 
@@ -132,8 +139,19 @@ public class JavaBackend extends Actor implements Backend {
         }
     }
 
-    private String packageOf(String className) {
-        return className.contains(".") ? className.substring(0, className.lastIndexOf('.')) : "";
+    private String packageOf(String category, String reference) {
+        String[] referenceParts = reference.split(Schemata.ReferenceSeparator);
+        if (referenceParts.length < Schemata.MinReferenceParts) {
+            throw new IllegalArgumentException("Invalid fully qualified type name. Valid type names look like this <organization>:<unit>:<context namespace>:<type name>[:<version>].");
+        }
+        final String namespace = referenceParts[2];
+        final String className = referenceParts[3];
+
+        final String basePackage = namespace + "." + category;
+        final String localPackage = className.contains(".") ? className.substring(0, className.lastIndexOf('.')) : "";
+        return localPackage.length() > 0
+                ? basePackage + "." + localPackage
+                : basePackage;
     }
 
     private String unqualifiedName(String className) {
@@ -142,32 +160,48 @@ public class JavaBackend extends Actor implements Backend {
 
     private TypeName primitive(BasicType basicType) {
         switch (basicType.typeName) {
-            case "boolean": return TypeName.BOOLEAN;
-            case "byte": return TypeName.BYTE;
-            case "char": return TypeName.CHAR;
-            case "short": return TypeName.SHORT;
-            case "int": return TypeName.INT;
-            case "long": return TypeName.LONG;
-            case "float": return TypeName.FLOAT;
-            case "double": return TypeName.DOUBLE;
-            case "string": return TypeName.get(String.class);
-            default: return TypeName.get(Object.class);
+            case "boolean":
+                return TypeName.BOOLEAN;
+            case "byte":
+                return TypeName.BYTE;
+            case "char":
+                return TypeName.CHAR;
+            case "short":
+                return TypeName.SHORT;
+            case "int":
+                return TypeName.INT;
+            case "long":
+                return TypeName.LONG;
+            case "float":
+                return TypeName.FLOAT;
+            case "double":
+                return TypeName.DOUBLE;
+            case "string":
+                return TypeName.get(String.class);
+            default:
+                return TypeName.get(Object.class);
         }
     }
 
     private TypeName computable(ComputableType computableType) {
         switch (computableType.typeName) {
-            case "type": return TypeName.get(String.class);
-            case "timestamp": return TypeName.LONG;
-            case "version": return TypeName.get(SchemaVersion.Version.class);
-            default: return TypeName.get(Object.class);
+            case "type":
+                return TypeName.get(String.class);
+            case "timestamp":
+                return TypeName.LONG;
+            case "version":
+                return TypeName.get(SchemaVersion.Version.class);
+            default:
+                return TypeName.get(Object.class);
         }
     }
 
     private Class<?> baseClassOf(TypeDefinition type) {
         switch (type.category) {
-            case Event: return DomainEvent.class;
-            default: return DomainEvent.class;
+            case Event:
+                return DomainEvent.class;
+            default:
+                return DomainEvent.class;
         }
     }
 }

@@ -29,7 +29,7 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("public final SchemaVersion.Version eventVersion;"));
     assertTrue(result.contains("public final String toWhom;"));
     assertTrue(result.contains("public final String text;"));
-    assertTrue(result.contains("public final SalutationHappened(final String toWhom, final String text) {"));
+    assertTrue(result.contains("public SalutationHappened(final String toWhom, final String text) {"));
     assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
     assertTrue(result.contains("this.eventVersion = SchemaVersion.Version.of(\"0.0.1\");"));
@@ -64,10 +64,20 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("public final SchemaVersion.Version eventVersion;"));
     assertTrue(result.contains("public final Price oldPrice;"));
     assertTrue(result.contains("public final Price newPrice;"));
-    assertTrue(result.contains("public final PriceChanged(final Price oldPrice, final Price newPrice) {"));
+    assertTrue(result.contains("public PriceChanged(final Price oldPrice, final Price newPrice) {"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
     assertTrue(result.contains("this.eventVersion = SchemaVersion.Version.of(\"0.5.1\");"));
     assertTrue(result.contains("this.oldPrice = oldPrice;"));
     assertTrue(result.contains("this.newPrice = newPrice;"));
+  }
+
+  @Test
+  public void testThatGeneratedClassIsInCorrectPackage() throws ExecutionException, InterruptedException {
+    final String fullyQualifiedTypeName = "Org:Unit:io.vlingo.mynamespace:SalutationHappened";
+
+    final String result = compilerWithJavaBackend().compile(typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1").await();
+
+    assertTrue(result.contains("package io.vlingo.mynamespace.event;"));
+    assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
   }
 }
