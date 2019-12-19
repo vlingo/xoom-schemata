@@ -73,7 +73,7 @@ public interface TypeDefinitionCompiler {
                     stage.actorFor(Processor.class, ComputableTypeProcessor.class),
                     stage.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
             ),
-            stage.actorFor(Backend.class, backendType, true)
+            stage.actorFor(Backend.class, backendType)
     );
   }
 

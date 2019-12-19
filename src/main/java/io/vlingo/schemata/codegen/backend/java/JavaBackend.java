@@ -29,11 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class JavaBackend extends Actor implements Backend {
-    @SuppressWarnings("unused")
-    private final boolean loadCompiledClasses;
-
-    public JavaBackend(boolean loadCompiledClasses) {
-        this.loadCompiledClasses = loadCompiledClasses;
+    public JavaBackend() {
     }
 
     @Override
