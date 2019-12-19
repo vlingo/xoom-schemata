@@ -17,10 +17,11 @@ public class Schemata {
   public static final String ReferenceSeparator = ":";
 
   /**
-   * Minimum number of parts specified in a reference.
+   * Number of parts specified in a reference.
    * (organization, unit, context, schema, [schemaVersion])
    */
   public static final int MinReferenceParts = 4;
+  public static final int MaxReferenceParts = 5;
 
   //==========================
   // Paths
@@ -35,6 +36,8 @@ public class Schemata {
   public static final String SchemasPath        = "/organizations/%s/units/%s/contexts/%s/schemas/%s";
 
   public static final String SchemaVersionsPath = "/organizations/%s/units/%s/contexts/%s/schemas/%s/versions/%s";
+
+  public static final String CodePath = "/code/%s/%s";
 
   //==========================
   // Names

@@ -103,6 +103,15 @@ public class Bootstrap {
     return instance;
   }
 
+  void stopServer() throws Exception {
+    if (instance == null) {
+      throw new IllegalStateException("Schemata server not running");
+    }
+    instance.server.stop();
+  }
+
+
+
   public static void main(final String[] args) throws Exception {
     System.out.println("=========================");
     System.out.println("service: vlingo-schemata.");

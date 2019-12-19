@@ -34,6 +34,14 @@ public class SchemaQueriesActor extends StateObjectQueryActor implements SchemaQ
             "AND contextId = :contextId " +
             "AND name = :name";
 
+  private static final String ByNames =
+          "SELECT s.* FROM TBL_ORGANIZATIONS AS o " +
+            "JOIN TBL_UNITS AS u ON u.organizationId = o.organizationId " +
+            "JOIN TBL_CONTEXTS AS c ON c.unitId = u.unitId " +
+            "JOIN TBL_SCHEMAS AS s ON s.contextId = c.contextId " +
+            "WHERE o.name = :organization AND u.name = :unit AND c.namespace = :context AND s.name = :schema";
+
+
   private final Map<String,String> parameters;
 
   public SchemaQueriesActor(final ObjectStore objectStore) {
@@ -80,6 +88,17 @@ public class SchemaQueriesActor extends StateObjectQueryActor implements SchemaQ
     parameters.put("name", name);
 
     return queryOne(ByName, parameters);
+  }
+
+  @Override
+  public Completes<SchemaData> schemaVersionByNames(String organization, String unit, String context, String schema) {
+    parameters.clear();
+    parameters.put("organization", organization);
+    parameters.put("unit", unit);
+    parameters.put("context", context);
+    parameters.put("schema", schema);
+
+    return queryOne(ByNames, parameters);
   }
 
   private Completes<SchemaData> queryOne(final String query, final Map<String,String> parameters) {
