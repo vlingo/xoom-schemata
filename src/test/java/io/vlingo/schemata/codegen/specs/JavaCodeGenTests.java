@@ -22,17 +22,16 @@ public class JavaCodeGenTests extends CodeGenTests {
     final String result = compilerWithJavaBackend().compile(typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
 
     assertTrue(result.contains("import io.vlingo.lattice.model.DomainEvent;"));
-    assertTrue(result.contains("import io.vlingo.schemata.model.SchemaVersion;"));
     assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
     assertTrue(result.contains("public final String eventType;"));
     assertTrue(result.contains("public final long occurredOn;"));
-    assertTrue(result.contains("public final SchemaVersion.Version eventVersion;"));
+    assertTrue(result.contains("public final int eventVersion;"));
     assertTrue(result.contains("public final String toWhom;"));
     assertTrue(result.contains("public final String text;"));
     assertTrue(result.contains("public SalutationHappened(final String toWhom, final String text) {"));
     assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = SchemaVersion.Version.of(\"0.0.1\");"));
+    assertTrue(result.contains("this.eventVersion = io.vlingo.common.version.SemanticVersion.toValue(\"0.0.1\");"));
     assertTrue(result.contains("this.toWhom = toWhom;"));
     assertTrue(result.contains("this.text = text;"));
   }
@@ -61,12 +60,12 @@ public class JavaCodeGenTests extends CodeGenTests {
 
     assertTrue(result.contains("public final class PriceChanged extends DomainEvent {"));
     assertTrue(result.contains("public final long occurredOn;"));
-    assertTrue(result.contains("public final SchemaVersion.Version eventVersion;"));
+    assertTrue(result.contains("public final int eventVersion;"));
     assertTrue(result.contains("public final Price oldPrice;"));
     assertTrue(result.contains("public final Price newPrice;"));
     assertTrue(result.contains("public PriceChanged(final Price oldPrice, final Price newPrice) {"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = SchemaVersion.Version.of(\"0.5.1\");"));
+    assertTrue(result.contains("this.eventVersion = io.vlingo.common.version.SemanticVersion.toValue(\"0.5.1\");"));
     assertTrue(result.contains("this.oldPrice = oldPrice;"));
     assertTrue(result.contains("this.newPrice = newPrice;"));
   }

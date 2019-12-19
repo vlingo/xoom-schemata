@@ -20,7 +20,6 @@ import io.vlingo.schemata.codegen.ast.types.Type;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.processor.Processor;
-import io.vlingo.schemata.model.SchemaVersion;
 
 import javax.lang.model.element.Modifier;
 import java.io.ByteArrayOutputStream;
@@ -60,13 +59,6 @@ public class JavaBackend extends Actor implements Backend {
             throw new IllegalStateException(e);
         }
 
-        /**
-         * if (loadCompiledClasses) {
-         *
-         * }
-         */
-
-
         return os.toString();
     }
 
@@ -102,7 +94,7 @@ public class JavaBackend extends Actor implements Backend {
                 case "type":
                     return String.format("this.%s = \"%s\";", definition.name, owner.typeName);
                 case "version":
-                    return String.format("this.%s = SchemaVersion.Version.of(\"%s\");", definition.name, version);
+                    return String.format("this.%s = io.vlingo.common.version.SemanticVersion.toValue(\"%s\");", definition.name, version);
                 case "timestamp":
                     return String.format("this.%s = System.currentTimeMillis();", definition.name);
             }
@@ -190,7 +182,7 @@ public class JavaBackend extends Actor implements Backend {
             case "timestamp":
                 return TypeName.LONG;
             case "version":
-                return TypeName.get(SchemaVersion.Version.class);
+                return TypeName.INT;
             default:
                 return TypeName.get(Object.class);
         }
