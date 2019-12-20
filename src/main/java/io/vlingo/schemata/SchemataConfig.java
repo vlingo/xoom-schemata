@@ -1,5 +1,7 @@
 package io.vlingo.schemata;
 
+import io.vlingo.common.config.EnvVarProperties;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
@@ -17,7 +19,7 @@ public class SchemataConfig {
 
 
     public static SchemataConfig forRuntime(String runtimeType) throws IOException {
-        final Properties properties = new java.util.Properties();
+        final Properties properties = new EnvVarProperties();
         final String propertiesFile = "/vlingo-schemata-" + runtimeType + ".properties";
 
         properties.load(Properties.class.getResourceAsStream(propertiesFile));
