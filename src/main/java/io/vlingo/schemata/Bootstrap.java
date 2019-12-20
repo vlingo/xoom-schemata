@@ -61,13 +61,13 @@ public class Bootstrap {
     final UiResource uiResource = new UiResource(world);
 
     Resources allResources = Resources.are(
-        organizationResource.routes(),
-        unitResource.routes(),
-        contextResource.routes(),
-        schemaResource.routes(),
-        schemaVersionResource.routes(),
-        codeResource.routes(),
-        uiResource.routes()
+      organizationResource.routes(),
+      unitResource.routes(),
+      contextResource.routes(),
+      schemaResource.routes(),
+      schemaVersionResource.routes(),
+      codeResource.routes(),
+      uiResource.routes()
     );
 
     port = config.randomPort ? nextFreePort(9019, 9100) : config.serverPort;
@@ -76,9 +76,9 @@ public class Bootstrap {
         allResources,
         port,
         Configuration.Sizing.define()
-            .withDispatcherPoolSize(2)
-            .withMaxBufferPoolSize(100)
-            .withMaxMessageSize(4096),
+          .withDispatcherPoolSize(2)
+          .withMaxBufferPoolSize(100)
+          .withMaxMessageSize(4096),
         Configuration.Timing.define());
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (instance != null) {
