@@ -7,8 +7,8 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
-            - v1-dependencies-
+            - v2-dependencies-{{ checksum "src/main/frontend/package.json" }}
+            - v2-dependencies-
       - run:
           name: buildSnapshottishDependencies
           command: |
@@ -33,7 +33,7 @@ jobs:
           paths:
             - target/node
             - src/main/frontend/node_modules
-          key: v1-dependencies-{{ checksum "src/main/frontend/package.json" }}
+          key: v2-dependencies-{{ checksum "src/main/frontend/package.json" }}
   e2e-test:
     docker:
       - image: circleci/openjdk:8-jdk-node-browsers
@@ -42,8 +42,8 @@ jobs:
           at: ~/project
       - restore_cache:
           keys:
-            - v2-test-dependencies-{{ checksum "src/test/e2e/package.json" }}
-            - v2-test-dependencies-
+            - v3-test-dependencies-{{ checksum "src/test/e2e/package.json" }}
+            - v3-test-dependencies-
       - run:
           name: Get test dependencies
           command: |
@@ -53,7 +53,7 @@ jobs:
           paths:
             - src/test/e2e/node_modules
             - /home/circleci/.cache/Cypress
-          key: v2-test-dependencies-{{ checksum "src/main/frontend/package.json" }}
+          key: v3-test-dependencies-{{ checksum "src/main/frontend/package.json" }}
       - run:
           name: Start server & run E2E tests
           command: |
