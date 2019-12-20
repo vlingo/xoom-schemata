@@ -16,7 +16,7 @@
     "webpack": "^4.41.0"
   },
   "devDependencies": {
-    "cypress": "^3.6.1"
+    "cypress": "^3.8.0"
   },
   "scripts": {
     "test-junit": "npx cypress run --reporter junit --reporter-options 'mochaFile=junit-results/my-test-output.xml' --spec \"cypress/integration/*.spec.ts\"",
