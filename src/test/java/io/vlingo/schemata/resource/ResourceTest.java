@@ -9,6 +9,7 @@ package io.vlingo.schemata.resource;
 
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
+import io.vlingo.schemata.SchemataConfig;
 import org.junit.Before;
 
 import io.vlingo.actors.Stage;
@@ -52,7 +53,7 @@ public abstract class ResourceTest {
     world.stageNamed(Schemata.StageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
     stage = world.stageNamed(Schemata.StageName);
 
-    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("dev");
+    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(SchemataConfig.forRuntime("test"));
     registry = new ObjectTypeRegistry(world);
     objectStore = schemataObjectStore.objectStoreFor(world, new NoopDispatcher(), schemataObjectStore.persistentMappers());
     schemataObjectStore.register(registry, objectStore);

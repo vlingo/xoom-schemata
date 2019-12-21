@@ -14,6 +14,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.vlingo.schemata.SchemataConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -295,7 +296,7 @@ public class SchemataObjectStoreTest {
 
         dispatcher = new NoopDispatcher();
 
-        final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("dev");
+        final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(SchemataConfig.forRuntime("test"));
         objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
         final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
         schemataObjectStore.register(registry, objectStore);
