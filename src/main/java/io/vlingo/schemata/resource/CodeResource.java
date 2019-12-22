@@ -12,8 +12,10 @@ import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple3;
+import io.vlingo.http.Header;
 import io.vlingo.http.Request;
 import io.vlingo.http.Response;
+import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.Schemata;
@@ -94,11 +96,18 @@ public class CodeResource extends ResourceHandler {
             })
             .otherwise(failure -> {
               logger.error("FAILED: " + failure);
-              return Response.of(InternalServerError);
+              return Response.of(
+                      InternalServerError,
+                      Header.Headers.of(ResponseHeader.contentLength(0))
+              );
             })
             .recoverFrom(exception -> {
               logger.error("EXCEPTION: " + exception, exception);
-              return Response.of(BadRequest, exception.getMessage());
+              return Response.of(
+                      BadRequest,
+                      Header.Headers.of(ResponseHeader.contentLength(exception.getMessage().length())),
+                      exception.getMessage()
+              );
             });
   }
 
