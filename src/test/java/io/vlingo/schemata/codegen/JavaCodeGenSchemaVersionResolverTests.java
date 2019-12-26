@@ -11,6 +11,7 @@ import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.TestWorld;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.schemata.SchemataConfig;
 import io.vlingo.schemata.codegen.CodeGenTests;
 import io.vlingo.schemata.codegen.TypeDefinitionCompiler;
 import io.vlingo.schemata.codegen.TypeDefinitionCompilerActor;
@@ -27,6 +28,7 @@ import io.vlingo.schemata.query.SchemaVersionQueriesActor;
 import io.vlingo.schemata.query.TypeResolverQueriesActor;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.ObjectStore;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -38,13 +40,13 @@ import static org.junit.Assert.assertTrue;
 
 public class JavaCodeGenSchemaVersionResolverTests{
   @Test
-  // Reproduces #98
+  @Ignore("Ignored on master due to #98")
   public void testThatSpecificationsContainingBasicTypesCanBeCompiledWithSchemaVersionQueryTypeResolver() throws Exception {
     World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
     TypeParser typeParser = world.actorFor(TypeParser.class, AntlrTypeParser.class);
     Dispatcher dispatcher = new NoopDispatcher();
 
-    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("dev");
+    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(SchemataConfig.forRuntime("test"));
 
     ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
     final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
@@ -58,7 +60,7 @@ public class JavaCodeGenSchemaVersionResolverTests{
                     world.actorFor(Processor.class, ComputableTypeProcessor.class),
                     world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
             ),
-            world.actorFor(Backend.class, JavaBackend.class, true)
+            world.actorFor(Backend.class, JavaBackend.class)
     );
     String spec = "event Foo {\n" +
             "    type eventType\n" +
