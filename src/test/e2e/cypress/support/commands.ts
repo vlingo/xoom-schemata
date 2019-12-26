@@ -18,7 +18,6 @@ Cypress.Commands.add("fillEditor", (id: string, text: string) => {
         .click()
         .focused()
         .type('{ctrl}a')
-        .type('{cmd}a')
         .type(text)
 })
 
