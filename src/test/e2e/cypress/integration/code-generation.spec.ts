@@ -29,7 +29,7 @@ describe('Schemata View Tests', function () {
       cy.wait(500).contains('button', 'Source').click()
 
       cy.editorContent('#source-editor').should('contain', 'public final class SalutationHappened')
-      cy.editorContent('#source-editor').should('contain', 'String foo')
+      cy.editorContent('#source-editor').should('contain', 'String foo') // Reproduces #98
     })
   });
 });
