@@ -40,7 +40,6 @@ import static org.junit.Assert.assertTrue;
 
 public class JavaCodeGenSchemaVersionResolverTests{
   @Test
-  @Ignore("Ignored on master due to #98")
   public void testThatSpecificationsContainingBasicTypesCanBeCompiledWithSchemaVersionQueryTypeResolver() throws Exception {
     World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
     TypeParser typeParser = world.actorFor(TypeParser.class, AntlrTypeParser.class);
