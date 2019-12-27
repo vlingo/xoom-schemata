@@ -96,4 +96,12 @@ public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState>
   protected Class<SchemaVersionState> stateObjectType() {
     return SchemaVersionState.class;
   }
+
+  @Override
+  public Completes<Boolean> isCompatibleWith(Specification specification) {
+    if(state.specification.value.equals(specification.value)) {
+      return completes().with(Boolean.TRUE);
+    }
+    return completes().with(Boolean.FALSE);
+  }
 }

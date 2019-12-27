@@ -68,6 +68,8 @@ public interface SchemaVersion {
 
   Completes<SchemaVersionState> specifyWith(final Specification specification);
 
+  Completes<Boolean> isCompatibleWith(final Specification specification);
+
   class Specification {
     public final String value;
 
