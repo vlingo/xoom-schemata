@@ -14,11 +14,10 @@ Cypress.Commands.add("fillField", (label: string, text: string) => {
 })
 
 Cypress.Commands.add("fillEditor", (id: string, text: string) => {
-    const selectAllKeys = Cypress.platform == 'darwin' ? '{cmd}a' : '{ctrl}a';
     cy.get(id)
         .click()
         .focused()
-        .type(selectAllKeys)
+        .type('{ctrl}a')
         .type(text)
 })
 
