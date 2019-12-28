@@ -7,10 +7,6 @@
 
 package io.vlingo.schemata;
 
-import static io.vlingo.schemata.Schemata.StageName;
-
-import java.time.LocalDateTime;
-
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.identity.IdentityGeneratorType;
@@ -22,19 +18,17 @@ import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.query.Queries;
-import io.vlingo.schemata.resource.CodeResource;
-import io.vlingo.schemata.resource.ContextResource;
-import io.vlingo.schemata.resource.OrganizationResource;
-import io.vlingo.schemata.resource.SchemaResource;
-import io.vlingo.schemata.resource.SchemaVersionResource;
-import io.vlingo.schemata.resource.UiResource;
-import io.vlingo.schemata.resource.UnitResource;
+import io.vlingo.schemata.resource.*;
 import io.vlingo.symbio.BaseEntry.TextEntry;
 import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.object.ObjectStore;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+
+import static io.vlingo.schemata.Schemata.StageName;
+
 public class Bootstrap {
-  public static final int SCHEMATA_PORT = 9019;
 
   private static Bootstrap instance;
   private final int port;
@@ -42,12 +36,14 @@ public class Bootstrap {
   private final World world;
 
   public Bootstrap(final String runtimeType) throws Exception {
+    SchemataConfig config = SchemataConfig.forRuntime(runtimeType);
+
     world = World.startWithDefaults("vlingo-schemata");
     world.stageNamed(StageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
 
     final NoopDispatcher<TextEntry, TextState> dispatcher = new NoopDispatcher<>();
 
-    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(runtimeType);
+    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(config);
     final ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
     final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
     schemataObjectStore.register(registry, objectStore);
@@ -74,7 +70,7 @@ public class Bootstrap {
             uiResource.routes()
     );
 
-    port = isDevRuntime(runtimeType) ? SCHEMATA_PORT + LocalDateTime.now().getSecond() + 1 : SCHEMATA_PORT;
+    port = config.randomPort ? nextFreePort(9019, 9100) : config.serverPort;
 
     server = Server.startWith(world.stage(),
       allResources,
@@ -111,7 +107,6 @@ public class Bootstrap {
   }
 
 
-
   public static void main(final String[] args) throws Exception {
     System.out.println("=========================");
     System.out.println("service: vlingo-schemata.");
@@ -127,7 +122,24 @@ public class Bootstrap {
     return world;
   }
 
-  private boolean isDevRuntime(final String runtimeType) {
-    return "dev".equals(runtimeType);
+  private int nextFreePort(int from, int to) throws IOException {
+    int port = from;
+    while (port < to) {
+      if (isPortFree(port)) {
+        return port;
+      } else {
+        port++;
+      }
+    }
+    throw new IOException("No open port in range " + from + " to " + to);
+  }
+
+  private boolean isPortFree(int port) {
+    try {
+      new ServerSocket(port).close();
+      return true;
+    } catch (IOException e) {
+      return false;
+    }
   }
 }

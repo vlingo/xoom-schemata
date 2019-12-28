@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import io.vlingo.schemata.SchemataConfig;
 import org.jdbi.v3.core.statement.SqlStatement;
 
 import io.vlingo.actors.World;
@@ -51,35 +52,31 @@ public abstract class SchemataObjectStore {
 
     protected JdbiOnDatabase jdbi;
 
-    public static SchemataObjectStore instance(final String runtimeType) throws Exception {
+    public static SchemataObjectStore instance(final SchemataConfig schemataConfig) throws Exception {
 
-      final Properties properties = new java.util.Properties();
-      final String propertiesFile = "/vlingo-schemata-" + runtimeType + ".properties";
-      properties.load(Properties.class.getResourceAsStream(propertiesFile));
+      final io.vlingo.symbio.store.common.jdbc.Configuration configuration = jdbcConfiguration(schemataConfig);
 
-      final io.vlingo.symbio.store.common.jdbc.Configuration configuration = jdbcConfiguration(properties);
-
-      final String classname = properties.getProperty("database.type");
+      final String classname = schemataConfig.databaseType;
       final Class<?> type = Class.forName(classname);
       final SchemataObjectStore schemataObjectStore = (SchemataObjectStore) type.newInstance();
       schemataObjectStore.initializeDatabase(configuration);
       return schemataObjectStore;
     }
 
-    private static Configuration jdbcConfiguration(final Properties properties) throws Exception {
-      final DatabaseType databaseType = DatabaseType.databaseType(properties.getProperty("database.url"));
+    private static Configuration jdbcConfiguration(final SchemataConfig config) throws Exception {
+      final DatabaseType databaseType = DatabaseType.databaseType(config.databaseUrl);
 
       return new Configuration(
               databaseType,
               Configuration.interestOf(databaseType),
-              properties.getProperty("database.driver"),
+              config.databaseDriver,
               DataFormat.Native,
-              properties.getProperty("database.url"),
-              properties.getProperty("database.name"),
-              properties.getProperty("database.username"),
-              properties.getProperty("database.password"),
+              config.databaseUrl,
+              config.databaseName,
+              config.databaseUsername,
+              config.databasePassword,
               false,          // useSSL
-              properties.getProperty("database.originator"),
+              config.databaseOriginator,
               true);
     }
 

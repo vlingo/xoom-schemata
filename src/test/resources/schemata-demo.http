@@ -80,4 +80,31 @@ Content-Type: application/json
 GET http://localhost:9019/code/Vlingo:schemata:io.vlingo.schemata:SchemaDefined:0.0.1/java
 Accept: application/json
 
+### Update description
+PATCH http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions/{{schemaVersionId}}/description
+Content-Type: application/json
+
+Updated description
+
+### Publish
+PATCH http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions/{{schemaVersionId}}/status
+Content-Type: application/json
+
+Published
+
+### Deprecate
+
+PATCH http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions/{{schemaVersionId}}/status
+Content-Type: application/json
+
+Deprecated
+
+### Remove
+
+PATCH http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions/{{schemaVersionId}}/status
+Content-Type: application/json
+
+Removed
+
 ###
+
