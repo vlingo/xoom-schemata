@@ -105,11 +105,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
 
   @Override
   public Completes<SpecificationDiff> isCompatibleWith(final TypeDefinitionMiddleware typeDefinitionMiddleware, final Specification specification) {
-    if (specification == null || specification.value == null || specification.value.isEmpty()) {
-      // FIXME: return failure
-      // throw new IllegalArgumentException("Can't compare to an empty specification");
-      return completes().with(SpecificationDiff.compatibleDiff());
-    }
+    requireRightSideSpecification(specification);
     // FIXME: Make reactive, don't await() the node; but this has been hanging
     Node leftNode = typeDefinitionMiddleware.compileToAST(
         new ByteArrayInputStream(stateObject().specification.value.getBytes(StandardCharsets.UTF_8)),
@@ -162,5 +158,11 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
     }
 
     return completes().with(SpecificationDiff.compatibleDiff());
+  }
+
+  private void requireRightSideSpecification(Specification specification) {
+    if (specification == null || specification.value == null || specification.value.isEmpty()) {
+      throw new IllegalArgumentException("Can't compare to an empty specification");
+    }
   }
 }

@@ -145,20 +145,36 @@ public class SchemaVersionTest {
         schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void nullSpecificationThrows() {
     final SchemaVersionState secondVersion = firstVersion.withSpecification(null);
-    schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await();
-
-    fail("Trying to diff a null specification should have thrown an exception");
+    schemaVersion.isCompatibleWith(
+        typeDefinitionMiddleware,
+        secondVersion.specification)
+        .andThen(diff -> {
+          fail("Trying to diff an empty specification should have thrown an exception");
+          return diff;
+        })
+        .otherwiseConsume(ignore -> {
+          // pass
+        });
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void emptySpecificationThrows() {
     final SchemaVersionState secondVersion = firstVersion.withSpecification(null);
-    schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await();
 
-    fail("Trying to diff an empty specification should have thrown an exception");
+    schemaVersion.isCompatibleWith(
+        typeDefinitionMiddleware,
+        secondVersion.specification)
+        .andThen(diff -> {
+          fail("Trying to diff an empty specification should have thrown an exception");
+          return diff;
+        })
+        .otherwiseConsume(ignore -> {
+          // pass
+        });
+    ;
   }
 
   private SchemaVersionState defaultTestSchemaVersionState() {
