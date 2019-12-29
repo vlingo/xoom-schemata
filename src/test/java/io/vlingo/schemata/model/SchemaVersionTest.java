@@ -7,19 +7,32 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
+import io.vlingo.actors.testkit.TestWorld;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.schemata.SchemataConfig;
+import io.vlingo.schemata.codegen.TypeDefinitionCompilerActor;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
+import io.vlingo.schemata.codegen.backend.Backend;
+import io.vlingo.schemata.codegen.backend.java.JavaBackend;
+import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
+import io.vlingo.schemata.codegen.parser.TypeParser;
+import io.vlingo.schemata.codegen.processor.Processor;
+import io.vlingo.schemata.codegen.processor.types.CacheTypeResolver;
+import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
+import io.vlingo.schemata.codegen.processor.types.TypeResolver;
+import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
+import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.model.Id.*;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
-import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.StateObjectMapper;
-import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -29,120 +42,136 @@ public class SchemaVersionTest {
   private SchemaVersion schemaVersion;
   private SchemaVersionId schemaVersionId;
   private ObjectStore objectStore;
+  private TypeDefinitionMiddleware typeDefinitionMiddleware;
   private World world;
+  private Stage stage;
+  private SchemaVersionState firstVersion;
 
   @Before
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void setUp() {
-    world = World.start("schema-version-test");
+  public void setUp() throws Exception {
+    World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
+    TypeParser typeParser = world.actorFor(TypeParser.class, AntlrTypeParser.class);
+    Dispatcher dispatcher = new NoopDispatcher();
 
-    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
+    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(SchemataConfig.forRuntime("test"));
 
-    registry = new ObjectTypeRegistry(world);
+    ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
+    final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
+    schemataObjectStore.register(registry, objectStore);
 
-    final Info<SchemaVersion> schemaVersionInfo =
-        new Info(
-            objectStore,
-            SchemaVersionState.class,
-            "schema-version-test-store",
-            MapQueryExpression.using(SchemaVersion.class, "find", MapQueryExpression.map("id", "id")),
-            StateObjectMapper.with(SchemaVersion.class, new Object(), new Object()));
+    TypeResolver typeResolver = new CacheTypeResolver();
 
-    registry.register(schemaVersionInfo);
+    typeDefinitionMiddleware = world.actorFor(TypeDefinitionMiddleware.class, TypeDefinitionCompilerActor.class,
+        typeParser,
+        Arrays.asList(
+            world.actorFor(Processor.class, ComputableTypeProcessor.class),
+            world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
+        ),
+        world.actorFor(Backend.class, JavaBackend.class)
+    );
 
     schemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
     schemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, schemaVersionId);
+    firstVersion = defaultTestSchemaVersionState();
   }
 
-  @After
-  public void tearDown() {
-    world.terminate();
+  @Test
+  public void equalSpecificationsAreCompatible() {
+    final SchemaVersionState firstVersion = defaultTestSchemaVersionState();
+
+    final SchemaVersionState secondVersion = firstVersion.withSpecification(
+        new Specification(firstVersion.specification.value));
+
+    assertCompatible("Versions with only added attributes must be compatible",
+        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
   public void schemaVersionWithAddedAttributeIsCompatible() {
-    final SchemaVersionState firstVersion = defaultTestSchemaVersionState();
-
     final SchemaVersionState secondVersion = firstVersion.withSpecification(
         new Specification("event Foo { " +
             "string bar\n" +
             "string baz\n" +
             "}"));
 
-    assertTrue("Versions with only added attributes must be compatible", schemaVersion.isCompatibleWith(secondVersion.specification).await());
+    assertCompatible("Versions with only added attributes must be compatible",
+        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
   public void schemaVersionWithRemovedAttributeIsNotCompatible() {
-    final SchemaVersionState firstVersion = defaultTestSchemaVersionState();
-
     final SchemaVersionState secondVersion = firstVersion.withSpecification(
         new Specification("event Foo { " +
             "string baz\n" +
             "}"));
 
-    assertFalse("Versions with only removed attributes must not be compatible", schemaVersion.isCompatibleWith(secondVersion.specification).await());
+    assertIncompatible("Versions with only removed attributes must not be compatible",
+        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
   public void schemaVersionWithAddedAndRemovedAttributesAreNotCompatible() {
-    final SchemaVersionState firstVersion = defaultTestSchemaVersionState();
-
     final SchemaVersionState secondVersion = firstVersion.withSpecification(
         new Specification("event Foo { " +
             "string baz\n" +
             "}"));
 
-    assertFalse("Versions with added and removed attributes must not be compatible", schemaVersion.isCompatibleWith(secondVersion.specification).await());
+    assertIncompatible("Versions with added and removed attributes must not be compatible",
+        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
   public void schemaVersionWithTypeChangesAreNotCompatible() {
-    final SchemaVersionState firstVersion = defaultTestSchemaVersionState();
-
     final SchemaVersionState secondVersion = firstVersion.withSpecification(
         new Specification("event Foo { " +
             "int bar\n" +
             "}"));
 
-    assertFalse("Versions with reordered attributes must not be compatible", schemaVersion.isCompatibleWith(secondVersion.specification).await());
+    assertIncompatible("Versions with reordered attributes must not be compatible",
+        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
   public void schemaVersionWithNameClashesAreNotCompatible() {
-    final SchemaVersionState firstVersion = defaultTestSchemaVersionState();
-
     final SchemaVersionState secondVersion = firstVersion.withSpecification(
         new Specification("event Foo { " +
             "string bar\n" +
             "int bar\n" +
             "}"));
 
-    assertFalse("Versions with name clashing attributes must not be compatible", schemaVersion.isCompatibleWith(secondVersion.specification).await());
+    assertIncompatible("Versions with name clashing attributes must not be compatible", schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
   public void schemaVersionWithReorderedAttributesAreNotCompatible() {
-    final SchemaVersionState firstVersion = defaultTestSchemaVersionState();
-
     final SchemaVersionState secondVersion = firstVersion.withSpecification(
         new Specification("event Foo { " +
             "string baz\n" +
             "string bar\n" +
             "}"));
 
-    assertFalse("Versions with added and removed attributes must not be compatible", schemaVersion.isCompatibleWith(secondVersion.specification).await());
+    assertIncompatible("Versions with added and removed attributes must not be compatible",
+        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   private SchemaVersionState defaultTestSchemaVersionState() {
     return schemaVersion.defineWith(
-          new Specification("event Foo { " +
-              "string bar\n" +
-              "}"),
-          "description",
-          new SchemaVersion.Version("0.0.0"),
-          new SchemaVersion.Version("1.0.0"))
-          .await();
+        new Specification("event Foo { " +
+            "string bar\n" +
+            "}"),
+        "description",
+        new SchemaVersion.Version("0.0.0"),
+        new SchemaVersion.Version("1.0.0"))
+        .await();
+  }
+
+  private static void assertCompatible(String message, SpecificationDiff diff) {
+    assertTrue(message, diff.isCompatible);
+  }
+
+  private static void assertIncompatible(String message, SpecificationDiff diff) {
+    assertFalse(message, diff.isCompatible);
   }
 
 

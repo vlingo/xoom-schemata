@@ -7,17 +7,28 @@
 
 package io.vlingo.schemata.model;
 
+import com.google.gson.internal.Streams;
 import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.object.ObjectEntity;
-import io.vlingo.schemata.model.Events.SchemaVersionDefined;
-import io.vlingo.schemata.model.Events.SchemaVersionDeprecated;
-import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
-import io.vlingo.schemata.model.Events.SchemaVersionPublished;
-import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
-import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
+import io.vlingo.schemata.codegen.ast.FieldDefinition;
+import io.vlingo.schemata.codegen.ast.Node;
+import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.schemata.codegen.processor.Processor;
+import io.vlingo.schemata.model.Events.*;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 
-public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState> implements SchemaVersion {
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> implements SchemaVersion {
   private SchemaVersionState state;
 
   public SchemaVersionEntity(final SchemaVersionId schemaVersionId) {
@@ -26,10 +37,10 @@ public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState>
 
   @Override
   public Completes<SchemaVersionState> defineWith(
-          final Specification specification,
-          final String description,
-          final Version previousVersion,
-          final Version nextVersion) {
+      final Specification specification,
+      final String description,
+      final Version previousVersion,
+      final Version nextVersion) {
     assert (description != null && !description.isEmpty());
     return apply(
         this.state.defineWith(description, specification, previousVersion, nextVersion),
@@ -98,10 +109,51 @@ public final class SchemaVersionEntity  extends ObjectEntity<SchemaVersionState>
   }
 
   @Override
-  public Completes<Boolean> isCompatibleWith(Specification specification) {
-    if(state.specification.value.equals(specification.value)) {
-      return completes().with(Boolean.TRUE);
-    }
-    return completes().with(Boolean.FALSE);
+  public Completes<SpecificationDiff> isCompatibleWith(final TypeDefinitionMiddleware typeDefinitionMiddleware, final Specification specification) {
+    // FIXME: Make reactive, don't await the node but break up into andThens
+    Node leftNode = typeDefinitionMiddleware.compileToAST(
+        new ByteArrayInputStream(specification.value.getBytes(StandardCharsets.UTF_8)),
+        null).await();
+
+    Node rightNode = typeDefinitionMiddleware.compileToAST(
+        new ByteArrayInputStream(specification.value.getBytes(StandardCharsets.UTF_8)),
+        null).await();
+
+    TypeDefinition leftType = Processor.requireBeing(leftNode, TypeDefinition.class);
+    TypeDefinition rightType = Processor.requireBeing(rightNode, TypeDefinition.class);
+
+    if (!leftType.typeName.equals(rightType.typeName))
+      return completes().with(SpecificationDiff.incompatibleDiff());
+    
+    return completes().with(
+        SpecificationDiff.of(zip(leftType.children.stream(),
+            rightType.children.stream(),
+            AbstractMap.SimpleEntry::new)
+            .allMatch(x -> {
+              FieldDefinition l = Processor.requireBeing(x.getKey(), FieldDefinition.class);
+              FieldDefinition r = Processor.requireBeing(x.getValue(), FieldDefinition.class);
+
+              return l.name.equals(r.name)
+                  // FIXME: compare types
+                  && l.defaultValue.equals(r.defaultValue)
+                  && l.version.equals(r.version);
+            })
+        )
+    );
+  }
+
+  // Move to common?
+  public static <L, R, T> Stream<T> zip(Stream<L> leftStream, Stream<R> rightStream, BiFunction<L, R, T> combiner) {
+    Spliterator<L> lefts = leftStream.spliterator();
+    Spliterator<R> rights = rightStream.spliterator();
+    return StreamSupport.stream(
+        new Spliterators.AbstractSpliterator<T>(
+            Long.min(lefts.estimateSize(), rights.estimateSize()),
+            lefts.characteristics() & rights.characteristics()) {
+          @Override
+          public boolean tryAdvance(Consumer<? super T> action) {
+            return lefts.tryAdvance(left -> rights.tryAdvance(right -> action.accept(combiner.apply(left, right))));
+          }
+        }, leftStream.isParallel() || rightStream.isParallel());
   }
 }

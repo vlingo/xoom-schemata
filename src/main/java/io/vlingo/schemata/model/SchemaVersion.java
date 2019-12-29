@@ -12,12 +12,13 @@ import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.common.version.SemanticVersion;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 
 public interface SchemaVersion {
   static String nameFrom(final SchemaVersionId schemaVersionId) {
-    return "V:"+schemaVersionId.value;
+    return "V:" + schemaVersionId.value;
   }
 
   static SchemaVersionId uniqueId(final SchemaId schemaId) {
@@ -25,22 +26,22 @@ public interface SchemaVersion {
   }
 
   static Completes<SchemaVersionState> with(
-          final Stage stage,
-          final SchemaId schemaId,
-          final Specification specification,
-          final String description,
-          final Version parentVersion,
-          final Version childVersion) {
+      final Stage stage,
+      final SchemaId schemaId,
+      final Specification specification,
+      final String description,
+      final Version parentVersion,
+      final Version childVersion) {
     return with(stage, uniqueId(schemaId), specification, description, parentVersion, childVersion);
   }
 
   static Completes<SchemaVersionState> with(
-          final Stage stage,
-          final SchemaVersionId schemaVersionId,
-          final Specification specification,
-          final String description,
-          final Version previousVersion,
-          final Version nextVersion) {
+      final Stage stage,
+      final SchemaVersionId schemaVersionId,
+      final Specification specification,
+      final String description,
+      final Version previousVersion,
+      final Version nextVersion) {
 
     final SemanticVersion previous = SemanticVersion.from(previousVersion.value);
     final SemanticVersion next = SemanticVersion.from(nextVersion.value);
@@ -68,7 +69,7 @@ public interface SchemaVersion {
 
   Completes<SchemaVersionState> specifyWith(final Specification specification);
 
-  Completes<Boolean> isCompatibleWith(final Specification specification);
+  Completes<SpecificationDiff> isCompatibleWith(final TypeDefinitionMiddleware typeDefinitionMiddleware, Specification specification);
 
   class Specification {
     public final String value;
@@ -78,7 +79,7 @@ public interface SchemaVersion {
     }
 
     public Specification(final String value) {
-      assert(value != null && !value.trim().isEmpty());
+      assert (value != null && !value.trim().isEmpty());
       this.value = value;
     }
 
@@ -92,26 +93,46 @@ public interface SchemaVersion {
 
     Draft {
       @Override
-      public boolean isDraft() { return true; }
+      public boolean isDraft() {
+        return true;
+      }
     },
     Published {
       @Override
-      public boolean isPublished() { return true; }
+      public boolean isPublished() {
+        return true;
+      }
     },
     Deprecated {
       @Override
-      public boolean isDeprecated() { return true; }
+      public boolean isDeprecated() {
+        return true;
+      }
     },
     Removed {
       @Override
-      public boolean isRemoved() { return true; }
+      public boolean isRemoved() {
+        return true;
+      }
     };
 
     public final String value = this.name();
-    public boolean isDraft() { return false; }
-    public boolean isPublished() { return false; }
-    public boolean isDeprecated() { return false; }
-    public boolean isRemoved() { return false; }
+
+    public boolean isDraft() {
+      return false;
+    }
+
+    public boolean isPublished() {
+      return false;
+    }
+
+    public boolean isDeprecated() {
+      return false;
+    }
+
+    public boolean isRemoved() {
+      return false;
+    }
   }
 
   class Version {
@@ -122,7 +143,7 @@ public interface SchemaVersion {
     }
 
     public Version(final String value) {
-      assert(value != null);
+      assert (value != null);
 
       // asserts valid as a semantic version (not necessarily correct)
       SemanticVersion.from(value);
