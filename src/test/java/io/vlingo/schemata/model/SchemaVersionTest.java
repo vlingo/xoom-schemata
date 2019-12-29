@@ -36,6 +36,7 @@ import java.util.Arrays;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 public class SchemaVersionTest {
   private ObjectTypeRegistry registry;
@@ -133,17 +134,6 @@ public class SchemaVersionTest {
   }
 
   @Test
-  public void schemaVersionWithNameClashesAreNotCompatible() {
-    final SchemaVersionState secondVersion = firstVersion.withSpecification(
-        new Specification("event Foo { " +
-            "string bar\n" +
-            "int bar\n" +
-            "}"));
-
-    assertIncompatible("Versions with name clashing attributes must not be compatible", schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
-  }
-
-  @Test
   public void schemaVersionWithReorderedAttributesAreNotCompatible() {
     final SchemaVersionState secondVersion = firstVersion.withSpecification(
         new Specification("event Foo { " +
@@ -153,6 +143,22 @@ public class SchemaVersionTest {
 
     assertIncompatible("Versions with added and removed attributes must not be compatible",
         schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void nullSpecificationThrows() {
+    final SchemaVersionState secondVersion = firstVersion.withSpecification(null);
+    schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await();
+
+    fail("Trying to diff a null specification should have thrown an exception");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void emptySpecificationThrows() {
+    final SchemaVersionState secondVersion = firstVersion.withSpecification(null);
+    schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await();
+
+    fail("Trying to diff an empty specification should have thrown an exception");
   }
 
   private SchemaVersionState defaultTestSchemaVersionState() {

@@ -18,4 +18,6 @@ public class SpecificationDiff {
   public static SpecificationDiff of(Boolean compatible) {
     return new SpecificationDiff(compatible);
   }
+
+  // TODO add list of compatible and incompatible changes
 }

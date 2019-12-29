@@ -7,12 +7,14 @@
 
 package io.vlingo.schemata.model;
 
-import com.google.gson.internal.Streams;
 import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
+import io.vlingo.schemata.codegen.ast.types.BasicType;
+import io.vlingo.schemata.codegen.ast.types.ComputableType;
+import io.vlingo.schemata.codegen.ast.types.Type;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.model.Events.*;
@@ -20,13 +22,6 @@ import io.vlingo.schemata.model.Id.SchemaVersionId;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.AbstractMap;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> implements SchemaVersion {
   private SchemaVersionState state;
@@ -110,9 +105,14 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
 
   @Override
   public Completes<SpecificationDiff> isCompatibleWith(final TypeDefinitionMiddleware typeDefinitionMiddleware, final Specification specification) {
-    // FIXME: Make reactive, don't await the node but break up into andThens
+    if (specification == null || specification.value == null || specification.value.isEmpty()) {
+      // FIXME: return failure
+      // throw new IllegalArgumentException("Can't compare to an empty specification");
+      return completes().with(SpecificationDiff.compatibleDiff());
+    }
+    // FIXME: Make reactive, don't await() the node; but this has been hanging
     Node leftNode = typeDefinitionMiddleware.compileToAST(
-        new ByteArrayInputStream(specification.value.getBytes(StandardCharsets.UTF_8)),
+        new ByteArrayInputStream(stateObject().specification.value.getBytes(StandardCharsets.UTF_8)),
         null).await();
 
     Node rightNode = typeDefinitionMiddleware.compileToAST(
@@ -124,36 +124,43 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
 
     if (!leftType.typeName.equals(rightType.typeName))
       return completes().with(SpecificationDiff.incompatibleDiff());
-    
-    return completes().with(
-        SpecificationDiff.of(zip(leftType.children.stream(),
-            rightType.children.stream(),
-            AbstractMap.SimpleEntry::new)
-            .allMatch(x -> {
-              FieldDefinition l = Processor.requireBeing(x.getKey(), FieldDefinition.class);
-              FieldDefinition r = Processor.requireBeing(x.getValue(), FieldDefinition.class);
 
-              return l.name.equals(r.name)
-                  // FIXME: compare types
-                  && l.defaultValue.equals(r.defaultValue)
-                  && l.version.equals(r.version);
-            })
-        )
-    );
-  }
+    for (int i = 0; i < leftType.children.size(); i++) {
+      FieldDefinition l = Processor.requireBeing(leftType.children.get(i), FieldDefinition.class);
+      FieldDefinition r = Processor.requireBeing(rightType.children.get(i), FieldDefinition.class);
 
-  // Move to common?
-  public static <L, R, T> Stream<T> zip(Stream<L> leftStream, Stream<R> rightStream, BiFunction<L, R, T> combiner) {
-    Spliterator<L> lefts = leftStream.spliterator();
-    Spliterator<R> rights = rightStream.spliterator();
-    return StreamSupport.stream(
-        new Spliterators.AbstractSpliterator<T>(
-            Long.min(lefts.estimateSize(), rights.estimateSize()),
-            lefts.characteristics() & rights.characteristics()) {
-          @Override
-          public boolean tryAdvance(Consumer<? super T> action) {
-            return lefts.tryAdvance(left -> rights.tryAdvance(right -> action.accept(combiner.apply(left, right))));
-          }
-        }, leftStream.isParallel() || rightStream.isParallel());
+      if (!(l.name.equals(r.name)
+          && l.defaultValue.equals(r.defaultValue)
+          && l.version.equals(r.version))) {
+        return completes().with(SpecificationDiff.incompatibleDiff());
+      }
+
+
+      Type leftFieldType = l.type;
+      Type rightFieldType = r.type;
+
+      if (rightFieldType.getClass() != leftFieldType.getClass()) {
+        return completes().with(SpecificationDiff.incompatibleDiff());
+      }
+
+      if (leftFieldType instanceof BasicType
+          && !((BasicType) leftFieldType).typeName.equals(((BasicType) rightFieldType).typeName)) {
+        return completes().with(SpecificationDiff.incompatibleDiff());
+
+      } else if (leftFieldType instanceof ComputableType
+          && !((ComputableType) leftFieldType).typeName.equals(((ComputableType) rightFieldType).typeName)
+      ) {
+        return completes().with(SpecificationDiff.incompatibleDiff());
+      } else if (leftFieldType instanceof TypeDefinition
+          && !((TypeDefinition) leftFieldType).fullyQualifiedTypeName.equals(((TypeDefinition) rightFieldType).fullyQualifiedTypeName)
+      ) {
+        return completes().with(SpecificationDiff.incompatibleDiff());
+        // TODO: check compatibility based on semantic version
+      }
+
+
+    }
+
+    return completes().with(SpecificationDiff.compatibleDiff());
   }
 }
