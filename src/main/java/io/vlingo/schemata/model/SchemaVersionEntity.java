@@ -104,65 +104,90 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   }
 
   @Override
-  public Completes<SpecificationDiff> isCompatibleWith(final TypeDefinitionMiddleware typeDefinitionMiddleware, final Specification specification) {
-    requireRightSideSpecification(specification);
+  public Completes<SpecificationDiff> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, final Specification other) {
+    requireRightSideSpecification(other);
+
+    SpecificationDiff diff = SpecificationDiff.empty();
+
     // FIXME: Make reactive, don't await() the node; but this has been hanging
     Node leftNode = typeDefinitionMiddleware.compileToAST(
         new ByteArrayInputStream(stateObject().specification.value.getBytes(StandardCharsets.UTF_8)),
         null).await();
 
     Node rightNode = typeDefinitionMiddleware.compileToAST(
-        new ByteArrayInputStream(specification.value.getBytes(StandardCharsets.UTF_8)),
+        new ByteArrayInputStream(other.value.getBytes(StandardCharsets.UTF_8)),
         null).await();
 
-    TypeDefinition leftType = Processor.requireBeing(leftNode, TypeDefinition.class);
-    TypeDefinition rightType = Processor.requireBeing(rightNode, TypeDefinition.class);
+    TypeDefinition leftType = asTypeDefinition(leftNode);
+    TypeDefinition rightType = asTypeDefinition(rightNode);
 
     if (!leftType.typeName.equals(rightType.typeName))
-      return completes().with(SpecificationDiff.incompatibleDiff());
+      diff = diff.withChange(Change.incompatible(leftType.typeName, rightType.typeName));
 
+
+    // TODO: Add compatible changes as well
+    // TODO: refactor
     for (int i = 0; i < leftType.children.size(); i++) {
-      FieldDefinition l = Processor.requireBeing(leftType.children.get(i), FieldDefinition.class);
-      FieldDefinition r = Processor.requireBeing(rightType.children.get(i), FieldDefinition.class);
+      FieldDefinition l = asFieldDefinition(leftType.children.get(i));
+      FieldDefinition r = asFieldDefinition(rightType.children.get(i));
 
       if (!(l.name.equals(r.name)
           && l.defaultValue.equals(r.defaultValue)
           && l.version.equals(r.version))) {
-        return completes().with(SpecificationDiff.incompatibleDiff());
+        diff = diff.withChange(Change.incompatible(leftType.typeName, rightType.typeName, l.name, r.name));
       }
-
 
       Type leftFieldType = l.type;
       Type rightFieldType = r.type;
 
       if (rightFieldType.getClass() != leftFieldType.getClass()) {
-        return completes().with(SpecificationDiff.incompatibleDiff());
+        diff = diff.withChange(Change.incompatible(leftType.typeName, rightType.typeName,
+            leftType.getClass().getSimpleName(), rightType.getClass().getSimpleName()));
+      } else {
+        diff = addFieldTypeDiffs(diff, leftFieldType, rightFieldType);
       }
-
-      if (leftFieldType instanceof BasicType
-          && !((BasicType) leftFieldType).typeName.equals(((BasicType) rightFieldType).typeName)) {
-        return completes().with(SpecificationDiff.incompatibleDiff());
-
-      } else if (leftFieldType instanceof ComputableType
-          && !((ComputableType) leftFieldType).typeName.equals(((ComputableType) rightFieldType).typeName)
-      ) {
-        return completes().with(SpecificationDiff.incompatibleDiff());
-      } else if (leftFieldType instanceof TypeDefinition
-          && !((TypeDefinition) leftFieldType).fullyQualifiedTypeName.equals(((TypeDefinition) rightFieldType).fullyQualifiedTypeName)
-      ) {
-        return completes().with(SpecificationDiff.incompatibleDiff());
-        // TODO: check compatibility based on semantic version
-      }
-
 
     }
 
-    return completes().with(SpecificationDiff.compatibleDiff());
+    return completes().with(diff);
   }
 
-  private void requireRightSideSpecification(Specification specification) {
+  private SpecificationDiff addFieldTypeDiffs(SpecificationDiff diff, Type leftFieldType, Object rightFieldType) {
+    if (leftFieldType instanceof BasicType
+        && !((BasicType) leftFieldType).typeName.equals(((BasicType) rightFieldType).typeName)) {
+      diff = diff.withChange(Change.incompatible(
+          ((BasicType) leftFieldType).typeName,
+          ((BasicType) rightFieldType).typeName));
+
+    } else if (leftFieldType instanceof ComputableType
+        && !((ComputableType) leftFieldType).typeName.equals(((ComputableType) rightFieldType).typeName)
+    ) {
+      diff = diff.withChange(Change.incompatible(
+          ((ComputableType) leftFieldType).typeName,
+          ((ComputableType) rightFieldType).typeName));
+    } else if (leftFieldType instanceof TypeDefinition
+        && !((TypeDefinition) leftFieldType).fullyQualifiedTypeName.equals(((TypeDefinition) rightFieldType).fullyQualifiedTypeName)
+    ) {
+      diff = diff.withChange(Change.incompatible(
+          ((TypeDefinition) leftFieldType).fullyQualifiedTypeName,
+          ((TypeDefinition) rightFieldType).fullyQualifiedTypeName));
+
+      // TODO: check compatibility based on semantic version
+    }
+    return diff;
+  }
+
+  private static void requireRightSideSpecification(Specification specification) {
     if (specification == null || specification.value == null || specification.value.isEmpty()) {
       throw new IllegalArgumentException("Can't compare to an empty specification");
     }
+  }
+
+  private static TypeDefinition asTypeDefinition(Node n) {
+    return Processor.requireBeing(n, TypeDefinition.class);
+  }
+
+  private static FieldDefinition asFieldDefinition(Node n) {
+    return Processor.requireBeing(n, FieldDefinition.class);
   }
 }

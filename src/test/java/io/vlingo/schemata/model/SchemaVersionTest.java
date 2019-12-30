@@ -85,7 +85,7 @@ public class SchemaVersionTest {
         new Specification(firstVersion.specification.value));
 
     assertCompatible("Versions with only added attributes must be compatible",
-        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
@@ -97,7 +97,7 @@ public class SchemaVersionTest {
             "}"));
 
     assertCompatible("Versions with only added attributes must be compatible",
-        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
@@ -108,7 +108,7 @@ public class SchemaVersionTest {
             "}"));
 
     assertIncompatible("Versions with only removed attributes must not be compatible",
-        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
@@ -119,7 +119,7 @@ public class SchemaVersionTest {
             "}"));
 
     assertIncompatible("Versions with added and removed attributes must not be compatible",
-        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
@@ -130,7 +130,7 @@ public class SchemaVersionTest {
             "}"));
 
     assertIncompatible("Versions with reordered attributes must not be compatible",
-        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
@@ -142,13 +142,13 @@ public class SchemaVersionTest {
             "}"));
 
     assertIncompatible("Versions with added and removed attributes must not be compatible",
-        schemaVersion.isCompatibleWith(typeDefinitionMiddleware, secondVersion.specification).await());
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
   }
 
   @Test
   public void nullSpecificationThrows() {
     final SchemaVersionState secondVersion = firstVersion.withSpecification(null);
-    schemaVersion.isCompatibleWith(
+    schemaVersion.diff(
         typeDefinitionMiddleware,
         secondVersion.specification)
         .andThen(diff -> {
@@ -164,7 +164,7 @@ public class SchemaVersionTest {
   public void emptySpecificationThrows() {
     final SchemaVersionState secondVersion = firstVersion.withSpecification(null);
 
-    schemaVersion.isCompatibleWith(
+    schemaVersion.diff(
         typeDefinitionMiddleware,
         secondVersion.specification)
         .andThen(diff -> {
@@ -189,11 +189,11 @@ public class SchemaVersionTest {
   }
 
   private static void assertCompatible(String message, SpecificationDiff diff) {
-    assertTrue(message, diff.isCompatible);
+    assertTrue(message, diff.isCompatible());
   }
 
   private static void assertIncompatible(String message, SpecificationDiff diff) {
-    assertFalse(message, diff.isCompatible);
+    assertFalse(message, diff.isCompatible());
   }
 
 

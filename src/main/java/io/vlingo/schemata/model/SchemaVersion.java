@@ -69,7 +69,7 @@ public interface SchemaVersion {
 
   Completes<SchemaVersionState> specifyWith(final Specification specification);
 
-  Completes<SpecificationDiff> isCompatibleWith(final TypeDefinitionMiddleware typeDefinitionMiddleware, Specification specification);
+  Completes<SpecificationDiff> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, Specification other);
 
   class Specification {
     public final String value;
