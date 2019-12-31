@@ -105,4 +105,200 @@ describe('Schemata View Tests', function () {
     });
   });
 
+  it('can create compatible patch version', function () {
+    cy.task('schemata:withTestData').then(testData => {
+      let data = <Cypress.SchemataTestData><unknown>testData
+      let nextPatch = SemanticVersion.from(data.version.currentVersion).nextPatch().format();
+      cy.visit("/#/schemata")
+      cy.expandSchemaTree(data)
+
+      // Select schema and open schema version view
+      cy.contains('.v-treeview-node__label', data.schema.name).click()
+      cy.get('[data-testid="Schema Version"]').click()
+
+      // Add schema version content
+      cy.fillField('Previous Version', data.version.currentVersion)
+      cy.fillField('Current Version', nextPatch)
+
+      cy.fillEditor('#description-editor', `compatible patch **${nextPatch}** for *${data.version.currentVersion}*`)
+      cy.fillEditor('#specification-editor', data.version.compatibleSpecification)
+
+      // Create new version and assert success
+      cy.contains('button', 'Create').click()
+      cy.get('.v-snack__wrapper.success').contains(nextPatch)
+    });
+  });
+
+  it('can create compatible minor version', function () {
+    cy.task('schemata:withTestData').then(testData => {
+      let data = <Cypress.SchemataTestData><unknown>testData
+      let nextMinor = SemanticVersion.from(data.version.currentVersion).nextMinor().format();
+      cy.visit("/#/schemata")
+      cy.expandSchemaTree(data)
+
+      // Select schema and open schema version view
+      cy.contains('.v-treeview-node__label', data.schema.name).click()
+      cy.get('[data-testid="Schema Version"]').click()
+
+      // Add schema version content
+      cy.fillField('Previous Version', data.version.currentVersion)
+      cy.fillField('Current Version', nextMinor)
+
+      cy.fillEditor('#description-editor', `compatible minor version **${nextMinor}** for *${data.version.currentVersion}*`)
+      cy.fillEditor('#specification-editor', data.version.compatibleSpecification)
+
+      // Create new version and assert success
+      cy.contains('button', 'Create').click()
+      cy.get('.v-snack__wrapper.success').contains(nextMinor)
+    });
+  });
+
+  it('can create compatible major version', function () {
+    cy.task('schemata:withTestData').then(testData => {
+      let data = <Cypress.SchemataTestData><unknown>testData
+      let nextMajor = SemanticVersion.from(data.version.currentVersion).nextMajor().format();
+      cy.visit("/#/schemata")
+      cy.expandSchemaTree(data)
+
+      // Select schema and open schema version view
+      cy.contains('.v-treeview-node__label', data.schema.name).click()
+      cy.get('[data-testid="Schema Version"]').click()
+
+      // Add schema version content
+      cy.fillField('Previous Version', data.version.currentVersion)
+      cy.fillField('Current Version', nextMajor)
+
+      cy.fillEditor('#description-editor', `compatible major version **${nextMajor}** for *${data.version.currentVersion}*`)
+      cy.fillEditor('#specification-editor', data.version.compatibleSpecification)
+
+      // Create new version and assert success
+      cy.contains('button', 'Create').click()
+      cy.get('.v-snack__wrapper.success').contains(nextMajor)
+    });
+  });
+
+  it('cannot create incompatible patch version', function () {
+    cy.task('schemata:withTestData').then(testData => {
+      let data = <Cypress.SchemataTestData><unknown>testData
+      let nextPatch = SemanticVersion.from(data.version.currentVersion).nextPatch().format();
+      cy.visit("/#/schemata")
+      cy.expandSchemaTree(data)
+
+      // Select schema and open schema version view
+      cy.contains('.v-treeview-node__label', data.schema.name).click()
+      cy.get('[data-testid="Schema Version"]').click()
+
+      // Add schema version content
+      cy.fillField('Previous Version', data.version.currentVersion)
+      cy.fillField('Current Version', nextPatch)
+
+      cy.fillEditor('#description-editor', `_in_compatible patch **${nextPatch}** for *${data.version.currentVersion}*`)
+      cy.fillEditor('#specification-editor', data.version.incompatibleSpecification)
+
+      // Create new version and assert error
+      cy.contains('button', 'Create').click()
+      cy.get('.v-snack__wrapper.error').contains('Conflicting')
+    });
+  });
+
+  it('cannot create incompatible minor version', function () {
+    cy.task('schemata:withTestData').then(testData => {
+      let data = <Cypress.SchemataTestData><unknown>testData
+      let nextMinor = SemanticVersion.from(data.version.currentVersion).nextMinor().format();
+      cy.visit("/#/schemata")
+      cy.expandSchemaTree(data)
+
+      // Select schema and open schema version view
+      cy.contains('.v-treeview-node__label', data.schema.name).click()
+      cy.get('[data-testid="Schema Version"]').click()
+
+      // Add schema version content
+      cy.fillField('Previous Version', data.version.currentVersion)
+      cy.fillField('Current Version', nextMinor)
+
+      cy.fillEditor('#description-editor', `_in_compatible minor version **${nextMinor}** for *${data.version.currentVersion}*`)
+      cy.fillEditor('#specification-editor', data.version.incompatibleSpecification)
+
+      // Create new version and assert error
+      cy.contains('button', 'Create').click()
+      cy.get('.v-snack__wrapper.error').contains('Conflicting')
+    });
+  });
+
+  it('can create incompatible minor version', function () {
+    cy.task('schemata:withTestData').then(testData => {
+      let data = <Cypress.SchemataTestData><unknown>testData
+      let nextMajor = SemanticVersion.from(data.version.currentVersion).nextMajor().format();
+      cy.visit("/#/schemata")
+      cy.expandSchemaTree(data)
+
+      // Select schema and open schema version view
+      cy.contains('.v-treeview-node__label', data.schema.name).click()
+      cy.get('[data-testid="Schema Version"]').click()
+
+      // Add schema version content
+      cy.fillField('Previous Version', data.version.currentVersion)
+      cy.fillField('Current Version', nextMajor)
+
+      cy.fillEditor('#description-editor', `_in_compatible major version **${nextMajor}** for *${data.version.currentVersion}*`)
+      cy.fillEditor('#specification-editor', data.version.incompatibleSpecification)
+
+      // Create new version and assert success
+      cy.contains('button', 'Create').click()
+      cy.get('.v-snack__wrapper.success').contains(nextMajor)
+    });
+  });
 });
+
+
+class SemanticVersion {
+  static versionPattern = /(\d+)\.(\d+)\.(\d+)/
+
+  major: number = 0;
+  minor: number = 0;
+  patch: number = 0;
+
+  static from(version: string): SemanticVersion {
+    let [, major, minor, patch] = this.versionPattern.exec(version) || []
+    let result = new SemanticVersion()
+    result.major = parseInt(major)
+    result.minor = parseInt(minor)
+    result.patch = parseInt(patch)
+    return result
+  }
+
+  clone(): SemanticVersion {
+    let result = new SemanticVersion()
+    result.major = this.major
+    result.minor = this.minor
+    result.patch = this.patch
+    return result
+  }
+
+  format(): string {
+    return `${this.major}.${this.minor}.${this.patch}`
+  }
+
+  nextPatch(): SemanticVersion {
+    let clone = this.clone();
+    clone.patch = ++clone.patch
+    return clone
+  }
+
+  nextMinor(): SemanticVersion {
+    let clone = this.clone();
+    clone.minor = ++clone.minor
+    clone.patch = 0
+    return clone
+  }
+
+  nextMajor(): SemanticVersion {
+    let clone = this.clone();
+    clone.major = ++clone.major
+    clone.minor = 0
+    clone.patch = 0
+    return clone
+  }
+
+}
+

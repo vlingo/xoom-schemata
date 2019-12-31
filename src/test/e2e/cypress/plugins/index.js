@@ -121,6 +121,10 @@ module.exports = (on, config) => {
                     return createSchemaVersion(schema, config)
                 })
                 .then(version => data.version = version)
+                .then(version => data.version.compatibleSpecification =
+                    'event SalutationHappened { type eventType\nversion semVer }')
+                .then(version => data.version.incompatibleSpecification =
+                    'event SalutationHappened { type renamedEventType\nversion semVer }')
                 .then(() => data)
         }
     })
