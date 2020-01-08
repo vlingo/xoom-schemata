@@ -68,7 +68,7 @@ public class TypeResolverProcessor extends Actor implements Processor {
 
     private <T> Completes<List<T>> unwrap(List<Completes<T>> completes) {
         final List<T> result = new ArrayList<>(completes.size());
-        completes.forEach(complete -> complete.andThenConsume(result::add));
+        completes.forEach(complete -> result.add(complete.await()));
 
         return Completes.withSuccess(result);
     }
