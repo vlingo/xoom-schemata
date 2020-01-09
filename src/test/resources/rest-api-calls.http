@@ -222,7 +222,7 @@ Content-Type: application/json
 
 
 ### this makes the server hang
-GET http://localhost:9019/code/Org:Unit:Context:Schema2:1.0.0/java
+GET http://localhost:9019/code/Org:Unit:Context:Schema:1.0.0/java
 Accept: application/json
 
 ###

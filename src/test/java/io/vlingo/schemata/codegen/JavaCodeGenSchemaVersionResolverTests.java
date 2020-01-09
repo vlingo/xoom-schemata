@@ -40,7 +40,6 @@ import static org.junit.Assert.assertTrue;
 
 public class JavaCodeGenSchemaVersionResolverTests{
   @Test
-  @Ignore("Ignored on master due to #98")
   public void testThatSpecificationsContainingBasicTypesCanBeCompiledWithSchemaVersionQueryTypeResolver() throws Exception {
     World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
     TypeParser typeParser = world.actorFor(TypeParser.class, AntlrTypeParser.class);
@@ -86,7 +85,7 @@ public class JavaCodeGenSchemaVersionResolverTests{
 
     assertTrue(result.contains("public final class Foo extends DomainEvent {"));
     assertTrue(result.contains("public final String eventType;"));
-    assertTrue(result.contains("public final SchemaVersion.Version eventVersion;"));
+    assertTrue(result.contains("public final int eventVersion;"));
     assertTrue(result.contains("public final long occurredOn;"));
 
     assertTrue(result.contains("public final boolean booleanAttribute;"));
