@@ -133,22 +133,25 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
     // TODO: refactor
     for (int i = 0; i < leftType.children.size(); i++) {
       FieldDefinition l = asFieldDefinition(leftType.children.get(i));
-      FieldDefinition r = asFieldDefinition(rightType.children.get(i));
 
-      if (!(l.name.equals(r.name)
-          && l.defaultValue.equals(r.defaultValue)
-          && l.version.equals(r.version))) {
-        diff = diff.withChange(Change.incompatible(leftType.typeName, rightType.typeName, l.name, r.name));
-      }
+      if(rightType.children.size() > i) {
+        FieldDefinition r = asFieldDefinition(rightType.children.get(i));
 
-      Type leftFieldType = l.type;
-      Type rightFieldType = r.type;
+        if (!(l.name.equals(r.name) && l.defaultValue.equals(r.defaultValue) && l.version.equals(r.version))) {
+          diff = diff.withChange(Change.incompatible(leftType.typeName, rightType.typeName, l.name, r.name));
+        }
 
-      if (rightFieldType.getClass() != leftFieldType.getClass()) {
-        diff = diff.withChange(Change.incompatible(leftType.typeName, rightType.typeName,
-            leftType.getClass().getSimpleName(), rightType.getClass().getSimpleName()));
+        Type leftFieldType = l.type;
+        Type rightFieldType = r.type;
+
+        if (rightFieldType.getClass() != leftFieldType.getClass()) {
+          diff = diff.withChange(Change.incompatible(leftType.typeName, rightType.typeName, leftType.getClass().getSimpleName(),
+                  rightType.getClass().getSimpleName()));
+        } else {
+          diff = addFieldTypeDiffs(diff, leftFieldType, rightFieldType);
+        }
       } else {
-        diff = addFieldTypeDiffs(diff, leftFieldType, rightFieldType);
+        diff = diff.withChange(Change.incompatible(leftType.typeName, leftType.typeName, l.name, null));
       }
 
     }

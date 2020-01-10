@@ -128,7 +128,7 @@ module.exports = (on, config) => {
                 .then(version => data.version.compatibleSpecification =
                     'event SalutationHappened { type eventType\nversion semVer }')
                 .then(version => data.version.incompatibleSpecification =
-                    'event SalutationHappened { type renamedEventType\nversion semVer }')
+                    'event SalutationHappened { type renamedEventType }')
                 .then(() => data)
         }
     })
