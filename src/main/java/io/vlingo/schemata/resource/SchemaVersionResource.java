@@ -7,14 +7,17 @@
 
 package io.vlingo.schemata.resource;
 
+import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
+import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.model.FullyQualifiedReference;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
@@ -22,6 +25,7 @@ import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.schemata.model.SchemaVersionState;
+import io.vlingo.schemata.model.SpecificationDiff;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
@@ -34,10 +38,12 @@ import static io.vlingo.schemata.Schemata.*;
 public class SchemaVersionResource extends ResourceHandler {
     private final SchemaVersionCommands commands;
     private final Stage stage;
+    private final Logger logger;
 
-    public SchemaVersionResource(final World world) {
+  public SchemaVersionResource(final World world) {
         this.stage = world.stageNamed(StageName);
         this.commands = new SchemaVersionCommands(this.stage, 10);
+        this.logger = world.defaultLogger();
     }
 
     public Completes<Response> defineWith(
@@ -54,18 +60,53 @@ public class SchemaVersionResource extends ResourceHandler {
             return Completes.withSuccess(Response.of(BadRequest, "Conflicting versions"));
         }
 
-        return SchemaVersion.with(stage, SchemaId.existing(organizationId, unitId, contextId, schemaId), Specification.of(data.specification), data.description, Version.of(data.previousVersion), Version.of(data.currentVersion))
-                .andThenTo(3000, state -> {
-                    final String location = schemaVersionLocation(state.schemaVersionId);
-                    final Headers<ResponseHeader> headers = Headers.of(
-                            of(Location, location),
-                            of(ContentType, "application/json; charset=UTF-8")
-                    );
-                    final String serialized = serialized(SchemaVersionData.from(state));
+      final SemanticVersion previousSemantic = SemanticVersion.from(data.previousVersion);
+      final SemanticVersion currentSemantic = SemanticVersion.from(data.currentVersion);
 
-                    return Completes.withSuccess(Response.of(Created, headers, serialized));
-                })
-                .otherwise(response -> Response.of(Conflict, serialized(SchemaVersionData.from(organizationId, unitId, contextId, schemaId, NoId, data.specification, data.description, "Draft", data.previousVersion, data.currentVersion))));
+        // FIXME: Refactor into one reactive pipeline without awaiting
+      if(currentSemantic.isCompatibleWith(previousSemantic)) {
+        SchemaVersionData previousVersion = Queries.forSchemaVersions().schemaVersionOfVersion(
+            organizationId,
+            unitId,
+            contextId,
+            schemaId,
+            data.previousVersion)
+            .otherwise(n -> null)
+            .await();
+
+        if(previousVersion != null) {
+          SpecificationDiff diff = commands
+              .diffAgainst(
+                  SchemaVersionId.existing(
+                      organizationId, unitId, contextId, schemaId,
+                      previousVersion.schemaVersionId),
+                  data)
+              .answer()
+              .await();
+
+          if (!diff.isCompatible()) {
+            return Completes.withSuccess(Response.of(Conflict, serialized(diff)));
+          }
+        }
+      }
+
+      return SchemaVersion.with(stage, SchemaId.existing(organizationId, unitId, contextId, schemaId), Specification.of(data.specification), data.description, Version.of(data.previousVersion), Version.of(data.currentVersion))
+              .andThenTo(3000, state -> {
+                  final String location = schemaVersionLocation(state.schemaVersionId);
+                  final Headers<ResponseHeader> headers = Headers.of(
+                          of(Location, location),
+                          of(ContentType, "application/json; charset=UTF-8")
+                  );
+                  final String serialized = serialized(SchemaVersionData.from(state));
+
+                  return Completes.withSuccess(Response.of(Created, headers, serialized));
+              })
+              .otherwise(response -> Response.of(Conflict, serialized(SchemaVersionData.from(organizationId, unitId, contextId, schemaId, NoId, data.specification, data.description, "Draft", data.previousVersion, data.currentVersion))))
+          .recoverFrom(ex -> {
+            logger.error("{}",ex);
+            return Response.of(Conflict, serialized(SchemaVersionData.from(organizationId, unitId, contextId, schemaId, NoId, data.specification, data.description, "Draft", data.previousVersion, data.currentVersion)));
+
+          });
     }
 
     public Completes<Response> describeAs(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId, final String description) {

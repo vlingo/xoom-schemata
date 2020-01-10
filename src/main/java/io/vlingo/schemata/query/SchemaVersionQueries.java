@@ -10,6 +10,7 @@ package io.vlingo.schemata.query;
 import java.util.List;
 
 import io.vlingo.common.Completes;
+import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public interface SchemaVersionQueries {

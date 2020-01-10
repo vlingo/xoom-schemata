@@ -17,6 +17,7 @@ import io.vlingo.common.Tuple2;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.lattice.query.StateObjectQueryActor;
 import io.vlingo.schemata.Schemata;
+import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.object.MapQueryExpression;

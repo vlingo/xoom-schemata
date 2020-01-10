@@ -14,11 +14,14 @@ import io.vlingo.lattice.router.CommandDispatcher;
 import io.vlingo.lattice.router.CommandRouter;
 import io.vlingo.lattice.router.CommandRouter.Type;
 import io.vlingo.lattice.router.RoutableCommand;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersionEntity;
 import io.vlingo.schemata.model.SchemaVersionState;
+import io.vlingo.schemata.model.SpecificationDiff;
+import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 class SchemaVersionCommands {
   private final CommandRouter router;
@@ -56,82 +59,105 @@ class SchemaVersionCommands {
     final Publish publish = new Publish();
 
     RoutableCommand<SchemaVersion,Command,SchemaVersionState> command =
-            RoutableCommand
-              .speaks(SchemaVersion.class)
-              .to(SchemaVersionEntity.class)
-              .at(schemaVersionId.value)
-              .named(SchemaVersion.nameFrom(schemaVersionId))
-              .delivers(publish)
-              .answers(Completes.using(stage.scheduler()))
-              .handledBy(publish);
+      RoutableCommand
+        .speaks(SchemaVersion.class)
+        .to(SchemaVersionEntity.class)
+        .at(schemaVersionId.value)
+        .named(SchemaVersion.nameFrom(schemaVersionId))
+        .delivers(publish)
+        .answers(Completes.using(stage.scheduler()))
+        .handledBy(publish);
 
     router.route(command);
 
     return command;
   }
 
-  RoutableCommand<SchemaVersion,Command,SchemaVersionState> deprecate(
-          final SchemaVersionId schemaVersionId) {
+  RoutableCommand<SchemaVersion, Command, SchemaVersionState> deprecate(
+    final SchemaVersionId schemaVersionId) {
 
     final Deprecate deprecate = new Deprecate();
 
-    RoutableCommand<SchemaVersion,Command,SchemaVersionState> command =
-            RoutableCommand
-              .speaks(SchemaVersion.class)
-              .to(SchemaVersionEntity.class)
-              .at(schemaVersionId.value)
-              .named(SchemaVersion.nameFrom(schemaVersionId))
-              .delivers(deprecate)
-              .answers(Completes.using(stage.scheduler()))
-              .handledBy(deprecate);
+    RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
+      RoutableCommand
+        .speaks(SchemaVersion.class)
+        .to(SchemaVersionEntity.class)
+        .at(schemaVersionId.value)
+        .named(SchemaVersion.nameFrom(schemaVersionId))
+        .delivers(deprecate)
+        .answers(Completes.using(stage.scheduler()))
+        .handledBy(deprecate);
 
     router.route(command);
 
     return command;
   }
 
-  RoutableCommand<SchemaVersion,Command,SchemaVersionState> remove(
-          final SchemaVersionId schemaVersionId) {
+  RoutableCommand<SchemaVersion, Command, SchemaVersionState> remove(
+    final SchemaVersionId schemaVersionId) {
 
     final Remove remove = new Remove();
 
-    RoutableCommand<SchemaVersion,Command,SchemaVersionState> command =
-            RoutableCommand
-              .speaks(SchemaVersion.class)
-              .to(SchemaVersionEntity.class)
-              .at(schemaVersionId.value)
-              .named(SchemaVersion.nameFrom(schemaVersionId))
-              .delivers(remove)
-              .answers(Completes.using(stage.scheduler()))
-              .handledBy(remove);
+    RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
+      RoutableCommand
+        .speaks(SchemaVersion.class)
+        .to(SchemaVersionEntity.class)
+        .at(schemaVersionId.value)
+        .named(SchemaVersion.nameFrom(schemaVersionId))
+        .delivers(remove)
+        .answers(Completes.using(stage.scheduler()))
+        .handledBy(remove);
 
     router.route(command);
 
     return command;
   }
 
-  RoutableCommand<SchemaVersion,Command,SchemaVersionState> specifyWith(
-          final SchemaVersionId schemaVersionId,
-          final Specification specification) {
+  RoutableCommand<SchemaVersion, Command, SchemaVersionState> specifyWith(
+    final SchemaVersionId schemaVersionId,
+    final Specification specification) {
 
     final SpecifyWith specifyWith = new SpecifyWith(specification);
 
-    RoutableCommand<SchemaVersion,Command,SchemaVersionState> command =
-            RoutableCommand
-              .speaks(SchemaVersion.class)
-              .to(SchemaVersionEntity.class)
-              .at(schemaVersionId.value)
-              .named(SchemaVersion.nameFrom(schemaVersionId))
-              .delivers(specifyWith)
-              .answers(Completes.using(stage.scheduler()))
-              .handledBy(specifyWith);
+    RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
+      RoutableCommand
+        .speaks(SchemaVersion.class)
+        .to(SchemaVersionEntity.class)
+        .at(schemaVersionId.value)
+        .named(SchemaVersion.nameFrom(schemaVersionId))
+        .delivers(specifyWith)
+        .answers(Completes.using(stage.scheduler()))
+        .handledBy(specifyWith);
 
     router.route(command);
 
     return command;
   }
 
-  private static class DescribeAs extends Command implements CommandDispatcher<SchemaVersion,DescribeAs,Completes<SchemaVersionState>> {
+  RoutableCommand<SchemaVersion, Command, SpecificationDiff> diffAgainst(
+    final SchemaVersionId schemaVersionId,
+    final SchemaVersionData other) {
+
+    final DiffAgainst diffAgainst = new DiffAgainst(
+      other,
+      TypeDefinitionMiddleware.middlewareFor(stage));
+
+    RoutableCommand<SchemaVersion, Command, SpecificationDiff> command =
+      RoutableCommand
+        .speaks(SchemaVersion.class)
+        .to(SchemaVersionEntity.class)
+        .at(schemaVersionId.value)
+        .named(SchemaVersion.nameFrom(schemaVersionId))
+        .delivers(diffAgainst)
+        .answers(Completes.using(stage.scheduler()))
+        .handledBy(diffAgainst);
+
+    router.route(command);
+
+    return command;
+  }
+
+  private static class DescribeAs extends Command implements CommandDispatcher<SchemaVersion, DescribeAs, Completes<SchemaVersionState>> {
     private final String description;
 
     DescribeAs(final String description) {
@@ -144,8 +170,9 @@ class SchemaVersionCommands {
     }
   }
 
-  private static class Publish extends Command implements CommandDispatcher<SchemaVersion,Publish,Completes<SchemaVersionState>> {
-    Publish() { }
+  private static class Publish extends Command implements CommandDispatcher<SchemaVersion, Publish, Completes<SchemaVersionState>> {
+    Publish() {
+    }
 
     @Override
     public void accept(final SchemaVersion protocol, final Publish command, final Completes<SchemaVersionState> answer) {
@@ -153,8 +180,9 @@ class SchemaVersionCommands {
     }
   }
 
-  private static class Deprecate extends Command implements CommandDispatcher<SchemaVersion,Deprecate,Completes<SchemaVersionState>> {
-    Deprecate() { }
+  private static class Deprecate extends Command implements CommandDispatcher<SchemaVersion, Deprecate, Completes<SchemaVersionState>> {
+    Deprecate() {
+    }
 
     @Override
     public void accept(final SchemaVersion protocol, final Deprecate command, final Completes<SchemaVersionState> answer) {
@@ -162,8 +190,9 @@ class SchemaVersionCommands {
     }
   }
 
-  private static class Remove extends Command implements CommandDispatcher<SchemaVersion,Remove,Completes<SchemaVersionState>> {
-    Remove() { }
+  private static class Remove extends Command implements CommandDispatcher<SchemaVersion, Remove, Completes<SchemaVersionState>> {
+    Remove() {
+    }
 
     @Override
     public void accept(final SchemaVersion protocol, final Remove command, final Completes<SchemaVersionState> answer) {
@@ -171,7 +200,7 @@ class SchemaVersionCommands {
     }
   }
 
-  private static class SpecifyWith extends Command implements CommandDispatcher<SchemaVersion,SpecifyWith,Completes<SchemaVersionState>> {
+  private static class SpecifyWith extends Command implements CommandDispatcher<SchemaVersion, SpecifyWith, Completes<SchemaVersionState>> {
     private final Specification specification;
 
     SpecifyWith(final Specification specification) {
@@ -181,6 +210,21 @@ class SchemaVersionCommands {
     @Override
     public void accept(final SchemaVersion protocol, final SpecifyWith command, final Completes<SchemaVersionState> answer) {
       protocol.specifyWith(command.specification).andThen(state -> answer.with(state));
+    }
+  }
+
+  private static class DiffAgainst extends Command implements CommandDispatcher<SchemaVersion, DiffAgainst, Completes<SpecificationDiff>> {
+    private final SchemaVersionData other;
+    private final TypeDefinitionMiddleware typeDefinitionMiddleware;
+
+    DiffAgainst(final SchemaVersionData other, TypeDefinitionMiddleware typeDefinitionMiddleware) {
+      this.other = other;
+      this.typeDefinitionMiddleware = typeDefinitionMiddleware;
+    }
+
+    @Override
+    public void accept(final SchemaVersion protocol, final DiffAgainst command, final Completes<SpecificationDiff> answer) {
+      protocol.diff(typeDefinitionMiddleware, command.other).andThen(diff -> answer.with(diff));
     }
   }
 }

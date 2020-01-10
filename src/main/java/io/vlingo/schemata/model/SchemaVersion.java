@@ -15,6 +15,7 @@ import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
+import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public interface SchemaVersion {
   static String nameFrom(final SchemaVersionId schemaVersionId) {
@@ -69,7 +70,7 @@ public interface SchemaVersion {
 
   Completes<SchemaVersionState> specifyWith(final Specification specification);
 
-  Completes<SpecificationDiff> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, Specification other);
+  Completes<SpecificationDiff> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, SchemaVersionData other);
 
   class Specification {
     public final String value;

@@ -27,6 +27,7 @@ import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.model.Id.*;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
+import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.ObjectStore;
 import org.junit.Before;
@@ -81,100 +82,68 @@ public class SchemaVersionTest {
   public void equalSpecificationsAreCompatible() {
     final SchemaVersionState firstVersion = defaultTestSchemaVersionState();
 
-    final SchemaVersionState secondVersion = firstVersion.withSpecification(
-        new Specification(firstVersion.specification.value));
+    final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
+        new Specification(firstVersion.specification.value)));
 
     assertCompatible("Versions with only added attributes must be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   @Test
   public void schemaVersionWithAddedAttributeIsCompatible() {
-    final SchemaVersionState secondVersion = firstVersion.withSpecification(
+    final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
         new Specification("event Foo { " +
             "string bar\n" +
             "string baz\n" +
-            "}"));
+            "}")));
 
     assertCompatible("Versions with only added attributes must be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   @Test
   public void schemaVersionWithRemovedAttributeIsNotCompatible() {
-    final SchemaVersionState secondVersion = firstVersion.withSpecification(
+    final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
         new Specification("event Foo { " +
             "string baz\n" +
-            "}"));
+            "}")));
 
     assertIncompatible("Versions with only removed attributes must not be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   @Test
   public void schemaVersionWithAddedAndRemovedAttributesAreNotCompatible() {
-    final SchemaVersionState secondVersion = firstVersion.withSpecification(
+    final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
         new Specification("event Foo { " +
             "string baz\n" +
-            "}"));
+            "}")));
 
     assertIncompatible("Versions with added and removed attributes must not be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   @Test
   public void schemaVersionWithTypeChangesAreNotCompatible() {
-    final SchemaVersionState secondVersion = firstVersion.withSpecification(
+    final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
         new Specification("event Foo { " +
             "int bar\n" +
-            "}"));
+            "}")));
 
     assertIncompatible("Versions with reordered attributes must not be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   @Test
   public void schemaVersionWithReorderedAttributesAreNotCompatible() {
-    final SchemaVersionState secondVersion = firstVersion.withSpecification(
+    final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
         new Specification("event Foo { " +
             "string baz\n" +
             "string bar\n" +
-            "}"));
+            "}")));
 
     assertIncompatible("Versions with added and removed attributes must not be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion.specification).await());
-  }
-
-  @Test
-  public void nullSpecificationThrows() {
-    final SchemaVersionState secondVersion = firstVersion.withSpecification(null);
-    schemaVersion.diff(
-        typeDefinitionMiddleware,
-        secondVersion.specification)
-        .andThen(diff -> {
-          fail("Trying to diff an empty specification should have thrown an exception");
-          return diff;
-        })
-        .otherwiseConsume(ignore -> {
-          // pass
-        });
-  }
-
-  @Test
-  public void emptySpecificationThrows() {
-    final SchemaVersionState secondVersion = firstVersion.withSpecification(null);
-
-    schemaVersion.diff(
-        typeDefinitionMiddleware,
-        secondVersion.specification)
-        .andThen(diff -> {
-          fail("Trying to diff an empty specification should have thrown an exception");
-          return diff;
-        })
-        .otherwiseConsume(ignore -> {
-          // pass
-        });
-    ;
+        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   private SchemaVersionState defaultTestSchemaVersionState() {

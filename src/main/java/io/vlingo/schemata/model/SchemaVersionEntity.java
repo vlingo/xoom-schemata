@@ -19,9 +19,12 @@ import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.model.Events.*;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
+import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
+import java.util.Map;
 
 public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> implements SchemaVersion {
   private SchemaVersionState state;
@@ -104,22 +107,23 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   }
 
   @Override
-  public Completes<SpecificationDiff> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, final Specification other) {
-    requireRightSideSpecification(other);
+  public Completes<SpecificationDiff> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, final SchemaVersionData other) {
+    requireRightSideSpecification(other.specification);
 
     SpecificationDiff diff = SpecificationDiff.empty();
 
-    // FIXME: Make reactive, don't await() the node; but this has been hanging
-    Node leftNode = typeDefinitionMiddleware.compileToAST(
+    // FIXME: Make reactive, don't await() the node; but using andThenTo() instead of andThen().await() has been hanging
+    TypeDefinition leftType = typeDefinitionMiddleware.compileToAST(
         new ByteArrayInputStream(stateObject().specification.value.getBytes(StandardCharsets.UTF_8)),
-        null).await();
+        null)
+        .andThen(SchemaVersionEntity::asTypeDefinition)
+        .await();
 
-    Node rightNode = typeDefinitionMiddleware.compileToAST(
-        new ByteArrayInputStream(other.value.getBytes(StandardCharsets.UTF_8)),
-        null).await();
-
-    TypeDefinition leftType = asTypeDefinition(leftNode);
-    TypeDefinition rightType = asTypeDefinition(rightNode);
+    TypeDefinition rightType = typeDefinitionMiddleware.compileToAST(
+        new ByteArrayInputStream(other.specification.getBytes(StandardCharsets.UTF_8)),
+        null)
+        .andThen(SchemaVersionEntity::asTypeDefinition)
+        .await();
 
     if (!leftType.typeName.equals(rightType.typeName))
       diff = diff.withChange(Change.incompatible(leftType.typeName, rightType.typeName));
@@ -171,14 +175,12 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
       diff = diff.withChange(Change.incompatible(
           ((TypeDefinition) leftFieldType).fullyQualifiedTypeName,
           ((TypeDefinition) rightFieldType).fullyQualifiedTypeName));
-
-      // TODO: check compatibility based on semantic version
     }
     return diff;
   }
 
-  private static void requireRightSideSpecification(Specification specification) {
-    if (specification == null || specification.value == null || specification.value.isEmpty()) {
+  private static void requireRightSideSpecification(String specification) {
+    if (specification == null || specification.isEmpty()) {
       throw new IllegalArgumentException("Can't compare to an empty specification");
     }
   }
