@@ -7,11 +7,11 @@
 
 package io.vlingo.schemata.resource.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.schemata.model.SchemaVersionState;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SchemaVersionData {
   public final String organizationId;
@@ -27,16 +27,16 @@ public class SchemaVersionData {
 
   public static SchemaVersionData from(final SchemaVersionState state) {
     return new SchemaVersionData(
-            state.schemaVersionId.organizationId().value,
-            state.schemaVersionId.unitId().value,
-            state.schemaVersionId.contextId().value,
-            state.schemaVersionId.schemaId.value,
-            state.schemaVersionId.value,
-            state.specification.value,
-            state.description,
-            state.status.value,
-            state.previousVersion.value,
-            state.currentVersion.value);
+      state.schemaVersionId.organizationId().value,
+      state.schemaVersionId.unitId().value,
+      state.schemaVersionId.contextId().value,
+      state.schemaVersionId.schemaId.value,
+      state.schemaVersionId.value,
+      state.specification.value,
+      state.description,
+      state.status.value,
+      state.previousVersion.value,
+      state.currentVersion.value);
   }
 
   public static List<SchemaVersionData> from(final List<SchemaVersionState> states) {
@@ -50,42 +50,42 @@ public class SchemaVersionData {
   }
 
   public static SchemaVersionData from(
-          final String organizationId,
-          final String unitId,
-          final String contextId,
-          final String schemaId,
-          final String schemaVersionId,
-          final String specification,
-          final String description,
-          final String status,
-          final String previousVersion,
-          final String nextVersion) {
-  return new SchemaVersionData(
-          organizationId,
-          unitId,
-          contextId,
-          schemaId,
-          schemaVersionId,
-          specification,
-          description,
-          status,
-          previousVersion,
-          nextVersion);
+    final String organizationId,
+    final String unitId,
+    final String contextId,
+    final String schemaId,
+    final String schemaVersionId,
+    final String specification,
+    final String description,
+    final String status,
+    final String previousVersion,
+    final String nextVersion) {
+    return new SchemaVersionData(
+      organizationId,
+      unitId,
+      contextId,
+      schemaId,
+      schemaVersionId,
+      specification,
+      description,
+      status,
+      previousVersion,
+      nextVersion);
   }
 
   public static SchemaVersionData just(
-          final String specification,
-          final String description,
-          final String status,
-          final String previousVersion,
-          final String nextVersion) {
-  return new SchemaVersionData(
-          "", "", "", "", "",
-          specification,
-          description,
-          status,
-          previousVersion,
-          nextVersion);
+    final String specification,
+    final String description,
+    final String status,
+    final String previousVersion,
+    final String nextVersion) {
+    return new SchemaVersionData(
+      "", "", "", "", "",
+      specification,
+      description,
+      status,
+      previousVersion,
+      nextVersion);
   }
 
   public static SchemaVersionData none() {
@@ -105,8 +105,14 @@ public class SchemaVersionData {
       final SemanticVersion previousSemantic = SemanticVersion.from(previousVersion);
       final SemanticVersion currentSemantic = SemanticVersion.from(currentVersion);
 
+      if (currentSemantic.isNonZero()
+        && currentSemantic.isGreaterThan(previousSemantic)
+        && (currentSemantic.major == previousSemantic.major + 1)) {
+        return true;
+      }
+
       return (
-          currentSemantic.isNonZero() &&
+        currentSemantic.isNonZero() &&
           currentSemantic.isCompatibleWith(previousSemantic) &&
           currentSemantic.isGreaterThan(previousSemantic));
 
@@ -128,22 +134,22 @@ public class SchemaVersionData {
   @Override
   public String toString() {
     return "SchemaVersionData [organizationId=" + organizationId + ", unitId=" + unitId + ", contextId=" + contextId
-            + ", schemaId=" + schemaId + ", schemaVersionId=" + schemaVersionId + ", specification=" + specification
-            + ", description=" + description + ", status=" + status + ", previousVersion=" + previousVersion
-            + ", currentVersion=" + currentVersion + "]";
+      + ", schemaId=" + schemaId + ", schemaVersionId=" + schemaVersionId + ", specification=" + specification
+      + ", description=" + description + ", status=" + status + ", previousVersion=" + previousVersion
+      + ", currentVersion=" + currentVersion + "]";
   }
 
   private SchemaVersionData(
-          final String organizationId,
-          final String unitId,
-          final String contextId,
-          final String schemaId,
-          final String schemaVersionId,
-          final String specification,
-          final String description,
-          final String status,
-          final String previousVersion,
-          final String nextVersion) {
+    final String organizationId,
+    final String unitId,
+    final String contextId,
+    final String schemaId,
+    final String schemaVersionId,
+    final String specification,
+    final String description,
+    final String status,
+    final String previousVersion,
+    final String nextVersion) {
     this.organizationId = organizationId;
     this.unitId = unitId;
     this.contextId = contextId;

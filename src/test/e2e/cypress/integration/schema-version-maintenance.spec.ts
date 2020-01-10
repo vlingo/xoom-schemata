@@ -11,7 +11,6 @@ describe('Schemata View Tests', function () {
   });
 
   it('can update schema version state', function () {
-    this.skip() // FIXME: re-enable before merging to master
 
     cy.task('schemata:withTestData').then(testData => {
       let data = <Cypress.SchemataTestData><unknown>testData
@@ -56,8 +55,6 @@ describe('Schemata View Tests', function () {
   });
 
   it('can update schema version specification', function () {
-    this.skip() // FIXME: re-enable before merging to master
-
     cy.task('schemata:withTestData').then(testData => {
       let data = <Cypress.SchemataTestData><unknown>testData
 
@@ -84,8 +81,6 @@ describe('Schemata View Tests', function () {
   });
 
   it('can update schema version description', function () {
-    this.skip() // FIXME: re-enable before merging to master
-
     cy.task('schemata:withTestData').then(testData => {
       let data = <Cypress.SchemataTestData><unknown>testData
 
@@ -203,7 +198,7 @@ describe('Schemata View Tests', function () {
 
       // Create new version and assert error
       cy.contains('button', 'Create').click()
-      cy.get('.v-snack__wrapper.error').contains('Conflicting')
+      cy.get('.v-snack__wrapper.error').contains('409')
     });
   });
 
@@ -227,11 +222,11 @@ describe('Schemata View Tests', function () {
 
       // Create new version and assert error
       cy.contains('button', 'Create').click()
-      cy.get('.v-snack__wrapper.error').contains('Conflicting')
+      cy.get('.v-snack__wrapper.error').contains('409')
     });
   });
 
-  it('can create incompatible minor version', function () {
+  it('can create incompatible major version', function () {
     cy.task('schemata:withTestData').then(testData => {
       let data = <Cypress.SchemataTestData><unknown>testData
       let nextMajor = SemanticVersion.from(data.version.currentVersion).nextMajor().format();
