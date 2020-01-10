@@ -65,4 +65,11 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
             return result;
         };
     }
+
+    @Override
+    public Completes<TypeDefinitionMiddleware> middleware() {
+        CompletesEventually eventually = completesEventually();
+        eventually.with(this.middleware);
+        return completes();
+    }
 }
