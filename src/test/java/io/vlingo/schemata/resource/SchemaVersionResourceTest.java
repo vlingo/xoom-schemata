@@ -48,7 +48,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
     }
 
     @Test
-    @Ignore
+    @Ignore("Skipped due to hanging issues when not run alone; to be re-enabled before merging")
     public void testThatSchemaVersionMinorUpgradeIsDefined() {
         final SchemaVersionResource resource = new SchemaVersionResource(world);
         final SchemaVersionData previousData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
