@@ -159,14 +159,14 @@
                 specificationEditorActive: false,
             }
         },
-      computed: {
-        editorOptions() {
-          return {
-            automaticLayout: true,
-              readOnly: this.schemaVersionId !== undefined
-          }
-        }
-      },
+        computed: {
+            editorOptions() {
+                return {
+                    automaticLayout: true,
+                    readOnly: this.schemaVersionId !== undefined
+                }
+            }
+        },
         methods: {
             create() {
                 let vm = this
@@ -196,8 +196,17 @@
                         }
                     )
                     .catch(function (err) {
-                        let response = err.response ? err.response.data + ' - ' : ''
-                        vm.$store.commit('raiseError', {message: response + err})
+                        let msg =  ''
+
+                        if(err.response && err.response.status === 409) {
+                            msg = 'Incompatible changes within a compatible version change: '
+                            msg += err.response.data.changes
+                                .map(c => c.fromType + '.' + c.fromName + ' -> ' + c.toType + '.' + c.toName)
+                                .join('; ')
+                            msg += ' - '
+                        }
+
+                        vm.$store.commit('raiseError', { message: msg + err })
                     })
             },
             activateDescriptionEditor() {
@@ -209,29 +218,29 @@
                 this.specificationEditorActive = true
             },
             load(organizationId, unitId, contextId, schemaId, schemaVersionId) {
-              let vm = this
-              Repository.getVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
-                .then((loaded) => {
-                  vm.organizationId = loaded.organizationId
-                  vm.unitId = loaded.unitId
-                  vm.contextId = loaded.contextId
-                  vm.speficication = loaded.speficication
-                  vm.description = loaded.description
-                  vm.status = loaded.status
-                  vm.previousVersion = loaded.previousVersion
-                  vm.currentVersion = loaded.currentVersion
-                })
+                let vm = this
+                Repository.getVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
+                    .then((loaded) => {
+                        vm.organizationId = loaded.organizationId
+                        vm.unitId = loaded.unitId
+                        vm.contextId = loaded.contextId
+                        vm.speficication = loaded.speficication
+                        vm.description = loaded.description
+                        vm.status = loaded.status
+                        vm.previousVersion = loaded.previousVersion
+                        vm.currentVersion = loaded.currentVersion
+                    })
             }
         },
         mounted() {
-          this.organizationId = this.$store.getters.organizationId
-          this.unitId = this.$store.getters.unitId
-          this.contextId = this.$store.getters.contextId
-          this.schemaId = this.$store.getters.schemaId
-          let schemaVersionId = this.$store.getters.schemaVersionId
-          if (this.organizationId && this.unitId && this.contextId && this.schemaId && schemaVersionId) {
-            this.load(this.organizationId, this.unitId, this.contextId, this.schemaId, schemaVersionId)
-          }
+            this.organizationId = this.$store.getters.organizationId
+            this.unitId = this.$store.getters.unitId
+            this.contextId = this.$store.getters.contextId
+            this.schemaId = this.$store.getters.schemaId
+            let schemaVersionId = this.$store.getters.schemaVersionId
+            if (this.organizationId && this.unitId && this.contextId && this.schemaId && schemaVersionId) {
+                this.load(this.organizationId, this.unitId, this.contextId, this.schemaId, schemaVersionId)
+            }
         }
     }
 </script>
