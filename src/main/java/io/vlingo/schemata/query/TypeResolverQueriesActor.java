@@ -8,6 +8,7 @@
 package io.vlingo.schemata.query;
 
 import io.vlingo.actors.Actor;
+import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
@@ -26,9 +27,18 @@ public class TypeResolverQueriesActor extends Actor implements TypeResolverQueri
     public Completes<Optional<TypeDefinition>> resolve(TypeDefinitionMiddleware middleware, String fullyQualifiedTypeName) {
         return schemaVersionQueries
                 .schemaVersion(fullyQualifiedTypeName)
-                .andThen(data -> data.specification)
-                .andThenTo(spec -> middleware.compileToAST(new ByteArrayInputStream(spec.getBytes()), fullyQualifiedTypeName))
-                .andThen(node -> Optional.of((TypeDefinition) node))
-                .otherwise(ex -> Optional.empty());
+                .andThenTo(data -> data == null ?
+                        Completes.withSuccess(null) :
+                        middleware.compileToAST(new ByteArrayInputStream(data.specification.getBytes()), fullyQualifiedTypeName))
+                .andThen(node -> {
+                    Optional<TypeDefinition> result = Optional.ofNullable((TypeDefinition) node);
+                    completesEventually().with(result);
+                    return result;
+                })
+                .otherwise(ex -> {
+                    Optional<TypeDefinition> result = Optional.empty();
+                    completesEventually().with(result);
+                    return result;
+                });
     }
 }
