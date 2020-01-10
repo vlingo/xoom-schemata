@@ -59,6 +59,10 @@ const createSchemaVersion = (schema, config) => {
         + '/contexts/' + schema.contextId
         + '/schemas/' + schema.schemaId
         + '/versions', {
+            organizationId: schema.organizationId,
+            unitId: schema.unitId,
+            contextId: schema.contextId,
+            schemaId: schema.schemaId,
             schemaVersionId: '',
             specification: 'event SalutationHappened { type eventType }',
             previousVersion: prevVersion,
