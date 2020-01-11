@@ -7,14 +7,13 @@
 
 package io.vlingo.schemata.query;
 
+import java.io.ByteArrayInputStream;
+import java.util.Optional;
+
 import io.vlingo.actors.Actor;
-import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
-
-import java.io.ByteArrayInputStream;
-import java.util.Optional;
 
 public class TypeResolverQueriesActor extends Actor implements TypeResolverQueries {
     private final SchemaVersionQueries schemaVersionQueries;

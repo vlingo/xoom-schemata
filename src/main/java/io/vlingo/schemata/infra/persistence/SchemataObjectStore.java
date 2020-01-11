@@ -10,14 +10,13 @@ package io.vlingo.schemata.infra.persistence;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
-import io.vlingo.schemata.SchemataConfig;
 import org.jdbi.v3.core.statement.SqlStatement;
 
 import io.vlingo.actors.World;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
+import io.vlingo.schemata.SchemataConfig;
 import io.vlingo.schemata.infra.persistence.mappers.ContextStateMapper;
 import io.vlingo.schemata.infra.persistence.mappers.OrganizationStateMapper;
 import io.vlingo.schemata.infra.persistence.mappers.SchemaStateMapper;
