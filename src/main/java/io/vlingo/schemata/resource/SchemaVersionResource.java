@@ -189,6 +189,82 @@ public class SchemaVersionResource extends ResourceHandler {
         ));
     }
 
+    public Completes<Response> retrieveSchemaVersion(final String reference) {
+        FullyQualifiedReference fqr;
+        try {
+            fqr = FullyQualifiedReference.from(reference);
+        } catch (IllegalArgumentException ex) {
+            return Completes.withSuccess(Response.of(
+              BadRequest,
+              Headers.of(of(ContentLength, ex.getMessage().length())),
+              ex.getMessage()));
+        }
+
+        if (!fqr.isSchemaVersionReference()) {
+            final String msg = "Include the version of the schema to retrieve";
+            return Completes.withSuccess(Response.of(
+              BadRequest,
+              Headers.of(of(ContentLength, msg.length())),
+              msg));
+        }
+
+        return Queries.forSchemaVersions().schemaVersionOf(
+          fqr.organization,
+          fqr.unit,
+          fqr.context,
+          fqr.schema,
+          fqr.schemaVersion)
+          .andThenTo(schemaVersionData -> schemaVersionData.isNone()
+                ? Completes.withSuccess(
+                    Response.of(
+                      NotFound,
+                      "Schema version not found"))
+                : Completes.withSuccess(
+                    Response.of(
+                      Ok,
+                      Headers.of(of(ContentType, "application/json; charset=UTF-8")),
+                      serialized(schemaVersionData)))
+          );
+    }
+
+    public Completes<Response> retrieveSchemaVersionStatus(final String reference) {
+        FullyQualifiedReference fqr;
+        try {
+            fqr = FullyQualifiedReference.from(reference);
+        } catch (IllegalArgumentException ex) {
+            return Completes.withSuccess(Response.of(
+              BadRequest,
+              Headers.of(of(ContentLength, ex.getMessage().length())),
+              ex.getMessage()));
+        }
+
+        if (!fqr.isSchemaVersionReference()) {
+            final String msg = "Include the version of the schema to retrieve";
+            return Completes.withSuccess(Response.of(
+              BadRequest,
+              Headers.of(of(ContentLength, msg.length())),
+              msg));
+        }
+
+        return Queries.forSchemaVersions().schemaVersionOf(
+          fqr.organization,
+          fqr.unit,
+          fqr.context,
+          fqr.schema,
+          fqr.schemaVersion)
+          .andThenTo(schemaVersionData -> schemaVersionData.isNone()
+            ? Completes.withSuccess(
+            Response.of(
+              NotFound,
+              "Schema version not found"))
+            : Completes.withSuccess(
+            Response.of(
+              Ok,
+              Headers.of(of(ContentType, "text/plain; charset=UTF-8")),
+              schemaVersionData.status))
+          );
+    }
+
     @Override
     public Resource<?> routes() {
         return resource("SchemaVersion Resource", 1,
@@ -246,7 +322,13 @@ public class SchemaVersionResource extends ResourceHandler {
                 post("/versions/{reference}")
                         .param(String.class)
                         .body(SchemaVersionData.class)
-                        .handle(this::pushSchemaVersion));
+                        .handle(this::pushSchemaVersion),
+                get("/versions/{reference}")
+                  .param(String.class)
+                  .handle(this::retrieveSchemaVersion),
+                get("/versions/{reference}/status")
+                  .param(String.class)
+                  .handle(this::retrieveSchemaVersionStatus));
     }
 
     private String schemaVersionLocation(final SchemaVersionId schemaVersionId) {

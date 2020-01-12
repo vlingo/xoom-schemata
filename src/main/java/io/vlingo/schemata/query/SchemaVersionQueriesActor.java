@@ -202,6 +202,8 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
   private Completes<SchemaVersionData> queryOne(final String query, final Map<String,String> parameters) {
     final QueryExpression expression = MapQueryExpression.using(SchemaVersionState.class, query, parameters);
 
-    return queryObject(SchemaVersionState.class, expression, (SchemaVersionState state) -> SchemaVersionData.from(state));
+    return queryObject(SchemaVersionState.class, expression, (SchemaVersionState state) -> state == null
+      ? SchemaVersionData.none()
+      : SchemaVersionData.from(state));
   }
 }
