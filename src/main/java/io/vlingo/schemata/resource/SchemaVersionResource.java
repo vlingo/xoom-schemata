@@ -215,7 +215,17 @@ public class SchemaVersionResource extends ResourceHandler {
           fqr.context,
           fqr.schema,
           fqr.schemaVersion)
-          .andThenTo(schemaVersionData -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersionData))));
+          .andThenTo(schemaVersionData -> schemaVersionData.isNone()
+                ? Completes.withSuccess(
+                    Response.of(
+                      NotFound,
+                      "Schema version not found"))
+                : Completes.withSuccess(
+                    Response.of(
+                      Ok,
+                      Headers.of(of(ContentType, "application/json; charset=UTF-8")),
+                      serialized(schemaVersionData)))
+          );
     }
 
     @Override
