@@ -139,6 +139,11 @@ Accept: application/json
 GET http://localhost:9019/versions/search?organization=Org3&unit=Unit3&context=io.vlingo.schemata5&schema=SchemaDefinedFoo
 Accept: application/json
 
+### Retrieve schema versions by reference
+GET http://localhost:9019/versions/Org3:Unit3:io.vlingo.schemata5:SchemaDefinedFoo:1.0.0
+Accept: application/json
+
+
 ### Search for all schema versions by names
 
 
