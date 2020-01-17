@@ -107,7 +107,11 @@ public class SchemaVersionData {
 
       if (currentSemantic.isNonZero()
         && currentSemantic.isGreaterThan(previousSemantic)
-        && (currentSemantic.major == previousSemantic.major + 1)) {
+        && (
+          (currentSemantic.major == previousSemantic.major + 1)
+          || (currentSemantic.minor == previousSemantic.minor + 1)
+        )
+      ) {
         return true;
       }
 

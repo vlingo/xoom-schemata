@@ -64,7 +64,7 @@ public class SchemaVersionResource extends ResourceHandler {
       final SemanticVersion currentSemantic = SemanticVersion.from(data.currentVersion);
 
         // FIXME: Refactor into one reactive pipeline without awaiting
-      if(currentSemantic.isCompatibleWith(previousSemantic)) {
+      if(currentSemantic.equals(previousSemantic.nextPatch()) || currentSemantic.equals(previousSemantic.nextMinor())) {
         SchemaVersionData previousVersion = Queries.forSchemaVersions().schemaVersionOfVersion(
             organizationId,
             unitId,
