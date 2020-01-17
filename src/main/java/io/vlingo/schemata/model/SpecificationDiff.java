@@ -45,6 +45,7 @@ public class SpecificationDiff {
   }
 }
 
+// TODO: refactor to polymorphic impl?
 class Change {
 
   public enum Type { CHANGE, ADDITION, REMOVAL }

@@ -130,7 +130,6 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
       diff = diff.withChange(Change.ofType(leftType.typeName, rightType.typeName));
 
 
-    // TODO: Add compatible changes as well
     // TODO: refactor
     for (int i = 0; i < leftType.children.size(); i++) {
       FieldDefinition l = asFieldDefinition(leftType.children.get(i));
