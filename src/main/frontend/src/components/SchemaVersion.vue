@@ -130,6 +130,13 @@
                    @click="create">Create
             </v-btn>
         </v-card-actions>
+
+        <diff
+            :original="diff.originalSpecification"
+            :patched="diff.patchedSpecification"
+            :show="diff.show"
+            :changes="diff.changes"
+        ></diff>
     </v-card>
 </template>
 
@@ -138,11 +145,12 @@
     import Repository from '@/api/SchemataRepository'
     import editor from 'monaco-editor-vue';
     import validationRules from '@/mixins/form-validation-rules'
+    import diff from '@/components/Diff';
 
     export default {
         mixins: [selectboxLoaders, validationRules],
 
-        components: {editor},
+        components: {editor, diff},
         data: () => {
             return {
                 organizationId: undefined,
@@ -157,6 +165,13 @@
 
                 descriptionEditorActive: false,
                 specificationEditorActive: false,
+
+                diff: {
+                    show: false,
+                    originalSpecification: undefined,
+                    patchedSpecification: undefined,
+                    changes: [],
+                },
             }
         },
         computed: {
@@ -196,17 +211,13 @@
                         }
                     )
                     .catch(function (err) {
-                        let msg =  ''
-
                         if(err.response && err.response.status === 409) {
-                            msg = 'Incompatible changes within a compatible version change: '
-                            msg += err.response.data.changes
-                                .map(c => c.fromType + '.' + c.fromName + ' -> ' + c.toType + '.' + c.toName)
-                                .join('; ')
-                            msg += ' - '
+                            vm.diff.show = true;
+                            vm.diff.originalSpecification = err.response.data.oldSpecification;
+                            vm.diff.patchedSpecification = err.response.data.newSpecification;
                         }
 
-                        vm.$store.commit('raiseError', { message: msg + err })
+                        vm.$store.commit('raiseError', { message: 'Incompatible changes within a compatible version change' })
                     })
             },
             activateDescriptionEditor() {
