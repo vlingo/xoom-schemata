@@ -44,13 +44,6 @@ public interface SchemaVersion {
       final Version previousVersion,
       final Version nextVersion) {
 
-    final SemanticVersion previous = SemanticVersion.from(previousVersion.value);
-    final SemanticVersion next = SemanticVersion.from(nextVersion.value);
-
-    if (!next.isCompatibleWith(previous) && next.major != previous.major+1) {
-      throw new IllegalArgumentException("Versions are incompatible: previous: " + previousVersion.value + " next: " + nextVersion.value);
-    }
-
     final String actorName = nameFrom(schemaVersionId);
     final Address address = stage.addressFactory().from(schemaVersionId.value, actorName);
     final Definition definition = Definition.has(SchemaVersionEntity.class, new SchemaVersionInstantiator(schemaVersionId), actorName);
