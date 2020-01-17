@@ -16,7 +16,7 @@ jobs:
             for proj in common wire actors cluster symbio symbio-jdbc lattice http; do
             git clone https://github.com/vlingo/vlingo-$proj.git
             cd vlingo-$proj
-            # mvn -DskipTests install # FIXME: temporarily disabled due to upstream build issues
+            mvn -DskipTests install
             cd ..
             done
       - run: mvn -B clean package -Pfrontend

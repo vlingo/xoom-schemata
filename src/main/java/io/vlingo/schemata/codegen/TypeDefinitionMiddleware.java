@@ -10,7 +10,7 @@ public interface TypeDefinitionMiddleware {
     Completes<Node> compileToAST(final InputStream typeDefinition, final String fullyQualifiedTypeName);
 
     public static TypeDefinitionMiddleware middlewareFor(final Stage stage) {
-        //FIXME: factor out Middleware from compiler actor to be able to retrieve it w/o language
+        //TODO: factor out Middleware from compiler actor to be able to retrieve it w/o language
         return TypeDefinitionCompiler.compilerFor(stage,"java").middleware().await();
     }
 }
