@@ -74,7 +74,7 @@ public class SchemaVersionResource extends ResourceHandler {
             .otherwise(n -> null)
             .await();
 
-        if(previousVersion != null) {
+        if(previousVersion != null && !previousVersion.isNone() ) {
           SpecificationDiff diff = commands
               .diffAgainst(
                   SchemaVersionId.existing(
