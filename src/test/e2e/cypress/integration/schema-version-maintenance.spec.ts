@@ -65,7 +65,7 @@ describe('Schemata View Tests', function () {
       cy.contains('.v-list-item__title', data.version.currentVersion).click()
 
       // Change spec
-      cy.get('div[data-testid="tab-specification"]').click()
+      cy.get('div[data-testid="tab-specification"]').click().wait(250)
       cy.fillEditor('#specification-editor', 'foo bar baz')
       cy.contains('button', 'Save Specification').click()
 
@@ -75,7 +75,7 @@ describe('Schemata View Tests', function () {
       cy.expandSchemaTree(data)
       cy.contains('.v-list-item__title', data.version.currentVersion).click()
 
-      cy.get('div[data-testid="tab-specification"]').click()
+      cy.get('div[data-testid="tab-specification"]').click().wait(250)
       cy.editorContent('#specification-editor').should('contain', 'foo bar baz')
     });
   });
@@ -91,7 +91,7 @@ describe('Schemata View Tests', function () {
       cy.contains('.v-list-item__title', data.version.currentVersion).click()
 
       // Change description
-      cy.get('div[data-testid="tab-description"]').click()
+      cy.get('div[data-testid="tab-description"]').click().wait(250)
       cy.fillEditor('#description-editor', 'foo bar baz')
       cy.contains('button', 'Save Description').click()
 
@@ -101,7 +101,7 @@ describe('Schemata View Tests', function () {
       cy.expandSchemaTree(data)
       cy.contains('.v-list-item__title', data.version.currentVersion).click()
 
-      cy.get('div[data-testid="tab-description"]').click()
+      cy.get('div[data-testid="tab-description"]').click().wait(250)
       cy.editorContent('#description-editor').should('contain', 'foo bar baz')
     });
   });
