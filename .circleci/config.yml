@@ -13,7 +13,15 @@ jobs:
           name: buildSnapshottishDependencies
           command: |
             cd /tmp
-            for proj in common wire actors cluster symbio symbio-jdbc lattice http; do
+
+            # FIXME: switch to master branch before merging and add common to dependencies below
+            git clone https://github.com/vlingo/vlingo-common.git
+            cd vlingo-common
+            git checkout feature/semantic_version_increments
+            mvn -DskipTests install
+            cd ..
+
+            for proj in wire actors cluster symbio symbio-jdbc lattice http; do
             git clone https://github.com/vlingo/vlingo-$proj.git
             cd vlingo-$proj
             mvn -DskipTests install
