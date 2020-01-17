@@ -16,6 +16,7 @@ import io.vlingo.schemata.codegen.ast.types.BasicType;
 import io.vlingo.schemata.codegen.ast.types.ComputableType;
 import io.vlingo.schemata.codegen.ast.types.Type;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.schemata.codegen.ast.values.Value;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.model.Events.*;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
@@ -126,7 +127,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
         .await();
 
     if (!leftType.typeName.equals(rightType.typeName))
-      diff = diff.withChange(Change.incompatible(leftType.typeName, rightType.typeName));
+      diff = diff.withChange(Change.ofType(leftType.typeName, rightType.typeName));
 
 
     // TODO: Add compatible changes as well
@@ -138,20 +139,22 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
         FieldDefinition r = asFieldDefinition(rightType.children.get(i));
 
         if (!(l.name.equals(r.name) && l.defaultValue.equals(r.defaultValue) && l.version.equals(r.version))) {
-          diff = diff.withChange(Change.incompatible(leftType.typeName, rightType.typeName, l.name, r.name));
+          diff = diff.withChange(Change.ofField(l.name, r.name));
         }
 
         Type leftFieldType = l.type;
         Type rightFieldType = r.type;
 
         if (rightFieldType.getClass() != leftFieldType.getClass()) {
-          diff = diff.withChange(Change.incompatible(leftType.typeName, rightType.typeName, leftType.getClass().getSimpleName(),
-                  rightType.getClass().getSimpleName()));
+          diff = diff.withChange(Change.ofType(
+            String.format("%s (%s)", leftType.typeName, leftType.getClass().getSimpleName()),
+            String.format("%s (%s)", rightType.typeName, rightType.getClass().getSimpleName())
+          ));
         } else {
           diff = addFieldTypeDiffs(diff, leftFieldType, rightFieldType);
         }
       } else {
-        diff = diff.withChange(Change.incompatible(leftType.typeName, leftType.typeName, l.name, null));
+        diff = diff.withChange(Change.removalOfField(l.name));
       }
 
     }
@@ -162,20 +165,20 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   private SpecificationDiff addFieldTypeDiffs(SpecificationDiff diff, Type leftFieldType, Object rightFieldType) {
     if (leftFieldType instanceof BasicType
         && !((BasicType) leftFieldType).typeName.equals(((BasicType) rightFieldType).typeName)) {
-      diff = diff.withChange(Change.incompatible(
+      diff = diff.withChange(Change.ofType(
           ((BasicType) leftFieldType).typeName,
           ((BasicType) rightFieldType).typeName));
 
     } else if (leftFieldType instanceof ComputableType
         && !((ComputableType) leftFieldType).typeName.equals(((ComputableType) rightFieldType).typeName)
     ) {
-      diff = diff.withChange(Change.incompatible(
+      diff = diff.withChange(Change.ofField(
           ((ComputableType) leftFieldType).typeName,
           ((ComputableType) rightFieldType).typeName));
     } else if (leftFieldType instanceof TypeDefinition
         && !((TypeDefinition) leftFieldType).fullyQualifiedTypeName.equals(((TypeDefinition) rightFieldType).fullyQualifiedTypeName)
     ) {
-      diff = diff.withChange(Change.incompatible(
+      diff = diff.withChange(Change.ofType(
           ((TypeDefinition) leftFieldType).fullyQualifiedTypeName,
           ((TypeDefinition) rightFieldType).fullyQualifiedTypeName));
     }
