@@ -106,9 +106,9 @@ class Change {
       case CHANGE:
         return String.format("%s: %s  %s -> %s", type, subject, oldValue, newValue);
       case ADDITION:
-        return String.format("%s: %s +%s", type, subject, newValue);
+        return String.format("%s: %s %s", type, subject, newValue);
       case REMOVAL:
-        return String.format("%s: %s -%s", type, subject, oldValue);
+        return String.format("%s: %s %s", type, subject, oldValue);
     }
     return super.toString();
   }

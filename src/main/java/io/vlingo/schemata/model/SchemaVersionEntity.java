@@ -157,6 +157,13 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
         diff = diff.withChange(Change.removalOfField(l.name));
       }
 
+      if (i == leftType.children.size()-1) { // we're done with the left side, now process additions
+        for (int j = i; j < rightType.children.size(); j++) {
+          FieldDefinition r = asFieldDefinition(rightType.children.get(j));
+          diff = diff.withChange(Change.additionOfField(r.name));
+        }
+      }
+
     }
 
     return completes().with(diff);
