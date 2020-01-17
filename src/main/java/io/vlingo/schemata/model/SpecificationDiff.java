@@ -7,9 +7,13 @@ import java.util.stream.Collectors;
 
 public class SpecificationDiff {
   private final List<Change> changes;
+  private final String oldSpecification;
+  private final String newSpecification;
 
-  private SpecificationDiff() {
+  private SpecificationDiff(String oldSpecification, String newSpecification) {
     this.changes = new ArrayList<Change>();
+    this.oldSpecification = oldSpecification;
+    this.newSpecification = newSpecification;
   }
 
   public List<Change> changes() {
@@ -36,7 +40,11 @@ public class SpecificationDiff {
   }
 
   public static SpecificationDiff empty() {
-    return new SpecificationDiff();
+    return new SpecificationDiff("", "");
+  }
+
+  public static SpecificationDiff between(String oldSpecification, String newSpecification) {
+    return new SpecificationDiff(oldSpecification, newSpecification);
   }
 
   public SpecificationDiff withChange(Change change) {
@@ -48,8 +56,9 @@ public class SpecificationDiff {
 // TODO: refactor to polymorphic impl?
 class Change {
 
-  public enum Type { CHANGE, ADDITION, REMOVAL }
-  public enum Subject { FIELD, TYPE, VERSION }
+  public enum Type {CHANGE, ADDITION, REMOVAL}
+
+  public enum Subject {FIELD, TYPE, VERSION}
 
   public final Type type;
   public final Subject subject;

@@ -120,6 +120,8 @@ public class SchemaVersionResource extends ResourceHandler {
             return Completes.withSuccess(Response.of(BadRequest, "Missing specification"));
         }
 
+        //FIXME: add diff/validation as like in define with
+
         return commands
                 .specifyWith(SchemaVersionId.existing(organizationId, unitId, contextId, schemaId, schemaVersionId), Specification.of(specification)).answer()
                 .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaVersionData.from(state)))));

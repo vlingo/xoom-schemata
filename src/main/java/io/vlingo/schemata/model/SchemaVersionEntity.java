@@ -111,7 +111,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   public Completes<SpecificationDiff> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, final SchemaVersionData other) {
     requireRightSideSpecification(other.specification);
 
-    SpecificationDiff diff = SpecificationDiff.empty();
+    SpecificationDiff diff = SpecificationDiff.between(stateObject().specification.value, other.specification);
 
     // FIXME: Make reactive, don't await() the node; but using andThenTo() instead of andThen().await() has been hanging
     TypeDefinition leftType = typeDefinitionMiddleware.compileToAST(
