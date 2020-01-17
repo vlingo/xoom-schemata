@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -7,27 +7,13 @@
 
 package io.vlingo.schemata.codegen.specs;
 
-import io.vlingo.actors.World;
-import io.vlingo.actors.testkit.TestWorld;
-import io.vlingo.schemata.codegen.CodeGenTests;
-import io.vlingo.schemata.codegen.TypeDefinitionCompiler;
-import io.vlingo.schemata.codegen.TypeDefinitionCompilerActor;
-import io.vlingo.schemata.codegen.backend.Backend;
-import io.vlingo.schemata.codegen.backend.java.JavaBackend;
-import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
-import io.vlingo.schemata.codegen.parser.TypeParser;
-import io.vlingo.schemata.codegen.processor.Processor;
-import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
-import io.vlingo.schemata.codegen.processor.types.TypeResolver;
-import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
-import io.vlingo.schemata.query.SchemaVersionQueriesActor;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 
-import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
+import io.vlingo.schemata.codegen.CodeGenTests;
 
 public class JavaCodeGenTests extends CodeGenTests {
   @Test

@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -17,7 +17,6 @@ import io.vlingo.common.Tuple2;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.lattice.query.StateObjectQueryActor;
 import io.vlingo.schemata.Schemata;
-import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.object.MapQueryExpression;
@@ -203,12 +202,8 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
   private Completes<SchemaVersionData> queryOne(final String query, final Map<String,String> parameters) {
     final QueryExpression expression = MapQueryExpression.using(SchemaVersionState.class, query, parameters);
 
-    return queryObject(SchemaVersionState.class, expression,
-        (SchemaVersionState state) -> {
-          if (state == null) {
-            return null;
-          }
-          return SchemaVersionData.from(state);
-        });
+    return queryObject(SchemaVersionState.class, expression, (SchemaVersionState state) -> state == null
+      ? SchemaVersionData.none()
+      : SchemaVersionData.from(state));
   }
 }
