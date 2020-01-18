@@ -60,7 +60,7 @@ public class SchemaVersionData {
           final String status,
           final String previousVersion,
           final String nextVersion) {
-    return new SchemaVersionData(
+  return new SchemaVersionData(
           organizationId,
           unitId,
           contextId,
@@ -79,7 +79,7 @@ public class SchemaVersionData {
           final String status,
           final String previousVersion,
           final String nextVersion) {
-    return new SchemaVersionData(
+  return new SchemaVersionData(
           "", "", "", "", "",
           specification,
           description,
@@ -116,7 +116,7 @@ public class SchemaVersionData {
       }
 
       return (
-        currentSemantic.isNonZero() &&
+          currentSemantic.isNonZero() &&
           currentSemantic.isCompatibleWith(previousSemantic) &&
           currentSemantic.isGreaterThan(previousSemantic));
 
@@ -138,9 +138,9 @@ public class SchemaVersionData {
   @Override
   public String toString() {
     return "SchemaVersionData [organizationId=" + organizationId + ", unitId=" + unitId + ", contextId=" + contextId
-      + ", schemaId=" + schemaId + ", schemaVersionId=" + schemaVersionId + ", specification=" + specification
-      + ", description=" + description + ", status=" + status + ", previousVersion=" + previousVersion
-      + ", currentVersion=" + currentVersion + "]";
+            + ", schemaId=" + schemaId + ", schemaVersionId=" + schemaVersionId + ", specification=" + specification
+            + ", description=" + description + ", status=" + status + ", previousVersion=" + previousVersion
+            + ", currentVersion=" + currentVersion + "]";
   }
 
   private SchemaVersionData(
