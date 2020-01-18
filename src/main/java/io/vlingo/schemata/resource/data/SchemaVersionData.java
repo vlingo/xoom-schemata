@@ -27,16 +27,16 @@ public class SchemaVersionData {
 
   public static SchemaVersionData from(final SchemaVersionState state) {
     return new SchemaVersionData(
-      state.schemaVersionId.organizationId().value,
-      state.schemaVersionId.unitId().value,
-      state.schemaVersionId.contextId().value,
-      state.schemaVersionId.schemaId.value,
-      state.schemaVersionId.value,
-      state.specification.value,
-      state.description,
-      state.status.value,
-      state.previousVersion.value,
-      state.currentVersion.value);
+            state.schemaVersionId.organizationId().value,
+            state.schemaVersionId.unitId().value,
+            state.schemaVersionId.contextId().value,
+            state.schemaVersionId.schemaId.value,
+            state.schemaVersionId.value,
+            state.specification.value,
+            state.description,
+            state.status.value,
+            state.previousVersion.value,
+            state.currentVersion.value);
   }
 
   public static List<SchemaVersionData> from(final List<SchemaVersionState> states) {
@@ -50,42 +50,42 @@ public class SchemaVersionData {
   }
 
   public static SchemaVersionData from(
-    final String organizationId,
-    final String unitId,
-    final String contextId,
-    final String schemaId,
-    final String schemaVersionId,
-    final String specification,
-    final String description,
-    final String status,
-    final String previousVersion,
-    final String nextVersion) {
+          final String organizationId,
+          final String unitId,
+          final String contextId,
+          final String schemaId,
+          final String schemaVersionId,
+          final String specification,
+          final String description,
+          final String status,
+          final String previousVersion,
+          final String nextVersion) {
     return new SchemaVersionData(
-      organizationId,
-      unitId,
-      contextId,
-      schemaId,
-      schemaVersionId,
-      specification,
-      description,
-      status,
-      previousVersion,
-      nextVersion);
+          organizationId,
+          unitId,
+          contextId,
+          schemaId,
+          schemaVersionId,
+          specification,
+          description,
+          status,
+          previousVersion,
+          nextVersion);
   }
 
   public static SchemaVersionData just(
-    final String specification,
-    final String description,
-    final String status,
-    final String previousVersion,
-    final String nextVersion) {
+          final String specification,
+          final String description,
+          final String status,
+          final String previousVersion,
+          final String nextVersion) {
     return new SchemaVersionData(
-      "", "", "", "", "",
-      specification,
-      description,
-      status,
-      previousVersion,
-      nextVersion);
+          "", "", "", "", "",
+          specification,
+          description,
+          status,
+          previousVersion,
+          nextVersion);
   }
 
   public static SchemaVersionData none() {
@@ -144,16 +144,16 @@ public class SchemaVersionData {
   }
 
   private SchemaVersionData(
-    final String organizationId,
-    final String unitId,
-    final String contextId,
-    final String schemaId,
-    final String schemaVersionId,
-    final String specification,
-    final String description,
-    final String status,
-    final String previousVersion,
-    final String nextVersion) {
+          final String organizationId,
+          final String unitId,
+          final String contextId,
+          final String schemaId,
+          final String schemaVersionId,
+          final String specification,
+          final String description,
+          final String status,
+          final String previousVersion,
+          final String nextVersion) {
     this.organizationId = organizationId;
     this.unitId = unitId;
     this.contextId = contextId;
