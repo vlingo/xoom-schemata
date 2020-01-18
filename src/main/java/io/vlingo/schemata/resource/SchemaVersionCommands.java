@@ -73,7 +73,7 @@ class SchemaVersionCommands {
   }
 
   RoutableCommand<SchemaVersion,Command,SchemaVersionState> deprecate(
-              final SchemaVersionId schemaVersionId) {
+         final SchemaVersionId schemaVersionId) {
 
     final Deprecate deprecate = new Deprecate();
 
@@ -93,7 +93,7 @@ class SchemaVersionCommands {
   }
 
   RoutableCommand<SchemaVersion,Command,SchemaVersionState> remove(
-              final SchemaVersionId schemaVersionId) {
+          final SchemaVersionId schemaVersionId) {
 
     final Remove remove = new Remove();
 
@@ -119,14 +119,14 @@ class SchemaVersionCommands {
     final SpecifyWith specifyWith = new SpecifyWith(specification);
 
     RoutableCommand<SchemaVersion,Command,SchemaVersionState> command =
-          RoutableCommand
-            .speaks(SchemaVersion.class)
-            .to(SchemaVersionEntity.class)
-            .at(schemaVersionId.value)
-            .named(SchemaVersion.nameFrom(schemaVersionId))
-            .delivers(specifyWith)
-            .answers(Completes.using(stage.scheduler()))
-            .handledBy(specifyWith);
+            RoutableCommand
+              .speaks(SchemaVersion.class)
+              .to(SchemaVersionEntity.class)
+              .at(schemaVersionId.value)
+              .named(SchemaVersion.nameFrom(schemaVersionId))
+              .delivers(specifyWith)
+              .answers(Completes.using(stage.scheduler()))
+              .handledBy(specifyWith);
 
     router.route(command);
 
@@ -153,8 +153,7 @@ class SchemaVersionCommands {
     return command;
   }
 
-  private static class DescribeAs extends Command
-    implements CommandDispatcher<SchemaVersion,DescribeAs,Completes<SchemaVersionState>> {
+  private static class DescribeAs extends Command implements CommandDispatcher<SchemaVersion,DescribeAs,Completes<SchemaVersionState>> {
     private final String description;
 
     DescribeAs(final String description) {
@@ -162,28 +161,23 @@ class SchemaVersionCommands {
     }
 
     @Override
-    public void accept(final SchemaVersion protocol, final DescribeAs command,
-                       final Completes<SchemaVersionState> answer) {
+    public void accept(final SchemaVersion protocol, final DescribeAs command, final Completes<SchemaVersionState> answer) {
       protocol.describeAs(command.description).andThen(state -> answer.with(state));
     }
   }
 
   private static class Publish extends Command
     implements CommandDispatcher<SchemaVersion,Publish,Completes<SchemaVersionState>> {
-    Publish() {
-    }
+    Publish() { }
 
     @Override
-    public void accept(final SchemaVersion protocol, final Publish command,
-                       final Completes<SchemaVersionState> answer) {
+    public void accept(final SchemaVersion protocol, final Publish command, final Completes<SchemaVersionState> answer) {
       protocol.publish().andThen(state -> answer.with(state));
     }
   }
 
-  private static class Deprecate extends Command
-    implements CommandDispatcher<SchemaVersion, Deprecate, Completes<SchemaVersionState>> {
-    Deprecate() {
-    }
+  private static class Deprecate extends Command implements CommandDispatcher<SchemaVersion, Deprecate, Completes<SchemaVersionState>> {
+    Deprecate() { }
 
     @Override
     public void accept(final SchemaVersion protocol, final Deprecate command,
