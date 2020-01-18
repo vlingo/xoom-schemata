@@ -248,6 +248,7 @@
                 this.diffPatchedSpecification = undefined
                 this.diffChanges = []
                 this.$store.commit('dismissError');
+                this.$store.commit('finishLoading');
             }
         },
         mounted() {
