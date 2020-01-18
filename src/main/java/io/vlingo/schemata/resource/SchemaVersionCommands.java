@@ -32,96 +32,101 @@ class SchemaVersionCommands {
     this.router = CommandRouter.of(stage, Type.LoadBalancing, routees);
   }
 
-  RoutableCommand<SchemaVersion, Command, SchemaVersionState> describeAs(final SchemaVersionId schemaVersionId,
-                                                                         final String description) {
+  RoutableCommand<SchemaVersion, Command, SchemaVersionState> describeAs(
+          final SchemaVersionId schemaVersionId,
+          final String description) {
 
     final DescribeAs describeAs = new DescribeAs(description);
 
     RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
-      RoutableCommand.speaks(SchemaVersion.class)
-        .to(SchemaVersionEntity.class)
-        .at(schemaVersionId.value)
-        .named(SchemaVersion.nameFrom(schemaVersionId))
-        .delivers(describeAs)
-        .answers(Completes.using(stage.scheduler()))
-        .handledBy(describeAs);
+            RoutableCommand.speaks(SchemaVersion.class)
+              .to(SchemaVersionEntity.class)
+              .at(schemaVersionId.value)
+              .named(SchemaVersion.nameFrom(schemaVersionId))
+              .delivers(describeAs)
+              .answers(Completes.using(stage.scheduler()))
+              .handledBy(describeAs);
 
     router.route(command);
 
     return command;
   }
 
-  RoutableCommand<SchemaVersion, Command, SchemaVersionState> publish(final SchemaVersionId schemaVersionId) {
+  RoutableCommand<SchemaVersion, Command, SchemaVersionState> publish(
+          final SchemaVersionId schemaVersionId) {
 
     final Publish publish = new Publish();
 
     RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
-      RoutableCommand
-        .speaks(SchemaVersion.class)
-        .to(SchemaVersionEntity.class)
-        .at(schemaVersionId.value)
-        .named(SchemaVersion.nameFrom(schemaVersionId))
-        .delivers(publish)
-        .answers(Completes.using(stage.scheduler()))
-        .handledBy(publish);
+            RoutableCommand
+              .speaks(SchemaVersion.class)
+              .to(SchemaVersionEntity.class)
+              .at(schemaVersionId.value)
+              .named(SchemaVersion.nameFrom(schemaVersionId))
+              .delivers(publish)
+              .answers(Completes.using(stage.scheduler()))
+              .handledBy(publish);
 
     router.route(command);
 
     return command;
   }
 
-  RoutableCommand<SchemaVersion, Command, SchemaVersionState> deprecate(final SchemaVersionId schemaVersionId) {
+  RoutableCommand<SchemaVersion, Command, SchemaVersionState> deprecate(
+              final SchemaVersionId schemaVersionId) {
 
     final Deprecate deprecate = new Deprecate();
 
     RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
-      RoutableCommand
-        .speaks(SchemaVersion.class)
-        .to(SchemaVersionEntity.class)
-        .at(schemaVersionId.value)
-        .named(SchemaVersion.nameFrom(schemaVersionId))
-        .delivers(deprecate)
-        .answers(Completes.using(stage.scheduler()))
-        .handledBy(deprecate);
+            RoutableCommand
+              .speaks(SchemaVersion.class)
+              .to(SchemaVersionEntity.class)
+              .at(schemaVersionId.value)
+              .named(SchemaVersion.nameFrom(schemaVersionId))
+              .delivers(deprecate)
+              .answers(Completes.using(stage.scheduler()))
+              .handledBy(deprecate);
 
     router.route(command);
 
     return command;
   }
 
-  RoutableCommand<SchemaVersion, Command, SchemaVersionState> remove(final SchemaVersionId schemaVersionId) {
+  RoutableCommand<SchemaVersion, Command, SchemaVersionState> remove(
+              final SchemaVersionId schemaVersionId) {
 
     final Remove remove = new Remove();
 
     RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
-      RoutableCommand
-        .speaks(SchemaVersion.class)
-        .to(SchemaVersionEntity.class)
-        .at(schemaVersionId.value)
-        .named(SchemaVersion.nameFrom(schemaVersionId))
-        .delivers(remove)
-        .answers(Completes.using(stage.scheduler()))
-        .handledBy(remove);
+            RoutableCommand
+              .speaks(SchemaVersion.class)
+              .to(SchemaVersionEntity.class)
+              .at(schemaVersionId.value)
+              .named(SchemaVersion.nameFrom(schemaVersionId))
+              .delivers(remove)
+              .answers(Completes.using(stage.scheduler()))
+              .handledBy(remove);
 
     router.route(command);
 
     return command;
   }
 
-  RoutableCommand<SchemaVersion, Command, SchemaVersionState> specifyWith(final SchemaVersionId schemaVersionId,
-                                                                          final Specification specification) {
+  RoutableCommand<SchemaVersion, Command, SchemaVersionState> specifyWith(
+          final SchemaVersionId schemaVersionId,
+          final Specification specification) {
 
     final SpecifyWith specifyWith = new SpecifyWith(specification);
 
     RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
-      RoutableCommand
-        .speaks(SchemaVersion.class)
-        .to(SchemaVersionEntity.class)
-        .at(schemaVersionId.value)
-        .named(SchemaVersion.nameFrom(schemaVersionId))
-        .delivers(specifyWith)
-        .answers(Completes.using(stage.scheduler()))
-        .handledBy(specifyWith);
+          RoutableCommand
+            .speaks(SchemaVersion.class)
+            .to(SchemaVersionEntity.class)
+            .at(schemaVersionId.value)
+            .named(SchemaVersion.nameFrom(schemaVersionId))
+            .delivers(specifyWith)
+            .answers(Completes.using(stage.scheduler()))
+            .handledBy(specifyWith);
 
     router.route(command);
 

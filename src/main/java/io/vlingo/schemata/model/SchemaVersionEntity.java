@@ -36,10 +36,10 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
 
   @Override
   public Completes<SchemaVersionState> defineWith(
-      final Specification specification,
-      final String description,
-      final Version previousVersion,
-      final Version nextVersion) {
+          final Specification specification,
+          final String description,
+          final Version previousVersion,
+          final Version nextVersion) {
     assert (description != null && !description.isEmpty());
     return apply(
         this.state.defineWith(description, specification, previousVersion, nextVersion),
