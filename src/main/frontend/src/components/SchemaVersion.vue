@@ -132,10 +132,11 @@
         </v-card-actions>
 
         <diff
-            :original="diff.originalSpecification"
-            :patched="diff.patchedSpecification"
-            :show="diff.show"
-            :changes="diff.changes"
+                :original="diffOriginalSpecification"
+                :patched="diffPatchedSpecification"
+                :show="diffShow"
+                :changes="diffChanges"
+                @close="resetDiff()"
         ></diff>
     </v-card>
 </template>
@@ -166,12 +167,10 @@
                 descriptionEditorActive: false,
                 specificationEditorActive: false,
 
-                diff: {
-                    show: false,
-                    originalSpecification: undefined,
-                    patchedSpecification: undefined,
-                    changes: [],
-                },
+                diffShow: false,
+                diffOriginalSpecification: undefined,
+                diffPatchedSpecification: undefined,
+                diffChanges: [],
             }
         },
         computed: {
@@ -211,14 +210,14 @@
                         }
                     )
                     .catch(function (err) {
-                        if(err.response && err.response.status === 409) {
-                            vm.diff.show = true;
-                            vm.diff.originalSpecification = err.response.data.oldSpecification;
-                            vm.diff.patchedSpecification = err.response.data.newSpecification;
-                            vm.diff.changes = err.response.data.changes;
+                        if (err.response && err.response.status === 409) {
+                            vm.diffShow = true;
+                            vm.diffOriginalSpecification = err.response.data.oldSpecification;
+                            vm.diffPatchedSpecification = err.response.data.newSpecification;
+                            vm.diffChanges = err.response.data.changes;
                         }
+                        vm.$store.commit('raiseError', {message: 'Incompatible changes within a compatible version change'})
 
-                        vm.$store.commit('raiseError', { message: 'Incompatible changes within a compatible version change' })
                     })
             },
             activateDescriptionEditor() {
@@ -242,6 +241,13 @@
                         vm.previousVersion = loaded.previousVersion
                         vm.currentVersion = loaded.currentVersion
                     })
+            },
+            resetDiff() {
+                this.diffShow = false
+                this.diffOriginalSpecification = undefined
+                this.diffPatchedSpecification = undefined
+                this.diffChanges = []
+                this.$store.commit('dismissError');
             }
         },
         mounted() {

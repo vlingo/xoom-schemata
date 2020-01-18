@@ -1,7 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
     <v-card class="xs12" min-height="95vh" min-width="100%">
         <v-card-text>
-            <v-dialog v-model="show">
+            <v-dialog v-model="open">
                 <v-card>
                     <editor
                             id="diff-editor"
@@ -16,8 +16,8 @@
                     <v-list disabled dense>
                         <v-list-item v-for="(c,i) in changes" :key="i">
                             <v-list-item-icon>
-                                <v-icon :color="colorFor(c.type)">{{iconFor(c.type)}}</v-icon>
                                 <v-icon>{{iconFor(c.subject)}}</v-icon>
+                                <v-icon :color="colorFor(c.type)">{{iconFor(c.type)}}</v-icon>
                             </v-list-item-icon>
                             <v-list-item-content>
                                 <v-list-item-title>
@@ -72,6 +72,17 @@
                     REMOVAL: mdiMinusBox,
                     arrowRight: mdiArrowRight,
                 }
+            }
+        },
+        computed: {
+          open: {
+              get() { return this.show },
+              set(newVal) { if(!newVal) this.$emit('close') }
+          }
+        },
+        watch: {
+            show() {
+                this.open = this.show
             }
         },
 
