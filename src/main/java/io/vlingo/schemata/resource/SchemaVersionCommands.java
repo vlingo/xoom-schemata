@@ -32,13 +32,13 @@ class SchemaVersionCommands {
     this.router = CommandRouter.of(stage, Type.LoadBalancing, routees);
   }
 
-  RoutableCommand<SchemaVersion, Command, SchemaVersionState> describeAs(
+  RoutableCommand<SchemaVersion,Command,SchemaVersionState> describeAs(
           final SchemaVersionId schemaVersionId,
           final String description) {
 
     final DescribeAs describeAs = new DescribeAs(description);
 
-    RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
+    RoutableCommand<SchemaVersion,Command,SchemaVersionState> command =
             RoutableCommand.speaks(SchemaVersion.class)
               .to(SchemaVersionEntity.class)
               .at(schemaVersionId.value)
@@ -52,12 +52,12 @@ class SchemaVersionCommands {
     return command;
   }
 
-  RoutableCommand<SchemaVersion, Command, SchemaVersionState> publish(
+  RoutableCommand<SchemaVersion,Command,SchemaVersionState> publish(
           final SchemaVersionId schemaVersionId) {
 
     final Publish publish = new Publish();
 
-    RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
+    RoutableCommand<SchemaVersion,Command,SchemaVersionState> command =
             RoutableCommand
               .speaks(SchemaVersion.class)
               .to(SchemaVersionEntity.class)
@@ -72,12 +72,12 @@ class SchemaVersionCommands {
     return command;
   }
 
-  RoutableCommand<SchemaVersion, Command, SchemaVersionState> deprecate(
+  RoutableCommand<SchemaVersion,Command,SchemaVersionState> deprecate(
               final SchemaVersionId schemaVersionId) {
 
     final Deprecate deprecate = new Deprecate();
 
-    RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
+    RoutableCommand<SchemaVersion,Command,SchemaVersionState> command =
             RoutableCommand
               .speaks(SchemaVersion.class)
               .to(SchemaVersionEntity.class)
@@ -92,12 +92,12 @@ class SchemaVersionCommands {
     return command;
   }
 
-  RoutableCommand<SchemaVersion, Command, SchemaVersionState> remove(
+  RoutableCommand<SchemaVersion,Command,SchemaVersionState> remove(
               final SchemaVersionId schemaVersionId) {
 
     final Remove remove = new Remove();
 
-    RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
+    RoutableCommand<SchemaVersion,Command,SchemaVersionState> command =
             RoutableCommand
               .speaks(SchemaVersion.class)
               .to(SchemaVersionEntity.class)
@@ -112,13 +112,13 @@ class SchemaVersionCommands {
     return command;
   }
 
-  RoutableCommand<SchemaVersion, Command, SchemaVersionState> specifyWith(
+  RoutableCommand<SchemaVersion,Command,SchemaVersionState> specifyWith(
           final SchemaVersionId schemaVersionId,
           final Specification specification) {
 
     final SpecifyWith specifyWith = new SpecifyWith(specification);
 
-    RoutableCommand<SchemaVersion, Command, SchemaVersionState> command =
+    RoutableCommand<SchemaVersion,Command,SchemaVersionState> command =
           RoutableCommand
             .speaks(SchemaVersion.class)
             .to(SchemaVersionEntity.class)
@@ -154,7 +154,7 @@ class SchemaVersionCommands {
   }
 
   private static class DescribeAs extends Command
-    implements CommandDispatcher<SchemaVersion, DescribeAs, Completes<SchemaVersionState>> {
+    implements CommandDispatcher<SchemaVersion,DescribeAs,Completes<SchemaVersionState>> {
     private final String description;
 
     DescribeAs(final String description) {
@@ -169,7 +169,7 @@ class SchemaVersionCommands {
   }
 
   private static class Publish extends Command
-    implements CommandDispatcher<SchemaVersion, Publish, Completes<SchemaVersionState>> {
+    implements CommandDispatcher<SchemaVersion,Publish,Completes<SchemaVersionState>> {
     Publish() {
     }
 
