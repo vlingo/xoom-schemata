@@ -198,7 +198,7 @@ describe('Schemata View Tests', function () {
 
       // Create new version and assert error
       cy.contains('button', 'Create').click()
-      cy.get('.v-snack__wrapper.error').contains('409')
+      cy.get('.v-snack__wrapper.error').contains('Incompatible')
     });
   });
 
@@ -222,7 +222,7 @@ describe('Schemata View Tests', function () {
 
       // Create new version and assert error
       cy.contains('button', 'Create').click()
-      cy.get('.v-snack__wrapper.error').contains('409')
+      cy.get('.v-snack__wrapper.error').contains('Incompatible')
     });
   });
 
