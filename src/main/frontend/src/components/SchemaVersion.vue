@@ -215,6 +215,7 @@
                             vm.diff.show = true;
                             vm.diff.originalSpecification = err.response.data.oldSpecification;
                             vm.diff.patchedSpecification = err.response.data.newSpecification;
+                            vm.diff.changes = err.response.data.changes;
                         }
 
                         vm.$store.commit('raiseError', { message: 'Incompatible changes within a compatible version change' })

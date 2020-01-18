@@ -13,6 +13,21 @@
                             height="400"
                             :options="{ readOnly: true, automaticLayout: true }"
                     ></editor>
+                    <v-list disabled dense>
+                        <v-list-item v-for="(c,i) in changes" :key="i">
+                            <v-list-item-icon>
+                                <v-icon :color="colorFor(c.type)">{{iconFor(c.type)}}</v-icon>
+                                <v-icon>{{iconFor(c.subject)}}</v-icon>
+                            </v-list-item-icon>
+                            <v-list-item-content>
+                                <v-list-item-title>
+                                    <span class="old">{{c.oldValue}}</span>
+                                    <span v-if="c.oldValue"><v-icon>{{icons.arrowRight}}</v-icon></span>
+                                    <span class="new">{{c.newValue}}</span>
+                                </v-list-item-title>
+                            </v-list-item-content>
+                        </v-list-item>
+                    </v-list>
                 </v-card>
             </v-dialog>
         </v-card-text>
@@ -21,6 +36,8 @@
 
 <script>
     import editor from 'monaco-editor-vue';
+    import {mdiCodeBraces, mdiLabelOff, mdiMinusBox, mdiNotEqual, mdiPlusBox, mdiVariable, mdiArrowRight} from '@mdi/js'
+
 
     export default {
         components: {editor},
@@ -46,6 +63,31 @@
         },
         data: () => {
             return {
+                icons: {
+                    FIELD: mdiVariable,
+                    TYPE: mdiCodeBraces,
+                    VERSION: mdiLabelOff,
+                    ADDITION: mdiPlusBox,
+                    CHANGE: mdiNotEqual,
+                    REMOVAL: mdiMinusBox,
+                    arrowRight: mdiArrowRight,
+                }
+            }
+        },
+
+        methods: {
+            iconFor(type) {
+                return this.icons[type]
+            },
+            colorFor(type) {
+                switch (type) {
+                    case "ADDITION":
+                        return 'primary'
+                    case "CHANGE":
+                        return 'warning'
+                    case "REMOVAL":
+                        return 'error'
+                }
             }
         },
 
@@ -54,3 +96,9 @@
         }
     }
 </script>
+<style>
+    .old {
+        text-decoration: line-through;
+        color: grey;
+    }
+</style>
