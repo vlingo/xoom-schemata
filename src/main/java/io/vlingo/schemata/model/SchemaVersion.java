@@ -12,8 +12,10 @@ import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.common.version.SemanticVersion;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
+import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public interface SchemaVersion {
   static String nameFrom(final SchemaVersionId schemaVersionId) {
@@ -42,13 +44,6 @@ public interface SchemaVersion {
           final Version previousVersion,
           final Version nextVersion) {
 
-    final SemanticVersion previous = SemanticVersion.from(previousVersion.value);
-    final SemanticVersion next = SemanticVersion.from(nextVersion.value);
-
-    if (!next.isCompatibleWith(previous)) {
-      throw new IllegalArgumentException("Versions are incompatible: previous: " + previousVersion.value + " next: " + nextVersion.value);
-    }
-
     final String actorName = nameFrom(schemaVersionId);
     final Address address = stage.addressFactory().from(schemaVersionId.value, actorName);
     final Definition definition = Definition.has(SchemaVersionEntity.class, new SchemaVersionInstantiator(schemaVersionId), actorName);
@@ -68,6 +63,8 @@ public interface SchemaVersion {
 
   Completes<SchemaVersionState> specifyWith(final Specification specification);
 
+  Completes<SpecificationDiff> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, SchemaVersionData other);
+
   class Specification {
     public final String value;
 
@@ -76,7 +73,7 @@ public interface SchemaVersion {
     }
 
     public Specification(final String value) {
-      assert(value != null && !value.trim().isEmpty());
+      assert (value != null && !value.trim().isEmpty());
       this.value = value;
     }
 
@@ -106,9 +103,13 @@ public interface SchemaVersion {
     };
 
     public final String value = this.name();
+
     public boolean isDraft() { return false; }
+
     public boolean isPublished() { return false; }
+
     public boolean isDeprecated() { return false; }
+
     public boolean isRemoved() { return false; }
   }
 
@@ -120,7 +121,7 @@ public interface SchemaVersion {
     }
 
     public Version(final String value) {
-      assert(value != null);
+      assert (value != null);
 
       // asserts valid as a semantic version (not necessarily correct)
       SemanticVersion.from(value);

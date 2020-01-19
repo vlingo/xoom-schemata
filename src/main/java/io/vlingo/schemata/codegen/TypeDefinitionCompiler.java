@@ -86,6 +86,13 @@ public interface TypeDefinitionCompiler {
    */
   Completes<String> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version);
 
+  /**
+   * Answer this compiler's middleware.
+   * @return {@code TypeDefinitionMiddleware}
+   */
+  Completes<TypeDefinitionMiddleware> middleware();
+
+
   // INTERNAL USE ONLY
   static class __TypeDefinitionCompiler__Holder {
     static final Map<String,TypeDefinitionCompiler> __internal__compilers = new ConcurrentHashMap<>();

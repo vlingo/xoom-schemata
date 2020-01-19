@@ -7,11 +7,11 @@
 
 package io.vlingo.schemata.resource.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.schemata.model.SchemaVersionState;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SchemaVersionData {
   public final String organizationId;
@@ -104,6 +104,16 @@ public class SchemaVersionData {
     try {
       final SemanticVersion previousSemantic = SemanticVersion.from(previousVersion);
       final SemanticVersion currentSemantic = SemanticVersion.from(currentVersion);
+
+      if (currentSemantic.isNonZero()
+        && currentSemantic.isGreaterThan(previousSemantic)
+        && (
+          (currentSemantic.major == previousSemantic.major + 1)
+          || (currentSemantic.minor == previousSemantic.minor + 1)
+        )
+      ) {
+        return true;
+      }
 
       return (
           currentSemantic.isNonZero() &&

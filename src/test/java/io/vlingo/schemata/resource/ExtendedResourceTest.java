@@ -33,11 +33,11 @@ public class ExtendedResourceTest extends ResourceTest {
     private final ContextData contextData11 = ContextData.just("io.vlingo.lattice" , "namespace 1b descrption");
     private final SchemaData schemaData10 = SchemaData.just(Category.Event.name(), Scope.Public.name(), "SchemaDefined1", "SchemaDefined description");
     private final SchemaData schemaData11 = SchemaData.just(Category.Event.name(), Scope.Public.name(), "SchemaDefined1_1", "SchemaDefined description");
-    private final SchemaVersionData schemaVersionData10 = SchemaVersionData.just("event SchemaDefined10 {}", "SchemaDefined description",
+    private final SchemaVersionData schemaVersionData10 = SchemaVersionData.just("event SchemaDefined {}", "SchemaDefined description",
             Draft.name(), "0.0.1", "0.0.2");
-    private final SchemaVersionData schemaVersionData10_2 = SchemaVersionData.just("event SchemaDefined10_2 {}", "SchemaDefined description",
+    private final SchemaVersionData schemaVersionData10_2 = SchemaVersionData.just("event SchemaDefined {}", "SchemaDefined description",
             Draft.name(), "0.0.2", "0.0.3");
-    private final SchemaVersionData schemaVersionData11 = SchemaVersionData.just("event SchemaDefined11 {}", "SchemaDefined description",
+    private final SchemaVersionData schemaVersionData11 = SchemaVersionData.just("event SchemaDefined {}", "SchemaDefined description",
             Draft.name(), "0.0.6", "0.0.7");
 
     private final OrganizationData orgData2 = OrganizationData.just("org2", "org2 description");
