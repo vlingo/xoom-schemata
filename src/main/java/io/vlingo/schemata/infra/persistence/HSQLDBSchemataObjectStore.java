@@ -111,7 +111,7 @@ public class HSQLDBSchemataObjectStore extends SchemataObjectStore {
               "specification VARCHAR(" + specificationWidth + ") NOT NULL, " +
               "description VARCHAR(8000), " +
               "status VARCHAR(16) NOT NULL, " +
-              "previousVersion VARCHAR(20) NOT NULL, " +
+              "previousVersion VARCHAR(20), " +
               "currentVersion VARCHAR(20) NOT NULL " +
 
 //              "UNIQUE (schemaId, currentVersion) " +

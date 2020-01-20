@@ -130,6 +130,14 @@
                    @click="create">Create
             </v-btn>
         </v-card-actions>
+
+        <diff
+                :original="diffOriginalSpecification"
+                :patched="diffPatchedSpecification"
+                :show="diffShow"
+                :changes="diffChanges"
+                @close="resetDiff()"
+        ></diff>
     </v-card>
 </template>
 
@@ -138,11 +146,12 @@
     import Repository from '@/api/SchemataRepository'
     import editor from 'monaco-editor-vue';
     import validationRules from '@/mixins/form-validation-rules'
+    import diff from '@/components/Diff';
 
     export default {
         mixins: [selectboxLoaders, validationRules],
 
-        components: {editor},
+        components: {editor, diff},
         data: () => {
             return {
                 organizationId: undefined,
@@ -157,16 +166,21 @@
 
                 descriptionEditorActive: false,
                 specificationEditorActive: false,
+
+                diffShow: false,
+                diffOriginalSpecification: undefined,
+                diffPatchedSpecification: undefined,
+                diffChanges: [],
             }
         },
-      computed: {
-        editorOptions() {
-          return {
-            automaticLayout: true,
-              readOnly: this.schemaVersionId !== undefined
-          }
-        }
-      },
+        computed: {
+            editorOptions() {
+                return {
+                    automaticLayout: true,
+                    readOnly: this.schemaVersionId !== undefined
+                }
+            }
+        },
         methods: {
             create() {
                 let vm = this
@@ -196,8 +210,14 @@
                         }
                     )
                     .catch(function (err) {
-                        let response = err.response ? err.response.data + ' - ' : ''
-                        vm.$store.commit('raiseError', {message: response + err})
+                        if (err.response && err.response.status === 409) {
+                            vm.diffShow = true;
+                            vm.diffOriginalSpecification = err.response.data.oldSpecification;
+                            vm.diffPatchedSpecification = err.response.data.newSpecification;
+                            vm.diffChanges = err.response.data.changes;
+                        }
+                        vm.$store.commit('raiseError', {message: 'Incompatible changes within a compatible version change'})
+
                     })
             },
             activateDescriptionEditor() {
@@ -209,29 +229,37 @@
                 this.specificationEditorActive = true
             },
             load(organizationId, unitId, contextId, schemaId, schemaVersionId) {
-              let vm = this
-              Repository.getVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
-                .then((loaded) => {
-                  vm.organizationId = loaded.organizationId
-                  vm.unitId = loaded.unitId
-                  vm.contextId = loaded.contextId
-                  vm.speficication = loaded.speficication
-                  vm.description = loaded.description
-                  vm.status = loaded.status
-                  vm.previousVersion = loaded.previousVersion
-                  vm.currentVersion = loaded.currentVersion
-                })
+                let vm = this
+                Repository.getVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
+                    .then((loaded) => {
+                        vm.organizationId = loaded.organizationId
+                        vm.unitId = loaded.unitId
+                        vm.contextId = loaded.contextId
+                        vm.speficication = loaded.speficication
+                        vm.description = loaded.description
+                        vm.status = loaded.status
+                        vm.previousVersion = loaded.previousVersion
+                        vm.currentVersion = loaded.currentVersion
+                    })
+            },
+            resetDiff() {
+                this.diffShow = false
+                this.diffOriginalSpecification = undefined
+                this.diffPatchedSpecification = undefined
+                this.diffChanges = []
+                this.$store.commit('dismissError');
+                this.$store.commit('finishLoading');
             }
         },
         mounted() {
-          this.organizationId = this.$store.getters.organizationId
-          this.unitId = this.$store.getters.unitId
-          this.contextId = this.$store.getters.contextId
-          this.schemaId = this.$store.getters.schemaId
-          let schemaVersionId = this.$store.getters.schemaVersionId
-          if (this.organizationId && this.unitId && this.contextId && this.schemaId && schemaVersionId) {
-            this.load(this.organizationId, this.unitId, this.contextId, this.schemaId, schemaVersionId)
-          }
+            this.organizationId = this.$store.getters.organizationId
+            this.unitId = this.$store.getters.unitId
+            this.contextId = this.$store.getters.contextId
+            this.schemaId = this.$store.getters.schemaId
+            let schemaVersionId = this.$store.getters.schemaVersionId
+            if (this.organizationId && this.unitId && this.contextId && this.schemaId && schemaVersionId) {
+                this.load(this.organizationId, this.unitId, this.contextId, this.schemaId, schemaVersionId)
+            }
         }
     }
 </script>
