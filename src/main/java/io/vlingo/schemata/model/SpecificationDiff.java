@@ -57,7 +57,7 @@ public class SpecificationDiff {
 // TODO: refactor to polymorphic impl?
 class Change {
 
-  public enum Type {CHANGE, ADDITION, REMOVAL}
+  public enum Type {CHANGE, ADDITION, REMOVAL, MOVE}
 
   public enum Subject {FIELD, TYPE, VERSION}
 
@@ -109,6 +109,10 @@ class Change {
 
   static Change additionOfField(String value) {
     return new Change(Type.ADDITION, Subject.FIELD, null, value);
+  }
+
+  static Change ofMove(String field) {
+    return new Change(Type.MOVE, Subject.TYPE, field, null);
   }
 
   public boolean isCompatible() {

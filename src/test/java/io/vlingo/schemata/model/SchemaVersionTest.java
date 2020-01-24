@@ -31,7 +31,6 @@ import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.ObjectStore;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -47,13 +46,14 @@ public class SchemaVersionTest {
   private ObjectTypeRegistry registry;
   private SchemaVersion simpleSchemaVersion;
   private SchemaVersionId simpleSchemaVersionId;
+  private SchemaVersionState simpleVersion;
   private SchemaVersion basicTypesSchemaVersion;
   private SchemaVersionId basicTypesSchemaVersionId;
+  private SchemaVersionState basicTypesVersion;
   private ObjectStore objectStore;
   private TypeDefinitionMiddleware typeDefinitionMiddleware;
   private World world;
   private Stage stage;
-  private SchemaVersionState firstVersion;
 
   @Before
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -81,11 +81,11 @@ public class SchemaVersionTest {
 
     simpleSchemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
     simpleSchemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, simpleSchemaVersionId);
-    firstVersion = simpleSchemaVersionState();
+    simpleVersion = simpleSchemaVersionState();
 
     basicTypesSchemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
     basicTypesSchemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, basicTypesSchemaVersionId);
-    completeBasicTypesSchemaVersionState();
+    basicTypesVersion = completeBasicTypesSchemaVersionState();
   }
 
   @Test
@@ -101,7 +101,7 @@ public class SchemaVersionTest {
 
   @Test
   public void schemaVersionWithAddedAttributeIsCompatible() {
-    final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
+    final SchemaVersionData secondVersion = SchemaVersionData.from(simpleVersion.withSpecification(
         new Specification("event Foo { " +
             "string bar\n" +
             "string baz\n" +
@@ -113,7 +113,7 @@ public class SchemaVersionTest {
 
   @Test
   public void schemaVersionWithRemovedAttributeIsNotCompatible() {
-    final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
+    final SchemaVersionData secondVersion = SchemaVersionData.from(simpleVersion.withSpecification(
         new Specification("event Foo { " +
             "string baz\n" +
             "}")));
@@ -124,7 +124,7 @@ public class SchemaVersionTest {
 
   @Test
   public void schemaVersionWithAddedAndRemovedAttributesAreNotCompatible() {
-    final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
+    final SchemaVersionData secondVersion = SchemaVersionData.from(simpleVersion.withSpecification(
         new Specification("event Foo { " +
             "string baz\n" +
             "}")));
@@ -135,7 +135,7 @@ public class SchemaVersionTest {
 
   @Test
   public void schemaVersionWithTypeChangesAreNotCompatible() {
-    final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
+    final SchemaVersionData secondVersion = SchemaVersionData.from(simpleVersion.withSpecification(
         new Specification("event Foo { " +
             "int bar\n" +
             "}")));
@@ -146,14 +146,24 @@ public class SchemaVersionTest {
 
   @Test
   public void schemaVersionWithReorderedAttributesAreNotCompatible() {
-    final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
+    final SchemaVersionData secondVersion = SchemaVersionData.from(basicTypesVersion.withSpecification(
         new Specification("event Foo { " +
-            "string baz\n" +
-            "string bar\n" +
+          "string stringAttribute\n"+
+          "short shortAttribute\n"+
+          "long longAttribute\n"+
+          "byte byteAttribute\n"+
+          "int intAttribute\n"+
+          "double doubleAttribute\n"+
+          "char charAttribute\n"+
+          "float floatAttribute\n"+
+          "boolean booleanAttribute\n"+
+          "version eventVersion\n"+
+          "timestamp occurredOn\n"+
+          "type eventType\n"+
             "}")));
 
     assertIncompatible("Versions with added and removed attributes must not be compatible",
-        simpleSchemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
+        basicTypesSchemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   @Test public void identicalSpecificationsHaveNoDiff() {
@@ -183,9 +193,9 @@ public class SchemaVersionTest {
       "}",null,null,null, null);
 
     SpecificationDiff diff = basicTypesSchemaVersion.diff(typeDefinitionMiddleware, dst).await();
-    assertThat(diff.changes().size(),is(6));
-    assertThat(diff.changes(), everyItem(matches(c -> c.type == Change.Type.REMOVAL, "All changes must be removals")));
-    assertThat(diff.changes(), everyItem(matches(c -> c.subject == Change.Subject.FIELD, "All changes must have occurred on fields")));
+    assertThat(diff.changes().size(),is(11));
+    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.REMOVAL).count(), is(6L));
+    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.MOVE).count(), is(5L));
   }
 
   @Test public void additionIsTrackedInDiff() {

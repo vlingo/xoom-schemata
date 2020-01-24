@@ -156,7 +156,6 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
       )
       .collect(toList());
 
-
     // Collect removed fields
     List<FieldDefinition> removals = leftType.children.stream()
       .filter(l -> rightType.children.stream().noneMatch(r -> l.name().equals(r.name())))
@@ -169,6 +168,8 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
       .map(SchemaVersionEntity::asFieldDefinition)
       .collect(toList());
 
+
+    // record changes
     for (Tuple2<FieldDefinition,FieldDefinition> change: changedFields) {
       if(!change._1.version.equals(change._2.version)) {
         diff = diff.withChange(Change.ofVersion(change._1.version.toString(), change._2.version.toString()));
@@ -178,12 +179,25 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
       }
     }
 
+    // record additions
     for(FieldDefinition addition : additions) {
       diff = diff.withChange(Change.additionOfField(addition.name));
     }
 
+    // record deletions
     for(FieldDefinition removal : removals) {
       diff = diff.withChange(Change.removalOfField(removal.name));
+    }
+
+    //record moves
+    for(int i = 0; i < rightType.children.size(); i++) {
+      Node right = rightType.children.get(i);
+      if(i < leftType.children.size()
+          && leftType.children.indexOf(right) != -1
+          && !right.name().equals(leftType.children.get(i).name())) {
+            diff = diff.withChange(
+              Change.ofMove(right.name()));
+      }
     }
 
     return completes().with(diff);
