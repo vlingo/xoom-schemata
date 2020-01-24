@@ -3,6 +3,7 @@ package io.vlingo.schemata.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class SpecificationDiff {
@@ -89,8 +90,12 @@ class Change {
     return new Change(Type.CHANGE, Subject.TYPE, oldValue, newValue);
   }
 
-  static Change ofField(String oldValue, String newValue) {
+  static Change ofFieldName(String oldValue, String newValue) {
     return new Change(Type.CHANGE, Subject.FIELD, oldValue, newValue);
+  }
+
+  static Change ofFieldType(String oldType, String newType) {
+    return new Change(Type.CHANGE, Subject.FIELD, oldType, newType);
   }
 
   static Change ofVersion(String oldValue, String newValue) {
@@ -110,6 +115,8 @@ class Change {
     return this.type == Type.ADDITION;
   }
 
+  public Type getType() { return type; }
+
   @Override
   public String toString() {
     switch (type) {
@@ -121,5 +128,23 @@ class Change {
         return String.format("%s: %s %s", type, subject, oldValue);
     }
     return super.toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Change change = (Change) o;
+    return type == change.type &&
+      subject == change.subject &&
+      Objects.equals(oldValue, change.oldValue) &&
+      Objects.equals(newValue, change.newValue) &&
+      Objects.equals(oldDefault, change.oldDefault) &&
+      Objects.equals(newDefault, change.newDefault);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(type, subject, oldValue, newValue, oldDefault, newDefault);
   }
 }

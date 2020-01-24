@@ -31,18 +31,24 @@ import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.ObjectStore;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
+import static io.vlingo.schemata.LambdaMatcher.matches;
+import static java.util.stream.Collectors.toList;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class SchemaVersionTest {
   private ObjectTypeRegistry registry;
-  private SchemaVersion schemaVersion;
-  private SchemaVersionId schemaVersionId;
+  private SchemaVersion simpleSchemaVersion;
+  private SchemaVersionId simpleSchemaVersionId;
+  private SchemaVersion basicTypesSchemaVersion;
+  private SchemaVersionId basicTypesSchemaVersionId;
   private ObjectStore objectStore;
   private TypeDefinitionMiddleware typeDefinitionMiddleware;
   private World world;
@@ -73,20 +79,24 @@ public class SchemaVersionTest {
         world.actorFor(Backend.class, JavaBackend.class)
     );
 
-    schemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
-    schemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, schemaVersionId);
-    firstVersion = defaultTestSchemaVersionState();
+    simpleSchemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
+    simpleSchemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, simpleSchemaVersionId);
+    firstVersion = simpleSchemaVersionState();
+
+    basicTypesSchemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
+    basicTypesSchemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, basicTypesSchemaVersionId);
+    completeBasicTypesSchemaVersionState();
   }
 
   @Test
   public void equalSpecificationsAreCompatible() {
-    final SchemaVersionState firstVersion = defaultTestSchemaVersionState();
+    final SchemaVersionState firstVersion = simpleSchemaVersionState();
 
     final SchemaVersionData secondVersion = SchemaVersionData.from(firstVersion.withSpecification(
         new Specification(firstVersion.specification.value)));
 
     assertCompatible("Versions with only added attributes must be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
+        simpleSchemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   @Test
@@ -98,7 +108,7 @@ public class SchemaVersionTest {
             "}")));
 
     assertCompatible("Versions with only added attributes must be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
+        simpleSchemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   @Test
@@ -109,7 +119,7 @@ public class SchemaVersionTest {
             "}")));
 
     assertIncompatible("Versions with only removed attributes must not be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
+        simpleSchemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   @Test
@@ -120,7 +130,7 @@ public class SchemaVersionTest {
             "}")));
 
     assertIncompatible("Versions with added and removed attributes must not be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
+        simpleSchemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   @Test
@@ -131,7 +141,7 @@ public class SchemaVersionTest {
             "}")));
 
     assertIncompatible("Versions with reordered attributes must not be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
+        simpleSchemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
   @Test
@@ -143,11 +153,127 @@ public class SchemaVersionTest {
             "}")));
 
     assertIncompatible("Versions with added and removed attributes must not be compatible",
-        schemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
+        simpleSchemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
-  private SchemaVersionState defaultTestSchemaVersionState() {
-    return schemaVersion.defineWith(
+  @Test public void identicalSpecificationsHaveNoDiff() {
+    SchemaVersionData dst = SchemaVersionData.just("event Foo { string bar }",null,null,null, null);
+
+    SpecificationDiff diff = simpleSchemaVersion.diff(typeDefinitionMiddleware,dst).await();
+    assertThat(diff.changes().size(),is(0));
+  }
+
+  @Test public void removalIsTrackedInDiff() {
+    SchemaVersionData dst = SchemaVersionData.just("event Foo { }",null,null,null, null);
+
+    SpecificationDiff diff = simpleSchemaVersion.diff(typeDefinitionMiddleware, dst).await();
+    assertThat(diff.changes().size(),is(1));
+    assertThat(diff.changes().get(0).subject, is(Change.Subject.FIELD));
+    assertThat(diff.changes().get(0).type, is(Change.Type.REMOVAL));
+  }
+
+  @Test public void multipleRemovalsAreTrackedInDiff() {
+    SchemaVersionData dst = SchemaVersionData.just("event Foo { \n" +
+      "type eventType\n"+
+      "version eventVersion\n"+
+      "byte byteAttribute\n"+
+      "double doubleAttribute\n"+
+      "int intAttribute\n"+
+      "short shortAttribute\n"+
+      "}",null,null,null, null);
+
+    SpecificationDiff diff = basicTypesSchemaVersion.diff(typeDefinitionMiddleware, dst).await();
+    assertThat(diff.changes().size(),is(6));
+    assertThat(diff.changes(), everyItem(matches(c -> c.type == Change.Type.REMOVAL, "All changes must be removals")));
+    assertThat(diff.changes(), everyItem(matches(c -> c.subject == Change.Subject.FIELD, "All changes must have occurred on fields")));
+  }
+
+  @Test public void additionIsTrackedInDiff() {
+    SchemaVersionData dst = SchemaVersionData.just("event Foo { string bar\nstring baz\nstring qux }",null,null,null, null);
+
+    SpecificationDiff diff = simpleSchemaVersion.diff(typeDefinitionMiddleware,dst).await();
+    assertThat(diff.changes().size(),is(2));
+    assertThat(diff.changes(), everyItem(matches(c -> c.type == Change.Type.ADDITION, "All changes must be additions")));
+    assertThat(diff.changes(), everyItem(matches(c -> c.subject == Change.Subject.FIELD, "All changes must have occurred on fields")));
+  }
+
+  @Test public void renamingIsTrackedInDiff() {
+    SchemaVersionData dst = SchemaVersionData.just("event Foo { string baz }",null,null,null, null);
+
+    SpecificationDiff diff = simpleSchemaVersion.diff(typeDefinitionMiddleware,dst).await();
+    assertThat(diff.changes().size(),is(2));
+    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.ADDITION).count(), is(1L));
+    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.REMOVAL).count(), is(1L));
+  }
+
+  @Test public void typeChangeIsTrackedInDiff() {
+    SchemaVersionData dst = SchemaVersionData.just("event Bar { string bar }",null,null,null, null);
+
+    SpecificationDiff diff = simpleSchemaVersion.diff(typeDefinitionMiddleware,dst).await();
+    assertThat(diff.changes().size(),is(1));
+    assertThat(diff.changes().get(0).subject, is(Change.Subject.TYPE));
+    assertThat(diff.changes().get(0).type, is(Change.Type.CHANGE));
+    // TODO: Assert change values
+  }
+
+  @Test public void fieldTypeChangeIsTrackedInDiff() {
+    SchemaVersionData dst = SchemaVersionData.just("event Foo { int bar }",null,null,null, null);
+
+    SpecificationDiff diff = simpleSchemaVersion.diff(typeDefinitionMiddleware,dst).await();
+    assertThat(diff.changes().size(),is(1));
+    assertThat(diff.changes().get(0).subject, is(Change.Subject.FIELD));
+    assertThat(diff.changes().get(0).type, is(Change.Type.CHANGE));
+    // TODO: Assert change values
+  }
+
+  @Test public void mixedChangesArtTrackedInDiff() {
+    SchemaVersionData dst = SchemaVersionData.just("event Bar { " +
+      "timestamp at\n"+
+      "string newStringAttribute\n" +
+      "version eventVersion\n"+
+      "int charAttribute\n"+
+      "int intAttribute\n"+
+      "long longAttribute\n"+
+      "short shortAttribute\n"+
+      "string stringAttribute\n"+
+      "}",null,null,null, null);
+
+    SpecificationDiff diff = basicTypesSchemaVersion.diff(typeDefinitionMiddleware, dst).await();
+    assertThat(diff.changes().size(),is(10));
+
+    List<Change> typeChanges = diff.changes().stream().filter(c -> c.subject == Change.Subject.TYPE).collect(toList());
+    List<Change> additions = diff.changes().stream().filter(c -> c.type == Change.Type.ADDITION).collect(toList());
+    List<Change> removals = diff.changes().stream().filter(c -> c.type == Change.Type.REMOVAL).collect(toList());
+    List<Change> changes = diff.changes().stream().filter(c -> c.type == Change.Type.CHANGE).collect(toList());
+
+    assertEquals(typeChanges.size(), 1);
+    assertThat(typeChanges, hasItem(Change.ofType("Foo", "Bar")));
+
+
+    assertEquals(removals.size(), 6);
+    assertThat(removals, hasItems(
+      Change.removalOfField("eventType"),
+      Change.removalOfField("occurredOn"),
+      Change.removalOfField("booleanAttribute"),
+      Change.removalOfField("byteAttribute"),
+      Change.removalOfField("doubleAttribute"),
+      Change.removalOfField("floatAttribute")));
+
+
+    assertEquals(changes.size(), 2);
+    assertThat(changes, hasItems(
+      Change.ofType("Foo","Bar"),
+      Change.ofFieldType("char","int")));
+
+    assertEquals(additions.size(), 2);
+    assertThat(additions, hasItems(
+      Change.additionOfField("newStringAttribute"),
+      Change.additionOfField("at")));
+  }
+
+
+  private SchemaVersionState simpleSchemaVersionState() {
+    return simpleSchemaVersion.defineWith(
         new Specification("event Foo { " +
             "string bar\n" +
             "}"),
@@ -155,6 +281,28 @@ public class SchemaVersionTest {
         new SchemaVersion.Version("0.0.0"),
         new SchemaVersion.Version("1.0.0"))
         .await();
+  }
+
+  private SchemaVersionState completeBasicTypesSchemaVersionState() {
+    return basicTypesSchemaVersion.defineWith(
+      new Specification("event Foo { " +
+        "type eventType\n"+
+        "timestamp occurredOn\n"+
+        "version eventVersion\n"+
+        "boolean booleanAttribute\n"+
+        "byte byteAttribute\n"+
+        "char charAttribute\n"+
+        "double doubleAttribute\n"+
+        "float floatAttribute\n"+
+        "int intAttribute\n"+
+        "long longAttribute\n"+
+        "short shortAttribute\n"+
+        "string stringAttribute\n"+
+        "}"),
+      "description",
+      new SchemaVersion.Version("0.0.0"),
+      new SchemaVersion.Version("1.0.0"))
+      .await();
   }
 
   private static void assertCompatible(String message, SpecificationDiff diff) {
