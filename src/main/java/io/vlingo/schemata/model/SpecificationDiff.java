@@ -129,6 +129,7 @@ class Change {
       case ADDITION:
         return String.format("%s: %s %s", type, subject, newValue);
       case REMOVAL:
+      case MOVE:
         return String.format("%s: %s %s", type, subject, oldValue);
     }
     return super.toString();

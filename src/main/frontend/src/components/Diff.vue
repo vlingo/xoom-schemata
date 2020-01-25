@@ -36,7 +36,7 @@
 
 <script>
     import editor from 'monaco-editor-vue';
-    import {mdiCodeBraces, mdiLabelOff, mdiMinusBox, mdiNotEqual, mdiPlusBox, mdiVariable, mdiArrowRight} from '@mdi/js'
+    import {mdiArrowRight, mdiCodeBraces, mdiLabelOff, mdiMinusBox, mdiNotEqual, mdiPlusBox, mdiVariable, mdiSwapVertical} from '@mdi/js'
 
 
     export default {
@@ -70,15 +70,20 @@
                     ADDITION: mdiPlusBox,
                     CHANGE: mdiNotEqual,
                     REMOVAL: mdiMinusBox,
+                    MOVE: mdiSwapVertical,
                     arrowRight: mdiArrowRight,
                 }
             }
         },
         computed: {
-          open: {
-              get() { return this.show },
-              set(newVal) { if(!newVal) this.$emit('close') }
-          }
+            open: {
+                get() {
+                    return this.show
+                },
+                set(newVal) {
+                    if (!newVal) this.$emit('close')
+                }
+            }
         },
         watch: {
             show() {

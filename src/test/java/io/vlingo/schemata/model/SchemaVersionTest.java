@@ -140,7 +140,7 @@ public class SchemaVersionTest {
             "int bar\n" +
             "}")));
 
-    assertIncompatible("Versions with reordered attributes must not be compatible",
+    assertIncompatible("Versions with type changes must not be compatible",
         simpleSchemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
@@ -162,7 +162,7 @@ public class SchemaVersionTest {
           "type eventType\n"+
             "}")));
 
-    assertIncompatible("Versions with added and removed attributes must not be compatible",
+    assertIncompatible("Versions with reordered attributes must not be compatible",
         basicTypesSchemaVersion.diff(typeDefinitionMiddleware, secondVersion).await());
   }
 
