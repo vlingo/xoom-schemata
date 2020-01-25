@@ -36,7 +36,16 @@
 
 <script>
     import editor from 'monaco-editor-vue';
-    import {mdiArrowRight, mdiCodeBraces, mdiLabelOff, mdiMinusBox, mdiNotEqual, mdiPlusBox, mdiVariable, mdiSwapVertical} from '@mdi/js'
+    import {
+        mdiArrowRight,
+        mdiCodeBraces,
+        mdiLabelOff,
+        mdiMinusBox,
+        mdiNotEqual,
+        mdiPlusBox,
+        mdiSwapVertical,
+        mdiVariable
+    } from '@mdi/js'
 
 
     export default {
@@ -64,13 +73,14 @@
         data: () => {
             return {
                 icons: {
-                    FIELD: mdiVariable,
-                    TYPE: mdiCodeBraces,
-                    VERSION: mdiLabelOff,
-                    ADDITION: mdiPlusBox,
-                    CHANGE: mdiNotEqual,
-                    REMOVAL: mdiMinusBox,
-                    MOVE: mdiSwapVertical,
+                    CHANGE_FIELD: mdiVariable,
+                    CHANGE_FIELD_VERSION: mdiLabelOff,
+                    CHANGE_FIELD_TYPE: mdiNotEqual,
+                    CHANGE_FIELD_DEFAULT: mdiNotEqual,
+                    ADD_FIELD: mdiPlusBox,
+                    CHANGE_TYPE: mdiCodeBraces,
+                    REMOVE_FIELD: mdiMinusBox,
+                    MOVE_FIELD: mdiSwapVertical,
                     arrowRight: mdiArrowRight,
                 }
             }
@@ -97,13 +107,17 @@
             },
             colorFor(type) {
                 switch (type) {
-                    case "ADDITION":
-                        return 'primary'
-                    case "MOVE":
-                    case "CHANGE":
-                        return 'warning'
-                    case "REMOVAL":
-                        return 'error'
+                    case "CHANGE_FIELD":
+                    case "CHANGE_FIELD_VERSION":
+                    case "CHANGE_FIELD_TYPE":
+                    case "CHANGE_FIELD_DEFAULT":
+                    case "MOVE_FIELD":
+                        return 'warning';
+                    case "ADD_FIELD":
+                        return 'primary';
+                    case "CHANGE_TYPE":
+                    case "REMOVE_FIELD":
+                        return 'error';
                 }
             }
         },
