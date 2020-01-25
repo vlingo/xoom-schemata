@@ -249,12 +249,13 @@ public class SchemaVersionTest {
       "}",null,null,null, null);
 
     SpecificationDiff diff = basicTypesSchemaVersion.diff(typeDefinitionMiddleware, dst).await();
-    assertThat(diff.changes().size(),is(10));
+    assertThat(diff.changes().size(),is(14));
 
     List<Change> typeChanges = diff.changes().stream().filter(c -> c.subject == Change.Subject.TYPE).collect(toList());
     List<Change> additions = diff.changes().stream().filter(c -> c.type == Change.Type.ADDITION).collect(toList());
     List<Change> removals = diff.changes().stream().filter(c -> c.type == Change.Type.REMOVAL).collect(toList());
     List<Change> changes = diff.changes().stream().filter(c -> c.type == Change.Type.CHANGE).collect(toList());
+    List<Change> moves = diff.changes().stream().filter(c -> c.type == Change.Type.MOVE).collect(toList());
 
     assertEquals(typeChanges.size(), 1);
     assertThat(typeChanges, hasItem(Change.ofType("Foo", "Bar")));
@@ -279,6 +280,13 @@ public class SchemaVersionTest {
     assertThat(additions, hasItems(
       Change.additionOfField("newStringAttribute"),
       Change.additionOfField("at")));
+
+    assertEquals(moves.size(), 4);
+    assertThat(moves, hasItems(
+      Change.moveOf("intAttribute"),
+      Change.moveOf("longAttribute"),
+      Change.moveOf("shortAttribute"),
+      Change.moveOf("stringAttribute")));
   }
 
 

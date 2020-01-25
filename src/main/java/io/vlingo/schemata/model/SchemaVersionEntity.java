@@ -13,9 +13,6 @@ import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
-import io.vlingo.schemata.codegen.ast.types.BasicType;
-import io.vlingo.schemata.codegen.ast.types.ComputableType;
-import io.vlingo.schemata.codegen.ast.types.Type;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.model.Events.*;
@@ -196,7 +193,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
           && leftType.children.indexOf(right) != -1
           && !right.name().equals(leftType.children.get(i).name())) {
             diff = diff.withChange(
-              Change.ofMove(right.name()));
+              Change.moveOf(right.name()));
       }
     }
 

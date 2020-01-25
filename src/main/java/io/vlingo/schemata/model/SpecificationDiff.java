@@ -111,8 +111,8 @@ class Change {
     return new Change(Type.ADDITION, Subject.FIELD, null, value);
   }
 
-  static Change ofMove(String field) {
-    return new Change(Type.MOVE, Subject.TYPE, field, null);
+  static Change moveOf(String field) {
+    return new Change(Type.MOVE, Subject.FIELD, field, null);
   }
 
   public boolean isCompatible() {
