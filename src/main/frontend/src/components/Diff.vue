@@ -21,6 +21,7 @@
                             </v-list-item-icon>
                             <v-list-item-content>
                                 <v-list-item-title>
+                                    <span class="subject">{{c.subject}} </span>
                                     <span class="old">{{c.oldValue}}</span>
                                     <span v-if="c.oldValue"><v-icon>{{icons.arrowRight}}</v-icon></span>
                                     <span class="new">{{c.newValue}}</span>
@@ -36,7 +37,16 @@
 
 <script>
     import editor from 'monaco-editor-vue';
-    import {mdiCodeBraces, mdiLabelOff, mdiMinusBox, mdiNotEqual, mdiPlusBox, mdiVariable, mdiArrowRight} from '@mdi/js'
+    import {
+        mdiArrowRight,
+        mdiCodeBraces,
+        mdiLabelOff,
+        mdiMinusBox,
+        mdiNotEqual,
+        mdiPlusBox,
+        mdiSwapVertical,
+        mdiVariable
+    } from '@mdi/js'
 
 
     export default {
@@ -64,21 +74,27 @@
         data: () => {
             return {
                 icons: {
-                    FIELD: mdiVariable,
-                    TYPE: mdiCodeBraces,
-                    VERSION: mdiLabelOff,
-                    ADDITION: mdiPlusBox,
-                    CHANGE: mdiNotEqual,
-                    REMOVAL: mdiMinusBox,
+                    CHANGE_FIELD: mdiVariable,
+                    CHANGE_FIELD_VERSION: mdiLabelOff,
+                    CHANGE_FIELD_TYPE: mdiCodeBraces,
+                    CHANGE_FIELD_DEFAULT: mdiNotEqual,
+                    ADD_FIELD: mdiPlusBox,
+                    CHANGE_TYPE: mdiCodeBraces,
+                    REMOVE_FIELD: mdiMinusBox,
+                    MOVE_FIELD: mdiSwapVertical,
                     arrowRight: mdiArrowRight,
                 }
             }
         },
         computed: {
-          open: {
-              get() { return this.show },
-              set(newVal) { if(!newVal) this.$emit('close') }
-          }
+            open: {
+                get() {
+                    return this.show
+                },
+                set(newVal) {
+                    if (!newVal) this.$emit('close')
+                }
+            }
         },
         watch: {
             show() {
@@ -92,12 +108,17 @@
             },
             colorFor(type) {
                 switch (type) {
-                    case "ADDITION":
-                        return 'primary'
-                    case "CHANGE":
-                        return 'warning'
-                    case "REMOVAL":
-                        return 'error'
+                    case "CHANGE_FIELD":
+                    case "CHANGE_FIELD_VERSION":
+                    case "CHANGE_FIELD_TYPE":
+                    case "CHANGE_FIELD_DEFAULT":
+                    case "MOVE_FIELD":
+                        return 'warning';
+                    case "ADD_FIELD":
+                        return 'primary';
+                    case "CHANGE_TYPE":
+                    case "REMOVE_FIELD":
+                        return 'error';
                 }
             }
         },
@@ -108,6 +129,9 @@
     }
 </script>
 <style>
+    .subject {
+        font-weight: bold;
+    }
     .old {
         text-decoration: line-through;
         color: grey;

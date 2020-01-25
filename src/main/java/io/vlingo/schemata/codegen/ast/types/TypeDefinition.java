@@ -8,6 +8,7 @@
 package io.vlingo.schemata.codegen.ast.types;
 
 import java.util.List;
+import java.util.Objects;
 
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.model.Category;
@@ -23,5 +24,26 @@ public class TypeDefinition implements Node, Type {
         this.fullyQualifiedTypeName = fullyQualifiedTypeName;
         this.typeName = typeName;
         this.children = children;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TypeDefinition that = (TypeDefinition) o;
+        return category == that.category &&
+          Objects.equals(fullyQualifiedTypeName, that.fullyQualifiedTypeName) &&
+          Objects.equals(typeName, that.typeName) &&
+          Objects.equals(children, that.children);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(category, fullyQualifiedTypeName, typeName, children);
+    }
+
+    @Override
+    public String name() {
+        return typeName;
     }
 }
