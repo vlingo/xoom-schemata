@@ -178,8 +178,8 @@ public class SchemaVersionTest {
 
     SpecificationDiff diff = simpleSchemaVersion.diff(typeDefinitionMiddleware, dst).await();
     assertThat(diff.changes().size(),is(1));
-    assertThat(diff.changes().get(0).subject, is(Change.Subject.FIELD));
-    assertThat(diff.changes().get(0).type, is(Change.Type.REMOVAL));
+    assertThat(diff.changes().get(0).subject, is("bar"));
+    assertThat(diff.changes().get(0).type, is(Change.Type.REMOVE_FIELD));
   }
 
   @Test public void multipleRemovalsAreTrackedInDiff() {
@@ -194,8 +194,8 @@ public class SchemaVersionTest {
 
     SpecificationDiff diff = basicTypesSchemaVersion.diff(typeDefinitionMiddleware, dst).await();
     assertThat(diff.changes().size(),is(11));
-    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.REMOVAL).count(), is(6L));
-    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.MOVE).count(), is(5L));
+    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.REMOVE_FIELD).count(), is(6L));
+    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.MOVE_FIELD).count(), is(5L));
   }
 
   @Test public void additionIsTrackedInDiff() {
@@ -203,8 +203,11 @@ public class SchemaVersionTest {
 
     SpecificationDiff diff = simpleSchemaVersion.diff(typeDefinitionMiddleware,dst).await();
     assertThat(diff.changes().size(),is(2));
-    assertThat(diff.changes(), everyItem(matches(c -> c.type == Change.Type.ADDITION, "All changes must be additions")));
-    assertThat(diff.changes(), everyItem(matches(c -> c.subject == Change.Subject.FIELD, "All changes must have occurred on fields")));
+    assertThat(diff.changes(), everyItem(matches(c -> c.type == Change.Type.ADD_FIELD, "All changes must be additions")));
+    assertThat(diff.changes(), hasItems(
+      Change.additionOfField("baz"),
+      Change.additionOfField("qux")
+    ));
   }
 
   @Test public void renamingIsTrackedInDiff() {
@@ -212,8 +215,8 @@ public class SchemaVersionTest {
 
     SpecificationDiff diff = simpleSchemaVersion.diff(typeDefinitionMiddleware,dst).await();
     assertThat(diff.changes().size(),is(2));
-    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.ADDITION).count(), is(1L));
-    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.REMOVAL).count(), is(1L));
+    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.ADD_FIELD).count(), is(1L));
+    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.REMOVE_FIELD).count(), is(1L));
   }
 
   @Test public void typeChangeIsTrackedInDiff() {
@@ -221,9 +224,10 @@ public class SchemaVersionTest {
 
     SpecificationDiff diff = simpleSchemaVersion.diff(typeDefinitionMiddleware,dst).await();
     assertThat(diff.changes().size(),is(1));
-    assertThat(diff.changes().get(0).subject, is(Change.Subject.TYPE));
-    assertThat(diff.changes().get(0).type, is(Change.Type.CHANGE));
-    // TODO: Assert change values
+    assertThat(diff.changes().get(0).subject, is("Foo"));
+    assertThat(diff.changes().get(0).type, is(Change.Type.CHANGE_TYPE));
+    assertThat(diff.changes().get(0).oldValue, is("Foo"));
+    assertThat(diff.changes().get(0).newValue, is("Bar"));
   }
 
   @Test public void fieldTypeChangeIsTrackedInDiff() {
@@ -231,9 +235,8 @@ public class SchemaVersionTest {
 
     SpecificationDiff diff = simpleSchemaVersion.diff(typeDefinitionMiddleware,dst).await();
     assertThat(diff.changes().size(),is(1));
-    assertThat(diff.changes().get(0).subject, is(Change.Subject.FIELD));
-    assertThat(diff.changes().get(0).type, is(Change.Type.CHANGE));
-    // TODO: Assert change values
+    assertThat(diff.changes().get(0).subject, is("bar"));
+    assertThat(diff.changes().get(0).type, is(Change.Type.CHANGE_FIELD_TYPE));
   }
 
   @Test public void mixedChangesArtTrackedInDiff() {
@@ -251,11 +254,11 @@ public class SchemaVersionTest {
     SpecificationDiff diff = basicTypesSchemaVersion.diff(typeDefinitionMiddleware, dst).await();
     assertThat(diff.changes().size(),is(14));
 
-    List<Change> typeChanges = diff.changes().stream().filter(c -> c.subject == Change.Subject.TYPE).collect(toList());
-    List<Change> additions = diff.changes().stream().filter(c -> c.type == Change.Type.ADDITION).collect(toList());
-    List<Change> removals = diff.changes().stream().filter(c -> c.type == Change.Type.REMOVAL).collect(toList());
-    List<Change> changes = diff.changes().stream().filter(c -> c.type == Change.Type.CHANGE).collect(toList());
-    List<Change> moves = diff.changes().stream().filter(c -> c.type == Change.Type.MOVE).collect(toList());
+    List<Change> typeChanges = diff.changes().stream().filter(c -> c.type == Change.Type.CHANGE_TYPE).collect(toList());
+    List<Change> additions = diff.changes().stream().filter(c -> c.type == Change.Type.ADD_FIELD).collect(toList());
+    List<Change> removals = diff.changes().stream().filter(c -> c.type == Change.Type.REMOVE_FIELD).collect(toList());
+    List<Change> changes = diff.changes().stream().filter(c -> c.type == Change.Type.CHANGE_FIELD_TYPE).collect(toList());
+    List<Change> moves = diff.changes().stream().filter(c -> c.type == Change.Type.MOVE_FIELD).collect(toList());
 
     assertEquals(typeChanges.size(), 1);
     assertThat(typeChanges, hasItem(Change.ofType("Foo", "Bar")));
@@ -271,10 +274,9 @@ public class SchemaVersionTest {
       Change.removalOfField("floatAttribute")));
 
 
-    assertEquals(changes.size(), 2);
+    assertEquals(changes.size(), 1);
     assertThat(changes, hasItems(
-      Change.ofType("Foo","Bar"),
-      Change.ofFieldType("char","int")));
+      Change.ofFieldType("charAttribute", "char","int")));
 
     assertEquals(additions.size(), 2);
     assertThat(additions, hasItems(

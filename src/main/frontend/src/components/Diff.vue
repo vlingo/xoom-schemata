@@ -99,6 +99,7 @@
                 switch (type) {
                     case "ADDITION":
                         return 'primary'
+                    case "MOVE":
                     case "CHANGE":
                         return 'warning'
                     case "REMOVAL":

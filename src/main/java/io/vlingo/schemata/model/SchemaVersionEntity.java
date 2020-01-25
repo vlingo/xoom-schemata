@@ -169,10 +169,10 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
     // record changes
     for (Tuple2<FieldDefinition,FieldDefinition> change: changedFields) {
       if(!change._1.version.equals(change._2.version)) {
-        diff = diff.withChange(Change.ofVersion(change._1.version.toString(), change._2.version.toString()));
+        diff = diff.withChange(Change.ofVersion(change._1.name(), change._1.version.toString(), change._2.version.toString()));
       }
       if(!change._1.type.equals(change._2.type)) {
-        diff = diff.withChange(Change.ofFieldType(change._1.type.name(), change._2.type.name()));
+        diff = diff.withChange(Change.ofFieldType(change._1.name(), change._1.type.name(), change._2.type.name()));
       }
     }
 
