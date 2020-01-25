@@ -193,7 +193,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
           && leftType.children.indexOf(right) != -1
           && !right.name().equals(leftType.children.get(i).name())) {
             diff = diff.withChange(
-              Change.moveOf(right.name()));
+              Change.moveOf(leftType.children.get(i).name()));
       }
     }
 

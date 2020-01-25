@@ -21,6 +21,7 @@
                             </v-list-item-icon>
                             <v-list-item-content>
                                 <v-list-item-title>
+                                    <span class="subject">{{c.subject}} </span>
                                     <span class="old">{{c.oldValue}}</span>
                                     <span v-if="c.oldValue"><v-icon>{{icons.arrowRight}}</v-icon></span>
                                     <span class="new">{{c.newValue}}</span>
@@ -75,7 +76,7 @@
                 icons: {
                     CHANGE_FIELD: mdiVariable,
                     CHANGE_FIELD_VERSION: mdiLabelOff,
-                    CHANGE_FIELD_TYPE: mdiNotEqual,
+                    CHANGE_FIELD_TYPE: mdiCodeBraces,
                     CHANGE_FIELD_DEFAULT: mdiNotEqual,
                     ADD_FIELD: mdiPlusBox,
                     CHANGE_TYPE: mdiCodeBraces,
@@ -128,6 +129,9 @@
     }
 </script>
 <style>
+    .subject {
+        font-weight: bold;
+    }
     .old {
         text-decoration: line-through;
         color: grey;
