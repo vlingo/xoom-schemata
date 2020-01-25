@@ -3,6 +3,7 @@ package io.vlingo.schemata.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class SpecificationDiff {
@@ -56,70 +57,92 @@ public class SpecificationDiff {
 // TODO: refactor to polymorphic impl?
 class Change {
 
-  public enum Type {CHANGE, ADDITION, REMOVAL}
-
-  public enum Subject {FIELD, TYPE, VERSION}
+  public enum Type {
+    CHANGE_FIELD,
+    CHANGE_FIELD_TYPE,
+    CHANGE_FIELD_DEFAULT,
+    CHANGE_TYPE,
+    CHANGE_FIELD_VERSION,
+    ADD_FIELD,
+    REMOVE_FIELD,
+    MOVE_FIELD,
+  }
 
   public final Type type;
-  public final Subject subject;
+  public final String subject;
   public final String oldValue;
   public final String newValue;
-  public final String oldDefault;
-  public final String newDefault;
 
-  private Change(Type type, Subject subject, String oldValue, String newValue) {
+  private Change(Type type, String subject, String oldValue, String newValue) {
     this.type = type;
     this.subject = subject;
     this.oldValue = oldValue;
     this.newValue = newValue;
-    this.oldDefault = null;
-    this.newDefault = null;
   }
 
-  private Change(Type type, Subject subject, String oldValue, String newValue, String oldDefault, String newDefault) {
-    this.type = type;
-    this.subject = subject;
-    this.oldValue = oldValue;
-    this.newValue = newValue;
-    this.oldDefault = oldDefault;
-    this.newDefault = newDefault;
+  private Change(Type type, String subject) {
+    this(type, subject, null, null);
   }
 
-  static Change ofType(String oldValue, String newValue) {
-    return new Change(Type.CHANGE, Subject.TYPE, oldValue, newValue);
+  private Change(Type type, String subject, String newValue) {
+    this(type, subject, null, newValue);
   }
 
-  static Change ofField(String oldValue, String newValue) {
-    return new Change(Type.CHANGE, Subject.FIELD, oldValue, newValue);
+  static Change ofType(String oldType, String newType) {
+    return new Change(Type.CHANGE_TYPE, oldType, oldType, newType);
   }
 
-  static Change ofVersion(String oldValue, String newValue) {
-    return new Change(Type.CHANGE, Subject.VERSION, oldValue, newValue);
+  static Change ofFieldName(String oldFieldName, String newFieldName) {
+    return new Change(Type.CHANGE_FIELD, oldFieldName, oldFieldName, newFieldName);
   }
 
-  static Change removalOfField(String value) {
-    return new Change(Type.REMOVAL, Subject.FIELD, value, null);
+  static Change ofFieldType(String fieldName, String oldType, String newType) {
+    return new Change(Type.CHANGE_FIELD_TYPE, fieldName, oldType, newType);
+  }
+
+  static Change ofVersion(String fieldName, String oldVersion, String newVersion) {
+    return new Change(Type.CHANGE_FIELD_VERSION, fieldName, oldVersion, newVersion);
+  }
+
+  static Change removalOfField(String fieldName) {
+    return new Change(Type.REMOVE_FIELD, fieldName);
   }
 
 
-  static Change additionOfField(String value) {
-    return new Change(Type.ADDITION, Subject.FIELD, null, value);
+  static Change additionOfField(String fieldName) {
+    return new Change(Type.ADD_FIELD, fieldName);
+  }
+
+  static Change moveOf(String fieldName) {
+    return new Change(Type.MOVE_FIELD, fieldName);
   }
 
   public boolean isCompatible() {
-    return this.type == Type.ADDITION;
+    return this.type == Type.ADD_FIELD;
+  }
+
+  public Type getType() {
+    return type;
   }
 
   @Override
   public String toString() {
-    switch (type) {
-      case CHANGE:
-        return String.format("%s: %s  %s -> %s", type, subject, oldValue, newValue);
-      case ADDITION:
-        return String.format("%s: %s %s", type, subject, newValue);
-      case REMOVAL:
-        return String.format("%s: %s %s", type, subject, oldValue);
-    }
-    return super.toString();
+    return String.format("%s: %s  %s -> %s", type, subject, oldValue, newValue);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Change change = (Change) o;
+    return type == change.type &&
+      Objects.equals(subject, change.subject) &&
+      Objects.equals(oldValue, change.oldValue) &&
+      Objects.equals(newValue, change.newValue);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(type, subject, oldValue, newValue);
   }
 }

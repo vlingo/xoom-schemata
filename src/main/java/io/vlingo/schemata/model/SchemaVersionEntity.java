@@ -8,15 +8,12 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.common.Completes;
+import io.vlingo.common.Tuple2;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
-import io.vlingo.schemata.codegen.ast.types.BasicType;
-import io.vlingo.schemata.codegen.ast.types.ComputableType;
-import io.vlingo.schemata.codegen.ast.types.Type;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
-import io.vlingo.schemata.codegen.ast.values.Value;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.model.Events.*;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
@@ -24,8 +21,12 @@ import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.AbstractMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> implements SchemaVersion {
   private SchemaVersionState state;
@@ -126,69 +127,77 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
         .andThen(SchemaVersionEntity::asTypeDefinition)
         .await();
 
+    // Has the type name changed?
     if (!leftType.typeName.equals(rightType.typeName))
       diff = diff.withChange(Change.ofType(leftType.typeName, rightType.typeName));
 
+    // Collect changed fields
+    List<Tuple2<FieldDefinition,FieldDefinition>> changedFields = Collections.synchronizedList(new ArrayList<>());
+    List<Node> changes = leftType.children.stream()
+      .map(SchemaVersionEntity::asFieldDefinition)
+      .filter(l -> rightType.children.stream()
+        .map(SchemaVersionEntity::asFieldDefinition)
+        .anyMatch(r -> {
+            boolean changed = l.name().equals(r.name())
+              && (
+              !l.type.equals(r.type)
+                || !l.version.equals(r.version)
+                || !l.defaultValue.equals(r.defaultValue)
+            );
+            if(changed) {
+              changedFields.add(Tuple2.from(l,r));
+            }
+            return changed;
+          }
+        )
+      )
+      .collect(toList());
 
-    // TODO: refactor
-    for (int i = 0; i < leftType.children.size(); i++) {
-      FieldDefinition l = asFieldDefinition(leftType.children.get(i));
+    // Collect removed fields
+    List<FieldDefinition> removals = leftType.children.stream()
+      .filter(l -> rightType.children.stream().noneMatch(r -> l.name().equals(r.name())))
+      .map(SchemaVersionEntity::asFieldDefinition)
+      .collect(toList());
 
-      if(rightType.children.size() > i) {
-        FieldDefinition r = asFieldDefinition(rightType.children.get(i));
+    // Collect added fields
+    List<FieldDefinition> additions = rightType.children.stream()
+      .filter(r -> leftType.children.stream().noneMatch(l -> l.name().equals(r.name())))
+      .map(SchemaVersionEntity::asFieldDefinition)
+      .collect(toList());
 
-        if (!(l.name.equals(r.name) && l.defaultValue.equals(r.defaultValue) && l.version.equals(r.version))) {
-          diff = diff.withChange(Change.ofField(l.name, r.name));
-        }
 
-        Type leftFieldType = l.type;
-        Type rightFieldType = r.type;
-
-        if (rightFieldType.getClass() != leftFieldType.getClass()) {
-          diff = diff.withChange(Change.ofType(
-            String.format("%s (%s)", leftType.typeName, leftType.getClass().getSimpleName()),
-            String.format("%s (%s)", rightType.typeName, rightType.getClass().getSimpleName())
-          ));
-        } else {
-          diff = addFieldTypeDiffs(diff, leftFieldType, rightFieldType);
-        }
-      } else {
-        diff = diff.withChange(Change.removalOfField(l.name));
+    // record changes
+    for (Tuple2<FieldDefinition,FieldDefinition> change: changedFields) {
+      if(!change._1.version.equals(change._2.version)) {
+        diff = diff.withChange(Change.ofVersion(change._1.name(), change._1.version.toString(), change._2.version.toString()));
       }
-
-      if (i == leftType.children.size() - 1) { // we're done with the left side, now process additions
-        for (int j = i+1; j < rightType.children.size(); j++) {
-          FieldDefinition r = asFieldDefinition(rightType.children.get(j));
-          diff = diff.withChange(Change.additionOfField(r.name));
-        }
+      if(!change._1.type.equals(change._2.type)) {
+        diff = diff.withChange(Change.ofFieldType(change._1.name(), change._1.type.name(), change._2.type.name()));
       }
+    }
 
+    // record additions
+    for(FieldDefinition addition : additions) {
+      diff = diff.withChange(Change.additionOfField(addition.name));
+    }
+
+    // record deletions
+    for(FieldDefinition removal : removals) {
+      diff = diff.withChange(Change.removalOfField(removal.name));
+    }
+
+    //record moves
+    for(int i = 0; i < rightType.children.size(); i++) {
+      Node right = rightType.children.get(i);
+      if(i < leftType.children.size()
+          && leftType.children.indexOf(right) != -1
+          && !right.name().equals(leftType.children.get(i).name())) {
+            diff = diff.withChange(
+              Change.moveOf(right.name()));
+      }
     }
 
     return completes().with(diff);
-  }
-
-  private SpecificationDiff addFieldTypeDiffs(SpecificationDiff diff, Type leftFieldType, Object rightFieldType) {
-    if (leftFieldType instanceof BasicType
-        && !((BasicType) leftFieldType).typeName.equals(((BasicType) rightFieldType).typeName)) {
-      diff = diff.withChange(Change.ofType(
-          ((BasicType) leftFieldType).typeName,
-          ((BasicType) rightFieldType).typeName));
-
-    } else if (leftFieldType instanceof ComputableType
-        && !((ComputableType) leftFieldType).typeName.equals(((ComputableType) rightFieldType).typeName)
-    ) {
-      diff = diff.withChange(Change.ofField(
-          ((ComputableType) leftFieldType).typeName,
-          ((ComputableType) rightFieldType).typeName));
-    } else if (leftFieldType instanceof TypeDefinition
-        && !((TypeDefinition) leftFieldType).fullyQualifiedTypeName.equals(((TypeDefinition) rightFieldType).fullyQualifiedTypeName)
-    ) {
-      diff = diff.withChange(Change.ofType(
-          ((TypeDefinition) leftFieldType).fullyQualifiedTypeName,
-          ((TypeDefinition) rightFieldType).fullyQualifiedTypeName));
-    }
-    return diff;
   }
 
   private static void requireRightSideSpecification(String specification) {
