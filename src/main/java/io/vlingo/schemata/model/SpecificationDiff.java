@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 
 public class SpecificationDiff {
   private final List<Change> changes;
+  @SuppressWarnings("unused")
   private final String oldSpecification;
+  @SuppressWarnings("unused")
   private final String newSpecification;
 
   private SpecificationDiff(String oldSpecification, String newSpecification) {

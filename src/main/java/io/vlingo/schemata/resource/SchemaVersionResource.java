@@ -7,6 +7,24 @@
 
 package io.vlingo.schemata.resource;
 
+import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.BadRequest;
+import static io.vlingo.http.Response.Status.Conflict;
+import static io.vlingo.http.Response.Status.Created;
+import static io.vlingo.http.Response.Status.NotFound;
+import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.ResponseHeader.ContentLength;
+import static io.vlingo.http.ResponseHeader.ContentType;
+import static io.vlingo.http.ResponseHeader.Location;
+import static io.vlingo.http.ResponseHeader.of;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.patch;
+import static io.vlingo.http.resource.ResourceBuilder.post;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
+import static io.vlingo.schemata.Schemata.NoId;
+import static io.vlingo.schemata.Schemata.SchemaVersionsPath;
+import static io.vlingo.schemata.Schemata.StageName;
+
 import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -17,7 +35,6 @@ import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
-import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.model.FullyQualifiedReference;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
@@ -28,12 +45,6 @@ import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.model.SpecificationDiff;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
-
-import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.Response.Status.*;
-import static io.vlingo.http.ResponseHeader.*;
-import static io.vlingo.http.resource.ResourceBuilder.*;
-import static io.vlingo.schemata.Schemata.*;
 
 public class SchemaVersionResource extends ResourceHandler {
     private final SchemaVersionCommands commands;

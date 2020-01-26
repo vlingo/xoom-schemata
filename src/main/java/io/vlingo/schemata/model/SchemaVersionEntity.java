@@ -7,6 +7,14 @@
 
 package io.vlingo.schemata.model;
 
+import static java.util.stream.Collectors.toList;
+
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import io.vlingo.common.Completes;
 import io.vlingo.common.Tuple2;
 import io.vlingo.lattice.model.object.ObjectEntity;
@@ -15,18 +23,14 @@ import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.Processor;
-import io.vlingo.schemata.model.Events.*;
+import io.vlingo.schemata.model.Events.SchemaVersionDefined;
+import io.vlingo.schemata.model.Events.SchemaVersionDeprecated;
+import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
+import io.vlingo.schemata.model.Events.SchemaVersionPublished;
+import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
+import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
-
-import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 
 public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> implements SchemaVersion {
   private SchemaVersionState state;
@@ -133,6 +137,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
 
     // Collect changed fields
     List<Tuple2<FieldDefinition,FieldDefinition>> changedFields = Collections.synchronizedList(new ArrayList<>());
+    @SuppressWarnings("unused")
     List<Node> changes = leftType.children.stream()
       .map(SchemaVersionEntity::asFieldDefinition)
       .filter(l -> rightType.children.stream()
