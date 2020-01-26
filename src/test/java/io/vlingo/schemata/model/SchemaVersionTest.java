@@ -7,6 +7,23 @@
 
 package io.vlingo.schemata.model;
 
+import static io.vlingo.schemata.LambdaMatcher.matches;
+import static java.util.stream.Collectors.toList;
+import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.TestWorld;
@@ -25,24 +42,18 @@ import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
 import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
-import io.vlingo.schemata.model.Id.*;
+import io.vlingo.schemata.model.Id.ContextId;
+import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.schemata.model.Id.SchemaId;
+import io.vlingo.schemata.model.Id.SchemaVersionId;
+import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.ObjectStore;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static io.vlingo.schemata.LambdaMatcher.matches;
-import static java.util.stream.Collectors.toList;
-import static junit.framework.TestCase.assertTrue;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 
 public class SchemaVersionTest {
+  @SuppressWarnings("unused")
   private ObjectTypeRegistry registry;
   private SchemaVersion simpleSchemaVersion;
   private SchemaVersionId simpleSchemaVersionId;
@@ -50,9 +61,12 @@ public class SchemaVersionTest {
   private SchemaVersion basicTypesSchemaVersion;
   private SchemaVersionId basicTypesSchemaVersionId;
   private SchemaVersionState basicTypesVersion;
+  @SuppressWarnings("unused")
   private ObjectStore objectStore;
   private TypeDefinitionMiddleware typeDefinitionMiddleware;
+  @SuppressWarnings("unused")
   private World world;
+  @SuppressWarnings("unused")
   private Stage stage;
 
   @Before

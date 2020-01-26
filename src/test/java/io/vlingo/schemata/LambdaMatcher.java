@@ -5,7 +5,6 @@ import java.util.function.Function;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.beans.HasPropertyWithValue;
 
 public class LambdaMatcher<T> extends BaseMatcher<T>
 {
@@ -20,6 +19,7 @@ public class LambdaMatcher<T> extends BaseMatcher<T>
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean matches(Object argument)
     {
         return matcher.apply((T) argument);
@@ -31,6 +31,7 @@ public class LambdaMatcher<T> extends BaseMatcher<T>
         description.appendText(this.description);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static <T> Matcher<T> matches(Function<T, Boolean> matcher,
                                          String description) {
         return new LambdaMatcher(matcher, description);
