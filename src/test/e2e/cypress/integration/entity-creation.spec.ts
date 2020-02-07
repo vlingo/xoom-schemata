@@ -19,7 +19,6 @@ describe('Entity Creation Tests', function () {
         let schema = faker.company.catchPhraseNoun()
         let majorMinorVersion = faker.random.number(9) + '.' + faker.random.number(9)
         let patchVersion = faker.random.number(9)
-        let prevVersion = majorMinorVersion + '.' + patchVersion
         let currentVersion = majorMinorVersion + '.' + (patchVersion + 1)
 
         cy.visit('/#/organization')
@@ -48,7 +47,7 @@ describe('Entity Creation Tests', function () {
 
         cy.navigateTo("Schema Version")
         cy.fieldContent('SchemaVersionID').should('be.empty')
-        cy.fillField('Previous Version', prevVersion)
+        cy.fillField('Previous Version', '0.0.0')
         cy.fillField('Current Version', currentVersion)
         cy.fillEditor('#description-editor', faker.lorem.sentence())
         cy.fillEditor('#specification-editor', 'event SalutationHappened {\n' +

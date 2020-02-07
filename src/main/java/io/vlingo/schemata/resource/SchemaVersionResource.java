@@ -85,6 +85,13 @@ public class SchemaVersionResource extends ResourceHandler {
             .otherwise(n -> null)
             .await();
 
+        if(
+          (previousVersion == null || previousVersion.isNone())
+          && !previousSemantic.equals(SemanticVersion.from(0,0,0))
+        ) {
+          return Completes.withSuccess(Response.of(NotFound, "Tried to update non-existing version " + previousSemantic.toString()));
+        }
+
         if(previousVersion != null && !previousVersion.isNone() ) {
           SpecificationDiff diff = commands
               .diffAgainst(
