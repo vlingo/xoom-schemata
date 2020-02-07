@@ -47,7 +47,7 @@ public class JavaCodeGenTests extends CodeGenTests {
 
     assertThat(result, containsString("public String toWhom = \"Zaphod Beeblebrox\";"));
     assertThat(result, containsString("public String text = \"You're just this guy, right?\";"));
-    assertThat(result, containsString("public int answer = 42"));
+    assertThat(result, containsString("public int answer = 4242"));
   }
 
   @Test

@@ -112,7 +112,7 @@ public class JavaBackend extends Actor implements Backend {
                 primitive((BasicType) type),
                 definition.name,
                 modifiers)
-              .initializer("$S", definition.defaultValue.get().name())
+              .initializer("$L", definition.defaultValue.get().name())
               .build();
         }
 

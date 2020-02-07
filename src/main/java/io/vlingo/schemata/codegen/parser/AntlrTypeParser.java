@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.vlingo.schemata.codegen.ast.values.IntValue;
 import io.vlingo.schemata.codegen.ast.values.NullValue;
 import io.vlingo.schemata.codegen.ast.values.StringValue;
 import io.vlingo.schemata.codegen.ast.values.Value;
@@ -98,6 +99,9 @@ public class AntlrTypeParser extends Actor implements TypeParser {
            case "string":
                defaultValue = Optional.of(StringValue.of(firstStringLiteral(attribute)));
                break;
+           case "int":
+               defaultValue = Optional.of(IntValue.of(firstDecimalLiteral(attribute)));
+               break;
         }
 
         return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, defaultValue);
@@ -106,13 +110,13 @@ public class AntlrTypeParser extends Actor implements TypeParser {
     private String firstStringLiteral(SchemaVersionDefinitionParser.BasicTypeAttributeContext attribute) {
         return attribute.STRING_LITERAL().size() == 0
             ? ""
-            : unquote(attribute.STRING_LITERAL(0).getText());
+            : attribute.STRING_LITERAL(0).getText();
     }
 
-    private String unquote(String value) {
-        return value.startsWith("\"") && value.endsWith("\"")
-          ? value.substring(1, value.length() - 1)
-          : value;
+    private Integer firstDecimalLiteral(SchemaVersionDefinitionParser.BasicTypeAttributeContext attribute) {
+        return attribute.DECIMAL_LITERAL().size() == 0
+          ? 0
+          : Integer.parseInt(attribute.DECIMAL_LITERAL(0).getText());
     }
 
     private Node parseComplexTypeAttribute(SchemaVersionDefinitionParser.ComplexTypeAttributeContext attribute) {
