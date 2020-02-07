@@ -3,8 +3,13 @@ event SalutationHappened {
     timestamp occurredOn
     version eventVersion
 
-    string toWhom = "Zaphod Beeblebrox"
-    string text = "You're just this guy, right?"
-    int answer = 4242
-
+    boolean really = true
+    byte byteAttribute = 4
+    char charAttribute = 'x'
+    double doubleAttribute = 0.23
+    float floatAttribute = 0.42f
+    int intAttribute = 4242
+    long longAttribute = 42L
+    short shortAttribute = 128
+    string stringAttribute = "foo"
 }

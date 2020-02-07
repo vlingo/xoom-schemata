@@ -45,9 +45,15 @@ public class JavaCodeGenTests extends CodeGenTests {
 
     final String result = compilerWithJavaBackend().compile(typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
 
-    assertThat(result, containsString("public String toWhom = \"Zaphod Beeblebrox\";"));
-    assertThat(result, containsString("public String text = \"You're just this guy, right?\";"));
-    assertThat(result, containsString("public int answer = 4242"));
+    assertThat(result, containsString("public boolean booleanAttribute = true;"));
+    assertThat(result, containsString("public byte byteAttribute = 4;"));
+    assertThat(result, containsString("public char charAttribute = 'x';"));
+    assertThat(result, containsString("public double doubleAttribute = 0.23;"));
+    assertThat(result, containsString("public float floatAttribute = 0.42f;"));
+    assertThat(result, containsString("public int intAttribute = 4242;"));
+    assertThat(result, containsString("public long longAttribute = 42L;"));
+    assertThat(result, containsString("public short shortAttribute = 128;"));
+    assertThat(result, containsString("public String stringAttribute = foo;"));
   }
 
   @Test
