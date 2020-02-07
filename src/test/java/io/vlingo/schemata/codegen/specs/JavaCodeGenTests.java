@@ -52,8 +52,8 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertThat(result, containsString("public float floatAttribute = 0.42f;"));
     assertThat(result, containsString("public int intAttribute = 4242;"));
     assertThat(result, containsString("public long longAttribute = 42L;"));
-    assertThat(result, containsString("public short shortAttribute = 128;"));
-    assertThat(result, containsString("public String stringAttribute = foo;"));
+    assertThat(result, containsString("public short shortAttribute = 258;"));
+    assertThat(result, containsString("public String stringAttribute = \"foo\";"));
   }
 
   @Test

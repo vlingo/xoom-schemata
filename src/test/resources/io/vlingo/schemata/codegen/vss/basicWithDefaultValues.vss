@@ -10,6 +10,6 @@ event SalutationHappened {
     float floatAttribute = 0.42f
     int intAttribute = 4242
     long longAttribute = 42L
-    short shortAttribute = 128
+    short shortAttribute = 258
     string stringAttribute = "foo"
 }
