@@ -105,6 +105,10 @@ public class SchemaVersionData {
       final SemanticVersion previousSemantic = SemanticVersion.from(previousVersion);
       final SemanticVersion currentSemantic = SemanticVersion.from(currentVersion);
 
+      if(!currentSemantic.isNonZero()) {
+        return false;
+      }
+
       if(!previousSemantic.isNonZero()) {
         return true; // initial version
       }
