@@ -1,6 +1,6 @@
 package io.vlingo.schemata.codegen.ast.values;
 
-public class IntValue implements Value {
+public class IntValue implements Value<Integer> {
   final Integer value;
 
   private IntValue(Integer value) {
@@ -14,5 +14,10 @@ public class IntValue implements Value {
   @Override
   public String name() {
     return value.toString();
+  }
+
+  @Override
+  public Integer value() {
+    return value;
   }
 }

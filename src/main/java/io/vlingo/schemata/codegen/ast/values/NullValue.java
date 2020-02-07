@@ -11,4 +11,9 @@ public class NullValue implements Value {
   public static NullValue get() {
     return INSTANCE;
   }
+
+  @Override
+  public Object value() {
+    return null;
+  }
 }

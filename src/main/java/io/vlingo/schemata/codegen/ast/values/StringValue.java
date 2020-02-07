@@ -1,6 +1,6 @@
 package io.vlingo.schemata.codegen.ast.values;
 
-public class StringValue implements Value {
+public class StringValue implements Value<String> {
   final String value;
 
   private StringValue(String value) {
@@ -13,6 +13,11 @@ public class StringValue implements Value {
 
   @Override
   public String name() {
+    return value;
+  }
+
+  @Override
+  public String value() {
     return value;
   }
 }

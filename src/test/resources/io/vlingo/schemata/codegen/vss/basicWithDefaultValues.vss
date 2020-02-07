@@ -3,7 +3,7 @@ event SalutationHappened {
     timestamp occurredOn
     version eventVersion
 
-    boolean really = true
+    boolean booleanAttribute = true
     byte byteAttribute = 4
     char charAttribute = 'x'
     double doubleAttribute = 0.23

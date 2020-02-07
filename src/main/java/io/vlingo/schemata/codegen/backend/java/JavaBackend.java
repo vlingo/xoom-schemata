@@ -115,7 +115,7 @@ public class JavaBackend extends Actor implements Backend {
                 modifiers);
 
             if(definition.hasDefaultValue()) {
-                builder = builder.initializer("$L", definition.defaultValue.get().name());
+                builder = builder.initializer("$L", definition.defaultValue.get().value());
             }
 
               return builder.build();

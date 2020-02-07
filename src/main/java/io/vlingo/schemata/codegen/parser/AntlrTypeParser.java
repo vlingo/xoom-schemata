@@ -17,10 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import io.vlingo.schemata.codegen.ast.values.IntValue;
-import io.vlingo.schemata.codegen.ast.values.NullValue;
-import io.vlingo.schemata.codegen.ast.values.StringValue;
-import io.vlingo.schemata.codegen.ast.values.Value;
+import io.vlingo.schemata.codegen.ast.values.*;
 import org.antlr.v4.runtime.CodePointBuffer;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -96,6 +93,9 @@ public class AntlrTypeParser extends Actor implements TypeParser {
 
         Optional<Value> defaultValue = Optional.of(NullValue.get());
         switch(typeName) {
+            case "boolean":
+                defaultValue = Optional.of(BooleanValue.of(firstBooleanLiteral(attribute)));
+                break;
            case "string":
                defaultValue = Optional.of(StringValue.of(firstStringLiteral(attribute)));
                break;
@@ -105,6 +105,11 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         }
 
         return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, defaultValue);
+    }
+
+    private Boolean firstBooleanLiteral(SchemaVersionDefinitionParser.BasicTypeAttributeContext attribute) {
+        return attribute.BOOLEAN_LITERAL().size() != 0
+          && Boolean.parseBoolean(attribute.BOOLEAN_LITERAL(0).getText());
     }
 
     private String firstStringLiteral(SchemaVersionDefinitionParser.BasicTypeAttributeContext attribute) {
