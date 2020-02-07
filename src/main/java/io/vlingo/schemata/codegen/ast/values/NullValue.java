@@ -16,4 +16,11 @@ public class NullValue implements Value {
   public Object value() {
     return null;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof NullValue)
+      return true;
+    return false;
+  }
 }
