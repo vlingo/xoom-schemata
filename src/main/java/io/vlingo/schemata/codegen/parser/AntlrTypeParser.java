@@ -94,13 +94,13 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         Optional<Value> defaultValue = Optional.of(NullValue.get());
         switch(typeName) {
             case "boolean":
-                defaultValue = Optional.of(BooleanValue.of(firstBooleanLiteral(attribute)));
+                defaultValue = Optional.of(new ValueImpl(firstBooleanLiteral(attribute)));
                 break;
            case "string":
-               defaultValue = Optional.of(StringValue.of(firstStringLiteral(attribute)));
+               defaultValue = Optional.of(new ValueImpl(firstStringLiteral(attribute)));
                break;
            case "int":
-               defaultValue = Optional.of(IntValue.of(firstDecimalLiteral(attribute)));
+               defaultValue = Optional.of(new ValueImpl(firstDecimalLiteral(attribute)));
                break;
         }
 
