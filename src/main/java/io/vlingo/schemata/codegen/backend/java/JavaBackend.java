@@ -25,6 +25,7 @@ import javax.lang.model.element.Modifier;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -101,9 +102,16 @@ public class JavaBackend extends Actor implements Backend {
 
     private FieldSpec toField(FieldDefinition definition) {
         Type type = definition.type;
+        Modifier[] modifiers = definition.hasDefaultValue()
+          ? new Modifier[] { Modifier.PUBLIC }
+          : new Modifier[] {Modifier.FINAL, Modifier.PUBLIC};
+
         if (type instanceof BasicType) {
             return FieldSpec
-              .builder(primitive((BasicType) type), definition.name, Modifier.FINAL, Modifier.PUBLIC)
+              .builder(
+                primitive((BasicType) type),
+                definition.name,
+                modifiers)
               .initializer("$S", definition.defaultValue.get().name())
               .build();
         }

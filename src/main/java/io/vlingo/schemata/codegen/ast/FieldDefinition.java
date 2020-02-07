@@ -31,6 +31,10 @@ public class FieldDefinition implements Node {
           Objects.equals(defaultValue, that.defaultValue);
     }
 
+    public boolean hasDefaultValue() {
+        return defaultValue.isPresent();
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(type, version, name, defaultValue);
