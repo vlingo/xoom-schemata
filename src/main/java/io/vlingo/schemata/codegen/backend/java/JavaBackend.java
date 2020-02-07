@@ -107,13 +107,18 @@ public class JavaBackend extends Actor implements Backend {
           : new Modifier[] {Modifier.FINAL, Modifier.PUBLIC};
 
         if (type instanceof BasicType) {
-            return FieldSpec
+            FieldSpec.Builder builder =
+             FieldSpec
               .builder(
                 primitive((BasicType) type),
                 definition.name,
-                modifiers)
-              .initializer("$L", definition.defaultValue.get().name())
-              .build();
+                modifiers);
+
+            if(definition.hasDefaultValue()) {
+                builder = builder.initializer("$L", definition.defaultValue.get().name());
+            }
+
+              return builder.build();
         }
 
         if (type instanceof ComputableType) {
