@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 public abstract class CodeGenTests {
-    protected static final long TIMEOUT = 500L;
+    protected static final long TIMEOUT = 1500L;
 
     private World world;
     private CacheTypeResolver typeResolver;

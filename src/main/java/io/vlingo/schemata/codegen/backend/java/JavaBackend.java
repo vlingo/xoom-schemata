@@ -102,7 +102,10 @@ public class JavaBackend extends Actor implements Backend {
     private FieldSpec toField(FieldDefinition definition) {
         Type type = definition.type;
         if (type instanceof BasicType) {
-            return FieldSpec.builder(primitive((BasicType) type), definition.name, Modifier.FINAL, Modifier.PUBLIC).build();
+            return FieldSpec
+              .builder(primitive((BasicType) type), definition.name, Modifier.FINAL, Modifier.PUBLIC)
+              .initializer("$S", definition.defaultValue.get().name())
+              .build();
         }
 
         if (type instanceof ComputableType) {

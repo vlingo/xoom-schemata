@@ -17,6 +17,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.vlingo.schemata.codegen.ast.values.NullValue;
+import io.vlingo.schemata.codegen.ast.values.StringValue;
+import io.vlingo.schemata.codegen.ast.values.Value;
 import org.antlr.v4.runtime.CodePointBuffer;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -90,7 +93,26 @@ public class AntlrTypeParser extends Actor implements TypeParser {
 
         String fieldName = attribute.IDENTIFIER().getText();
 
-        return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, Optional.empty());
+        Optional<Value> defaultValue = Optional.of(NullValue.get());
+        switch(typeName) {
+           case "string":
+               defaultValue = Optional.of(StringValue.of(firstStringLiteral(attribute)));
+               break;
+        }
+
+        return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, defaultValue);
+    }
+
+    private String firstStringLiteral(SchemaVersionDefinitionParser.BasicTypeAttributeContext attribute) {
+        return attribute.STRING_LITERAL().size() == 0
+            ? ""
+            : unquote(attribute.STRING_LITERAL(0).getText());
+    }
+
+    private String unquote(String value) {
+        return value.startsWith("\"") && value.endsWith("\"")
+          ? value.substring(1, value.length() - 1)
+          : value;
     }
 
     private Node parseComplexTypeAttribute(SchemaVersionDefinitionParser.ComplexTypeAttributeContext attribute) {

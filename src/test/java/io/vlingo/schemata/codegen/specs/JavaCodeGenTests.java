@@ -7,6 +7,8 @@
 
 package io.vlingo.schemata.codegen.specs;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.ExecutionException;
@@ -35,6 +37,17 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("this.eventVersion = io.vlingo.common.version.SemanticVersion.toValue(\"0.0.1\");"));
     assertTrue(result.contains("this.toWhom = toWhom;"));
     assertTrue(result.contains("this.text = text;"));
+  }
+
+  @Test
+  public void testThatGeneratesABasicTypeWithDefaultValues() throws ExecutionException, InterruptedException {
+    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
+
+    final String result = compilerWithJavaBackend().compile(typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+
+    assertThat(result, containsString("public String toWhom = \"Zaphod Beeblebrox\";"));
+    assertThat(result, containsString("public String text = \"You're just this guy, right?\";"));
+    assertThat(result, containsString("public int answer = 42"));
   }
 
   @Test
