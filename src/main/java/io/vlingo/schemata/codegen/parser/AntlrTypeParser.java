@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,6 +84,7 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         return parseSpecialTypeAttribute(attribute.specialTypeAttribute());
     }
 
+    // @SuppressWarnings("unchecked")
     private Node parseBasicTypeAttribute(SchemaVersionDefinitionParser.BasicTypeAttributeContext attribute) {
         String typeName = firstNotNull(attribute.BOOLEAN(),
                 attribute.BYTE(), attribute.CHAR(), attribute.DOUBLE(),
@@ -94,34 +96,36 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         Optional<Value> defaultValue = Optional.of(NullValue.get());
         switch(typeName) {
             case "boolean":
-                defaultValue = Optional.of(new ValueImpl(firstBooleanLiteral(attribute)));
+                defaultValue = Optional.of(firstLiteral(attribute.BOOLEAN_LITERAL()));
                 break;
-           case "string":
-               defaultValue = Optional.of(new ValueImpl(firstStringLiteral(attribute)));
+            case "byte":
+                defaultValue = Optional.of(firstLiteral(attribute.BYTE_LITERAL()));
+                break;
+            case "char":
+                defaultValue = Optional.of(firstLiteral(attribute.CHAR_LITERAL()));
+                break;
+            case "double":
+            case "float":
+                defaultValue = Optional.of(firstLiteral(attribute.FLOAT_LITERAL()));
+                break;
+            case "int":
+            case "long":
+            case "short":
+                defaultValue = Optional.of(firstLiteral(attribute.DECIMAL_LITERAL()));
+                break;
+            case "string":
+               defaultValue = Optional.of(firstLiteral(attribute.STRING_LITERAL()));
                break;
-           case "int":
-               defaultValue = Optional.of(new ValueImpl(firstDecimalLiteral(attribute)));
-               break;
+
         }
 
         return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, defaultValue);
     }
 
-    private Boolean firstBooleanLiteral(SchemaVersionDefinitionParser.BasicTypeAttributeContext attribute) {
-        return attribute.BOOLEAN_LITERAL().size() != 0
-          && Boolean.parseBoolean(attribute.BOOLEAN_LITERAL(0).getText());
-    }
-
-    private String firstStringLiteral(SchemaVersionDefinitionParser.BasicTypeAttributeContext attribute) {
-        return attribute.STRING_LITERAL().size() == 0
-            ? ""
-            : attribute.STRING_LITERAL(0).getText();
-    }
-
-    private Integer firstDecimalLiteral(SchemaVersionDefinitionParser.BasicTypeAttributeContext attribute) {
-        return attribute.DECIMAL_LITERAL().size() == 0
-          ? 0
-          : Integer.parseInt(attribute.DECIMAL_LITERAL(0).getText());
+    private Value firstLiteral(List<TerminalNode> literals) {
+        return literals.size() == 0
+          ? new NullValue()
+          : new ValueImpl(literals.get(0).getText());
     }
 
     private Node parseComplexTypeAttribute(SchemaVersionDefinitionParser.ComplexTypeAttributeContext attribute) {
