@@ -7,6 +7,8 @@
 
 package io.vlingo.schemata.codegen.specs;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.ExecutionException;
@@ -35,6 +37,23 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("this.eventVersion = io.vlingo.common.version.SemanticVersion.toValue(\"0.0.1\");"));
     assertTrue(result.contains("this.toWhom = toWhom;"));
     assertTrue(result.contains("this.text = text;"));
+  }
+
+  @Test
+  public void testThatGeneratesABasicTypeWithDefaultValues() throws ExecutionException, InterruptedException {
+    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
+
+    final String result = compilerWithJavaBackend().compile(typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+
+    assertThat(result, containsString("public boolean booleanAttribute = true;"));
+    assertThat(result, containsString("public byte byteAttribute = 4;"));
+    assertThat(result, containsString("public char charAttribute = 'x';"));
+    assertThat(result, containsString("public double doubleAttribute = 0.23;"));
+    assertThat(result, containsString("public float floatAttribute = 0.42f;"));
+    assertThat(result, containsString("public int intAttribute = 4242;"));
+    assertThat(result, containsString("public long longAttribute = 42L;"));
+    assertThat(result, containsString("public short shortAttribute = 258;"));
+    assertThat(result, containsString("public String stringAttribute = \"foo\";"));
   }
 
   @Test
