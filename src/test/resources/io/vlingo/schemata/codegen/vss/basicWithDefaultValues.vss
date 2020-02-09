@@ -1,0 +1,15 @@
+event SalutationHappened {
+    type eventType
+    timestamp occurredOn
+    version eventVersion
+
+    boolean booleanAttribute = true
+    byte byteAttribute = 4
+    char charAttribute = 'x'
+    double doubleAttribute = 0.23
+    float floatAttribute = 0.42f
+    int intAttribute = 4242
+    long longAttribute = 42L
+    short shortAttribute = 258
+    string stringAttribute = "foo"
+}

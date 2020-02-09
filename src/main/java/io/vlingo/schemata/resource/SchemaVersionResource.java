@@ -85,6 +85,13 @@ public class SchemaVersionResource extends ResourceHandler {
             .otherwise(n -> null)
             .await();
 
+        if(
+          (previousVersion == null || previousVersion.isNone())
+          && !previousSemantic.equals(SemanticVersion.from(0,0,0))
+        ) {
+          return Completes.withSuccess(Response.of(NotFound, "Tried to update non-existing version " + previousSemantic.toString()));
+        }
+
         if(previousVersion != null && !previousVersion.isNone() ) {
           SpecificationDiff diff = commands
               .diffAgainst(
@@ -218,7 +225,7 @@ public class SchemaVersionResource extends ResourceHandler {
                     msg));
         }
 
-        return Queries.forSchemas().schemaVersionByNames(
+        SchemaVersionData updatedSchemaVersionData = Queries.forSchemas().schemaVersionByNames(
                 fqr.organization,
                 fqr.unit,
                 fqr.context,
@@ -234,13 +241,15 @@ public class SchemaVersionResource extends ResourceHandler {
                 SchemaVersion.Status.Draft.value,
                 data.previousVersion,
                 fqr.schemaVersion))
-        ).andThenTo(schemaVersionData -> this.defineWith(
-                schemaVersionData.organizationId,
-                schemaVersionData.unitId,
-                schemaVersionData.contextId,
-                schemaVersionData.schemaId,
-                schemaVersionData
-        ));
+        ).await();
+
+        return this.defineWith(
+          updatedSchemaVersionData.organizationId,
+          updatedSchemaVersionData.unitId,
+          updatedSchemaVersionData.contextId,
+          updatedSchemaVersionData.schemaId,
+          updatedSchemaVersionData
+      );
     }
 
     public Completes<Response> retrieveSchemaVersion(final String reference) {

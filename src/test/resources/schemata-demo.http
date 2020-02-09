@@ -76,6 +76,19 @@ Content-Type: application/json
 
 > {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
 
+### Update schema by reference
+
+POST http://localhost:9019/versions/Vlingo:schemata:io.vlingo.schemata:SchemaDefined:1.0.1
+Content-Type: application/json
+
+{
+  "description": "Updated revision.",
+  "specification": "event SchemaDefined { type eventType\nlong version }",
+  "previousVersion": "1.0.0"
+}
+
+> {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
+
 ### Pull code by reference
 GET http://localhost:9019/code/Vlingo:schemata:io.vlingo.schemata:SchemaDefined:0.0.1/java
 Accept: application/json

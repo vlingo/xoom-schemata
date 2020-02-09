@@ -12,11 +12,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.vlingo.schemata.codegen.ast.values.*;
 import org.antlr.v4.runtime.CodePointBuffer;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -82,6 +84,7 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         return parseSpecialTypeAttribute(attribute.specialTypeAttribute());
     }
 
+    // @SuppressWarnings("unchecked")
     private Node parseBasicTypeAttribute(SchemaVersionDefinitionParser.BasicTypeAttributeContext attribute) {
         String typeName = firstNotNull(attribute.BOOLEAN(),
                 attribute.BYTE(), attribute.CHAR(), attribute.DOUBLE(),
@@ -90,7 +93,39 @@ public class AntlrTypeParser extends Actor implements TypeParser {
 
         String fieldName = attribute.IDENTIFIER().getText();
 
-        return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, Optional.empty());
+        Optional<Value> defaultValue = Optional.of(NullValue.get());
+        switch(typeName) {
+            case "boolean":
+                defaultValue = Optional.of(firstLiteral(attribute.BOOLEAN_LITERAL()));
+                break;
+            case "byte":
+                defaultValue = Optional.of(firstLiteral(attribute.BYTE_LITERAL()));
+                break;
+            case "char":
+                defaultValue = Optional.of(firstLiteral(attribute.CHAR_LITERAL()));
+                break;
+            case "double":
+            case "float":
+                defaultValue = Optional.of(firstLiteral(attribute.FLOAT_LITERAL()));
+                break;
+            case "int":
+            case "long":
+            case "short":
+                defaultValue = Optional.of(firstLiteral(attribute.DECIMAL_LITERAL()));
+                break;
+            case "string":
+               defaultValue = Optional.of(firstLiteral(attribute.STRING_LITERAL()));
+               break;
+
+        }
+
+        return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, defaultValue);
+    }
+
+    private Value firstLiteral(List<TerminalNode> literals) {
+        return literals.size() == 0
+          ? new NullValue()
+          : new ValueImpl(literals.get(0).getText());
     }
 
     private Node parseComplexTypeAttribute(SchemaVersionDefinitionParser.ComplexTypeAttributeContext attribute) {

@@ -1,6 +1,7 @@
 package io.vlingo.schemata.codegen.ast;
 
 import io.vlingo.schemata.codegen.ast.types.Type;
+import io.vlingo.schemata.codegen.ast.values.NullValue;
 import io.vlingo.schemata.codegen.ast.values.Value;
 import io.vlingo.schemata.model.SchemaVersion;
 
@@ -29,6 +30,10 @@ public class FieldDefinition implements Node {
           Objects.equals(version, that.version) &&
           Objects.equals(name, that.name) &&
           Objects.equals(defaultValue, that.defaultValue);
+    }
+
+    public boolean hasDefaultValue() {
+        return defaultValue.isPresent() && !defaultValue.get().equals(NullValue.get());
     }
 
     @Override

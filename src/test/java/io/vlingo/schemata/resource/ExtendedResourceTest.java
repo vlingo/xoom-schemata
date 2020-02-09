@@ -34,18 +34,18 @@ public class ExtendedResourceTest extends ResourceTest {
     private final SchemaData schemaData10 = SchemaData.just(Category.Event.name(), Scope.Public.name(), "SchemaDefined1", "SchemaDefined description");
     private final SchemaData schemaData11 = SchemaData.just(Category.Event.name(), Scope.Public.name(), "SchemaDefined1_1", "SchemaDefined description");
     private final SchemaVersionData schemaVersionData10 = SchemaVersionData.just("event SchemaDefined {}", "SchemaDefined description",
-            Draft.name(), "0.0.1", "0.0.2");
+            Draft.name(), "0.0.0", "0.0.2");
     private final SchemaVersionData schemaVersionData10_2 = SchemaVersionData.just("event SchemaDefined {}", "SchemaDefined description",
             Draft.name(), "0.0.2", "0.0.3");
     private final SchemaVersionData schemaVersionData11 = SchemaVersionData.just("event SchemaDefined {}", "SchemaDefined description",
-            Draft.name(), "0.0.6", "0.0.7");
+            Draft.name(), "0.0.0", "0.0.7");
 
     private final OrganizationData orgData2 = OrganizationData.just("org2", "org2 description");
     private final UnitData unitData2 = UnitData.just("Unit_2", "Unit222 description");
     private final ContextData contextData2 = ContextData.just("io.vlingo.http" , "Namespace HTTP!");
     private final SchemaData schemaData2 = SchemaData.just(Category.Event.name(), Scope.Public.name(), "SchemaDefined2_", "Second SchemaDefined");
     private final SchemaVersionData schemaVersionData2 = SchemaVersionData.just("event SchemaDefined2 {}", "SchemaDefined 2 description",
-            Draft.name(), "1.0.10", "1.0.11");
+            Draft.name(), "0.0.0", "1.0.11");
 
     private final OrganizationData orgData3 = OrganizationData.just("_org 3", "_org 3 description");
 
