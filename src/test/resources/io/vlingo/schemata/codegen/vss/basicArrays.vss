@@ -1,0 +1,15 @@
+event SalutationHappened {
+    type eventType
+    timestamp occurredOn
+    version eventVersion
+
+    boolean booleanAttribute[]
+    byte byteAttribute[]
+    char charAttribute[]
+    double doubleAttribute[]
+    float floatAttribute[]
+    int intAttribute[]
+    long longAttribute[]
+    short shortAttribute[]
+    string stringAttribute[]
+}
