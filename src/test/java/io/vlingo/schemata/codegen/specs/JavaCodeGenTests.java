@@ -62,15 +62,15 @@ public class JavaCodeGenTests extends CodeGenTests {
 
     final String result = compilerWithJavaBackend().compile(typeDefinition("basicArrays"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
 
-    assertThat(result, containsString("public boolean booleanAttribute[]"));
-    assertThat(result, containsString("public byte byteAttribute[]"));
-    assertThat(result, containsString("public char charAttribute[]"));
-    assertThat(result, containsString("public double doubleAttribute[]"));
-    assertThat(result, containsString("public float floatAttribute[]"));
-    assertThat(result, containsString("public int intAttribute[]"));
-    assertThat(result, containsString("public long longAttribute[]"));
-    assertThat(result, containsString("public short shortAttribute[]"));
-    assertThat(result, containsString("public String stringAttribute[]"));
+    assertThat(result, containsString("public final boolean[] booleanAttribute"));
+    assertThat(result, containsString("public final byte[] byteAttribute"));
+    assertThat(result, containsString("public final char[] charAttribute"));
+    assertThat(result, containsString("public final double[] doubleAttribute"));
+    assertThat(result, containsString("public final float[] floatAttribute"));
+    assertThat(result, containsString("public final int[] intAttribute"));
+    assertThat(result, containsString("public final long[] longAttribute"));
+    assertThat(result, containsString("public final short[] shortAttribute"));
+    assertThat(result, containsString("public final String[] stringAttribute"));
   }
 
   @Test

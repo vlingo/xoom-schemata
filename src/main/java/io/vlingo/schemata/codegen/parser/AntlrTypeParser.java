@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.vlingo.schemata.codegen.ast.types.BasicArrayType;
 import io.vlingo.schemata.codegen.ast.values.*;
 import org.antlr.v4.runtime.CodePointBuffer;
 import org.antlr.v4.runtime.CodePointCharStream;
@@ -91,6 +92,8 @@ public class AntlrTypeParser extends Actor implements TypeParser {
                 attribute.FLOAT(), attribute.INT(), attribute.LONG(),
                 attribute.SHORT(), attribute.STRING());
 
+        boolean isArrayType = attribute.ARRAY() == null ? false :true;
+
         String fieldName = attribute.IDENTIFIER().getText();
 
         Optional<Value> defaultValue = Optional.of(NullValue.get());
@@ -119,7 +122,11 @@ public class AntlrTypeParser extends Actor implements TypeParser {
 
         }
 
-        return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, defaultValue);
+        return new FieldDefinition(
+                isArrayType ? new BasicArrayType(typeName) : new BasicType(typeName),
+                Optional.empty(),
+                fieldName,
+                defaultValue);
     }
 
     private Value firstLiteral(List<TerminalNode> literals) {

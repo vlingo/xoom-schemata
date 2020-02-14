@@ -26,4 +26,8 @@ public class BasicType implements Type {
     public String name() {
         return typeName;
     }
+
+    public boolean isArrayType() {
+        return false;
+    }
 }

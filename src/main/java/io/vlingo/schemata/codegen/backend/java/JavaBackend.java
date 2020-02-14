@@ -14,10 +14,7 @@ import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
-import io.vlingo.schemata.codegen.ast.types.BasicType;
-import io.vlingo.schemata.codegen.ast.types.ComputableType;
-import io.vlingo.schemata.codegen.ast.types.Type;
-import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.schemata.codegen.ast.types.*;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.processor.Processor;
 
@@ -162,28 +159,41 @@ public class JavaBackend extends Actor implements Backend {
     }
 
     private TypeName primitive(BasicType basicType) {
+        TypeName result = null;
         switch (basicType.typeName) {
             case "boolean":
-                return TypeName.BOOLEAN;
+                result = TypeName.BOOLEAN;
+                break;
             case "byte":
-                return TypeName.BYTE;
+                result = TypeName.BYTE;
+                break;
             case "char":
-                return TypeName.CHAR;
+                result = TypeName.CHAR;
+                break;
             case "short":
-                return TypeName.SHORT;
+                result = TypeName.SHORT;
+                break;
             case "int":
-                return TypeName.INT;
+                result = TypeName.INT;
+                break;
             case "long":
-                return TypeName.LONG;
+                result = TypeName.LONG;
+                break;
             case "float":
-                return TypeName.FLOAT;
+                result = TypeName.FLOAT;
+                break;
             case "double":
-                return TypeName.DOUBLE;
+                result = TypeName.DOUBLE;
+                break;
             case "string":
-                return TypeName.get(String.class);
+                result = TypeName.get(String.class);
+                break;
             default:
-                return TypeName.get(Object.class);
+                result = TypeName.get(Object.class);
+                break;
         }
+
+        return basicType.isArrayType() ? ArrayTypeName.of(result) : result;
     }
 
     private TypeName computable(ComputableType computableType) {
