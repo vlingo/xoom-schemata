@@ -15,6 +15,10 @@ import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.ast.types.*;
+import io.vlingo.schemata.codegen.ast.values.ListValue;
+import io.vlingo.schemata.codegen.ast.values.NullValue;
+import io.vlingo.schemata.codegen.ast.values.SingleValue;
+import io.vlingo.schemata.codegen.ast.values.Value;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.processor.Processor;
 
@@ -24,6 +28,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.joining;
 
 public class JavaBackend extends Actor implements Backend {
     public JavaBackend() {
@@ -111,7 +117,7 @@ public class JavaBackend extends Actor implements Backend {
                 modifiers);
 
             if(definition.hasDefaultValue()) {
-                builder = builder.initializer("$L", definition.defaultValue.get().value());
+                builder = builder.initializer("$L", javaLiteralOf(definition));
             }
 
               return builder.build();
@@ -129,13 +135,47 @@ public class JavaBackend extends Actor implements Backend {
         return null;
     }
 
+    private String javaLiteralOf(FieldDefinition definition) {
+        Value value = definition.defaultValue.orElseGet(NullValue::new);
+
+        if(value instanceof NullValue) {
+            return null;
+        }
+
+        if(value instanceof SingleValue) {
+            return javaLiteralOf((SingleValue) value);
+        }
+
+        if(value instanceof ListValue) {
+            return javaLiteralOf(definition.type, (ListValue) value);
+        }
+
+        throw new IllegalStateException("Unsupported value type encountered");
+    }
+
+    private String javaLiteralOf(SingleValue value) {
+        return value.value().toString();
+    }
+
+    private String javaLiteralOf(Type type, ListValue value) {
+        return value.value().stream()
+                .map(e -> ((SingleValue)e).value())
+                .collect(joining(
+                        ", ",
+                        String.format("new %s { ", typeTypeOf(type)),
+                        " }"
+                )).toString();
+    }
+
     private ParameterSpec toConstructorParameter(FieldDefinition definition) {
-        Type type = definition.type;
+        return ParameterSpec.builder(typeTypeOf(definition.type), definition.name, Modifier.FINAL).build();
+    }
+
+    private TypeName typeTypeOf(Type type) {
         if (type instanceof BasicType) {
-            return ParameterSpec.builder(primitive((BasicType) type), definition.name, Modifier.FINAL).build();
+            return primitive((BasicType) type);
         } else {
-            ClassName className = ClassName.bestGuess(((TypeDefinition) type).typeName);
-            return ParameterSpec.builder(className, definition.name, Modifier.FINAL).build();
+            return ClassName.bestGuess(((TypeDefinition) type).typeName);
         }
     }
 

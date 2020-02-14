@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.vlingo.schemata.codegen.ast.types.BasicArrayType;
@@ -35,6 +34,8 @@ import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.ast.types.BasicType;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.model.Category;
+
+import static java.util.stream.Collectors.toList;
 
 
 public class AntlrTypeParser extends Actor implements TypeParser {
@@ -70,7 +71,7 @@ public class AntlrTypeParser extends Actor implements TypeParser {
 
         Stream<Node> fields = typeDeclaration.typeBody().attributes().attribute().stream().map(this::parseFieldDefinition);
 
-        return new TypeDefinition(categoryOf(typeKind), fullyQualifiedTypeName, typeName, fields.collect(Collectors.toList()));
+        return new TypeDefinition(categoryOf(typeKind), fullyQualifiedTypeName, typeName, fields.collect(toList()));
     }
 
     private Node parseFieldDefinition(SchemaVersionDefinitionParser.AttributeContext attribute) {
@@ -92,34 +93,33 @@ public class AntlrTypeParser extends Actor implements TypeParser {
                 attribute.FLOAT(), attribute.INT(), attribute.LONG(),
                 attribute.SHORT(), attribute.STRING());
 
-        boolean isArrayType = attribute.ARRAY() == null ? false :true;
+        boolean isArrayType = attribute.ARRAY() == null ? false : true;
 
         String fieldName = attribute.IDENTIFIER().getText();
 
         Optional<Value> defaultValue = Optional.of(NullValue.get());
         switch(typeName) {
             case "boolean":
-                defaultValue = Optional.of(firstLiteral(attribute.BOOLEAN_LITERAL()));
+                defaultValue = Optional.of(nodeValueOf(attribute.BOOLEAN_LITERAL()));
                 break;
             case "byte":
-                defaultValue = Optional.of(firstLiteral(attribute.BYTE_LITERAL()));
+                defaultValue = Optional.of(nodeValueOf(attribute.BYTE_LITERAL()));
                 break;
             case "char":
-                defaultValue = Optional.of(firstLiteral(attribute.CHAR_LITERAL()));
+                defaultValue = Optional.of(nodeValueOf(attribute.CHAR_LITERAL()));
                 break;
             case "double":
             case "float":
-                defaultValue = Optional.of(firstLiteral(attribute.FLOAT_LITERAL()));
+                defaultValue = Optional.of(nodeValueOf(attribute.FLOAT_LITERAL()));
                 break;
             case "int":
             case "long":
             case "short":
-                defaultValue = Optional.of(firstLiteral(attribute.DECIMAL_LITERAL()));
+                defaultValue = Optional.of(nodeValueOf(attribute.DECIMAL_LITERAL()));
                 break;
             case "string":
-               defaultValue = Optional.of(firstLiteral(attribute.STRING_LITERAL()));
+               defaultValue = Optional.of(nodeValueOf(attribute.STRING_LITERAL()));
                break;
-
         }
 
         return new FieldDefinition(
@@ -129,10 +129,23 @@ public class AntlrTypeParser extends Actor implements TypeParser {
                 defaultValue);
     }
 
-    private Value firstLiteral(List<TerminalNode> literals) {
-        return literals.size() == 0
-          ? new NullValue()
-          : new ValueImpl(literals.get(0).getText());
+    @SuppressWarnings("unchecked")
+    private Value nodeValueOf(List<TerminalNode> literals) {
+        switch (literals.size()) {
+            case 0:
+                return new NullValue();
+            case 1:
+                return nodeValueOf(literals.get(0));
+            default: // we have an array type here
+                return new ListValue(literals.stream().map(this::nodeValueOf).collect(toList()));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Value nodeValueOf(TerminalNode literal) {
+        return literal == null
+                ? new NullValue()
+                : new SingleValue(literal.getText());
     }
 
     private Node parseComplexTypeAttribute(SchemaVersionDefinitionParser.ComplexTypeAttributeContext attribute) {
