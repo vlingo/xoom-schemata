@@ -57,6 +57,39 @@ public class JavaCodeGenTests extends CodeGenTests {
   }
 
   @Test
+  public void testThatGeneratesBasicTypeArrayFields() throws ExecutionException, InterruptedException {
+    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
+
+    final String result = compilerWithJavaBackend().compile(typeDefinition("basicArrays"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+
+    assertThat(result, containsString("public boolean booleanAttribute[]"));
+    assertThat(result, containsString("public byte byteAttribute[]"));
+    assertThat(result, containsString("public char charAttribute[]"));
+    assertThat(result, containsString("public double doubleAttribute[]"));
+    assertThat(result, containsString("public float floatAttribute[]"));
+    assertThat(result, containsString("public int intAttribute[]"));
+    assertThat(result, containsString("public long longAttribute[]"));
+    assertThat(result, containsString("public short shortAttribute[]"));
+    assertThat(result, containsString("public String stringAttribute[]"));
+  }
+
+  @Test
+  public void testThatGeneratesBasicTypeArrayFieldsWithDefaults() throws ExecutionException, InterruptedException {
+    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
+
+    final String result = compilerWithJavaBackend().compile(typeDefinition("basicArrays"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+    assertThat(result, containsString("public boolean[] booleanAttribute = new boolean[] {true, false, true}"));
+    assertThat(result, containsString("public byte[] byteAttribute = new byte[] {4, 3, 2, 1}"));
+    assertThat(result, containsString("public char[] charAttribute = new char[] {'x', 'y', 'z'}"));
+    assertThat(result, containsString("public double[] doubleAttribute = new double[] {0.23, 0.22, 0.21}"));
+    assertThat(result, containsString("public float[] floatAttribute = new float[] {0.42f, 0.42f, 0.1f}"));
+    assertThat(result, containsString("public int[] intAttribute = new int[] {4242, 424242, 42424242 }"));
+    assertThat(result, containsString("public long[] longAttribute = new long[] {42L, 4242L, 424242L}"));
+    assertThat(result, containsString("public short[] shortAttribute = new short[] {258, 259, 260}"));
+    assertThat(result, containsString("public String[] stringAttribute = new String[] {\"foo\", \"bar\", \"baz\" }"));
+  }
+
+  @Test
   public void testThatGeneratesABasicTypeWithAllConsideredInnerTypes() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
 
