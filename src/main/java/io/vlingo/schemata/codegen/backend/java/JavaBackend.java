@@ -84,10 +84,12 @@ public class JavaBackend extends Actor implements Backend {
 
         final TypeSpec.Builder spec = TypeSpec.classBuilder(unqualifiedName(typeName))
                 .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
-                .addMethod(noArgConstructor)
                 .addMethod(constructor)
                 .superclass(baseClass);
 
+        if(fields.size() != 0) {
+            spec.addMethod(noArgConstructor);
+        }
 
 
 
