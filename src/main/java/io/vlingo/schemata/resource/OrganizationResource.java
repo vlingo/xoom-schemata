@@ -33,6 +33,7 @@ import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Organization;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.OrganizationData;
+import org.postgresql.shaded.com.ongres.scram.common.ScramStringFormatting;
 
 public class OrganizationResource extends ResourceHandler {
   private final OrganizationCommands commands;
@@ -95,10 +96,11 @@ public class OrganizationResource extends ResourceHandler {
   }
 
   public Completes<Response> queryOrganization(final String organizationId) {
+    String message404 = String.format("Organization %s not found", organizationId);
     return Queries.forOrganizations()
             .organization(organizationId)
             .andThenTo(organization -> organization == null
-                    ? Completes.withSuccess(Response.of(NotFound, Headers.of(of(ContentLength, 0)), ""))
+                    ? Completes.withSuccess(Response.of(NotFound, Headers.of(of(ContentLength, message404.length())), message404))
                     : Completes.withSuccess(Response.of(Ok, serialized(organization))));
   }
 
