@@ -1,15 +1,15 @@
 package io.vlingo.schemata.codegen.ast.values;
 
-public class ValueImpl<T> implements Value<T> {
+public class SingleValue<T> implements Value<T> {
   public final T value;
 
-  public ValueImpl(T value) {
+  public SingleValue(T value) {
     this.value = value;
   }
 
   @Override
   public String name() {
-    return value.toString();
+    return value.getClass().getSimpleName();
   }
 
   @Override

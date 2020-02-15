@@ -26,3 +26,4 @@ node_modules/
 src/test/e2e/cypress/screenshots/
 src/test/e2e/cypress/videos/
 src/main/antlr4/io/vlingo/schemata/codegen/antlr/SchemaVersionDefinitionLexer.tokens
+gen/
