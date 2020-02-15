@@ -77,6 +77,6 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
   private Completes<OrganizationData> queryOne(final String query, final Map<String,String> parameters) {
     final QueryExpression expression = MapQueryExpression.using(OrganizationState.class, query, parameters);
 
-    return queryObject(OrganizationState.class, expression, (OrganizationState state) -> OrganizationData.from(state));
+    return queryObject(OrganizationState.class, expression, (OrganizationState state) -> state == null ? null : OrganizationData.from(state));
   }
 }

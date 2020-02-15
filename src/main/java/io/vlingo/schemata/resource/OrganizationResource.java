@@ -8,13 +8,8 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.Response.Status.BadRequest;
-import static io.vlingo.http.Response.Status.Conflict;
-import static io.vlingo.http.Response.Status.Created;
-import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.ResponseHeader.ContentType;
-import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.of;
+import static io.vlingo.http.Response.Status.*;
+import static io.vlingo.http.ResponseHeader.*;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.patch;
 import static io.vlingo.http.resource.ResourceBuilder.post;
@@ -102,7 +97,9 @@ public class OrganizationResource extends ResourceHandler {
   public Completes<Response> queryOrganization(final String organizationId) {
     return Queries.forOrganizations()
             .organization(organizationId)
-            .andThenTo(organization -> Completes.withSuccess(Response.of(Ok, serialized(organization))));
+            .andThenTo(organization -> organization == null
+                    ? Completes.withSuccess(Response.of(NotFound, Headers.of(of(ContentLength, 0)), ""))
+                    : Completes.withSuccess(Response.of(Ok, serialized(organization))));
   }
 
   @Override
