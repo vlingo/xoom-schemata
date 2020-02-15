@@ -78,10 +78,18 @@ public class JavaBackend extends Actor implements Backend {
                 .addParameters(fields.stream().filter(field -> !(field.type instanceof ComputableType)).map(this::toConstructorParameter).collect(Collectors.toList()))
                 .addCode(CodeBlock.join(initializers, "\n"))
                 .build();
+        final MethodSpec noArgConstructor = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .build();
 
         final TypeSpec.Builder spec = TypeSpec.classBuilder(unqualifiedName(typeName))
                 .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
-                .addMethod(constructor).superclass(baseClass);
+                .addMethod(noArgConstructor)
+                .addMethod(constructor)
+                .superclass(baseClass);
+
+
+
 
         return spec.addFields(classFields).build();
     }
