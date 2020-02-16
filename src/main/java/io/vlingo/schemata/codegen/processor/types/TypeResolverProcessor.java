@@ -58,6 +58,7 @@ public class TypeResolverProcessor extends Actor implements Processor {
           Completes<Type> resolvedType = resolver.resolve(middleware, basicType.typeName)
                   .andThen(foundType -> foundType.map(definition -> (Type) definition).orElse(basicType));
 
+          // FIXME: add array type info from field definition
           return resolvedType.andThen(type ->
                   new FieldDefinition(type, fieldDefinition.version, fieldDefinition.name, fieldDefinition.defaultValue)
           );
