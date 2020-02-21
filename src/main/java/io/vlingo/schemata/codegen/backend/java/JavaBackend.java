@@ -68,6 +68,11 @@ public class JavaBackend extends Actor implements Backend {
                 .map(param -> CodeBlock.of(initializationOf(param, type, version)))
                 .collect(Collectors.toList());
 
+        final List<CodeBlock> computedFieldInitializers = fields.stream()
+                .filter(field -> (field.type instanceof ComputableType))
+                .map(param -> CodeBlock.of(initializationOf(param, type, version)))
+                .collect(Collectors.toList());
+
         final List<FieldSpec> classFields = fields.stream()
                 .map(this::toField)
                 .collect(Collectors.toList());
@@ -78,8 +83,10 @@ public class JavaBackend extends Actor implements Backend {
                 .addParameters(fields.stream().filter(field -> !(field.type instanceof ComputableType)).map(this::toConstructorParameter).collect(Collectors.toList()))
                 .addCode(CodeBlock.join(initializers, "\n"))
                 .build();
+
         final MethodSpec noArgConstructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
+                .addCode(CodeBlock.join(computedFieldInitializers, "\n"))
                 .build();
 
         final TypeSpec.Builder spec = TypeSpec.classBuilder(unqualifiedName(typeName))

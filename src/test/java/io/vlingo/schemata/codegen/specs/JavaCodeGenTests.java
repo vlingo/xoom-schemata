@@ -57,6 +57,29 @@ public class JavaCodeGenTests extends CodeGenTests {
   }
 
   @Test
+  public void testThatGeneratesABasicTypeWithDefaultValuesAndComputedFields() throws ExecutionException, InterruptedException {
+    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
+
+    final String result = compilerWithJavaBackend().compile(typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+
+    assertTrue(result.contains("public SalutationHappened()"));
+
+    assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
+    assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
+    assertTrue(result.contains("this.eventVersion = io.vlingo.common.version.SemanticVersion.toValue(\"0.0.1\");"));
+
+    assertThat(result, containsString("public boolean booleanAttribute = true;"));
+    assertThat(result, containsString("public byte byteAttribute = 4;"));
+    assertThat(result, containsString("public char charAttribute = 'x';"));
+    assertThat(result, containsString("public double doubleAttribute = 0.23;"));
+    assertThat(result, containsString("public float floatAttribute = 0.42f;"));
+    assertThat(result, containsString("public int intAttribute = 4242;"));
+    assertThat(result, containsString("public long longAttribute = 42L;"));
+    assertThat(result, containsString("public short shortAttribute = 258;"));
+    assertThat(result, containsString("public String stringAttribute = \"foo\";"));
+  }
+
+  @Test
   public void testThatGeneratesBasicTypeArrayFields() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
 
