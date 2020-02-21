@@ -22,7 +22,6 @@ import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
-import io.vlingo.schemata.codegen.parser.ParseException;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.model.Events.SchemaVersionDefined;
 import io.vlingo.schemata.model.Events.SchemaVersionDeprecated;
