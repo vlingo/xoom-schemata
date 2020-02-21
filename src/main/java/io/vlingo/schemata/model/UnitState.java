@@ -10,7 +10,7 @@ package io.vlingo.schemata.model;
 import java.util.Map;
 
 import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.symbio.store.object.MapQueryExpression.FluentMap;
+import io.vlingo.symbio.store.MapQueryExpression.FluentMap;
 import io.vlingo.symbio.store.object.StateObject;
 
 public class UnitState extends StateObject {
