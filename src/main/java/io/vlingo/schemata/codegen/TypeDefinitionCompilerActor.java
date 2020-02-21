@@ -11,7 +11,9 @@ import io.vlingo.actors.Actor;
 import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.codegen.ast.Node;
+import io.vlingo.schemata.codegen.ast.values.SingleValue;
 import io.vlingo.schemata.codegen.backend.Backend;
+import io.vlingo.schemata.codegen.parser.ParseException;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 
@@ -49,8 +51,8 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
         CompletesEventually eventually = completesEventually();
 
         parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
-                .andThenTo(this.process(fullyQualifiedTypeName))
-                .andThenConsume(eventually::with);
+            .andThenTo(this.process(fullyQualifiedTypeName))
+            .andThenConsume(eventually::with);
 
         return completes();
     }

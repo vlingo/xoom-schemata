@@ -8,16 +8,17 @@
 package io.vlingo.schemata.codegen.specs;
 
 import io.vlingo.schemata.codegen.CodeGenTests;
+import io.vlingo.schemata.codegen.parser.ParseException;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static junit.framework.TestCase.fail;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class JavaCodeGenTests extends CodeGenTests {
   @Test
@@ -148,7 +149,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   }
 
   @Test
-  public void testThatGeneratesAComposedTypeWithVersionedData() throws ExecutionException, InterruptedException {
+  public void testThatGeneratesAComposedTypeWithVersionedData() throws ExecutionException, InterruptedException, ParseException {
     registerType("types/price", "Org:Unit:Context:Schema:Price", "1.0.0");
     final String result = compilerWithJavaBackend().compile(typeDefinition("price-changed"), "Org:Unit:Context:Schema:PriceChanged", "0.5.1").await();
 
@@ -176,8 +177,15 @@ public class JavaCodeGenTests extends CodeGenTests {
 
   @Test
   public void testThatCompilingInvalidSchemaReportsError() {
-    final String result = compilerWithJavaBackend().compile(typeDefinition("invalid"), "O:U:C:S", "0.0.1").await();
+    final Exception[] expected = new Exception[1];
+    compilerWithJavaBackend()
+            .compile(typeDefinition("invalid"), "O:U:C:S", "0.0.1")
+            .recoverFrom(e -> {
+              expected[0] = e;
+              return e.getMessage();
+            })
+            .await(500L);
 
-    System.out.println(result);
+    assertNotNull("Parsing an invalid schema should report an exception", expected[0]);
   }
 }

@@ -56,7 +56,7 @@ public class AntlrTypeParser extends Actor implements TypeParser {
             Node type = parseTypeDeclaration(tree.typeDeclaration(), fullyQualifiedTypeName);
             if(errorStrategy.hasErrors()) {
                 errorStrategy.errors().forEach(e -> logger().error(e.getMessage(),e));
-                eventually.with(null);
+                throw new ParseException(String.format("Parsing %s schema failed", fullyQualifiedTypeName), errorStrategy.errors());
             } else {
                 eventually.with(type);
             }

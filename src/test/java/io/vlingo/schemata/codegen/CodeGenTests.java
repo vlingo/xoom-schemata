@@ -13,6 +13,7 @@ import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
+import io.vlingo.schemata.codegen.parser.ParseException;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.codegen.processor.types.CacheTypeResolver;
