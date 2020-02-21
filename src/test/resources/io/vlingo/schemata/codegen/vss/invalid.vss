@@ -1,0 +1,5 @@
+event SalutationHappened
+    type eventType
+    timestam [] = p occurredOn
+    version event|{}Version
+}

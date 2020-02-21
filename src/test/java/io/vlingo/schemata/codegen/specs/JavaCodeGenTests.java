@@ -173,4 +173,11 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("package io.vlingo.mynamespace.event;"));
     assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
   }
+
+  @Test
+  public void testThatCompilingInvalidSchemaReportsError() {
+    final String result = compilerWithJavaBackend().compile(typeDefinition("invalid"), "O:U:C:S", "0.0.1").await();
+
+    System.out.println(result);
+  }
 }

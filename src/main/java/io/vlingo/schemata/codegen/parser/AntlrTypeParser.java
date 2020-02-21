@@ -51,9 +51,15 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         SchemaVersionDefinitionParser tree;
 
         try {
-            tree = generateAntlrTree(inputStream);
+            ParserErrorStrategy errorStrategy = new ParserErrorStrategy();
+            tree = generateAntlrTree(inputStream, errorStrategy);
             Node type = parseTypeDeclaration(tree.typeDeclaration(), fullyQualifiedTypeName);
-            eventually.with(type);
+            if(errorStrategy.hasErrors()) {
+                errorStrategy.errors().forEach(e -> logger().error(e.getMessage(),e));
+                eventually.with(null);
+            } else {
+                eventually.with(type);
+            }
         } catch (IOException e) {
             logger().error(e.getMessage(), e);
             eventually.with(null);
@@ -168,12 +174,14 @@ public class AntlrTypeParser extends Actor implements TypeParser {
                 .get();
     }
 
-    private SchemaVersionDefinitionParser generateAntlrTree(InputStream inputStream) throws IOException {
+    private SchemaVersionDefinitionParser generateAntlrTree(InputStream inputStream, ParserErrorStrategy errorStrategy) throws IOException {
         CodePointBuffer buffer = CodePointBuffer.withBytes(consume(inputStream));
         CodePointCharStream in = CodePointCharStream.fromBuffer(buffer);
         SchemaVersionDefinitionLexer lexer = new SchemaVersionDefinitionLexer(in);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        return new SchemaVersionDefinitionParser(tokens);
+        SchemaVersionDefinitionParser parser =new SchemaVersionDefinitionParser(tokens);
+        parser.setErrorHandler(errorStrategy);
+        return parser;
     }
 
     private ByteBuffer consume(InputStream inputStream) throws IOException {
