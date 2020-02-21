@@ -94,7 +94,8 @@ public class JavaBackend extends Actor implements Backend {
                 .addMethod(constructor)
                 .superclass(baseClass);
 
-        if(fields.size() != 0) {
+        if(constructor.parameters.size() != 0
+            && fields.stream().anyMatch(f -> f.hasDefaultValue() || f.type instanceof ComputableType)) {
             spec.addMethod(noArgConstructor);
         }
 

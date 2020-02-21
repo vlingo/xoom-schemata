@@ -7,15 +7,17 @@
 
 package io.vlingo.schemata.codegen.specs;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.util.concurrent.ExecutionException;
-
+import io.vlingo.schemata.codegen.CodeGenTests;
 import org.junit.Test;
 
-import io.vlingo.schemata.codegen.CodeGenTests;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class JavaCodeGenTests extends CodeGenTests {
   @Test
@@ -77,6 +79,21 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertThat(result, containsString("public long longAttribute = 42L;"));
     assertThat(result, containsString("public short shortAttribute = 258;"));
     assertThat(result, containsString("public String stringAttribute = \"foo\";"));
+  }
+
+  @Test
+  public void testThatDefaultCtorIsOnlyAddedOnce() throws ExecutionException, InterruptedException {
+    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
+
+    final String result = compilerWithJavaBackend().compile(typeDefinition("minimal"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+
+    Pattern pattern = Pattern.compile("public SalutationHappened\\(\\)");
+    Matcher matcher = pattern.matcher(result);
+    int matches = 0;
+    while (matcher.find()) {
+      matches++;
+    }
+    assertThat(matches, is(1));
   }
 
   @Test
