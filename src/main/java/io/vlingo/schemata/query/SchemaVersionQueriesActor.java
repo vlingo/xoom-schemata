@@ -19,9 +19,9 @@ import io.vlingo.lattice.query.StateObjectQueryActor;
 import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
-import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.MapQueryExpression;
+import io.vlingo.symbio.store.QueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.QueryExpression;
 
 public class SchemaVersionQueriesActor extends StateObjectQueryActor implements SchemaVersionQueries {
   private static final String ById =

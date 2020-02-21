@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.vlingo.schemata.SchemataConfig;
+import io.vlingo.symbio.store.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,12 +40,7 @@ import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.model.Scope;
 import io.vlingo.schemata.model.UnitState;
-import io.vlingo.symbio.store.Result;
-import io.vlingo.symbio.store.StorageException;
-import io.vlingo.symbio.store.object.ListQueryExpression;
-import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.ObjectStoreReader.QueryMode;
 import io.vlingo.symbio.store.object.StateSources;
 
 @SuppressWarnings({"rawtypes", "unchecked"})

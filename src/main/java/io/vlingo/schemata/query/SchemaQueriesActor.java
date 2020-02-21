@@ -15,9 +15,9 @@ import io.vlingo.common.Completes;
 import io.vlingo.lattice.query.StateObjectQueryActor;
 import io.vlingo.schemata.model.SchemaState;
 import io.vlingo.schemata.resource.data.SchemaData;
-import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.QueryExpression;
+import io.vlingo.symbio.store.QueryExpression;
 
 public class SchemaQueriesActor extends StateObjectQueryActor implements SchemaQueries {
   private static final String ById =

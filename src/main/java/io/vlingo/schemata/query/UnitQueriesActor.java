@@ -15,9 +15,9 @@ import io.vlingo.common.Completes;
 import io.vlingo.lattice.query.StateObjectQueryActor;
 import io.vlingo.schemata.model.UnitState;
 import io.vlingo.schemata.resource.data.UnitData;
-import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.MapQueryExpression;
+import io.vlingo.symbio.store.QueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.QueryExpression;
 
 public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueries {
   private static final String QueryAll =

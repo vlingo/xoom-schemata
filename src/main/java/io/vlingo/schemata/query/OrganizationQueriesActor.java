@@ -15,9 +15,9 @@ import io.vlingo.common.Completes;
 import io.vlingo.lattice.query.StateObjectQueryActor;
 import io.vlingo.schemata.model.OrganizationState;
 import io.vlingo.schemata.resource.data.OrganizationData;
-import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.QueryExpression;
+import io.vlingo.symbio.store.QueryExpression;
 
 public class OrganizationQueriesActor extends StateObjectQueryActor implements OrganizationQueries {
   private static final String ById =

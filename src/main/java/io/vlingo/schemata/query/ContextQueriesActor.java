@@ -15,9 +15,9 @@ import io.vlingo.common.Completes;
 import io.vlingo.lattice.query.StateObjectQueryActor;
 import io.vlingo.schemata.model.ContextState;
 import io.vlingo.schemata.resource.data.ContextData;
-import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.QueryExpression;
+import io.vlingo.symbio.store.QueryExpression;
 
 public class ContextQueriesActor extends StateObjectQueryActor implements ContextQueries {
   private static final String AllQuery =
