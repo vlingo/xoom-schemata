@@ -2,8 +2,7 @@ package io.vlingo.schemata.codegen.ast.values;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.joining;
-
+@SuppressWarnings("rawtypes")
 public class ListValue<T extends List<? extends SingleValue>> implements Value<T> {
   public final T value;
 

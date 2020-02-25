@@ -49,6 +49,8 @@ public interface Schema {
   Completes<SchemaState> redefineWith(final Category category, final Scope scope, final String name, final String description);
 
   static class SchemaInstantiator implements ActorInstantiator<SchemaEntity> {
+    private static final long serialVersionUID = 5120497065379472196L;
+
     private final SchemaId schemaId;
 
     public SchemaInstantiator(final SchemaId schemaId) {

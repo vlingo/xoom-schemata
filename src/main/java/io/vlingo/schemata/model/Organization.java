@@ -51,6 +51,8 @@ public interface Organization {
   Completes<OrganizationState> renameTo(final String name);
 
   static class OrganizationInstantiator implements ActorInstantiator<OrganizationEntity> {
+    private static final long serialVersionUID = -8795622651394034414L;
+
     private final OrganizationId organizationId;
 
     public OrganizationInstantiator(final OrganizationId organizationId) {

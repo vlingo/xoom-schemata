@@ -45,6 +45,8 @@ public interface Unit {
   Completes<UnitState> renameTo(final String name);
 
   static class UnitInstantiator implements ActorInstantiator<UnitEntity> {
+    private static final long serialVersionUID = 8802788421322213598L;
+
     private final UnitId unitId;
 
     public UnitInstantiator(final UnitId unitId) {
