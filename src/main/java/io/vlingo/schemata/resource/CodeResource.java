@@ -80,6 +80,7 @@ public class CodeResource extends ResourceHandler {
               logger.debug("VERSION: " + version);
               return queryContextWith(collector.contextIndentities, collector);
             })
+            .andThen(Outcome::getOrNull) //FIXME: propagate Outcome / Handle Failure
             .andThenTo(context -> {
               logger.debug("CONTEXT: " + context);
               return validateContext(context, collector);
@@ -168,8 +169,8 @@ public class CodeResource extends ResourceHandler {
                     context.contextId;
   }
 
-  private Completes<ContextData> queryContextWith(final ContextData contextIds, final Collector collector) {
-    final Completes<ContextData> context =
+  private Completes<Outcome<EntityNotFoundException,ContextData>> queryContextWith(final ContextData contextIds, final Collector collector) {
+    final Completes<Outcome<EntityNotFoundException,ContextData>> context =
             Queries.forContexts().context(
                     contextIds.organizationId,
                     contextIds.unitId,
