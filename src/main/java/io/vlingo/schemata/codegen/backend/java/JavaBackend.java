@@ -7,14 +7,36 @@
 
 package io.vlingo.schemata.codegen.backend.java;
 
-import com.squareup.javapoet.*;
+import static java.util.stream.Collectors.joining;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.lang.model.element.Modifier;
+
+import com.squareup.javapoet.ArrayTypeName;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
+
 import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
-import io.vlingo.schemata.codegen.ast.types.*;
+import io.vlingo.schemata.codegen.ast.types.BasicType;
+import io.vlingo.schemata.codegen.ast.types.ComputableType;
+import io.vlingo.schemata.codegen.ast.types.Type;
+import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.ast.values.ListValue;
 import io.vlingo.schemata.codegen.ast.values.NullValue;
 import io.vlingo.schemata.codegen.ast.values.SingleValue;
@@ -22,15 +44,7 @@ import io.vlingo.schemata.codegen.ast.values.Value;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.processor.Processor;
 
-import javax.lang.model.element.Modifier;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.joining;
-
+@SuppressWarnings("rawtypes")
 public class JavaBackend extends Actor implements Backend {
     public JavaBackend() {
     }
@@ -175,6 +189,7 @@ public class JavaBackend extends Actor implements Backend {
         return value.value().toString();
     }
 
+    @SuppressWarnings("unchecked")
     private String javaLiteralOf(Type type, ListValue value) {
         return value.value().stream()
                 .map(e -> ((SingleValue)e).value())

@@ -53,6 +53,8 @@ public interface Context {
   Completes<ContextState> redefineWith(final String namespace, final String description);
 
   static class ContextInstantiator implements ActorInstantiator<ContextEntity> {
+    private static final long serialVersionUID = 2551196888152001487L;
+
     private final ContextId contextId;
 
     public ContextInstantiator(final ContextId contextId) {

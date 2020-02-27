@@ -136,6 +136,8 @@ public interface SchemaVersion {
   }
 
   static class SchemaVersionInstantiator implements ActorInstantiator<SchemaVersionEntity> {
+    private static final long serialVersionUID = -6518556158215258799L;
+
     private final SchemaVersionId schemaVersionId;
 
     public SchemaVersionInstantiator(final SchemaVersionId schemaVersionId) {

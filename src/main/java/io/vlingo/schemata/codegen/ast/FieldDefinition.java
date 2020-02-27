@@ -1,13 +1,14 @@
 package io.vlingo.schemata.codegen.ast;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import io.vlingo.schemata.codegen.ast.types.Type;
 import io.vlingo.schemata.codegen.ast.values.NullValue;
 import io.vlingo.schemata.codegen.ast.values.Value;
 import io.vlingo.schemata.model.SchemaVersion;
 
-import java.util.Objects;
-import java.util.Optional;
-
+@SuppressWarnings("rawtypes")
 public class FieldDefinition implements Node {
     public final Type type;
     public final Optional<SchemaVersion.Version> version;

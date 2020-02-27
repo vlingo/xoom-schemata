@@ -7,6 +7,8 @@
 
 package io.vlingo.schemata.codegen.parser;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,8 +19,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import io.vlingo.schemata.codegen.ast.types.BasicArrayType;
-import io.vlingo.schemata.codegen.ast.values.*;
 import org.antlr.v4.runtime.CodePointBuffer;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -31,11 +31,14 @@ import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
+import io.vlingo.schemata.codegen.ast.types.BasicArrayType;
 import io.vlingo.schemata.codegen.ast.types.BasicType;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.schemata.codegen.ast.values.ListValue;
+import io.vlingo.schemata.codegen.ast.values.NullValue;
+import io.vlingo.schemata.codegen.ast.values.SingleValue;
+import io.vlingo.schemata.codegen.ast.values.Value;
 import io.vlingo.schemata.model.Category;
-
-import static java.util.stream.Collectors.toList;
 
 
 public class AntlrTypeParser extends Actor implements TypeParser {
@@ -46,6 +49,7 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         parserBuffer = new byte[BUFFER_SIZE];
     }
 
+    @Override
     public Completes<Node> parseTypeDefinition(final InputStream inputStream, final String fullyQualifiedTypeName) {
         CompletesEventually eventually = completesEventually();
         SchemaVersionDefinitionParser tree;
@@ -92,7 +96,7 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         return parseSpecialTypeAttribute(attribute.specialTypeAttribute());
     }
 
-    // @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     private Node parseBasicTypeAttribute(SchemaVersionDefinitionParser.BasicTypeAttributeContext attribute) {
         String typeName = firstNotNull(attribute.BOOLEAN(),
                 attribute.BYTE(), attribute.CHAR(), attribute.DOUBLE(),
@@ -135,7 +139,7 @@ public class AntlrTypeParser extends Actor implements TypeParser {
                 defaultValue);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private Value nodeValueOf(List<TerminalNode> literals) {
         switch (literals.size()) {
             case 0:
@@ -147,7 +151,7 @@ public class AntlrTypeParser extends Actor implements TypeParser {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private Value nodeValueOf(TerminalNode literal) {
         return literal == null
                 ? new NullValue()

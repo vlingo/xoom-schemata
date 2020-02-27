@@ -1,5 +1,6 @@
 package io.vlingo.schemata.codegen.ast.values;
 
+@SuppressWarnings("rawtypes")
 public class NullValue implements Value {
   private static final NullValue INSTANCE = new NullValue();
 
