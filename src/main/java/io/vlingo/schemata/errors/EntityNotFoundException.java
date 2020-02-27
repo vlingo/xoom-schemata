@@ -1,22 +1,17 @@
 package io.vlingo.schemata.errors;
 
+import java.util.Map;
+
 public class EntityNotFoundException extends RuntimeException {
+  private final Map<String, String> context;
+
   public EntityNotFoundException() {
+    super();
+    context = null;
   }
 
-  public EntityNotFoundException(String message) {
-    super(message);
-  }
-
-  public EntityNotFoundException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public EntityNotFoundException(Throwable cause) {
-    super(cause);
-  }
-
-  public EntityNotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-    super(message, cause, enableSuppression, writableStackTrace);
+  public EntityNotFoundException(String type, Map<String, String> queryParameters) {
+    super(type + " not found");
+    context = queryParameters;
   }
 }

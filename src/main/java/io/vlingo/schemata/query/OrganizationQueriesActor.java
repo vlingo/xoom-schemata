@@ -83,7 +83,7 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
 
     return queryObject(OrganizationState.class, expression,
             (OrganizationState state) -> state == null
-                    ? Failure.of(new EntityNotFoundException("Organization " + parameters.get("name")))
+                    ? Failure.of(new EntityNotFoundException("Organization", parameters))
                     : Success.of(OrganizationData.from(state)));
   }
 }
