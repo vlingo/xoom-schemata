@@ -33,7 +33,6 @@ import io.vlingo.schemata.resource.data.UnitData;
 
 public class JavaCodeResourceTest extends ResourceTest {
   @Test
-  @Ignore("Temporarily ignore so the e2e tests run on CI") // FIXME: re-enable before merging
   public void testThatJavaCodeIsReferenced() {
     final CodeResource resource = new CodeResource(world);
     resource.__internal__test_set_up(context(), stage);
