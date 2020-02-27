@@ -12,8 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 import io.vlingo.common.Completes;
+import io.vlingo.common.Failure;
+import io.vlingo.common.Outcome;
+import io.vlingo.common.Success;
 import io.vlingo.lattice.query.StateObjectQueryActor;
+import io.vlingo.schemata.errors.EntityNotFoundException;
+import io.vlingo.schemata.model.OrganizationState;
 import io.vlingo.schemata.model.SchemaState;
+import io.vlingo.schemata.resource.data.OrganizationData;
 import io.vlingo.schemata.resource.data.SchemaData;
 import io.vlingo.symbio.store.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
@@ -69,7 +75,7 @@ public class SchemaQueriesActor extends StateObjectQueryActor implements SchemaQ
   }
 
   @Override
-  public Completes<SchemaData> schema(final String organizationId, final String unitId, final String contextId, final String schemaId) {
+  public Completes<Outcome<EntityNotFoundException,SchemaData>> schema(final String organizationId, final String unitId, final String contextId, final String schemaId) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
     parameters.put("unitId", unitId);
@@ -80,7 +86,7 @@ public class SchemaQueriesActor extends StateObjectQueryActor implements SchemaQ
   }
 
   @Override
-  public Completes<SchemaData> schemaNamed(final String organizationId, final String unitId, final String contextId, final String name) {
+  public Completes<Outcome<EntityNotFoundException,SchemaData>> schemaNamed(final String organizationId, final String unitId, final String contextId, final String name) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
     parameters.put("unitId", unitId);
@@ -91,7 +97,7 @@ public class SchemaQueriesActor extends StateObjectQueryActor implements SchemaQ
   }
 
   @Override
-  public Completes<SchemaData> schemaVersionByNames(String organization, String unit, String context, String schema) {
+  public Completes<Outcome<EntityNotFoundException,SchemaData>> schemaVersionByNames(String organization, String unit, String context, String schema) {
     parameters.clear();
     parameters.put("organization", organization);
     parameters.put("unit", unit);
@@ -101,9 +107,12 @@ public class SchemaQueriesActor extends StateObjectQueryActor implements SchemaQ
     return queryOne(ByNames, parameters);
   }
 
-  private Completes<SchemaData> queryOne(final String query, final Map<String,String> parameters) {
+  private Completes<Outcome<EntityNotFoundException,SchemaData>> queryOne(final String query, final Map<String,String> parameters) {
     final QueryExpression expression = MapQueryExpression.using(SchemaState.class, query, parameters);
 
-    return queryObject(SchemaState.class, expression, (SchemaState state) -> SchemaData.from(state));
+    return queryObject(SchemaState.class, expression,
+            (SchemaState state) -> state == null
+                    ? Failure.of(new EntityNotFoundException("Schema", parameters))
+                    : Success.of(SchemaData.from(state)));
   }
 }

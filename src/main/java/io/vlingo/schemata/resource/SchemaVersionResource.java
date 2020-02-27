@@ -29,6 +29,7 @@ import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
+import io.vlingo.common.CompletesOutcomeT;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
@@ -230,7 +231,9 @@ public class SchemaVersionResource extends ResourceHandler {
                 fqr.unit,
                 fqr.context,
                 fqr.schema
-        ).andThenTo(schemaData -> Completes.withSuccess(SchemaVersionData.from(
+        )
+                .andThen(outcome -> outcome.get()) // FIXME: Use transformer
+                .andThenTo(schemaData -> Completes.withSuccess(SchemaVersionData.from(
                 schemaData.organizationId,
                 schemaData.unitId,
                 schemaData.contextId,
