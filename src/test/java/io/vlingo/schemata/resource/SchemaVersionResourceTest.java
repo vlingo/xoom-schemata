@@ -61,8 +61,9 @@ public class SchemaVersionResourceTest extends ResourceTest {
     }
 
     @Test
-    @Ignore("Temporarily ignored as it currently hangs")
+    @Ignore("Temporarily ignored as it currently hangs, see https://github.com/vlingo/vlingo-schemata/issues/135")
     public void testThatSchemaVersionMinorUpgradeIsDefined() {
+
         final SchemaVersionResource resource = new SchemaVersionResource(world);
         final SchemaVersionData previousData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
         resource.defineWith(OrgId, UnitId, ContextId, SchemaId, previousData).await();
