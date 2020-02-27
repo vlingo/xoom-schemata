@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 import io.vlingo.actors.CompletesEventually;
-import io.vlingo.common.Completes;
-import io.vlingo.common.Tuple2;
+import io.vlingo.common.*;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.lattice.query.StateObjectQueryActor;
 import io.vlingo.schemata.Schemata;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.MapQueryExpression;
@@ -107,7 +107,7 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
   }
 
   @Override
-  public Completes<SchemaVersionData> schemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
+  public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
     parameters.put("unitId", unitId);
@@ -125,23 +125,23 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
   }
 
   @Override
-  public Completes<SchemaVersionData> schemaVersion(String fullyQualifiedTypeName) {
+  public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersion(String fullyQualifiedTypeName) {
     String[] parts = fullyQualifiedTypeName.split(Schemata.ReferenceSeparator);
-    Completes<SchemaVersionData> schemaVersionData;
+    Completes<Outcome<SchemataBusinessException,SchemaVersionData>> result;
 
     if (parts.length < Schemata.MinReferenceParts) {
-      schemaVersionData = noSchemaVersion();
+      result = Completes.withSuccess(Failure.of(SchemataBusinessException.invalidReference(fullyQualifiedTypeName)));
     } else if (parts.length > Schemata.MinReferenceParts) {
-      schemaVersionData = schemaVersionOf(parts[0], parts[1], parts[2], parts[3], parts[4]);
+      result = schemaVersionOf(parts[0], parts[1], parts[2], parts[3], parts[4]);
     } else {
-      schemaVersionData = queryGreatestByNames(parts[0], parts[1], parts[2], parts[3]);
+      result = queryGreatestByNames(parts[0], parts[1], parts[2], parts[3]);
     }
 
-    return schemaVersionData;
+    return result;
   }
 
   @Override
-  public Completes<SchemaVersionData> schemaVersionOf(String organization, String unit, String context, String schema, String schemaVersion) {
+  public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionOf(String organization, String unit, String context, String schema, String schemaVersion) {
     parameters.clear();
     parameters.put("organization", organization);
     parameters.put("unit", unit);
@@ -153,7 +153,7 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
   }
 
   @Override
-  public Completes<SchemaVersionData> schemaVersionOfVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String version) {
+  public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionOfVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String version) {
     if (version.equals(GreatestVersion)) {
       return queryGreatest(organizationId, unitId, contextId, schemaId);
     }
@@ -181,7 +181,7 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
       return Completes.withSuccess(tempCurrentVersion._1);
   }
 
-  private Completes<SchemaVersionData> queryGreatest(final String organizationId, final String unitId, final String contextId, final String schemaId) {
+  private Completes<Outcome<SchemataBusinessException,SchemaVersionData>> queryGreatest(final String organizationId, final String unitId, final String contextId, final String schemaId) {
     tempCurrentVersion = Tuple2.from(SchemaVersionData.none(), SemanticVersion.from(SchemaVersionData.none().currentVersion));
 
     schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
@@ -190,7 +190,7 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
     return completes();
   }
 
-  private Completes<SchemaVersionData> queryGreatestByNames(final String organization, final String unit, final String context, final String schema) {
+  private Completes<Outcome<SchemataBusinessException,SchemaVersionData>> queryGreatestByNames(final String organization, final String unit, final String context, final String schema) {
     tempCurrentVersion = Tuple2.from(SchemaVersionData.none(), SemanticVersion.from(SchemaVersionData.none().currentVersion));
 
     schemaVersionsByNames(organization, unit, context, schema)
@@ -199,11 +199,12 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
     return completes();
   }
 
-  private Completes<SchemaVersionData> queryOne(final String query, final Map<String,String> parameters) {
+  private Completes<Outcome<SchemataBusinessException,SchemaVersionData>> queryOne(final String query, final Map<String,String> parameters) {
     final QueryExpression expression = MapQueryExpression.using(SchemaVersionState.class, query, parameters);
 
-    return queryObject(SchemaVersionState.class, expression, (SchemaVersionState state) -> state == null
-      ? SchemaVersionData.none()
-      : SchemaVersionData.from(state));
+    return queryObject(SchemaVersionState.class, expression,
+            (SchemaVersionState state) -> state == null
+                    ? Failure.of(SchemataBusinessException.notFound("Schema Version", parameters))
+                    : Success.of(SchemaVersionData.from(state)));
   }
 }

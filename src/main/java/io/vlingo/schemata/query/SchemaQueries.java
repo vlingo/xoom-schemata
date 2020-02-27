@@ -11,12 +11,12 @@ import java.util.List;
 
 import io.vlingo.common.Completes;
 import io.vlingo.common.Outcome;
-import io.vlingo.schemata.errors.EntityNotFoundException;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.resource.data.SchemaData;
 
 public interface SchemaQueries {
   Completes<List<SchemaData>> schemas(final String organizationId, final String unitId, final String contextId);
-  Completes<Outcome<EntityNotFoundException,SchemaData>> schema(final String organizationId, final String unitId, final String contextId, final String schemaId);
-  Completes<Outcome<EntityNotFoundException,SchemaData>> schemaNamed(final String organizationId, final String unitId, final String contextId, final String name);
-  Completes<Outcome<EntityNotFoundException,SchemaData>> schemaVersionByNames(final String organization, final String unit, final String context, final String schema);
+  Completes<Outcome<SchemataBusinessException,SchemaData>> schema(final String organizationId, final String unitId, final String contextId, final String schemaId);
+  Completes<Outcome<SchemataBusinessException,SchemaData>> schemaNamed(final String organizationId, final String unitId, final String contextId, final String name);
+  Completes<Outcome<SchemataBusinessException,SchemaData>> schemaVersionByNames(final String organization, final String unit, final String context, final String schema);
 }

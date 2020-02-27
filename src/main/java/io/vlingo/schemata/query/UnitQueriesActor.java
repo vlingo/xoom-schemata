@@ -16,7 +16,7 @@ import io.vlingo.common.Failure;
 import io.vlingo.common.Outcome;
 import io.vlingo.common.Success;
 import io.vlingo.lattice.query.StateObjectQueryActor;
-import io.vlingo.schemata.errors.EntityNotFoundException;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.UnitState;
 import io.vlingo.schemata.resource.data.UnitData;
 import io.vlingo.symbio.store.MapQueryExpression;
@@ -56,7 +56,7 @@ public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueri
   }
 
   @Override
-  public Completes<Outcome<EntityNotFoundException,UnitData>> unit(final String organizationId, final String unitId) {
+  public Completes<Outcome<SchemataBusinessException,UnitData>> unit(final String organizationId, final String unitId) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
     parameters.put("unitId", unitId);
@@ -65,7 +65,7 @@ public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueri
   }
 
   @Override
-  public Completes<Outcome<EntityNotFoundException,UnitData>> unitNamed(final String organizationId, final String name) {
+  public Completes<Outcome<SchemataBusinessException,UnitData>> unitNamed(final String organizationId, final String name) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
     parameters.put("name", name);
@@ -73,12 +73,12 @@ public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueri
     return queryOne(ByName, parameters);
   }
 
-  private Completes<Outcome<EntityNotFoundException, UnitData>> queryOne(final String query, final Map<String,String> parameters) {
+  private Completes<Outcome<SchemataBusinessException, UnitData>> queryOne(final String query, final Map<String,String> parameters) {
     final QueryExpression expression = MapQueryExpression.using(UnitState.class, query, parameters);
 
     return queryObject(UnitState.class, expression,
             (UnitState state) -> state == null
-                    ? Failure.of(new EntityNotFoundException("Unit", parameters))
+                    ? Failure.of(SchemataBusinessException.notFound("Unit", parameters))
                     : Success.of(UnitData.from(state)));
   }
 }

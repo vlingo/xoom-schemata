@@ -20,7 +20,7 @@ import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.Schemata;
-import io.vlingo.schemata.errors.EntityNotFoundException;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.query.QueryResultsCollector;
 import io.vlingo.schemata.resource.data.*;
@@ -169,8 +169,8 @@ public class CodeResource extends ResourceHandler {
                     context.contextId;
   }
 
-  private Completes<Outcome<EntityNotFoundException,ContextData>> queryContextWith(final ContextData contextIds, final Collector collector) {
-    final Completes<Outcome<EntityNotFoundException,ContextData>> context =
+  private Completes<Outcome<SchemataBusinessException,ContextData>> queryContextWith(final ContextData contextIds, final Collector collector) {
+    final Completes<Outcome<SchemataBusinessException,ContextData>> context =
             Queries.forContexts().context(
                     contextIds.organizationId,
                     contextIds.unitId,

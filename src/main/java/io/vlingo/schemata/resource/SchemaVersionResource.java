@@ -8,11 +8,7 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.Response.Status.BadRequest;
-import static io.vlingo.http.Response.Status.Conflict;
-import static io.vlingo.http.Response.Status.Created;
-import static io.vlingo.http.Response.Status.NotFound;
-import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.Response.Status.*;
 import static io.vlingo.http.ResponseHeader.ContentLength;
 import static io.vlingo.http.ResponseHeader.ContentType;
 import static io.vlingo.http.ResponseHeader.Location;
@@ -183,7 +179,14 @@ public class SchemaVersionResource extends ResourceHandler {
     public Completes<Response> querySchemaVersionByIds(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
         return Queries.forSchemaVersions()
                 .schemaVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
-                .andThenTo(schemaVersion -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersion))));
+                .andThen(o -> o.resolve(
+                        e -> Response.of(NotFound, serialized(e)),
+                        sv -> Response.of(
+                                Ok,
+                                Headers.of(of(ContentType, "application/json; charset=UTF-8")),
+                                serialized(sv))
+                ))
+                .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
     }
 
     public Completes<Response> searchSchemaVersionsByNames(final String organization, final String unit, final String context, final String schema) {
@@ -195,8 +198,15 @@ public class SchemaVersionResource extends ResourceHandler {
     public Completes<Response> searchSchemaVersionByNames(final String organization, final String unit, final String context, final String schema, final String schemaVersion) {
         return Queries.forSchemaVersions()
                 .schemaVersionOf(organization, unit, context, schema, schemaVersion)
-                .andThenTo(schemaVersionData -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersionData))));
-    }
+                .andThen(o -> o.resolve(
+                        e -> Response.of(NotFound, serialized(e)),
+                        sv -> Response.of(
+                                Ok,
+                                Headers.of(of(ContentType, "application/json; charset=UTF-8")),
+                                serialized(sv))
+                ))
+                .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+  }
 
     public Completes<Response> searchSchemaVersions(final String schemaVersion, final String organization, final String unit, final String context, final String schema) {
         if (schemaVersion == null) {
@@ -280,17 +290,15 @@ public class SchemaVersionResource extends ResourceHandler {
           fqr.context,
           fqr.schema,
           fqr.schemaVersion)
-          .andThenTo(schemaVersionData -> schemaVersionData.isNone()
-                ? Completes.withSuccess(
-                    Response.of(
-                      NotFound,
-                      "Schema version not found"))
-                : Completes.withSuccess(
-                    Response.of(
-                      Ok,
-                      Headers.of(of(ContentType, "application/json; charset=UTF-8")),
-                      serialized(schemaVersionData)))
-          );
+          .andThen(o -> o.resolve(
+                  e -> Response.of(NotFound, serialized(e)),
+                  sv -> Response.of(
+                          Ok,
+                          Headers.of(of(ContentType, "application/json; charset=UTF-8")),
+                          serialized(sv))
+          ))
+          .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+
     }
 
     public Completes<Response> retrieveSchemaVersionStatus(final String reference) {
@@ -318,17 +326,14 @@ public class SchemaVersionResource extends ResourceHandler {
           fqr.context,
           fqr.schema,
           fqr.schemaVersion)
-          .andThenTo(schemaVersionData -> schemaVersionData.isNone()
-            ? Completes.withSuccess(
-            Response.of(
-              NotFound,
-              "Schema version not found"))
-            : Completes.withSuccess(
-            Response.of(
-              Ok,
-              Headers.of(of(ContentType, "text/plain; charset=UTF-8")),
-              schemaVersionData.status))
-          );
+          .andThen(o -> o.resolve(
+                  e -> Response.of(NotFound, serialized(e)),
+                  sv -> Response.of(
+                          Ok,
+                          Headers.of(of(ContentType, "text/plain; charset=UTF-8")),
+                          sv.status)
+          ))
+          .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
     }
 
     @Override

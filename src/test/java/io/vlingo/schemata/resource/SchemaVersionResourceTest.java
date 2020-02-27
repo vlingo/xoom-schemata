@@ -49,13 +49,13 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testThatNonExistingSchemaVersionReturns404() {
-        final SchemaResource resource = new SchemaResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world);
         OrganizationState org = Organization.with(world.stageNamed(Schemata.StageName), Organization.uniqueId(),"o", "d").await();
         UnitState unit = Unit.with(world.stageNamed(Schemata.StageName), org.organizationId,"u", "d").await();
         ContextState context = Context.with(world.stageNamed(Schemata.StageName), unit.unitId,"c", "d").await();
         SchemaState schema = Schema.with(world.stageNamed(Schemata.StageName), context.contextId,Category.Event, Scope.Public, "s", "d").await();
 
-        final Response response = resource.querySchema(org.organizationId.value, unit.unitId.value, context.contextId.value, "-1").await();
+        final Response response = resource.querySchemaVersionByIds(org.organizationId.value, unit.unitId.value, context.contextId.value, schema.schemaId.value, "-1").await();
         assertEquals(NotFound, response.status);
         assertTrue(response.entity.content().contains("Schema Version not found"));
     }

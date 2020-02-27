@@ -12,9 +12,12 @@ import java.util.Optional;
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
 import io.vlingo.common.version.SemanticVersion;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.resource.data.AuthorizationData;
 import io.vlingo.schemata.resource.data.PathData;
+import io.vlingo.schemata.resource.data.SchemaData;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public class CodeQueriesActor extends Actor implements CodeQueries {
@@ -25,11 +28,11 @@ public class CodeQueriesActor extends Actor implements CodeQueries {
   }
 
   @Override
-  public Completes<SchemaVersionData> schemaVersionFor(final AuthorizationData authorization, final PathData path) {
+  public Completes<Outcome<SchemataBusinessException, SchemaVersionData>> schemaVersionFor(final AuthorizationData authorization, final PathData path) {
     final CompletesEventually completesEventually = completesEventually();
 
     schemaVersionQueries.schemaVersionOf(path.organization, path.unit, path.context, path.schema, path.version)
-      .andThenTo(schemaVersion -> validate(authorization, schemaVersion))
+      .andThenTo(schemaVersion -> validate(authorization, schemaVersion.getOrNull()))
       .andThenTo(schemaVersion -> { completesEventually.with(schemaVersion); return Completes.withSuccess(schemaVersion); })
       .otherwise(failure -> SchemaVersionData.none())
       .recoverFrom(exception -> SchemaVersionData.none());
@@ -38,14 +41,14 @@ public class CodeQueriesActor extends Actor implements CodeQueries {
   }
 
   @Override
-  public Completes<SchemaVersionData> schemaVersionFor(final AuthorizationData authorization, final PathData path, final QueryResultsCollector collector) {
-    final Completes<SchemaVersionData> data = schemaVersionFor(authorization, path);
-    collector.expectSchemaVersion(data);
+  public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionFor(final AuthorizationData authorization, final PathData path, final QueryResultsCollector collector) {
+    final Completes<Outcome<SchemataBusinessException,SchemaVersionData>> data = schemaVersionFor(authorization, path);
+    collector.expectSchemaVersion(data.andThen(o -> o.getOrNull()));
     return data;
   }
 
   @Override
-  public Completes<SchemaVersionData> schemaVersionFor(final String fullQualifiedTypeName) {
+  public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionFor(final String fullQualifiedTypeName) {
     pathFrom(fullQualifiedTypeName).ifPresent(path -> {
       final CompletesEventually completesEventually = completesEventually();
 
@@ -53,9 +56,7 @@ public class CodeQueriesActor extends Actor implements CodeQueries {
       final String version = path.versionOrElse(SemanticVersion.greatest().toString());
 
       schemaVersionQueries.schemaVersionOf(path.organization, path.unit, path.context, path.schema, path.version)
-        .andThenTo(schemaVersion -> { completesEventually.with(schemaVersion); return Completes.withSuccess(schemaVersion); })
-        .otherwise(failure -> SchemaVersionData.none())
-        .recoverFrom(exception -> SchemaVersionData.none());
+        .andThenTo(schemaVersion -> { completesEventually.with(schemaVersion); return Completes.withSuccess(schemaVersion); });
     });
 
     return completes();

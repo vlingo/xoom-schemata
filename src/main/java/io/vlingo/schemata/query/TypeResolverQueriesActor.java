@@ -26,10 +26,11 @@ public class TypeResolverQueriesActor extends Actor implements TypeResolverQueri
     public Completes<Optional<TypeDefinition>> resolve(TypeDefinitionMiddleware middleware, String fullyQualifiedTypeName) {
         return schemaVersionQueries
                 .schemaVersion(fullyQualifiedTypeName)
-                .andThenTo(data -> data == null ?
-                        Completes.withSuccess(null) :
-                        middleware.compileToAST(new ByteArrayInputStream(data.specification.getBytes()), fullyQualifiedTypeName))
-                .andThen(node -> {
+                .andThenTo( o -> o.resolve(
+                        e -> Completes.withSuccess(null),
+                        data -> middleware.compileToAST(new ByteArrayInputStream(data.specification.getBytes()), fullyQualifiedTypeName)
+                ))
+               .andThen(node -> {
                     Optional<TypeDefinition> result = Optional.ofNullable((TypeDefinition) node);
                     completesEventually().with(result);
                     return result;

@@ -16,7 +16,7 @@ import io.vlingo.common.Failure;
 import io.vlingo.common.Outcome;
 import io.vlingo.common.Success;
 import io.vlingo.lattice.query.StateObjectQueryActor;
-import io.vlingo.schemata.errors.EntityNotFoundException;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.OrganizationState;
 import io.vlingo.schemata.resource.data.OrganizationData;
 import io.vlingo.symbio.store.MapQueryExpression;
@@ -49,7 +49,7 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
   }
 
   @Override
-  public Completes<Outcome<EntityNotFoundException, OrganizationData>> organization(final String organizationId) {
+  public Completes<Outcome<SchemataBusinessException, OrganizationData>> organization(final String organizationId) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
 
@@ -57,14 +57,14 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
   }
 
   @Override
-  public Completes<Outcome<EntityNotFoundException, OrganizationData>> organization(final String organizationId, final QueryResultsCollector collector) {
-    final Completes<Outcome<EntityNotFoundException, OrganizationData>> data = organization(organizationId);
+  public Completes<Outcome<SchemataBusinessException, OrganizationData>> organization(final String organizationId, final QueryResultsCollector collector) {
+    final Completes<Outcome<SchemataBusinessException, OrganizationData>> data = organization(organizationId);
     collector.expectOrganization(data.andThen(Outcome::getOrNull));
     return data;
   }
 
   @Override
-  public Completes<Outcome<EntityNotFoundException, OrganizationData>> organizationNamed(final String name) {
+  public Completes<Outcome<SchemataBusinessException, OrganizationData>> organizationNamed(final String name) {
     parameters.clear();
     parameters.put("name", name);
 
@@ -72,18 +72,18 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
   }
 
   @Override
-  public  Completes<Outcome<EntityNotFoundException, OrganizationData>> organizationNamed(final String name, final QueryResultsCollector collector) {
-    final  Completes<Outcome<EntityNotFoundException, OrganizationData>> data = organizationNamed(name);
+  public  Completes<Outcome<SchemataBusinessException, OrganizationData>> organizationNamed(final String name, final QueryResultsCollector collector) {
+    final  Completes<Outcome<SchemataBusinessException, OrganizationData>> data = organizationNamed(name);
     collector.expectOrganization(data.andThen(Outcome::getOrNull));
     return data;
   }
 
-  private Completes<Outcome<EntityNotFoundException, OrganizationData>> queryOne(final String query, final Map<String,String> parameters) {
+  private Completes<Outcome<SchemataBusinessException, OrganizationData>> queryOne(final String query, final Map<String,String> parameters) {
     final QueryExpression expression = MapQueryExpression.using(OrganizationState.class, query, parameters);
 
     return queryObject(OrganizationState.class, expression,
             (OrganizationState state) -> state == null
-                    ? Failure.of(new EntityNotFoundException("Organization", parameters))
+                    ? Failure.of(SchemataBusinessException.notFound("Organization", parameters))
                     : Success.of(OrganizationData.from(state)));
   }
 }
