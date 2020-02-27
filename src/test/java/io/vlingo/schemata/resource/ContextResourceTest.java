@@ -45,7 +45,7 @@ public class ContextResourceTest extends ResourceTest {
   public void testThatNonExistingContextReturns404() {
     final ContextResource resource = new ContextResource(world);
     OrganizationState org = Organization.with(world.stageNamed(Schemata.StageName), Organization.uniqueId(),"o", "d").await();
-    UnitState unit = Unit.with(world.stageNamed(Schemata.StageName), Unit.uniqueId(org.organizationId),"o", "d").await();
+    UnitState unit = Unit.with(world.stageNamed(Schemata.StageName), org.organizationId,"u", "d").await();
     final Response response = resource.queryContext(org.organizationId.value, unit.unitId.value, "-1").await();
     assertEquals(NotFound, response.status);
     assertTrue(response.entity.content().contains("Context not found"));

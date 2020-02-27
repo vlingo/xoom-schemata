@@ -8,17 +8,16 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.http.Response.Status.Created;
+import static io.vlingo.http.Response.Status.NotFound;
 import static io.vlingo.http.ResponseHeader.Location;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
+import io.vlingo.schemata.Schemata;
+import io.vlingo.schemata.model.*;
 import org.junit.Test;
 
 import io.vlingo.common.serialization.JsonSerialization;
 import io.vlingo.http.Response;
-import io.vlingo.schemata.model.Category;
-import io.vlingo.schemata.model.Scope;
 import io.vlingo.schemata.resource.data.SchemaData;
 
 public class SchemaResourceTest extends ResourceTest {
@@ -40,6 +39,18 @@ public class SchemaResourceTest extends ResourceTest {
     assertEquals(SchemaCategory, data.category);
     assertEquals(SchemaName, data.name);
     assertEquals(SchemaDescription, data.description);
+  }
+
+  @Test
+  public void testThatNonExistingSchemaReturns404() {
+    final SchemaResource resource = new SchemaResource(world);
+    OrganizationState org = Organization.with(world.stageNamed(Schemata.StageName), Organization.uniqueId(),"o", "d").await();
+    UnitState unit = Unit.with(world.stageNamed(Schemata.StageName), org.organizationId,"u", "d").await();
+    ContextState context = Context.with(world.stageNamed(Schemata.StageName), unit.unitId,"c", "d").await();
+
+    final Response response = resource.querySchema(org.organizationId.value, unit.unitId.value, context.contextId.value, "-1").await();
+    assertEquals(NotFound, response.status);
+    assertTrue(response.entity.content().contains("Schema not found"));
   }
 
   @Test
