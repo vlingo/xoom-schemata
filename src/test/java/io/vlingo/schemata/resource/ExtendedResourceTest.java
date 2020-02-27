@@ -127,7 +127,6 @@ public class ExtendedResourceTest extends ResourceTest {
     }
 
     @Test
-    @Ignore("Ignored due to ongoing upstream changes, see https://github.com/vlingo/vlingo-schemata/issues/130")
     public void testSchemaVersionSelection() {
         String[] schemaVersion1Ids = createFixture1();
         String schemaVersion2Id = createFixture2();

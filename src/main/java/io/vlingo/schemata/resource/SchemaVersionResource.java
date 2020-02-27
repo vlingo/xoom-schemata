@@ -79,7 +79,10 @@ public class SchemaVersionResource extends ResourceHandler {
             contextId,
             schemaId,
             data.previousVersion)
-            .otherwise(n -> null)
+                .andThen(o -> o.resolve(
+                        e -> Completes.withSuccess(Response.of(NotFound, "Tried to update non-existing version " + previousSemantic.toString())),
+                        svd -> svd
+                ))
             .await();
 
         if(

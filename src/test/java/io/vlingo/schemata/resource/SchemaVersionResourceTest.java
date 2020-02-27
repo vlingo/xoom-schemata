@@ -61,7 +61,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
     }
 
     @Test
-    @Ignore("Skipped due to hanging issues when not run alone; to be re-enabled before merging. See https://github.com/vlingo/vlingo-schemata/issues/130")
+    @Ignore("Temporarily ignored as it currently hangs")
     public void testThatSchemaVersionMinorUpgradeIsDefined() {
         final SchemaVersionResource resource = new SchemaVersionResource(world);
         final SchemaVersionData previousData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
