@@ -12,7 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 import io.vlingo.common.Completes;
+import io.vlingo.common.Failure;
+import io.vlingo.common.Outcome;
+import io.vlingo.common.Success;
 import io.vlingo.lattice.query.StateObjectQueryActor;
+import io.vlingo.schemata.errors.EntityNotFoundException;
 import io.vlingo.schemata.model.OrganizationState;
 import io.vlingo.schemata.resource.data.OrganizationData;
 import io.vlingo.symbio.store.MapQueryExpression;
@@ -45,7 +49,7 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
   }
 
   @Override
-  public Completes<OrganizationData> organization(final String organizationId) {
+  public Completes<Outcome<EntityNotFoundException, OrganizationData>> organization(final String organizationId) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
 
@@ -53,14 +57,14 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
   }
 
   @Override
-  public Completes<OrganizationData> organization(final String organizationId, final QueryResultsCollector collector) {
-    final Completes<OrganizationData> data = organization(organizationId);
-    collector.expectOrganization(data);
+  public Completes<Outcome<EntityNotFoundException, OrganizationData>> organization(final String organizationId, final QueryResultsCollector collector) {
+    final Completes<Outcome<EntityNotFoundException, OrganizationData>> data = organization(organizationId);
+    collector.expectOrganization(data.andThen(Outcome::getOrNull));
     return data;
   }
 
   @Override
-  public Completes<OrganizationData> organizationNamed(final String name) {
+  public Completes<Outcome<EntityNotFoundException, OrganizationData>> organizationNamed(final String name) {
     parameters.clear();
     parameters.put("name", name);
 
@@ -68,15 +72,18 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
   }
 
   @Override
-  public Completes<OrganizationData> organizationNamed(final String name, final QueryResultsCollector collector) {
-    final Completes<OrganizationData> data = organizationNamed(name);
-    collector.expectOrganization(data);
+  public  Completes<Outcome<EntityNotFoundException, OrganizationData>> organizationNamed(final String name, final QueryResultsCollector collector) {
+    final  Completes<Outcome<EntityNotFoundException, OrganizationData>> data = organizationNamed(name);
+    collector.expectOrganization(data.andThen(Outcome::getOrNull));
     return data;
   }
 
-  private Completes<OrganizationData> queryOne(final String query, final Map<String,String> parameters) {
+  private Completes<Outcome<EntityNotFoundException, OrganizationData>> queryOne(final String query, final Map<String,String> parameters) {
     final QueryExpression expression = MapQueryExpression.using(OrganizationState.class, query, parameters);
 
-    return queryObject(OrganizationState.class, expression, (OrganizationState state) -> OrganizationData.from(state));
+    return queryObject(OrganizationState.class, expression,
+            (OrganizationState state) -> state == null
+                    ? Failure.of(new EntityNotFoundException("Organization " + parameters.get("name")))
+                    : Success.of(OrganizationData.from(state)));
   }
 }
