@@ -7,14 +7,14 @@
 
 package io.vlingo.schemata;
 
+import io.vlingo.actors.Grid;
+import io.vlingo.actors.GridAddressFactory;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.identity.IdentityGeneratorType;
 import io.vlingo.http.resource.Configuration;
 import io.vlingo.http.resource.Resources;
 import io.vlingo.http.resource.Server;
-import io.vlingo.lattice.grid.Grid;
-import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.query.Queries;
