@@ -10,14 +10,17 @@ package io.vlingo.schemata.codegen;
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
+import io.vlingo.schemata.codegen.parser.ParseException;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
 import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.query.Queries;
 
 import java.io.InputStream;
@@ -84,7 +87,7 @@ public interface TypeDefinitionCompiler {
    * @param version the String version of the definition
    * @return {@code Completes<String>}
    */
-  Completes<String> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version);
+  Completes<Outcome<SchemataBusinessException,String>> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version);
 
   /**
    * Answer this compiler's middleware.

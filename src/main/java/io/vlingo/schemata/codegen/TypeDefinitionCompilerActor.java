@@ -10,10 +10,15 @@ package io.vlingo.schemata.codegen;
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Failure;
+import io.vlingo.common.Outcome;
+import io.vlingo.common.Success;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.backend.Backend;
+import io.vlingo.schemata.codegen.parser.ParseException;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 
 import java.io.InputStream;
 import java.util.List;
@@ -33,12 +38,18 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
     }
 
     @Override
-    public Completes<String> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version) {
+    public Completes<Outcome<SchemataBusinessException, String>> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version) {
         CompletesEventually eventually = completesEventually();
 
         parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
-                .andThenTo(this.process(fullyQualifiedTypeName))
-                .andThenTo(tree -> backend.generateOutput(tree, version))
+                .andThen(o -> o.resolve(
+                        ex -> Failure.of(SchemataBusinessException.invalidSchemaDefinition(ex)),
+                        node -> Success.of(this.process(fullyQualifiedTypeName).apply(node))
+                ))
+                .andThen(o -> o.resolve(
+                        Failure::of,
+                        node -> Success.of(backend.generateOutput((Node) node, version))
+                ))
                 .andThenConsume(eventually::with);
 
         return completes();
@@ -49,8 +60,11 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
         CompletesEventually eventually = completesEventually();
 
         parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
-            .andThenTo(this.process(fullyQualifiedTypeName))
-            .andThenConsume(eventually::with);
+                .andThen(o -> o.resolve(
+                        ex -> Failure.of(SchemataBusinessException.invalidSchemaDefinition(ex)),
+                        node -> Success.of(this.process(fullyQualifiedTypeName).apply(node))
+                ))
+                .andThenConsume(eventually::with);
 
         return completes();
     }

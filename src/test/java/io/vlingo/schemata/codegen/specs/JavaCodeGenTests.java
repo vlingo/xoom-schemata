@@ -177,17 +177,18 @@ public class JavaCodeGenTests extends CodeGenTests {
   }
 
   @Test
-  @Ignore("[WIP] To be fixed once the hanging is gone")
   public void testThatCompilingInvalidSchemaReportsError() {
     final Exception[] expected = new Exception[1];
-    compilerWithJavaBackend()
+    final boolean[] hitSuccess = { false };
+      compilerWithJavaBackend()
             .compile(typeDefinition("invalid"), "O:U:C:S", "0.0.1")
-            .recoverFrom(e -> {
-              expected[0] = e;
-              return e.getMessage();
-            })
-            .await(500L);
+            .andThen(o -> o.resolve(
+                    ex -> expected[0] = ex,
+                    success -> hitSuccess[0] = true
+            ))
+            .await();
 
     assertNotNull("Parsing an invalid schema should report an exception", expected[0]);
+    assertFalse("Parsing an invalid schema must not yield a successful result", hitSuccess[0]);
   }
 }

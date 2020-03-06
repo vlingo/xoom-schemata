@@ -10,8 +10,9 @@ package io.vlingo.schemata.codegen.parser;
 import java.io.InputStream;
 
 import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
 import io.vlingo.schemata.codegen.ast.Node;
 
 public interface TypeParser {
-    Completes<Node> parseTypeDefinition(final InputStream inputStream, final String fullyQualifiedTypeName);
+    Completes<Outcome<ParseException,Node>> parseTypeDefinition(final InputStream inputStream, final String fullyQualifiedTypeName);
 }

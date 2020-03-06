@@ -19,6 +19,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import io.vlingo.common.Failure;
+import io.vlingo.common.Outcome;
+import io.vlingo.common.Success;
 import org.antlr.v4.runtime.CodePointBuffer;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -50,7 +53,7 @@ public class AntlrTypeParser extends Actor implements TypeParser {
     }
 
     @Override
-    public Completes<Node> parseTypeDefinition(final InputStream inputStream, final String fullyQualifiedTypeName) {
+    public Completes<Outcome<ParseException,Node>> parseTypeDefinition(final InputStream inputStream, final String fullyQualifiedTypeName) {
         CompletesEventually eventually = completesEventually();
         SchemaVersionDefinitionParser tree;
 
@@ -60,13 +63,13 @@ public class AntlrTypeParser extends Actor implements TypeParser {
             Node type = parseTypeDeclaration(tree.typeDeclaration(), fullyQualifiedTypeName);
             if(errorStrategy.hasErrors()) {
                 errorStrategy.errors().forEach(e -> logger().error(e.getMessage(),e));
-                throw new ParseException(String.format("Parsing %s schema failed", fullyQualifiedTypeName), errorStrategy.errors());
+                eventually.with(Failure.of(new ParseException(String.format("Parsing %s schema failed", fullyQualifiedTypeName), errorStrategy.errors())));
             } else {
-                eventually.with(type);
+                eventually.with(Success.of(type));
             }
         } catch (IOException e) {
             logger().error(e.getMessage(), e);
-            eventually.with(null);
+            eventually.with(Failure.of(new ParseException(String.format("Parsing %s schema failed", fullyQualifiedTypeName), e)));
         }
 
         return completes();

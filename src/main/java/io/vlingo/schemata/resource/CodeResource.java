@@ -7,6 +7,8 @@
 
 package io.vlingo.schemata.resource;
 
+import static io.vlingo.common.serialization.JsonSerialization.serialized;
+
 import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -80,18 +82,25 @@ public class CodeResource extends ResourceHandler {
               logger.debug("VERSION: " + version);
               return queryContextWith(collector.contextIndentities, collector);
             })
-            .andThen(Outcome::getOrNull) //FIXME: propagate Outcome / Handle Failure
+            .andThen( o -> o.resolve(
+                    Completes::withFailure,
+                    ctx -> ctx
+            ))
             .andThenTo(context -> {
               logger.debug("CONTEXT: " + context);
-              return validateContext(context, collector);
+              return validateContext((ContextData) context, collector);
             })
             .andThenTo(context -> {
               logger.debug("COMPILING: " + collector.schemaVersion().specification);
               return compile(collector.path.reference, collector.schemaVersion(), language);
             })
+            .andThen( o -> o.resolve(
+                    Completes::withFailure,
+                    code -> code
+            ))
             .andThenTo(code -> {
               logger.debug("CODE: \n" + code);
-              return recordDependency(code, collector);
+              return recordDependency((String)code, collector);
             })
             .andThenTo(code -> {
               logger.debug("SUCCESS: \n" + code);
@@ -127,7 +136,7 @@ public class CodeResource extends ResourceHandler {
   // Internal implementation
   //////////////////////////////////
 
-  private Completes<String> compile(final String reference, final SchemaVersionData version, final String language) {
+  private Completes<Outcome<SchemataBusinessException,String>> compile(final String reference, final SchemaVersionData version, final String language) {
     final InputStream inputStream = new ByteArrayInputStream(version.specification.getBytes());
     return compilerFor(stage, language).compile(inputStream, reference, version.currentVersion);
   }
