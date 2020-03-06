@@ -9,18 +9,24 @@ package io.vlingo.schemata.codegen;
 
 import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.TestWorld;
+import io.vlingo.common.Outcome;
+import io.vlingo.schemata.codegen.ast.Node;
+import io.vlingo.schemata.codegen.ast.types.Type;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
+import io.vlingo.schemata.codegen.parser.ParseException;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.codegen.processor.types.CacheTypeResolver;
 import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import org.junit.After;
 import org.junit.Before;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 
@@ -56,9 +62,9 @@ public abstract class CodeGenTests {
 
     protected final void registerType(final String filePath, final String fullyQualifiedTypeName, final String version) {
       InputStream typeDefinition = typeDefinition(filePath);
-      TypeDefinition parsed = typeParser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName).await(TIMEOUT);
+        Outcome<ParseException, TypeDefinition> parsed = typeParser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName).await(TIMEOUT);
 
-      typeResolver.produce(parsed, version);
+      typeResolver.produce(parsed.getOrNull(), version);
     }
 
     protected final InputStream typeDefinition(final String name) {
@@ -67,5 +73,19 @@ public abstract class CodeGenTests {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    protected String compileSpecAndUnwrap(
+            TypeDefinitionCompiler typeDefinitionCompiler, InputStream spec,
+            String fullyQualifiedTypeName, String version) {
+        final Outcome<SchemataBusinessException, String> outcome = typeDefinitionCompiler
+                .compile(
+                        spec,
+                        fullyQualifiedTypeName, version)
+                .await(10000);
+
+        return outcome.resolve(
+                Throwable::getMessage,
+                code -> code );
     }
 }

@@ -12,6 +12,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 
+import io.vlingo.common.Outcome;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import org.junit.Test;
 
 import io.vlingo.actors.World;
@@ -34,7 +36,7 @@ import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.ObjectStore;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class JavaCodeGenSchemaVersionResolverTests{
+public class JavaCodeGenSchemaVersionResolverTests {
   @Test
   public void testThatSpecificationsContainingBasicTypesCanBeCompiledWithSchemaVersionQueryTypeResolver() throws Exception {
     World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
@@ -73,11 +75,7 @@ public class JavaCodeGenSchemaVersionResolverTests{
             "    string stringAttribute\n"+
             "}";
 
-    final String result = typeDefinitionCompiler
-            .compile(
-                    new ByteArrayInputStream(spec.getBytes()),
-                    "Org:Unit:Context:Schema:Foo:0.0.1", "0.0.1")
-            .await();
+    String result = compileSpecAndUnwrap(typeDefinitionCompiler, spec, "Org:Unit:Context:Schema:Foo:0.0.1", "0.0.1");
 
     assertTrue(result.contains("public final class Foo extends DomainEvent {"));
     assertTrue(result.contains("public final String eventType;"));
@@ -93,4 +91,18 @@ public class JavaCodeGenSchemaVersionResolverTests{
     assertTrue(result.contains("public final long longAttribute;"));
     assertTrue(result.contains("public final short shortAttribute;"));
     assertTrue(result.contains("public final String stringAttribute;"));  }
+
+  private String compileSpecAndUnwrap(
+          TypeDefinitionCompiler typeDefinitionCompiler, String spec,
+          String fullyQualifiedTypeName, String version) {
+    final Outcome<SchemataBusinessException, String> outcome = typeDefinitionCompiler
+            .compile(
+                    new ByteArrayInputStream(spec.getBytes()),
+                    fullyQualifiedTypeName, version)
+            .await(10000);
+
+    return outcome.resolve(
+            ex -> ex.getMessage(),
+            code -> code );
+  }
 }

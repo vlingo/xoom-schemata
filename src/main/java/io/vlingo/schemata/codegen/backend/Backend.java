@@ -8,8 +8,10 @@
 package io.vlingo.schemata.codegen.backend;
 
 import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
 import io.vlingo.schemata.codegen.ast.Node;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 
 public interface Backend {
-    Completes<String> generateOutput(Node node, String version);
+    Completes<Outcome<SchemataBusinessException,String>> generateOutput(Node node, String version);
 }

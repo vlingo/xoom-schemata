@@ -7,7 +7,12 @@ import java.util.Map;
 
 public class SchemataBusinessException extends RuntimeException {
 
-  public enum Code {NOT_FOUND, INVALID_REFERENCE, INVALID_SCHEMA_DEFINITION}
+  public enum Code {
+    NOT_FOUND,
+    INVALID_REFERENCE,
+    INVALID_SCHEMA_DEFINITION,
+    CODE_GENERATION_ERROR
+  }
 
   protected final Map<String, Object> context = new HashMap<>();
   public final Code errorCode;
@@ -37,6 +42,12 @@ public class SchemataBusinessException extends RuntimeException {
   public static SchemataBusinessException invalidSchemaDefinition(ParseException parseException) {
     SchemataBusinessException ex = new SchemataBusinessException(Code.INVALID_SCHEMA_DEFINITION, "Schema definition invalid");
     ex.context.put("parseException", parseException);
+    return ex;
+  }
+
+  public static SchemataBusinessException codeGenerationError(Exception e) {
+    SchemataBusinessException ex = new SchemataBusinessException(Code.CODE_GENERATION_ERROR, "Code generation error");
+    ex.context.put("codeGenerationException",e);
     return ex;
   }
 }

@@ -25,8 +25,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesABasicType() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-
-    final String result = compilerWithJavaBackend().compile(typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1");
 
     assertTrue(result.contains("import io.vlingo.lattice.model.DomainEvent;"));
     assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
@@ -46,8 +45,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesABasicTypeWithDefaultValues() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-
-    final String result = compilerWithJavaBackend().compile(typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1");
 
     assertThat(result, containsString("public boolean booleanAttribute = true;"));
     assertThat(result, containsString("public byte byteAttribute = 4;"));
@@ -63,8 +61,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesABasicTypeWithDefaultValuesAndComputedFields() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-
-    final String result = compilerWithJavaBackend().compile(typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1");
 
     assertTrue(result.contains("public SalutationHappened()"));
 
@@ -86,8 +83,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatDefaultCtorIsOnlyAddedOnce() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-
-    final String result = compilerWithJavaBackend().compile(typeDefinition("minimal"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("minimal"), fullyQualifiedTypeName, "0.0.1");
 
     Pattern pattern = Pattern.compile("public SalutationHappened\\(\\)");
     Matcher matcher = pattern.matcher(result);
@@ -101,8 +97,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesBasicTypeArrayFields() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-
-    final String result = compilerWithJavaBackend().compile(typeDefinition("basicArrays"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basicArrays"), fullyQualifiedTypeName, "0.0.1");
 
     assertThat(result, containsString("public final boolean[] booleanAttribute"));
     assertThat(result, containsString("public final byte[] byteAttribute"));
@@ -118,8 +113,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesBasicTypeArrayFieldsWithDefaults() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-
-    final String result = compilerWithJavaBackend().compile(typeDefinition("basicArraysWithDefaultValues"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basicArraysWithDefaultValues"), fullyQualifiedTypeName, "0.0.1");
 
     assertThat(result, containsString("public boolean[] booleanAttribute = new boolean[] { true, false, true }"));
     assertThat(result, containsString("public byte[] byteAttribute = new byte[] { 4, 3, 2, 1 }"));
@@ -135,8 +129,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesABasicTypeWithAllConsideredInnerTypes() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-
-    final String result = compilerWithJavaBackend().compile(typeDefinition("allSingleTypes"), fullyQualifiedTypeName, "0.0.1").await(TIMEOUT);
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("allSingleTypes"), fullyQualifiedTypeName, "0.0.1");
 
     assertTrue(result.contains("public final boolean booleanAttribute;"));
     assertTrue(result.contains("public final byte byteAttribute;"));
@@ -152,7 +145,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratesAComposedTypeWithVersionedData() throws ExecutionException, InterruptedException, ParseException {
     registerType("types/price", "Org:Unit:Context:Schema:Price", "1.0.0");
-    final String result = compilerWithJavaBackend().compile(typeDefinition("price-changed"), "Org:Unit:Context:Schema:PriceChanged", "0.5.1").await();
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("price-changed"), "Org:Unit:Context:Schema:PriceChanged", "0.5.1");
 
     assertTrue(result.contains("public final class PriceChanged extends DomainEvent {"));
     assertTrue(result.contains("public final long occurredOn;"));
@@ -169,8 +162,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   @Test
   public void testThatGeneratedClassIsInCorrectPackage() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:io.vlingo.mynamespace:SalutationHappened";
-
-    final String result = compilerWithJavaBackend().compile(typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1").await();
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1");
 
     assertTrue(result.contains("package io.vlingo.mynamespace.event;"));
     assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));

@@ -9,10 +9,7 @@ package io.vlingo.schemata.codegen;
 
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.CompletesEventually;
-import io.vlingo.common.Completes;
-import io.vlingo.common.Failure;
-import io.vlingo.common.Outcome;
-import io.vlingo.common.Success;
+import io.vlingo.common.*;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.parser.ParseException;
@@ -44,11 +41,11 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
         parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
                 .andThen(o -> o.resolve(
                         ex -> Failure.of(SchemataBusinessException.invalidSchemaDefinition(ex)),
-                        node -> Success.of(this.process(fullyQualifiedTypeName).apply(node))
-                ))
+                        node -> Success.of(this.process(fullyQualifiedTypeName).apply(node).await()))
+                )
                 .andThen(o -> o.resolve(
                         Failure::of,
-                        node -> Success.of(backend.generateOutput((Node) node, version))
+                        node -> backend.generateOutput((Node) node, version).await()
                 ))
                 .andThenConsume(eventually::with);
 
