@@ -71,7 +71,7 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
 
   @Override
   public void applyRelocationSnapshot(String snapshot) {
-    throw new UnsupportedOperationException("not implemented");
+    stateObject(ContextState.from(ContextId.existing(snapshot)));
   }
 
 }

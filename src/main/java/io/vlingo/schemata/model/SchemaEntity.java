@@ -82,6 +82,6 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
 
   @Override
   public void applyRelocationSnapshot(String snapshot) {
-    throw new UnsupportedOperationException("not implemented");
+    stateObject(SchemaState.from(SchemaId.existing(snapshot)));
   }
 }

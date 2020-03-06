@@ -68,7 +68,7 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
 
   @Override
   public void applyRelocationSnapshot(String snapshot) {
-    throw new UnsupportedOperationException("not implemented");
+    stateObject(OrganizationState.from(OrganizationId.existing(snapshot)));
   }
 
 }

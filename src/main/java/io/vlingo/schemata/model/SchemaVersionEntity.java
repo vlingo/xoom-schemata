@@ -221,7 +221,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
 
   @Override
   public void applyRelocationSnapshot(String snapshot) {
-    throw new UnsupportedOperationException("not implemented");
+    stateObject(SchemaVersionState.from(SchemaVersionId.existing(snapshot)));
   }
 
 }

@@ -64,7 +64,7 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
 
   @Override
   public void applyRelocationSnapshot(String snapshot) {
-    throw new UnsupportedOperationException("not implemented");
+    stateObject(UnitState.from(UnitId.existing(snapshot)));
   }
 
 }
