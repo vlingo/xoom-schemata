@@ -218,4 +218,10 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   private static FieldDefinition asFieldDefinition(Node n) {
     return Processor.requireBeing(n, FieldDefinition.class);
   }
+
+  @Override
+  public void applyRelocationSnapshot(String snapshot) {
+    stateObject(SchemaVersionState.from(SchemaVersionId.existing(snapshot)));
+  }
+
 }

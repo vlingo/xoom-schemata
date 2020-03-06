@@ -65,4 +65,10 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   protected Class<OrganizationState> stateObjectType() {
     return OrganizationState.class;
   }
+
+  @Override
+  public void applyRelocationSnapshot(String snapshot) {
+    stateObject(OrganizationState.from(OrganizationId.existing(snapshot)));
+  }
+
 }
