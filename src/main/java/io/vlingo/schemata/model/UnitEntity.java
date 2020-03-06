@@ -61,4 +61,10 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   protected Class<UnitState> stateObjectType() {
     return UnitState.class;
   }
+
+  @Override
+  public void applyRelocationSnapshot(String snapshot) {
+    stateObject(UnitState.from(UnitId.existing(snapshot)));
+  }
+
 }

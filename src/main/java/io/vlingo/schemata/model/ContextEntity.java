@@ -68,4 +68,10 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   protected Class<ContextState> stateObjectType() {
     return ContextState.class;
   }
+
+  @Override
+  public void applyRelocationSnapshot(String snapshot) {
+    stateObject(ContextState.from(ContextId.existing(snapshot)));
+  }
+
 }

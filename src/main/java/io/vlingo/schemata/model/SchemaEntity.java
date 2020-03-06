@@ -79,4 +79,9 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
   protected Class<SchemaState> stateObjectType() {
     return SchemaState.class;
   }
+
+  @Override
+  public void applyRelocationSnapshot(String snapshot) {
+    stateObject(SchemaState.from(SchemaId.existing(snapshot)));
+  }
 }
