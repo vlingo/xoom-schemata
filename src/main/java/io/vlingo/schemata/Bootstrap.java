@@ -39,7 +39,8 @@ public class Bootstrap {
     SchemataConfig config = SchemataConfig.forRuntime(runtimeType);
 
     world = World.startWithDefaults("vlingo-schemata");
-    world.stageNamed(StageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
+    // TODO: Start an actual Grid here using Grid.start(...). Needs a complete grid configuration first
+    world.stageNamed(StageName, Stage.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
 
     final NoopDispatcher<TextEntry, TextState> dispatcher = new NoopDispatcher<>();
 
