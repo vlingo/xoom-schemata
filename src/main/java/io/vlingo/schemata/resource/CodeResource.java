@@ -86,9 +86,9 @@ public class CodeResource extends ResourceHandler {
                     Completes::withFailure,
                     ctx -> ctx
             ))
-            .andThenTo(context -> {
+            .andThen(context -> {
               logger.debug("CONTEXT: " + context);
-              return validateContext((ContextData) context, collector);
+              return validateContext((ContextData) context, collector).await();
             })
             .andThenTo(context -> {
               logger.debug("COMPILING: " + collector.schemaVersion().specification);
@@ -206,81 +206,81 @@ public class CodeResource extends ResourceHandler {
     public final ContextData contextIndentities;
     public final PathData path;
 
-    private Completes<OrganizationData> eventualOrganization;
-    private Completes<UnitData> eventualUnit;
-    private Completes<ContextData> eventualContext;
-    private Completes<SchemaData> eventualSchema;
-    private Completes<SchemaVersionData> eventualVersion;
-    private Completes<String> eventualCode;
+    private Completes<Outcome<SchemataBusinessException,OrganizationData>> eventualOrganization;
+    private Completes<Outcome<SchemataBusinessException,UnitData>> eventualUnit;
+    private Completes<Outcome<SchemataBusinessException,ContextData>> eventualContext;
+    private Completes<Outcome<SchemataBusinessException,SchemaData>> eventualSchema;
+    private Completes<Outcome<SchemataBusinessException,SchemaVersionData>> eventualVersion;
+    private Completes<Outcome<SchemataBusinessException,String>> eventualCode;
 
     static Collector startingWith(final AuthorizationData authorization, final PathData path, final ContextData contextIndentities) {
       return new Collector(authorization, path, contextIndentities);
     }
 
     @Override
-    public Completes<OrganizationData> expectOrganization(final Completes<OrganizationData> organization) {
+    public Completes<Outcome<SchemataBusinessException,OrganizationData>> expectOrganization(final Completes<Outcome<SchemataBusinessException,OrganizationData>> organization) {
       eventualOrganization = organization;
       return organization;
     }
 
     @Override
-    public Completes<UnitData> expectUnit(final Completes<UnitData> unit) {
+    public Completes<Outcome<SchemataBusinessException,UnitData>> expectUnit(final Completes<Outcome<SchemataBusinessException,UnitData>> unit) {
       eventualUnit = unit;
       return unit;
     }
 
     @Override
-    public Completes<ContextData> expectContext(final Completes<ContextData> context) {
+    public Completes<Outcome<SchemataBusinessException,ContextData>> expectContext(final Completes<Outcome<SchemataBusinessException,ContextData>> context) {
       eventualContext = context;
       return context;
     }
 
     @Override
-    public Completes<SchemaData> expectSchema(final Completes<SchemaData> schema) {
+    public Completes<Outcome<SchemataBusinessException,SchemaData>> expectSchema(final Completes<Outcome<SchemataBusinessException,SchemaData>> schema) {
       eventualSchema = schema;
       return schema;
     }
 
     @Override
-    public Completes<SchemaVersionData> expectSchemaVersion(final Completes<SchemaVersionData> version) {
+    public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> expectSchemaVersion(final Completes<Outcome<SchemataBusinessException,SchemaVersionData>> version) {
       this.eventualVersion = version;
       return version;
     }
 
     @Override
-    public Completes<String> expectCode(final Completes<String> code) {
+    public Completes<Outcome<SchemataBusinessException,String>> expectCode(final Completes<Outcome<SchemataBusinessException,String>> code) {
       eventualCode = code;
       return code;
     }
 
     @Override
     public OrganizationData organization() {
-      return eventualOrganization.outcome();
+      return eventualOrganization.outcome().getOrNull();
     }
 
     @Override
     public UnitData unit() {
-      return eventualUnit.outcome();
+      return eventualUnit.outcome().getOrNull();
     }
 
     @Override
     public ContextData context() {
-      return eventualContext.outcome();
+      return eventualContext.outcome().getOrNull();
     }
 
     @Override
     public SchemaData schema() {
-      return eventualSchema.outcome();
+      return eventualSchema.outcome().getOrNull();
     }
 
     @Override
     public SchemaVersionData schemaVersion() {
-      return eventualVersion.outcome();
+      return eventualVersion.outcome().getOrNull();
     }
 
     @Override
     public String code() {
-      return eventualCode.outcome();
+      return eventualCode.outcome().getOrNull();
     }
 
     private Collector(

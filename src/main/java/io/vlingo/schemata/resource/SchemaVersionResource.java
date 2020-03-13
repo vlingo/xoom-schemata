@@ -26,12 +26,15 @@ import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
 import io.vlingo.common.CompletesOutcomeT;
+import io.vlingo.common.Failure;
+import io.vlingo.common.Outcome;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.FullyQualifiedReference;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
@@ -73,17 +76,14 @@ public class SchemaVersionResource extends ResourceHandler {
 
         // FIXME: Refactor into one reactive pipeline without awaiting
       if(currentSemantic.equals(previousSemantic.nextPatch()) || currentSemantic.equals(previousSemantic.nextMinor())) {
-        SchemaVersionData previousVersion = Queries.forSchemaVersions().schemaVersionOfVersion(
+        Outcome<SchemataBusinessException, SchemaVersionData> previousVersionQueryOutcome  = Queries.forSchemaVersions().schemaVersionOfVersion(
             organizationId,
             unitId,
             contextId,
             schemaId,
-            data.previousVersion)
-                .andThen(o -> o.resolve(
-                        e -> Completes.withSuccess(Response.of(NotFound, "Tried to update non-existing version " + previousSemantic.toString())),
-                        svd -> svd
-                ))
-            .await();
+            data.previousVersion).await();
+
+        SchemaVersionData previousVersion = previousVersionQueryOutcome.getOrNull();
 
         if(
           (previousVersion == null || previousVersion.isNone())

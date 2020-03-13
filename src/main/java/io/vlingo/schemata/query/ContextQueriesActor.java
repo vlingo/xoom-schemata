@@ -72,7 +72,7 @@ public class ContextQueriesActor extends StateObjectQueryActor implements Contex
   @Override
   public Completes<Outcome<SchemataBusinessException,ContextData>> context(final String organizationId, final String unitId, final String contextId, final QueryResultsCollector collector) {
     final Completes<Outcome<SchemataBusinessException,ContextData>> data = context(organizationId, unitId, contextId);
-    collector.expectContext(data.andThen(Outcome::getOrNull));
+    collector.expectContext(data);
     return data;
   }
 
@@ -89,7 +89,7 @@ public class ContextQueriesActor extends StateObjectQueryActor implements Contex
   @Override
   public Completes<Outcome<SchemataBusinessException,ContextData>> contextOfNamespace(final String organizationId, final String unitId, final String namespace, final QueryResultsCollector collector) {
     final Completes<Outcome<SchemataBusinessException,ContextData>> data = contextOfNamespace(organizationId, unitId, namespace);
-    collector.expectContext(data.andThen(Outcome::getOrNull));
+    collector.expectContext(data);
     return data;
   }
 

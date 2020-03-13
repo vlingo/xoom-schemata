@@ -59,7 +59,7 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
   @Override
   public Completes<Outcome<SchemataBusinessException, OrganizationData>> organization(final String organizationId, final QueryResultsCollector collector) {
     final Completes<Outcome<SchemataBusinessException, OrganizationData>> data = organization(organizationId);
-    collector.expectOrganization(data.andThen(Outcome::getOrNull));
+    collector.expectOrganization(data);
     return data;
   }
 
@@ -74,7 +74,7 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
   @Override
   public  Completes<Outcome<SchemataBusinessException, OrganizationData>> organizationNamed(final String name, final QueryResultsCollector collector) {
     final  Completes<Outcome<SchemataBusinessException, OrganizationData>> data = organizationNamed(name);
-    collector.expectOrganization(data.andThen(Outcome::getOrNull));
+    collector.expectOrganization(data);
     return data;
   }
 

@@ -11,7 +11,8 @@ public class SchemataBusinessException extends RuntimeException {
     NOT_FOUND,
     INVALID_REFERENCE,
     INVALID_SCHEMA_DEFINITION,
-    CODE_GENERATION_ERROR
+    CODE_GENERATION_ERROR,
+    NOT_AUTHORIZED
   }
 
   protected final Map<String, Object> context = new HashMap<>();
@@ -48,6 +49,11 @@ public class SchemataBusinessException extends RuntimeException {
   public static SchemataBusinessException codeGenerationError(Exception e) {
     SchemataBusinessException ex = new SchemataBusinessException(Code.CODE_GENERATION_ERROR, "Code generation error");
     ex.context.put("codeGenerationException",e);
+    return ex;
+  }
+  public static SchemataBusinessException notAuthorized(String subject) {
+    SchemataBusinessException ex = new SchemataBusinessException(Code.NOT_AUTHORIZED, "Not authorized to access subject");
+    ex.context.put("subject",subject);
     return ex;
   }
 }
