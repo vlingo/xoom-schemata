@@ -110,7 +110,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
 
   @Override
   public Completes<SpecificationDiff> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, final SchemaVersionData other) {
-    requireRightSideSpecification(other.specification);
+    requireRightSideSpecification(other.specification); // FIXME: return Failure instead of throwing
 
     SpecificationDiff diff = SpecificationDiff.between(stateObject().specification.value, other.specification);
 

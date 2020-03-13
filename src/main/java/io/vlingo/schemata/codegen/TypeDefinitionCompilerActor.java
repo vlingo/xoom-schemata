@@ -16,6 +16,7 @@ import io.vlingo.schemata.codegen.parser.ParseException;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.errors.SchemataBusinessException;
+import io.vlingo.schemata.model.Schema;
 
 import java.io.InputStream;
 import java.util.List;
@@ -59,9 +60,9 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
         parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
                 .andThen(o -> o.resolve(
                         ex -> Failure.of(SchemataBusinessException.invalidSchemaDefinition(ex)),
-                        node -> Success.of(this.process(fullyQualifiedTypeName).apply(node))
+                        node -> Success.of(this.process(fullyQualifiedTypeName).apply(node).await())
                 ))
-                .andThenConsume(eventually::with);
+                .andThenConsume(it -> eventually.with(it.getOrNull()));
 
         return completes();
     }
