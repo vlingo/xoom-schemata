@@ -36,6 +36,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   private SchemaVersionState state;
 
   public SchemaVersionEntity(final SchemaVersionId schemaVersionId) {
+    super(schemaVersionId.value);
     state = SchemaVersionState.from(schemaVersionId);
   }
 
@@ -90,11 +91,6 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
       return apply(this.state.withSpecification(specification), SchemaVersionSpecified.with(state.schemaVersionId, specification), () -> this.state);
     }
     return completes().with(state);
-  }
-
-  @Override
-  protected String id() {
-    return String.valueOf(state.persistenceId());
   }
 
   @Override
@@ -217,11 +213,6 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
 
   private static FieldDefinition asFieldDefinition(Node n) {
     return Processor.requireBeing(n, FieldDefinition.class);
-  }
-
-  @Override
-  public void applyRelocationSnapshot(String snapshot) {
-    stateObject(SchemaVersionState.from(SchemaVersionId.existing(snapshot)));
   }
 
 }
