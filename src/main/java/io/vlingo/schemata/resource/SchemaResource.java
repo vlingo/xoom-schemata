@@ -53,7 +53,8 @@ public class SchemaResource extends ResourceHandler {
       return Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
     }
 
-    return Schema.with(stage, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(data.category), Scope.valueOf(data.scope), data.name, data.description)
+    return Schema.with(stage, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(data.category),
+            data.scope == null ? Scope.Private : Scope.valueOf(data.scope), data.name, data.description)
             .andThenTo(3000, state -> {
                 final String location = schemaLocation(state.schemaId);
                 final Headers<ResponseHeader> headers = Headers.of(
