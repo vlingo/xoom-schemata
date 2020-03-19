@@ -12,11 +12,9 @@ import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.*;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.backend.Backend;
-import io.vlingo.schemata.codegen.parser.ParseException;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.errors.SchemataBusinessException;
-import io.vlingo.schemata.model.Schema;
 
 import java.io.InputStream;
 import java.util.List;
@@ -54,7 +52,7 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
     }
 
     @Override
-    public Completes<Node> compileToAST(final InputStream typeDefinition, final String fullyQualifiedTypeName) {
+    public Completes<Outcome<SchemataBusinessException, Node>> compileToAST(final InputStream typeDefinition, final String fullyQualifiedTypeName) {
         CompletesEventually eventually = completesEventually();
 
         parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
@@ -62,7 +60,7 @@ public class TypeDefinitionCompilerActor extends Actor implements TypeDefinition
                         ex -> Failure.of(SchemataBusinessException.invalidSchemaDefinition(ex)),
                         node -> Success.of(this.process(fullyQualifiedTypeName).apply(node).await())
                 ))
-                .andThenConsume(it -> eventually.with(it.getOrNull()));
+                .andThenConsume(eventually::with);
 
         return completes();
     }

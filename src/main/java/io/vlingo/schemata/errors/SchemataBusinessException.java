@@ -46,6 +46,10 @@ public class SchemataBusinessException extends RuntimeException {
     return ex;
   }
 
+  public static SchemataBusinessException invalidSchemaDefinition() {
+    return new SchemataBusinessException(Code.INVALID_SCHEMA_DEFINITION, "Schema definition invalid");
+  }
+
   public static SchemataBusinessException codeGenerationError(Exception e) {
     SchemataBusinessException ex = new SchemataBusinessException(Code.CODE_GENERATION_ERROR, "Code generation error");
     ex.context.put("codeGenerationException",e);

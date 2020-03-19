@@ -28,6 +28,7 @@ import io.vlingo.common.Completes;
 import io.vlingo.common.CompletesOutcomeT;
 import io.vlingo.common.Failure;
 import io.vlingo.common.Outcome;
+import io.vlingo.common.serialization.JsonSerialization;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
@@ -57,6 +58,17 @@ public class SchemaVersionResource extends ResourceHandler {
         this.logger = world.defaultLogger();
     }
 
+    /*
+     * Since this has become a convoluted mess due to workarounds, framework changes and poorly understood APIs,
+     * I'll outline what is done in here as a breadcrumb trail for future refactoring me:
+     *
+     * * Check whether the request contains a specification
+     * * Check whether the version is syntactically valid (i.e. is an update to a existing version or 0.0.1)
+     * * Load the previous version (i.e. the one that is updated); return an error if it does not exist
+     * * If the new version is a patch or minor update, diff the previous version against the specification passed in
+     *   ; return an error if there are incompatible changes
+     * * Otherwise create the new specification persistently and return it
+     */
     public Completes<Response> defineWith(
             final String organizationId,
             final String unitId,
@@ -93,17 +105,21 @@ public class SchemaVersionResource extends ResourceHandler {
         }
 
         if(previousVersion != null && !previousVersion.isNone() ) {
-          SpecificationDiff diff = commands
+          String incompatibleDiffResult = commands
               .diffAgainst(
                   SchemaVersionId.existing(
                       organizationId, unitId, contextId, schemaId,
                       previousVersion.schemaVersionId),
                   data)
               .answer()
+              .andThen(o -> o.resolve(
+                          JsonSerialization::serialized,
+                          diff -> diff.isCompatible() ? null : serialized(diff)
+                  ))
               .await();
 
-          if (!diff.isCompatible()) {
-            return Completes.withSuccess(Response.of(Conflict, serialized(diff)));
+          if (incompatibleDiffResult != null) {
+            return Completes.withSuccess(Response.of(Conflict, serialized(incompatibleDiffResult)));
           }
         }
       }
