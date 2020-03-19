@@ -13,5 +13,5 @@ import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.errors.SchemataBusinessException;
 
 public interface Backend {
-    Completes<Outcome<SchemataBusinessException,String>> generateOutput(Node node, String version);
+    Outcome<SchemataBusinessException,String> generateOutput(Node node, String version);
 }

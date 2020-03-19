@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import io.vlingo.common.Failure;
 import io.vlingo.common.Outcome;
 import io.vlingo.common.Success;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import org.antlr.v4.runtime.CodePointBuffer;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -44,7 +45,7 @@ import io.vlingo.schemata.codegen.ast.values.Value;
 import io.vlingo.schemata.model.Category;
 
 
-public class AntlrTypeParser extends Actor implements TypeParser {
+public class AntlrTypeParser implements TypeParser {
     private static final int BUFFER_SIZE = 2048;
     private final byte[] parserBuffer;
 
@@ -53,8 +54,7 @@ public class AntlrTypeParser extends Actor implements TypeParser {
     }
 
     @Override
-    public Completes<Outcome<ParseException,Node>> parseTypeDefinition(final InputStream inputStream, final String fullyQualifiedTypeName) {
-        CompletesEventually eventually = completesEventually();
+    public Outcome<SchemataBusinessException,Node> parseTypeDefinition(final InputStream inputStream, final String fullyQualifiedTypeName) {
         SchemaVersionDefinitionParser tree;
 
         try {
@@ -62,17 +62,13 @@ public class AntlrTypeParser extends Actor implements TypeParser {
             tree = generateAntlrTree(inputStream, errorStrategy);
             Node type = parseTypeDeclaration(tree.typeDeclaration(), fullyQualifiedTypeName);
             if(errorStrategy.hasErrors()) {
-                errorStrategy.errors().forEach(e -> logger().error(e.getMessage(),e));
-                eventually.with(Failure.of(new ParseException(String.format("Parsing %s schema failed", fullyQualifiedTypeName), errorStrategy.errors())));
+                return Failure.of(SchemataBusinessException.invalidSchemaDefinition(String.format("Parsing %s schema failed", fullyQualifiedTypeName), errorStrategy.errors()));
             } else {
-                eventually.with(Success.of(type));
+                return Success.of(type);
             }
         } catch (IOException e) {
-            logger().error(e.getMessage(), e);
-            eventually.with(Failure.of(new ParseException(String.format("Parsing %s schema failed", fullyQualifiedTypeName), e)));
+           return Failure.of(SchemataBusinessException.invalidSchemaDefinition(String.format("Parsing %s schema failed", fullyQualifiedTypeName), e));
         }
-
-        return completes();
     }
 
     private Node parseTypeDeclaration(

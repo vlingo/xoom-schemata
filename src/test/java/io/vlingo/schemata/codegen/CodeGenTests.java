@@ -16,7 +16,6 @@ import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
-import io.vlingo.schemata.codegen.parser.ParseException;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.codegen.processor.types.CacheTypeResolver;
@@ -41,7 +40,7 @@ public abstract class CodeGenTests {
     public void setUp() throws Exception {
         world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
         typeResolver = new CacheTypeResolver();
-        typeParser = world.actorFor(TypeParser.class, AntlrTypeParser.class);
+        typeParser = new AntlrTypeParser();
     }
 
     @After
@@ -50,21 +49,21 @@ public abstract class CodeGenTests {
     }
 
     protected final TypeDefinitionCompiler compilerWithJavaBackend() {
-        return world.actorFor(TypeDefinitionCompiler.class, TypeDefinitionCompilerActor.class,
+        return new TypeDefinitionCompilerActor(
                 typeParser,
                 Arrays.asList(
                         world.actorFor(Processor.class, ComputableTypeProcessor.class),
                         world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
                 ),
-                world.actorFor(Backend.class, JavaBackend.class)
+                new JavaBackend()
         );
     }
 
     protected final void registerType(final String filePath, final String fullyQualifiedTypeName, final String version) {
       InputStream typeDefinition = typeDefinition(filePath);
-        Outcome<ParseException, TypeDefinition> parsed = typeParser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName).await(TIMEOUT);
+        Outcome<SchemataBusinessException, Node> parsed = typeParser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName);
 
-      typeResolver.produce(parsed.getOrNull(), version);
+      typeResolver.produce((TypeDefinition) parsed.getOrNull(), version);
     }
 
     protected final InputStream typeDefinition(final String name) {

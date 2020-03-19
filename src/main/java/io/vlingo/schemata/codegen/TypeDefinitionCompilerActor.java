@@ -7,9 +7,8 @@
 
 package io.vlingo.schemata.codegen;
 
-import io.vlingo.actors.Actor;
-import io.vlingo.actors.CompletesEventually;
-import io.vlingo.common.*;
+import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.parser.TypeParser;
@@ -20,66 +19,49 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.function.Function;
 
-public class TypeDefinitionCompilerActor extends Actor implements TypeDefinitionCompiler, TypeDefinitionMiddleware {
+public class TypeDefinitionCompilerActor implements TypeDefinitionCompiler, TypeDefinitionMiddleware {
     private final TypeParser parser;
     private final List<Processor> processors;
     private final Backend backend;
-    private final TypeDefinitionMiddleware middleware;
 
     public TypeDefinitionCompilerActor(final TypeParser parser, final List<Processor> processors, final Backend backend) {
         this.parser = parser;
         this.processors = processors;
         this.backend = backend;
-        this.middleware = selfAs(TypeDefinitionMiddleware.class);
     }
 
     @Override
     public Completes<Outcome<SchemataBusinessException, String>> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version) {
-        CompletesEventually eventually = completesEventually();
-
-        parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
-                .andThen(o -> o.resolve(
-                        ex -> Failure.of(SchemataBusinessException.invalidSchemaDefinition(ex)),
-                        node -> Success.of(this.process(fullyQualifiedTypeName).apply(node).await()))
-                )
-                .andThen(o -> o.resolve(
-                        Failure::of,
-                        node -> backend.generateOutput((Node) node, version).await()
-                ))
-                .andThenConsume(eventually::with);
-
-        return completes();
+        return Completes.withSuccess(
+                parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
+                    .andThen(this.process(fullyQualifiedTypeName))
+                    .andThenTo(node -> backend.generateOutput(node, version))
+                    .otherwiseFail(ex -> ex)
+                );
     }
 
     @Override
     public Completes<Outcome<SchemataBusinessException, Node>> compileToAST(final InputStream typeDefinition, final String fullyQualifiedTypeName) {
-        CompletesEventually eventually = completesEventually();
-
-        parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
-                .andThen(o -> o.resolve(
-                        ex -> Failure.of(SchemataBusinessException.invalidSchemaDefinition(ex)),
-                        node -> Success.of(this.process(fullyQualifiedTypeName).apply(node).await())
-                ))
-                .andThenConsume(eventually::with);
-
-        return completes();
+        return Completes.withSuccess(
+                parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
+                        .andThen(this.process(fullyQualifiedTypeName))
+                        .otherwiseFail(ex -> ex)
+        );
     }
 
-    private Function<Node, Completes<Node>> process(final String fullyQualifiedTypeName) {
+    private Function<Node, Node> process(final String fullyQualifiedTypeName) {
         return node -> {
             Completes<Node> result = Completes.withSuccess(node);
             for (Processor p : processors) {
-                result = result.andThenTo(n -> p.process(n, middleware, fullyQualifiedTypeName));
+                result = result.andThenTo(n -> p.process(n, this, fullyQualifiedTypeName));
             }
 
-            return result;
+            return result.await(2000L);
         };
     }
 
     @Override
-    public Completes<TypeDefinitionMiddleware> middleware() {
-        CompletesEventually eventually = completesEventually();
-        eventually.with(this.middleware);
-        return completes();
+    public TypeDefinitionMiddleware middleware() {
+        return this;
     }
 }

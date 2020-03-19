@@ -8,7 +8,7 @@
 package io.vlingo.schemata.codegen.specs;
 
 import io.vlingo.schemata.codegen.CodeGenTests;
-import io.vlingo.schemata.codegen.parser.ParseException;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -143,7 +143,7 @@ public class JavaCodeGenTests extends CodeGenTests {
   }
 
   @Test
-  public void testThatGeneratesAComposedTypeWithVersionedData() throws ExecutionException, InterruptedException, ParseException {
+  public void testThatGeneratesAComposedTypeWithVersionedData() throws ExecutionException, InterruptedException, SchemataBusinessException {
     registerType("types/price", "Org:Unit:Context:Schema:Price", "1.0.0");
     final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("price-changed"), "Org:Unit:Context:Schema:PriceChanged", "0.5.1");
 

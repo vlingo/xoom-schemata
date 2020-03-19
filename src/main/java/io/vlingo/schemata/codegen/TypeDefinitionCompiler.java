@@ -14,7 +14,6 @@ import io.vlingo.common.Outcome;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
-import io.vlingo.schemata.codegen.parser.ParseException;
 import io.vlingo.schemata.codegen.parser.TypeParser;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
@@ -54,7 +53,7 @@ public interface TypeDefinitionCompiler {
   public static TypeDefinitionCompiler newCompilerFor(final Stage stage, final String language) {
     switch (language) {
     case "java":
-      return forBackend(stage, JavaBackend.class);
+      return forBackend(stage, new JavaBackend());
     default:
       throw new IllegalArgumentException("Unsupported language: " + language);
     }
@@ -63,21 +62,18 @@ public interface TypeDefinitionCompiler {
   /**
    * Answer a new {@code TypeDefinitionCompiler} for a given language {@code backendType}.
    * @param stage the Stage in which to create the compiler actor
-   * @param backendType the {@code Class<? extends Actor>} of the language backend
+   * @param backend the language backend
    * @return TypeDefinitionCompiler
    */
-  static TypeDefinitionCompiler forBackend(final Stage stage, final Class<? extends Actor> backendType) {
-    final TypeParser typeParser = stage.actorFor(TypeParser.class, AntlrTypeParser.class);
+  static TypeDefinitionCompiler forBackend(final Stage stage, Backend backend) {
+    final TypeParser typeParser =  new AntlrTypeParser();
     final TypeResolver typeResolver = Queries.forTypeResolver();
 
-    return stage.actorFor(TypeDefinitionCompiler.class, TypeDefinitionCompilerActor.class,
-            typeParser,
+    return new TypeDefinitionCompilerActor(typeParser,
             Arrays.asList(
                     stage.actorFor(Processor.class, ComputableTypeProcessor.class),
                     stage.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
-            ),
-            stage.actorFor(Backend.class, backendType)
-    );
+            ), backend);
   }
 
   /**
@@ -93,7 +89,7 @@ public interface TypeDefinitionCompiler {
    * Answer this compiler's middleware.
    * @return {@code TypeDefinitionMiddleware}
    */
-  Completes<TypeDefinitionMiddleware> middleware();
+  TypeDefinitionMiddleware middleware();
 
 
   // INTERNAL USE ONLY

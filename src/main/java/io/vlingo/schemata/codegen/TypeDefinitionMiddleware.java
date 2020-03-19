@@ -13,6 +13,6 @@ public interface TypeDefinitionMiddleware {
 
     public static TypeDefinitionMiddleware middlewareFor(final Stage stage) {
         //TODO: factor out Middleware from compiler actor to be able to retrieve it w/o language
-        return TypeDefinitionCompiler.compilerFor(stage,"java").middleware().await();
+        return TypeDefinitionCompiler.compilerFor(stage,"java").middleware();
     }
 }

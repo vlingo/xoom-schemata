@@ -40,7 +40,7 @@ public class JavaCodeGenSchemaVersionResolverTests {
   @Test
   public void testThatSpecificationsContainingBasicTypesCanBeCompiledWithSchemaVersionQueryTypeResolver() throws Exception {
     World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
-    TypeParser typeParser = world.actorFor(TypeParser.class, AntlrTypeParser.class);
+    TypeParser typeParser = new AntlrTypeParser();
     Dispatcher dispatcher = new NoopDispatcher();
 
     final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(SchemataConfig.forRuntime("test"));
@@ -51,13 +51,13 @@ public class JavaCodeGenSchemaVersionResolverTests {
 
     TypeResolver typeResolver = new TypeResolverQueriesActor(new SchemaVersionQueriesActor(objectStore));
 
-    TypeDefinitionCompiler typeDefinitionCompiler = world.actorFor(TypeDefinitionCompiler.class, TypeDefinitionCompilerActor.class,
+    TypeDefinitionCompiler typeDefinitionCompiler = new TypeDefinitionCompilerActor(
             typeParser,
             Arrays.asList(
                     world.actorFor(Processor.class, ComputableTypeProcessor.class),
                     world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
             ),
-            world.actorFor(Backend.class, JavaBackend.class)
+            new JavaBackend()
     );
     String spec = "event Foo {\n" +
             "    type eventType\n" +

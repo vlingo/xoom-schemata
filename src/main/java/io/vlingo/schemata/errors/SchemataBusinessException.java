@@ -1,9 +1,7 @@
 package io.vlingo.schemata.errors;
 
-import io.vlingo.schemata.codegen.parser.ParseException;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class SchemataBusinessException extends RuntimeException {
 
@@ -40,10 +38,14 @@ public class SchemataBusinessException extends RuntimeException {
     return new SchemataBusinessException(Code.INVALID_REFERENCE, reference + " invalid");
   }
 
-  public static SchemataBusinessException invalidSchemaDefinition(ParseException parseException) {
-    SchemataBusinessException ex = new SchemataBusinessException(Code.INVALID_SCHEMA_DEFINITION, "Schema definition invalid");
-    ex.context.put("parseException", parseException);
+  public static SchemataBusinessException invalidSchemaDefinition(String message, List<? extends Throwable> causes) {
+    SchemataBusinessException ex = new SchemataBusinessException(Code.INVALID_SCHEMA_DEFINITION, message);
+    ex.context.put("causes", causes);
     return ex;
+  }
+
+  public static SchemataBusinessException invalidSchemaDefinition(String message, Throwable cause) {
+    return invalidSchemaDefinition(message, Collections.singletonList(cause));
   }
 
   public static SchemataBusinessException invalidSchemaDefinition() {
