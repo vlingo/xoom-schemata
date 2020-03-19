@@ -127,17 +127,18 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
   @Override
   public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersion(String fullyQualifiedTypeName) {
     String[] parts = fullyQualifiedTypeName.split(Schemata.ReferenceSeparator);
-    Completes<Outcome<SchemataBusinessException,SchemaVersionData>> result;
+
+    final CompletesEventually completesEventually = completesEventually();
 
     if (parts.length < Schemata.MinReferenceParts) {
-      result = Completes.withSuccess(Failure.of(SchemataBusinessException.invalidReference(fullyQualifiedTypeName)));
+      return Completes.withSuccess(Failure.of(SchemataBusinessException.invalidReference(fullyQualifiedTypeName)));
     } else if (parts.length > Schemata.MinReferenceParts) {
-      result = schemaVersionOf(parts[0], parts[1], parts[2], parts[3], parts[4]);
+      completesEventually.with(schemaVersionOf(parts[0], parts[1], parts[2], parts[3], parts[4]));
     } else {
-      result = queryGreatestByNames(parts[0], parts[1], parts[2], parts[3]);
+      completesEventually.with(queryGreatestByNames(parts[0], parts[1], parts[2], parts[3]));
     }
 
-    return result;
+    return completes();
   }
 
   @Override

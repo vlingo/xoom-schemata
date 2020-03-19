@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.codegen;
 
+import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
 import io.vlingo.common.Outcome;
 import io.vlingo.schemata.codegen.ast.Node;
@@ -34,7 +35,7 @@ public class TypeDefinitionCompilerActor implements TypeDefinitionCompiler, Type
     public Completes<Outcome<SchemataBusinessException, String>> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version) {
         return Completes.withSuccess(
                 parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
-                    .andThen(this.process(fullyQualifiedTypeName))
+                    .andThen(node -> this.process(fullyQualifiedTypeName).apply(node))
                     .andThenTo(node -> backend.generateOutput(node, version))
                     .otherwiseFail(ex -> ex)
                 );
@@ -53,10 +54,10 @@ public class TypeDefinitionCompilerActor implements TypeDefinitionCompiler, Type
         return node -> {
             Completes<Node> result = Completes.withSuccess(node);
             for (Processor p : processors) {
-                result = result.andThenTo(n -> p.process(n, this, fullyQualifiedTypeName));
+                result = result.andThen(n -> p.process(n, this, fullyQualifiedTypeName)).await();
             }
 
-            return result.await(2000L);
+            return result.await();
         };
     }
 

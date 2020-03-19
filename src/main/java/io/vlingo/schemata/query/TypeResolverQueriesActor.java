@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.util.Optional;
 
 import io.vlingo.actors.Actor;
+import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
@@ -26,19 +27,11 @@ public class TypeResolverQueriesActor extends Actor implements TypeResolverQueri
     public Completes<Optional<TypeDefinition>> resolve(TypeDefinitionMiddleware middleware, String fullyQualifiedTypeName) {
         return schemaVersionQueries
                 .schemaVersion(fullyQualifiedTypeName)
-                .andThenTo( o -> o.resolve(
+                .andThenTo(o -> o.resolve(
                         e -> Completes.withSuccess(null),
                         data -> middleware.compileToAST(new ByteArrayInputStream(data.specification.getBytes()), fullyQualifiedTypeName)
                 ))
-               .andThen(node -> {
-                    Optional<TypeDefinition> result = Optional.ofNullable((TypeDefinition) node);
-                    completesEventually().with(result);
-                    return result;
-                })
-                .otherwise(ex -> {
-                    Optional<TypeDefinition> result = Optional.empty();
-                    completesEventually().with(result);
-                    return result;
-                });
+               .andThen(node ->  Optional.ofNullable((TypeDefinition) node))
+               .otherwise(ex -> Optional.empty());
     }
 }
