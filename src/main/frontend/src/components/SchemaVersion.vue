@@ -211,10 +211,14 @@
                     )
                     .catch(function (err) {
                         if (err.response && err.response.status === 409) {
+                            let result = JSON.parse(err.response.data);
                             vm.diffShow = true;
-                            vm.diffOriginalSpecification = err.response.data.oldSpecification;
-                            vm.diffPatchedSpecification = err.response.data.newSpecification;
-                            vm.diffChanges = err.response.data.changes;
+                            vm.diffOriginalSpecification = result.oldSpecification;
+                            vm.diffPatchedSpecification = result.newSpecification;
+                            vm.diffChanges = result.changes;
+
+                            // eslint-disable-next-line
+                            console.log(err.response)
                         }
                         vm.$store.commit('raiseError', {message: 'Incompatible changes within a compatible version change'})
 
