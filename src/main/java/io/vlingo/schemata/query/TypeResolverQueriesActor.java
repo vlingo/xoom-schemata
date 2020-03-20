@@ -13,6 +13,7 @@ import java.util.Optional;
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Success;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 
@@ -27,9 +28,13 @@ public class TypeResolverQueriesActor extends Actor implements TypeResolverQueri
     public Completes<Optional<TypeDefinition>> resolve(TypeDefinitionMiddleware middleware, String fullyQualifiedTypeName) {
         return schemaVersionQueries
                 .schemaVersion(fullyQualifiedTypeName)
-                .andThenTo(o -> o.resolve(
-                        e -> Completes.withSuccess(null),
-                        data -> middleware.compileToAST(new ByteArrayInputStream(data.specification.getBytes()), fullyQualifiedTypeName)
+                .andThen(o -> o.resolve(
+                        e -> Success.of(null), // it is ok not to find a schema for the fqtn, e.g. for basic types
+                        data -> middleware.compileToAST(new ByteArrayInputStream(data.specification.getBytes()), fullyQualifiedTypeName).await()
+                ))
+                .andThen(o -> o.resolve(
+                        ex -> null,
+                        node -> node
                 ))
                .andThen(node ->  Optional.ofNullable((TypeDefinition) node))
                .otherwise(ex -> Optional.empty());

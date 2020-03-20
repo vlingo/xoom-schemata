@@ -25,8 +25,6 @@ import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
-import io.vlingo.common.CompletesOutcomeT;
-import io.vlingo.common.Failure;
 import io.vlingo.common.Outcome;
 import io.vlingo.common.serialization.JsonSerialization;
 import io.vlingo.common.version.SemanticVersion;
@@ -43,7 +41,6 @@ import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.schemata.model.SchemaVersionState;
-import io.vlingo.schemata.model.SpecificationDiff;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
@@ -119,7 +116,11 @@ public class SchemaVersionResource extends ResourceHandler {
               .await();
 
           if (incompatibleDiffResult != null) {
-            return Completes.withSuccess(Response.of(Conflict, serialized(incompatibleDiffResult)));
+            return Completes.withSuccess(
+                    Response.of(
+                            Conflict,
+                            Headers.of(of(ContentType, "application/json; charset=UTF-8")),
+                            serialized(incompatibleDiffResult)));
           }
         }
       }

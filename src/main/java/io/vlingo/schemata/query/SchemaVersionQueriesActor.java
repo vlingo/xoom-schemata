@@ -131,7 +131,9 @@ public class SchemaVersionQueriesActor extends StateObjectQueryActor implements 
     final CompletesEventually completesEventually = completesEventually();
 
     if (parts.length < Schemata.MinReferenceParts) {
-      return Completes.withSuccess(Failure.of(SchemataBusinessException.invalidReference(fullyQualifiedTypeName)));
+      Outcome<SchemataBusinessException,SchemaVersionData> outcome = Failure.of(SchemataBusinessException.invalidReference(fullyQualifiedTypeName));
+      completesEventually.with(outcome);
+      return Completes.withSuccess(outcome);
     } else if (parts.length > Schemata.MinReferenceParts) {
       completesEventually.with(schemaVersionOf(parts[0], parts[1], parts[2], parts[3], parts[4]));
     } else {
