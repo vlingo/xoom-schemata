@@ -216,9 +216,6 @@
                             vm.diffOriginalSpecification = result.oldSpecification;
                             vm.diffPatchedSpecification = result.newSpecification;
                             vm.diffChanges = result.changes;
-
-                            // eslint-disable-next-line
-                            console.log(err.response)
                         }
                         vm.$store.commit('raiseError', {message: 'Incompatible changes within a compatible version change'})
 
