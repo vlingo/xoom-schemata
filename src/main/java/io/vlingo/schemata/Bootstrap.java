@@ -80,7 +80,7 @@ public class Bootstrap {
           .withDispatcherPoolSize(2)
           .withMaxBufferPoolSize(100)
           .withMaxMessageSize(4096),
-      Configuration.Timing.define());
+      Configuration.Timing.defineWith(7, 3,100));
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (instance != null) {
         instance.server.stop();
