@@ -8,7 +8,11 @@
 package io.vlingo.schemata.codegen.processor.types;
 
 import io.vlingo.actors.Actor;
+import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Failure;
+import io.vlingo.common.Outcome;
+import io.vlingo.common.Success;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
@@ -17,6 +21,7 @@ import io.vlingo.schemata.codegen.ast.types.ComputableType;
 import io.vlingo.schemata.codegen.ast.types.Type;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.Processor;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 
 import java.util.List;
 import java.util.stream.Collectors;

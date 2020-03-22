@@ -8,11 +8,7 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.Response.Status.BadRequest;
-import static io.vlingo.http.Response.Status.Conflict;
-import static io.vlingo.http.Response.Status.Created;
-import static io.vlingo.http.Response.Status.NotFound;
-import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.Response.Status.*;
 import static io.vlingo.http.ResponseHeader.ContentLength;
 import static io.vlingo.http.ResponseHeader.ContentType;
 import static io.vlingo.http.ResponseHeader.Location;
@@ -29,12 +25,15 @@ import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
+import io.vlingo.common.serialization.JsonSerialization;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.FullyQualifiedReference;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
@@ -42,7 +41,6 @@ import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.schemata.model.SchemaVersionState;
-import io.vlingo.schemata.model.SpecificationDiff;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
@@ -57,6 +55,17 @@ public class SchemaVersionResource extends ResourceHandler {
         this.logger = world.defaultLogger();
     }
 
+    /*
+     * Since this has become a convoluted mess due to workarounds, framework changes and poorly understood APIs,
+     * I'll outline what is done in here as a breadcrumb trail for future refactoring me:
+     *
+     * * Check whether the request contains a specification
+     * * Check whether the version is syntactically valid (i.e. is an update to a existing version or 0.0.1)
+     * * Load the previous version (i.e. the one that is updated); return an error if it does not exist
+     * * If the new version is a patch or minor update, diff the previous version against the specification passed in
+     *   ; return an error if there are incompatible changes
+     * * Otherwise create the new specification persistently and return it
+     */
     public Completes<Response> defineWith(
             final String organizationId,
             final String unitId,
@@ -76,14 +85,14 @@ public class SchemaVersionResource extends ResourceHandler {
 
         // FIXME: Refactor into one reactive pipeline without awaiting
       if(currentSemantic.equals(previousSemantic.nextPatch()) || currentSemantic.equals(previousSemantic.nextMinor())) {
-        SchemaVersionData previousVersion = Queries.forSchemaVersions().schemaVersionOfVersion(
+        Outcome<SchemataBusinessException, SchemaVersionData> previousVersionQueryOutcome  = Queries.forSchemaVersions().schemaVersionOfVersion(
             organizationId,
             unitId,
             contextId,
             schemaId,
-            data.previousVersion)
-            .otherwise(n -> null)
-            .await();
+            data.previousVersion).await();
+
+        SchemaVersionData previousVersion = previousVersionQueryOutcome.getOrNull();
 
         if(
           (previousVersion == null || previousVersion.isNone())
@@ -93,17 +102,25 @@ public class SchemaVersionResource extends ResourceHandler {
         }
 
         if(previousVersion != null && !previousVersion.isNone() ) {
-          SpecificationDiff diff = commands
+          String incompatibleDiffResult = commands
               .diffAgainst(
                   SchemaVersionId.existing(
                       organizationId, unitId, contextId, schemaId,
                       previousVersion.schemaVersionId),
                   data)
               .answer()
+              .andThen(o -> o.resolve(
+                          JsonSerialization::serialized,
+                          diff -> diff.isCompatible() ? null : serialized(diff)
+                  ))
               .await();
 
-          if (!diff.isCompatible()) {
-            return Completes.withSuccess(Response.of(Conflict, serialized(diff)));
+          if (incompatibleDiffResult != null) {
+            return Completes.withSuccess(
+                    Response.of(
+                            Conflict,
+                            Headers.of(of(ContentType, "application/json; charset=UTF-8")),
+                            serialized(incompatibleDiffResult)));
           }
         }
       }
@@ -182,7 +199,14 @@ public class SchemaVersionResource extends ResourceHandler {
     public Completes<Response> querySchemaVersionByIds(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
         return Queries.forSchemaVersions()
                 .schemaVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
-                .andThenTo(schemaVersion -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersion))));
+                .andThen(o -> o.resolve(
+                        e -> Response.of(NotFound, serialized(e)),
+                        sv -> Response.of(
+                                Ok,
+                                Headers.of(of(ContentType, "application/json; charset=UTF-8")),
+                                serialized(sv))
+                ))
+                .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
     }
 
     public Completes<Response> searchSchemaVersionsByNames(final String organization, final String unit, final String context, final String schema) {
@@ -194,8 +218,15 @@ public class SchemaVersionResource extends ResourceHandler {
     public Completes<Response> searchSchemaVersionByNames(final String organization, final String unit, final String context, final String schema, final String schemaVersion) {
         return Queries.forSchemaVersions()
                 .schemaVersionOf(organization, unit, context, schema, schemaVersion)
-                .andThenTo(schemaVersionData -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersionData))));
-    }
+                .andThen(o -> o.resolve(
+                        e -> Response.of(NotFound, serialized(e)),
+                        sv -> Response.of(
+                                Ok,
+                                Headers.of(of(ContentType, "application/json; charset=UTF-8")),
+                                serialized(sv))
+                ))
+                .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+  }
 
     public Completes<Response> searchSchemaVersions(final String schemaVersion, final String organization, final String unit, final String context, final String schema) {
         if (schemaVersion == null) {
@@ -230,7 +261,9 @@ public class SchemaVersionResource extends ResourceHandler {
                 fqr.unit,
                 fqr.context,
                 fqr.schema
-        ).andThenTo(schemaData -> Completes.withSuccess(SchemaVersionData.from(
+        )
+                .andThen(outcome -> outcome.get()) // FIXME: Use transformer
+                .andThenTo(schemaData -> Completes.withSuccess(SchemaVersionData.from(
                 schemaData.organizationId,
                 schemaData.unitId,
                 schemaData.contextId,
@@ -277,17 +310,15 @@ public class SchemaVersionResource extends ResourceHandler {
           fqr.context,
           fqr.schema,
           fqr.schemaVersion)
-          .andThenTo(schemaVersionData -> schemaVersionData.isNone()
-                ? Completes.withSuccess(
-                    Response.of(
-                      NotFound,
-                      "Schema version not found"))
-                : Completes.withSuccess(
-                    Response.of(
-                      Ok,
-                      Headers.of(of(ContentType, "application/json; charset=UTF-8")),
-                      serialized(schemaVersionData)))
-          );
+          .andThen(o -> o.resolve(
+                  e -> Response.of(NotFound, serialized(e)),
+                  sv -> Response.of(
+                          Ok,
+                          Headers.of(of(ContentType, "application/json; charset=UTF-8")),
+                          serialized(sv))
+          ))
+          .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+
     }
 
     public Completes<Response> retrieveSchemaVersionStatus(final String reference) {
@@ -315,17 +346,14 @@ public class SchemaVersionResource extends ResourceHandler {
           fqr.context,
           fqr.schema,
           fqr.schemaVersion)
-          .andThenTo(schemaVersionData -> schemaVersionData.isNone()
-            ? Completes.withSuccess(
-            Response.of(
-              NotFound,
-              "Schema version not found"))
-            : Completes.withSuccess(
-            Response.of(
-              Ok,
-              Headers.of(of(ContentType, "text/plain; charset=UTF-8")),
-              schemaVersionData.status))
-          );
+          .andThen(o -> o.resolve(
+                  e -> Response.of(NotFound, serialized(e)),
+                  sv -> Response.of(
+                          Ok,
+                          Headers.of(of(ContentType, "text/plain; charset=UTF-8")),
+                          sv.status)
+          ))
+          .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
     }
 
     @Override

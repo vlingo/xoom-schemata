@@ -8,10 +8,8 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.Response.Status.BadRequest;
-import static io.vlingo.http.Response.Status.Conflict;
-import static io.vlingo.http.Response.Status.Created;
-import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.Response.Status.*;
+import static io.vlingo.http.Response.Status.InternalServerError;
 import static io.vlingo.http.ResponseHeader.ContentType;
 import static io.vlingo.http.ResponseHeader.Location;
 import static io.vlingo.http.ResponseHeader.of;
@@ -100,9 +98,12 @@ public class ContextResource extends ResourceHandler {
   }
 
   public Completes<Response> queryContext(final String organizationId, final String unitId, final String contextId) {
-    return Queries.forContexts()
-            .context(organizationId, unitId, contextId)
-            .andThenTo(context -> Completes.withSuccess(Response.of(Ok, serialized(context))));
+    return Queries.forContexts().context(organizationId, unitId, contextId)
+            .andThen(o -> o.resolve(
+                    e -> Response.of(NotFound, serialized(e)),
+                    org -> Response.of(Ok, serialized(org))
+            ))
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   @Override

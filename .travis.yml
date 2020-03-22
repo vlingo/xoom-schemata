@@ -5,11 +5,11 @@ before_install:
 - git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-common.git
 - cd vlingo-common && mvn install -DskipTests=true
 - cd ${TRAVIS_BUILD_DIR}/..
-- git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-actors.git
-- cd vlingo-actors && mvn install -DskipTests=true
-- cd ${TRAVIS_BUILD_DIR}/..
 - git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-wire.git
 - cd vlingo-wire && mvn install -DskipTests=true
+- cd ${TRAVIS_BUILD_DIR}/..
+- git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-actors.git
+- cd vlingo-actors && mvn install -DskipTests=true
 - cd ${TRAVIS_BUILD_DIR}/..
 - git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-cluster.git
 - cd vlingo-cluster && mvn install -DskipTests=true

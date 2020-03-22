@@ -29,6 +29,9 @@ import com.squareup.javapoet.TypeSpec;
 
 import io.vlingo.actors.Actor;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Failure;
+import io.vlingo.common.Outcome;
+import io.vlingo.common.Success;
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
@@ -43,20 +46,20 @@ import io.vlingo.schemata.codegen.ast.values.SingleValue;
 import io.vlingo.schemata.codegen.ast.values.Value;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.processor.Processor;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 
 @SuppressWarnings("rawtypes")
-public class JavaBackend extends Actor implements Backend {
+public class JavaBackend implements Backend {
     public JavaBackend() {
     }
 
     @Override
-    public Completes<String> generateOutput(Node node, String version) {
+    public Outcome<SchemataBusinessException,String> generateOutput(Node node, String version) {
         TypeDefinition type = Processor.requireBeing(node, TypeDefinition.class);
-        completesEventually().with(compileJavaClass(type, version));
-        return completes();
+        return compileJavaClass(type, version);
     }
 
-    private String compileJavaClass(TypeDefinition type, String version) {
+    private Outcome<SchemataBusinessException,String> compileJavaClass(TypeDefinition type, String version) {
         final Class<?> baseClass = baseClassOf(type);
         final String typeName = type.typeName;
         final String typeReference = type.fullyQualifiedTypeName;
@@ -69,16 +72,21 @@ public class JavaBackend extends Actor implements Backend {
         try {
             javaFile.writeTo(new PrintStream(os));
         } catch (IOException e) {
-            throw new IllegalStateException(e);
+            return Failure.of(SchemataBusinessException.codeGenerationError(e));
         }
 
-        return os.toString();
+        return Success.of(os.toString());
     }
 
     private TypeSpec getTypeSpec(TypeDefinition type, String version, Class<?> baseClass, String typeName) {
         final List<FieldDefinition> fields = type.children.stream().map(e -> (FieldDefinition) e).collect(Collectors.toList());
 
         final List<CodeBlock> initializers = fields.stream()
+                .map(param -> CodeBlock.of(initializationOf(param, type, version)))
+                .collect(Collectors.toList());
+
+        final List<CodeBlock> computedFieldInitializers = fields.stream()
+                .filter(field -> (field.type instanceof ComputableType))
                 .map(param -> CodeBlock.of(initializationOf(param, type, version)))
                 .collect(Collectors.toList());
 
@@ -92,8 +100,10 @@ public class JavaBackend extends Actor implements Backend {
                 .addParameters(fields.stream().filter(field -> !(field.type instanceof ComputableType)).map(this::toConstructorParameter).collect(Collectors.toList()))
                 .addCode(CodeBlock.join(initializers, "\n"))
                 .build();
+
         final MethodSpec noArgConstructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
+                .addCode(CodeBlock.join(computedFieldInitializers, "\n"))
                 .build();
 
         final TypeSpec.Builder spec = TypeSpec.classBuilder(unqualifiedName(typeName))
@@ -101,7 +111,8 @@ public class JavaBackend extends Actor implements Backend {
                 .addMethod(constructor)
                 .superclass(baseClass);
 
-        if(fields.size() != 0) {
+        if(constructor.parameters.size() != 0
+            && fields.stream().anyMatch(f -> f.hasDefaultValue() || f.type instanceof ComputableType)) {
             spec.addMethod(noArgConstructor);
         }
 

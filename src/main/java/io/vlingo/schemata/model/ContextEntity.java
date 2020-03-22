@@ -20,6 +20,7 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   private ContextState state;
 
   public ContextEntity(final ContextId contextId) {
+    super(contextId.value);
     this.state = ContextState.from(contextId);
   }
 
@@ -50,11 +51,6 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   }
 
   @Override
-  protected String id() {
-    return String.valueOf(state.persistenceId());
-  }
-
-  @Override
   protected ContextState stateObject() {
     return state;
   }
@@ -68,10 +64,4 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   protected Class<ContextState> stateObjectType() {
     return ContextState.class;
   }
-
-  @Override
-  public void applyRelocationSnapshot(String snapshot) {
-    stateObject(ContextState.from(ContextId.existing(snapshot)));
-  }
-
 }

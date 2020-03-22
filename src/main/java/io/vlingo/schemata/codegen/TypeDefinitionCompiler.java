@@ -10,6 +10,7 @@ package io.vlingo.schemata.codegen;
 import io.vlingo.actors.Actor;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
 import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
@@ -18,6 +19,7 @@ import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
 import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.query.Queries;
 
 import java.io.InputStream;
@@ -51,7 +53,7 @@ public interface TypeDefinitionCompiler {
   public static TypeDefinitionCompiler newCompilerFor(final Stage stage, final String language) {
     switch (language) {
     case "java":
-      return forBackend(stage, JavaBackend.class);
+      return forBackend(stage, new JavaBackend());
     default:
       throw new IllegalArgumentException("Unsupported language: " + language);
     }
@@ -60,21 +62,18 @@ public interface TypeDefinitionCompiler {
   /**
    * Answer a new {@code TypeDefinitionCompiler} for a given language {@code backendType}.
    * @param stage the Stage in which to create the compiler actor
-   * @param backendType the {@code Class<? extends Actor>} of the language backend
+   * @param backend the language backend
    * @return TypeDefinitionCompiler
    */
-  static TypeDefinitionCompiler forBackend(final Stage stage, final Class<? extends Actor> backendType) {
-    final TypeParser typeParser = stage.actorFor(TypeParser.class, AntlrTypeParser.class);
+  static TypeDefinitionCompiler forBackend(final Stage stage, Backend backend) {
+    final TypeParser typeParser =  new AntlrTypeParser();
     final TypeResolver typeResolver = Queries.forTypeResolver();
 
-    return stage.actorFor(TypeDefinitionCompiler.class, TypeDefinitionCompilerActor.class,
-            typeParser,
+    return new TypeDefinitionCompilerActor(typeParser,
             Arrays.asList(
                     stage.actorFor(Processor.class, ComputableTypeProcessor.class),
                     stage.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
-            ),
-            stage.actorFor(Backend.class, backendType)
-    );
+            ), backend);
   }
 
   /**
@@ -84,13 +83,13 @@ public interface TypeDefinitionCompiler {
    * @param version the String version of the definition
    * @return {@code Completes<String>}
    */
-  Completes<String> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version);
+  Completes<Outcome<SchemataBusinessException,String>> compile(final InputStream typeDefinition, final String fullyQualifiedTypeName, final String version);
 
   /**
    * Answer this compiler's middleware.
    * @return {@code TypeDefinitionMiddleware}
    */
-  Completes<TypeDefinitionMiddleware> middleware();
+  TypeDefinitionMiddleware middleware();
 
 
   // INTERNAL USE ONLY

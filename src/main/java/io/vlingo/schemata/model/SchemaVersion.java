@@ -11,8 +11,10 @@ import io.vlingo.actors.Address;
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
@@ -63,7 +65,7 @@ public interface SchemaVersion {
 
   Completes<SchemaVersionState> specifyWith(final Specification specification);
 
-  Completes<SpecificationDiff> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, SchemaVersionData other);
+  Completes<Outcome<SchemataBusinessException, SpecificationDiff>> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, SchemaVersionData other);
 
   class Specification {
     public final String value;

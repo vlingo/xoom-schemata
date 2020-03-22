@@ -21,6 +21,7 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
   private SchemaState state;
 
   public SchemaEntity(final SchemaId schemaId) {
+    super(schemaId.value);
     this.state = SchemaState.from(schemaId);
   }
 
@@ -61,11 +62,6 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
   }
 
   @Override
-  protected String id() {
-    return String.valueOf(state.persistenceId());
-  }
-
-  @Override
   protected SchemaState stateObject() {
     return state;
   }
@@ -78,10 +74,5 @@ public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
   @Override
   protected Class<SchemaState> stateObjectType() {
     return SchemaState.class;
-  }
-
-  @Override
-  public void applyRelocationSnapshot(String snapshot) {
-    stateObject(SchemaState.from(SchemaId.existing(snapshot)));
   }
 }

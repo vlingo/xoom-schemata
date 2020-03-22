@@ -15,14 +15,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.vlingo.common.Completes;
-import io.vlingo.common.Tuple2;
+import io.vlingo.actors.CompletesEventually;
+import io.vlingo.common.*;
 import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.Processor;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.Events.SchemaVersionDefined;
 import io.vlingo.schemata.model.Events.SchemaVersionDeprecated;
 import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
@@ -36,6 +37,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   private SchemaVersionState state;
 
   public SchemaVersionEntity(final SchemaVersionId schemaVersionId) {
+    super(schemaVersionId.value);
     state = SchemaVersionState.from(schemaVersionId);
   }
 
@@ -93,11 +95,6 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   }
 
   @Override
-  protected String id() {
-    return String.valueOf(state.persistenceId());
-  }
-
-  @Override
   protected SchemaVersionState stateObject() {
     return state;
   }
@@ -113,23 +110,39 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   }
 
   @Override
-  public Completes<SpecificationDiff> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, final SchemaVersionData other) {
-    requireRightSideSpecification(other.specification);
+  public Completes<Outcome<SchemataBusinessException, SpecificationDiff>> diff(final TypeDefinitionMiddleware typeDefinitionMiddleware, final SchemaVersionData other) {
+    final CompletesEventually completesEventually = completesEventually();
+
+    if (other.specification == null || other.specification.isEmpty()) {
+      completesEventually.with(Failure.of(SchemataBusinessException.invalidSchemaDefinition()));
+      return completes();
+    }
 
     SpecificationDiff diff = SpecificationDiff.between(stateObject().specification.value, other.specification);
 
-    // FIXME: Make reactive, don't await() the node; but using andThenTo() instead of andThen().await() has been hanging
-    TypeDefinition leftType = typeDefinitionMiddleware.compileToAST(
-        new ByteArrayInputStream(stateObject().specification.value.getBytes(StandardCharsets.UTF_8)),
-        null)
-        .andThen(SchemaVersionEntity::asTypeDefinition)
-        .await();
+    // FIXME: Make reactive, don't await() the node
+    Outcome<SchemataBusinessException,Node> leftAst = typeDefinitionMiddleware.compileToAST(
+            new ByteArrayInputStream(stateObject().specification.value.getBytes(StandardCharsets.UTF_8)),
+            null).await();
 
-    TypeDefinition rightType = typeDefinitionMiddleware.compileToAST(
-        new ByteArrayInputStream(other.specification.getBytes(StandardCharsets.UTF_8)),
-        null)
-        .andThen(SchemaVersionEntity::asTypeDefinition)
-        .await();
+    if(leftAst instanceof Failure) {
+      completesEventually.with(((Failure<SchemataBusinessException, Node>) leftAst).cause());
+      return completes();
+    }
+
+    TypeDefinition leftType = asTypeDefinition(leftAst.get());
+
+    Outcome<SchemataBusinessException,Node> rightAst = typeDefinitionMiddleware.compileToAST(
+            new ByteArrayInputStream(other.specification.getBytes(StandardCharsets.UTF_8)),
+            null).await();
+
+    if(rightAst instanceof Failure) {
+      completesEventually.with(((Failure<SchemataBusinessException, Node>) rightAst).cause());
+      return completes();
+    }
+
+    TypeDefinition rightType = asTypeDefinition(rightAst.get());
+
 
     // Has the type name changed?
     if (!leftType.typeName.equals(rightType.typeName))
@@ -202,13 +215,8 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
       }
     }
 
-    return completes().with(diff);
-  }
-
-  private static void requireRightSideSpecification(String specification) {
-    if (specification == null || specification.isEmpty()) {
-      throw new IllegalArgumentException("Can't compare to an empty specification");
-    }
+    completesEventually.with(Success.of(diff));
+    return completes();
   }
 
   private static TypeDefinition asTypeDefinition(Node n) {
@@ -217,11 +225,6 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
 
   private static FieldDefinition asFieldDefinition(Node n) {
     return Processor.requireBeing(n, FieldDefinition.class);
-  }
-
-  @Override
-  public void applyRelocationSnapshot(String snapshot) {
-    stateObject(SchemaVersionState.from(SchemaVersionId.existing(snapshot)));
   }
 
 }

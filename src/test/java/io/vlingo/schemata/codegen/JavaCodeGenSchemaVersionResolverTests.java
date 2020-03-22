@@ -12,6 +12,9 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 
+import io.vlingo.common.Outcome;
+import io.vlingo.schemata.errors.SchemataBusinessException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.vlingo.actors.World;
@@ -19,7 +22,6 @@ import io.vlingo.actors.testkit.TestWorld;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.SchemataConfig;
-import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.schemata.codegen.parser.TypeParser;
@@ -34,11 +36,11 @@ import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.object.ObjectStore;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class JavaCodeGenSchemaVersionResolverTests{
+public class JavaCodeGenSchemaVersionResolverTests {
   @Test
   public void testThatSpecificationsContainingBasicTypesCanBeCompiledWithSchemaVersionQueryTypeResolver() throws Exception {
     World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
-    TypeParser typeParser = world.actorFor(TypeParser.class, AntlrTypeParser.class);
+    TypeParser typeParser = new AntlrTypeParser();
     Dispatcher dispatcher = new NoopDispatcher();
 
     final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(SchemataConfig.forRuntime("test"));
@@ -49,13 +51,13 @@ public class JavaCodeGenSchemaVersionResolverTests{
 
     TypeResolver typeResolver = new TypeResolverQueriesActor(new SchemaVersionQueriesActor(objectStore));
 
-    TypeDefinitionCompiler typeDefinitionCompiler = world.actorFor(TypeDefinitionCompiler.class, TypeDefinitionCompilerActor.class,
+    TypeDefinitionCompiler typeDefinitionCompiler = new TypeDefinitionCompilerActor(
             typeParser,
             Arrays.asList(
                     world.actorFor(Processor.class, ComputableTypeProcessor.class),
                     world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
             ),
-            world.actorFor(Backend.class, JavaBackend.class)
+            new JavaBackend()
     );
     String spec = "event Foo {\n" +
             "    type eventType\n" +
@@ -73,11 +75,7 @@ public class JavaCodeGenSchemaVersionResolverTests{
             "    string stringAttribute\n"+
             "}";
 
-    final String result = typeDefinitionCompiler
-            .compile(
-                    new ByteArrayInputStream(spec.getBytes()),
-                    "Org:Unit:Context:Schema:Foo:0.0.1", "0.0.1")
-            .await();
+    String result = compileSpecAndUnwrap(typeDefinitionCompiler, spec, "Org:Unit:Context:Schema:Foo:0.0.1", "0.0.1");
 
     assertTrue(result.contains("public final class Foo extends DomainEvent {"));
     assertTrue(result.contains("public final String eventType;"));
@@ -93,4 +91,18 @@ public class JavaCodeGenSchemaVersionResolverTests{
     assertTrue(result.contains("public final long longAttribute;"));
     assertTrue(result.contains("public final short shortAttribute;"));
     assertTrue(result.contains("public final String stringAttribute;"));  }
+
+  private String compileSpecAndUnwrap(
+          TypeDefinitionCompiler typeDefinitionCompiler, String spec,
+          String fullyQualifiedTypeName, String version) {
+    final Outcome<SchemataBusinessException, String> outcome = typeDefinitionCompiler
+            .compile(
+                    new ByteArrayInputStream(spec.getBytes()),
+                    fullyQualifiedTypeName, version)
+            .await(10000);
+
+    return outcome.resolve(
+            ex -> ex.getMessage(),
+            code -> code );
+  }
 }

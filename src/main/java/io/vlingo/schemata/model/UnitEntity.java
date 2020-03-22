@@ -19,6 +19,7 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   private UnitState state;
 
   public UnitEntity(final UnitId unitId) {
+    super(unitId.value);
     this.state = UnitState.from(unitId);
   }
 
@@ -43,11 +44,6 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   }
 
   @Override
-  protected String id() {
-    return String.valueOf(state.persistenceId());
-  }
-
-  @Override
   protected UnitState stateObject() {
     return state;
   }
@@ -61,10 +57,4 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   protected Class<UnitState> stateObjectType() {
     return UnitState.class;
   }
-
-  @Override
-  public void applyRelocationSnapshot(String snapshot) {
-    stateObject(UnitState.from(UnitId.existing(snapshot)));
-  }
-
 }

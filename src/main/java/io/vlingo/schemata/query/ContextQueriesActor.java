@@ -12,7 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 import io.vlingo.common.Completes;
+import io.vlingo.common.Failure;
+import io.vlingo.common.Outcome;
+import io.vlingo.common.Success;
 import io.vlingo.lattice.query.StateObjectQueryActor;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.ContextState;
 import io.vlingo.schemata.resource.data.ContextData;
 import io.vlingo.symbio.store.MapQueryExpression;
@@ -56,7 +60,7 @@ public class ContextQueriesActor extends StateObjectQueryActor implements Contex
   }
 
   @Override
-  public Completes<ContextData> context(final String organizationId, final String unitId, final String contextId) {
+  public Completes<Outcome<SchemataBusinessException,ContextData>> context(final String organizationId, final String unitId, final String contextId) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
     parameters.put("unitId", unitId);
@@ -66,14 +70,14 @@ public class ContextQueriesActor extends StateObjectQueryActor implements Contex
   }
 
   @Override
-  public Completes<ContextData> context(final String organizationId, final String unitId, final String contextId, final QueryResultsCollector collector) {
-    final Completes<ContextData> data = context(organizationId, unitId, contextId);
+  public Completes<Outcome<SchemataBusinessException,ContextData>> context(final String organizationId, final String unitId, final String contextId, final QueryResultsCollector collector) {
+    final Completes<Outcome<SchemataBusinessException,ContextData>> data = context(organizationId, unitId, contextId);
     collector.expectContext(data);
     return data;
   }
 
   @Override
-  public Completes<ContextData> contextOfNamespace(final String organizationId, final String unitId, final String namespace) {
+  public Completes<Outcome<SchemataBusinessException,ContextData>> contextOfNamespace(final String organizationId, final String unitId, final String namespace) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
     parameters.put("unitId", unitId);
@@ -83,15 +87,18 @@ public class ContextQueriesActor extends StateObjectQueryActor implements Contex
   }
 
   @Override
-  public Completes<ContextData> contextOfNamespace(final String organizationId, final String unitId, final String namespace, final QueryResultsCollector collector) {
-    final Completes<ContextData> data = contextOfNamespace(organizationId, unitId, namespace);
+  public Completes<Outcome<SchemataBusinessException,ContextData>> contextOfNamespace(final String organizationId, final String unitId, final String namespace, final QueryResultsCollector collector) {
+    final Completes<Outcome<SchemataBusinessException,ContextData>> data = contextOfNamespace(organizationId, unitId, namespace);
     collector.expectContext(data);
     return data;
   }
 
-  private Completes<ContextData> queryOne(final String query, final Map<String,String> parameters) {
+  private Completes<Outcome<SchemataBusinessException,ContextData>> queryOne(final String query, final Map<String,String> parameters) {
     final QueryExpression expression = MapQueryExpression.using(ContextState.class, query, parameters);
 
-    return queryObject(ContextState.class, expression, (ContextState state) -> ContextData.from(state));
+    return queryObject(ContextState.class, expression,
+            (ContextState state) -> state == null
+                    ? Failure.of(SchemataBusinessException.notFound("Context", parameters))
+                    : Success.of(ContextData.from(state)));
   }
 }

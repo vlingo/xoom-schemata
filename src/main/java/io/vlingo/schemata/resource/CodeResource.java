@@ -7,10 +7,13 @@
 
 package io.vlingo.schemata.resource;
 
+import static io.vlingo.common.serialization.JsonSerialization.serialized;
+
 import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
 import io.vlingo.common.Tuple3;
 import io.vlingo.http.Header;
 import io.vlingo.http.Request;
@@ -19,6 +22,7 @@ import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.Schemata;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.query.QueryResultsCollector;
 import io.vlingo.schemata.resource.data.*;
@@ -78,17 +82,25 @@ public class CodeResource extends ResourceHandler {
               logger.debug("VERSION: " + version);
               return queryContextWith(collector.contextIndentities, collector);
             })
-            .andThenTo(context -> {
+            .andThen( o -> o.resolve(
+                    Completes::withFailure,
+                    ctx -> ctx
+            ))
+            .andThen(context -> {
               logger.debug("CONTEXT: " + context);
-              return validateContext(context, collector);
+              return validateContext((ContextData) context, collector).await();
             })
             .andThenTo(context -> {
               logger.debug("COMPILING: " + collector.schemaVersion().specification);
               return compile(collector.path.reference, collector.schemaVersion(), language);
             })
+            .andThen( o -> o.resolve(
+                    Completes::withFailure,
+                    code -> code
+            ))
             .andThenTo(code -> {
               logger.debug("CODE: \n" + code);
-              return recordDependency(code, collector);
+              return recordDependency((String)code, collector);
             })
             .andThenTo(code -> {
               logger.debug("SUCCESS: \n" + code);
@@ -124,7 +136,7 @@ public class CodeResource extends ResourceHandler {
   // Internal implementation
   //////////////////////////////////
 
-  private Completes<String> compile(final String reference, final SchemaVersionData version, final String language) {
+  private Completes<Outcome<SchemataBusinessException,String>> compile(final String reference, final SchemaVersionData version, final String language) {
     final InputStream inputStream = new ByteArrayInputStream(version.specification.getBytes());
     return compilerFor(stage, language).compile(inputStream, reference, version.currentVersion);
   }
@@ -154,9 +166,9 @@ public class CodeResource extends ResourceHandler {
   private String mockAuth(String reference) {
     final String[] parts = reference.split(Schemata.ReferenceSeparator);
 
-    OrganizationData organization = Queries.forOrganizations().organizationNamed(parts[0]).await();
-    UnitData unit = Queries.forUnits().unitNamed(organization.organizationId, parts[1]).await();
-    ContextData context = Queries.forContexts().contextOfNamespace(organization.organizationId, unit.unitId, parts[2]).await();
+    OrganizationData organization = Queries.forOrganizations().organizationNamed(parts[0]).andThen(o->o.getOrNull()).await();
+    UnitData unit = Queries.forUnits().unitNamed(organization.organizationId, parts[1]).andThen(o->o.getOrNull()).await();
+    ContextData context = Queries.forContexts().contextOfNamespace(organization.organizationId, unit.unitId, parts[2]).andThen(o->o.getOrNull()).await();
 
     return AuthorizationData.AuthorizationType +
                     " source = " + organization.organizationId +
@@ -166,8 +178,8 @@ public class CodeResource extends ResourceHandler {
                     context.contextId;
   }
 
-  private Completes<ContextData> queryContextWith(final ContextData contextIds, final Collector collector) {
-    final Completes<ContextData> context =
+  private Completes<Outcome<SchemataBusinessException,ContextData>> queryContextWith(final ContextData contextIds, final Collector collector) {
+    final Completes<Outcome<SchemataBusinessException,ContextData>> context =
             Queries.forContexts().context(
                     contextIds.organizationId,
                     contextIds.unitId,
@@ -194,81 +206,81 @@ public class CodeResource extends ResourceHandler {
     public final ContextData contextIndentities;
     public final PathData path;
 
-    private Completes<OrganizationData> eventualOrganization;
-    private Completes<UnitData> eventualUnit;
-    private Completes<ContextData> eventualContext;
-    private Completes<SchemaData> eventualSchema;
-    private Completes<SchemaVersionData> eventualVersion;
-    private Completes<String> eventualCode;
+    private Completes<Outcome<SchemataBusinessException,OrganizationData>> eventualOrganization;
+    private Completes<Outcome<SchemataBusinessException,UnitData>> eventualUnit;
+    private Completes<Outcome<SchemataBusinessException,ContextData>> eventualContext;
+    private Completes<Outcome<SchemataBusinessException,SchemaData>> eventualSchema;
+    private Completes<Outcome<SchemataBusinessException,SchemaVersionData>> eventualVersion;
+    private Completes<Outcome<SchemataBusinessException,String>> eventualCode;
 
     static Collector startingWith(final AuthorizationData authorization, final PathData path, final ContextData contextIndentities) {
       return new Collector(authorization, path, contextIndentities);
     }
 
     @Override
-    public Completes<OrganizationData> expectOrganization(final Completes<OrganizationData> organization) {
+    public Completes<Outcome<SchemataBusinessException,OrganizationData>> expectOrganization(final Completes<Outcome<SchemataBusinessException,OrganizationData>> organization) {
       eventualOrganization = organization;
       return organization;
     }
 
     @Override
-    public Completes<UnitData> expectUnit(final Completes<UnitData> unit) {
+    public Completes<Outcome<SchemataBusinessException,UnitData>> expectUnit(final Completes<Outcome<SchemataBusinessException,UnitData>> unit) {
       eventualUnit = unit;
       return unit;
     }
 
     @Override
-    public Completes<ContextData> expectContext(final Completes<ContextData> context) {
+    public Completes<Outcome<SchemataBusinessException,ContextData>> expectContext(final Completes<Outcome<SchemataBusinessException,ContextData>> context) {
       eventualContext = context;
       return context;
     }
 
     @Override
-    public Completes<SchemaData> expectSchema(final Completes<SchemaData> schema) {
+    public Completes<Outcome<SchemataBusinessException,SchemaData>> expectSchema(final Completes<Outcome<SchemataBusinessException,SchemaData>> schema) {
       eventualSchema = schema;
       return schema;
     }
 
     @Override
-    public Completes<SchemaVersionData> expectSchemaVersion(final Completes<SchemaVersionData> version) {
+    public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> expectSchemaVersion(final Completes<Outcome<SchemataBusinessException,SchemaVersionData>> version) {
       this.eventualVersion = version;
       return version;
     }
 
     @Override
-    public Completes<String> expectCode(final Completes<String> code) {
+    public Completes<Outcome<SchemataBusinessException,String>> expectCode(final Completes<Outcome<SchemataBusinessException,String>> code) {
       eventualCode = code;
       return code;
     }
 
     @Override
     public OrganizationData organization() {
-      return eventualOrganization.outcome();
+      return eventualOrganization.outcome().getOrNull();
     }
 
     @Override
     public UnitData unit() {
-      return eventualUnit.outcome();
+      return eventualUnit.outcome().getOrNull();
     }
 
     @Override
     public ContextData context() {
-      return eventualContext.outcome();
+      return eventualContext.outcome().getOrNull();
     }
 
     @Override
     public SchemaData schema() {
-      return eventualSchema.outcome();
+      return eventualSchema.outcome().getOrNull();
     }
 
     @Override
     public SchemaVersionData schemaVersion() {
-      return eventualVersion.outcome();
+      return eventualVersion.outcome().getOrNull();
     }
 
     @Override
     public String code() {
-      return eventualCode.outcome();
+      return eventualCode.outcome().getOrNull();
     }
 
     private Collector(

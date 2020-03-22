@@ -19,11 +19,8 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   private OrganizationState state;
 
   public OrganizationEntity(final OrganizationId organizationId) {
+    super(organizationId.value);
     this.state = OrganizationState.from(organizationId);
-  }
-
-  public OrganizationEntity() {
-    this.state = null;
   }
 
   @Override
@@ -47,11 +44,6 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   }
 
   @Override
-  protected String id() {
-    return String.valueOf(state.persistenceId());
-  }
-
-  @Override
   protected OrganizationState stateObject() {
     return state;
   }
@@ -64,11 +56,6 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   @Override
   protected Class<OrganizationState> stateObjectType() {
     return OrganizationState.class;
-  }
-
-  @Override
-  public void applyRelocationSnapshot(String snapshot) {
-    stateObject(OrganizationState.from(OrganizationId.existing(snapshot)));
   }
 
 }

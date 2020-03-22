@@ -19,6 +19,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import io.vlingo.common.Failure;
+import io.vlingo.common.Outcome;
+import io.vlingo.common.Success;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import org.antlr.v4.runtime.CodePointBuffer;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -41,7 +45,7 @@ import io.vlingo.schemata.codegen.ast.values.Value;
 import io.vlingo.schemata.model.Category;
 
 
-public class AntlrTypeParser extends Actor implements TypeParser {
+public class AntlrTypeParser implements TypeParser {
     private static final int BUFFER_SIZE = 2048;
     private final byte[] parserBuffer;
 
@@ -50,20 +54,21 @@ public class AntlrTypeParser extends Actor implements TypeParser {
     }
 
     @Override
-    public Completes<Node> parseTypeDefinition(final InputStream inputStream, final String fullyQualifiedTypeName) {
-        CompletesEventually eventually = completesEventually();
+    public Outcome<SchemataBusinessException,Node> parseTypeDefinition(final InputStream inputStream, final String fullyQualifiedTypeName) {
         SchemaVersionDefinitionParser tree;
 
         try {
-            tree = generateAntlrTree(inputStream);
+            ParserErrorStrategy errorStrategy = new ParserErrorStrategy();
+            tree = generateAntlrTree(inputStream, errorStrategy);
             Node type = parseTypeDeclaration(tree.typeDeclaration(), fullyQualifiedTypeName);
-            eventually.with(type);
+            if(errorStrategy.hasErrors()) {
+                return Failure.of(SchemataBusinessException.invalidSchemaDefinition(String.format("Parsing %s schema failed", fullyQualifiedTypeName), errorStrategy.errors()));
+            } else {
+                return Success.of(type);
+            }
         } catch (IOException e) {
-            logger().error(e.getMessage(), e);
-            eventually.with(null);
+           return Failure.of(SchemataBusinessException.invalidSchemaDefinition(String.format("Parsing %s schema failed", fullyQualifiedTypeName), e));
         }
-
-        return completes();
     }
 
     private Node parseTypeDeclaration(
@@ -172,12 +177,14 @@ public class AntlrTypeParser extends Actor implements TypeParser {
                 .get();
     }
 
-    private SchemaVersionDefinitionParser generateAntlrTree(InputStream inputStream) throws IOException {
+    private SchemaVersionDefinitionParser generateAntlrTree(InputStream inputStream, ParserErrorStrategy errorStrategy) throws IOException {
         CodePointBuffer buffer = CodePointBuffer.withBytes(consume(inputStream));
         CodePointCharStream in = CodePointCharStream.fromBuffer(buffer);
         SchemaVersionDefinitionLexer lexer = new SchemaVersionDefinitionLexer(in);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        return new SchemaVersionDefinitionParser(tokens);
+        SchemaVersionDefinitionParser parser =new SchemaVersionDefinitionParser(tokens);
+        parser.setErrorHandler(errorStrategy);
+        return parser;
     }
 
     private ByteBuffer consume(InputStream inputStream) throws IOException {
