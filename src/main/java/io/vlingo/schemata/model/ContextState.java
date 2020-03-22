@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -10,7 +10,7 @@ package io.vlingo.schemata.model;
 import java.util.Map;
 
 import io.vlingo.schemata.model.Id.ContextId;
-import io.vlingo.symbio.store.object.MapQueryExpression.FluentMap;
+import io.vlingo.symbio.store.MapQueryExpression.FluentMap;
 import io.vlingo.symbio.store.object.StateObject;
 
 public class ContextState extends StateObject {

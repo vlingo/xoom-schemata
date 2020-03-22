@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -127,7 +127,7 @@ public class PostgresSchemataObjectStore extends SchemataObjectStore {
               "specification VARCHAR(" + specificationWidth + ") NOT NULL, " +
               "description VARCHAR(8000), " +
               "status VARCHAR(16) NOT NULL, " +
-              "previousVersion VARCHAR(20) NOT NULL, " +
+              "previousVersion VARCHAR(20), " +
               "currentVersion VARCHAR(20) NOT NULL " +
 
               ")");

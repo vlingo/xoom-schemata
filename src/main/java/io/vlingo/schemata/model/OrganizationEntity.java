@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -19,11 +19,8 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   private OrganizationState state;
 
   public OrganizationEntity(final OrganizationId organizationId) {
+    super(organizationId.value);
     this.state = OrganizationState.from(organizationId);
-  }
-
-  public OrganizationEntity() {
-    this.state = null;
   }
 
   @Override
@@ -47,11 +44,6 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   }
 
   @Override
-  protected String id() {
-    return String.valueOf(state.persistenceId());
-  }
-
-  @Override
   protected OrganizationState stateObject() {
     return state;
   }
@@ -65,4 +57,5 @@ public class OrganizationEntity extends ObjectEntity<OrganizationState> implemen
   protected Class<OrganizationState> stateObjectType() {
     return OrganizationState.class;
   }
+
 }

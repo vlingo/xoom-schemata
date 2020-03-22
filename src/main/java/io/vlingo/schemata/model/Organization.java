@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -51,6 +51,8 @@ public interface Organization {
   Completes<OrganizationState> renameTo(final String name);
 
   static class OrganizationInstantiator implements ActorInstantiator<OrganizationEntity> {
+    private static final long serialVersionUID = -8795622651394034414L;
+
     private final OrganizationId organizationId;
 
     public OrganizationInstantiator(final OrganizationId organizationId) {

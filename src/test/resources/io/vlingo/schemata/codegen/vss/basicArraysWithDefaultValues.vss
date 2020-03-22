@@ -1,0 +1,11 @@
+event SalutationHappened {
+    boolean[] booleanAttribute = {true, false, true}
+    byte[] byteAttribute = {4, 3, 2, 1}
+    char[] charAttribute = {'x', 'y', 'z'}
+    double[] doubleAttribute = {0.23, 0.22, 0.21}
+    float[] floatAttribute = {0.42f, 0.42f, 0.1f}
+    int[] intAttribute = {4242, 424242, 42424242 }
+    long[] longAttribute = {42L, 4242L, 424242L}
+    short[] shortAttribute = {258, 259, 260}
+    string[] stringAttribute = {"foo", "bar", "baz" }
+}

@@ -19,7 +19,7 @@ describe('Form Validation Tests', function () {
         let schema = faker.company.catchPhraseNoun()
         let majorMinorVersion = faker.random.number(9) + '.' + faker.random.number(9)
         let patchVersion = faker.random.number(9)
-        let prevVersion = majorMinorVersion + '.' + patchVersion
+        let prevVersion = '0.0.0'
         let currentVersion = majorMinorVersion + '.' + (patchVersion + 1)
 
         cy.visit('/#/organization')

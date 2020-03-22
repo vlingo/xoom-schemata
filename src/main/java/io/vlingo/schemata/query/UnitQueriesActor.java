@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -12,12 +12,16 @@ import java.util.List;
 import java.util.Map;
 
 import io.vlingo.common.Completes;
+import io.vlingo.common.Failure;
+import io.vlingo.common.Outcome;
+import io.vlingo.common.Success;
 import io.vlingo.lattice.query.StateObjectQueryActor;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.UnitState;
 import io.vlingo.schemata.resource.data.UnitData;
-import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.MapQueryExpression;
+import io.vlingo.symbio.store.QueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.QueryExpression;
 
 public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueries {
   private static final String QueryAll =
@@ -52,7 +56,7 @@ public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueri
   }
 
   @Override
-  public Completes<UnitData> unit(final String organizationId, final String unitId) {
+  public Completes<Outcome<SchemataBusinessException,UnitData>> unit(final String organizationId, final String unitId) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
     parameters.put("unitId", unitId);
@@ -61,7 +65,7 @@ public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueri
   }
 
   @Override
-  public Completes<UnitData> unitNamed(final String organizationId, final String name) {
+  public Completes<Outcome<SchemataBusinessException,UnitData>> unitNamed(final String organizationId, final String name) {
     parameters.clear();
     parameters.put("organizationId", organizationId);
     parameters.put("name", name);
@@ -69,9 +73,12 @@ public class UnitQueriesActor extends StateObjectQueryActor implements UnitQueri
     return queryOne(ByName, parameters);
   }
 
-  private Completes<UnitData> queryOne(final String query, final Map<String,String> parameters) {
+  private Completes<Outcome<SchemataBusinessException, UnitData>> queryOne(final String query, final Map<String,String> parameters) {
     final QueryExpression expression = MapQueryExpression.using(UnitState.class, query, parameters);
 
-    return queryObject(UnitState.class, expression, (UnitState state) -> UnitData.from(state));
+    return queryObject(UnitState.class, expression,
+            (UnitState state) -> state == null
+                    ? Failure.of(SchemataBusinessException.notFound("Unit", parameters))
+                    : Success.of(UnitData.from(state)));
   }
 }

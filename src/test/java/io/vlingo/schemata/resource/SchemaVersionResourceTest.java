@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -9,13 +9,14 @@ package io.vlingo.schemata.resource;
 
 import io.vlingo.common.serialization.JsonSerialization;
 import io.vlingo.http.Response;
-import io.vlingo.schemata.model.Id;
+import io.vlingo.schemata.Schemata;
+import io.vlingo.schemata.model.*;
 import io.vlingo.schemata.model.SchemaVersion.Status;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import static io.vlingo.http.Response.Status.BadRequest;
-import static io.vlingo.http.Response.Status.Created;
+import static io.vlingo.http.Response.Status.*;
 import static io.vlingo.http.ResponseHeader.Location;
 import static org.junit.Assert.*;
 
@@ -25,7 +26,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
     private static final String ContextId = "C789";
     private static final String SchemaId = "S135";
     private static final String SchemaVersionDescription = "Test context.";
-    private static final String SchemaVersionSpecification = "{ spec = \"spec\" ";
+    private static final String SchemaVersionSpecification = "event Spec { type t }";
     private static final String SchemaVersionStatus = "Draft";
     private static final String SchemaVersionVersion000 = "0.0.0";
     private static final String SchemaVersionVersion100 = "1.0.0";
@@ -47,8 +48,26 @@ public class SchemaVersionResourceTest extends ResourceTest {
     }
 
     @Test
-    public void testThatSchemaVersionMinorUpgradeIsDefined() {
+    public void testThatNonExistingSchemaVersionReturns404() {
         final SchemaVersionResource resource = new SchemaVersionResource(world);
+        OrganizationState org = Organization.with(world.stageNamed(Schemata.StageName), Organization.uniqueId(),"o", "d").await();
+        UnitState unit = Unit.with(world.stageNamed(Schemata.StageName), org.organizationId,"u", "d").await();
+        ContextState context = Context.with(world.stageNamed(Schemata.StageName), unit.unitId,"c", "d").await();
+        SchemaState schema = Schema.with(world.stageNamed(Schemata.StageName), context.contextId,Category.Event, Scope.Public, "s", "d").await();
+
+        final Response response = resource.querySchemaVersionByIds(org.organizationId.value, unit.unitId.value, context.contextId.value, schema.schemaId.value, "-1").await();
+        assertEquals(NotFound, response.status);
+        assertTrue(response.entity.content().contains("Schema Version not found"));
+    }
+
+    @Test
+    @Ignore("Temporarily ignored as it currently hangs, see https://github.com/vlingo/vlingo-schemata/issues/135")
+    public void testThatSchemaVersionMinorUpgradeIsDefined() {
+
+        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionData previousData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
+        resource.defineWith(OrgId, UnitId, ContextId, SchemaId, previousData).await();
+
         final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion100, SchemaVersionVersion101);
         final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
         assertEquals(Created, response1.status);

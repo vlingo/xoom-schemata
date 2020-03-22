@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -10,15 +10,17 @@ package io.vlingo.schemata.query;
 import java.util.List;
 
 import io.vlingo.common.Completes;
-import io.vlingo.schemata.codegen.processor.types.TypeResolver;
+import io.vlingo.common.Outcome;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
-public interface SchemaVersionQueries extends TypeResolver {
+public interface SchemaVersionQueries {
   public final static String GreatestVersion = "99999.99999.99999";
 
   Completes<List<SchemaVersionData>> schemaVersionsByIds(final String organizationId, final String unitId, final String contextId, final String schemaId);
   Completes<List<SchemaVersionData>> schemaVersionsByNames(final String organization, final String unit, final String context, final String schema);
-  Completes<SchemaVersionData> schemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId);
-  Completes<SchemaVersionData> schemaVersionOf(final String organization, final String unit, final String context, final String schema, final String schemaVersion);
-  Completes<SchemaVersionData> schemaVersionOfVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String version);
+  Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId);
+  Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersion(final String fullyQualifiedTypeName);
+  Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionOf(final String organization, final String unit, final String context, final String schema, final String schemaVersion);
+  Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionOfVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String version);
 }

@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -14,6 +14,8 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.vlingo.schemata.SchemataConfig;
+import io.vlingo.symbio.store.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,12 +40,7 @@ import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.model.Scope;
 import io.vlingo.schemata.model.UnitState;
-import io.vlingo.symbio.store.Result;
-import io.vlingo.symbio.store.StorageException;
-import io.vlingo.symbio.store.object.ListQueryExpression;
-import io.vlingo.symbio.store.object.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.ObjectStoreReader.QueryMode;
 import io.vlingo.symbio.store.object.StateSources;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -295,7 +292,7 @@ public class SchemataObjectStoreTest {
 
         dispatcher = new NoopDispatcher();
 
-        final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("dev");
+        final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(SchemataConfig.forRuntime("test"));
         objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
         final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
         schemataObjectStore.register(registry, objectStore);

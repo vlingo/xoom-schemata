@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -9,16 +9,21 @@ package io.vlingo.schemata.resource;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
 import io.vlingo.lattice.model.Command;
 import io.vlingo.lattice.router.CommandDispatcher;
 import io.vlingo.lattice.router.CommandRouter;
 import io.vlingo.lattice.router.CommandRouter.Type;
 import io.vlingo.lattice.router.RoutableCommand;
+import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersionEntity;
 import io.vlingo.schemata.model.SchemaVersionState;
+import io.vlingo.schemata.model.SpecificationDiff;
+import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 class SchemaVersionCommands {
   private final CommandRouter router;
@@ -131,6 +136,26 @@ class SchemaVersionCommands {
     return command;
   }
 
+  RoutableCommand<SchemaVersion, Command, Outcome<SchemataBusinessException, SpecificationDiff>> diffAgainst(final SchemaVersionId schemaVersionId,
+                                                                         final SchemaVersionData other) {
+
+    final DiffAgainst diffAgainst = new DiffAgainst(other, TypeDefinitionMiddleware.middlewareFor(stage));
+
+    RoutableCommand<SchemaVersion, Command, Outcome<SchemataBusinessException, SpecificationDiff>> command =
+      RoutableCommand
+        .speaks(SchemaVersion.class)
+        .to(SchemaVersionEntity.class)
+        .at(schemaVersionId.value)
+        .named(SchemaVersion.nameFrom(schemaVersionId))
+        .delivers(diffAgainst)
+        .answers(Completes.using(stage.scheduler()))
+        .handledBy(diffAgainst);
+
+    router.route(command);
+
+    return command;
+  }
+
   private static class DescribeAs extends Command implements CommandDispatcher<SchemaVersion,DescribeAs,Completes<SchemaVersionState>> {
     private final String description;
 
@@ -157,7 +182,8 @@ class SchemaVersionCommands {
     Deprecate() { }
 
     @Override
-    public void accept(final SchemaVersion protocol, final Deprecate command, final Completes<SchemaVersionState> answer) {
+    public void accept(final SchemaVersion protocol, final Deprecate command,
+                       final Completes<SchemaVersionState> answer) {
       protocol.deprecate().andThen(state -> answer.with(state));
     }
   }
@@ -181,6 +207,23 @@ class SchemaVersionCommands {
     @Override
     public void accept(final SchemaVersion protocol, final SpecifyWith command, final Completes<SchemaVersionState> answer) {
       protocol.specifyWith(command.specification).andThen(state -> answer.with(state));
+    }
+  }
+
+  private static class DiffAgainst extends Command
+    implements CommandDispatcher<SchemaVersion, DiffAgainst, Completes<Outcome<SchemataBusinessException, SpecificationDiff>>> {
+    private final SchemaVersionData other;
+    private final TypeDefinitionMiddleware typeDefinitionMiddleware;
+
+    DiffAgainst(final SchemaVersionData other, TypeDefinitionMiddleware typeDefinitionMiddleware) {
+      this.other = other;
+      this.typeDefinitionMiddleware = typeDefinitionMiddleware;
+    }
+
+    @Override
+    public void accept(final SchemaVersion protocol, final DiffAgainst command,
+                       final Completes<Outcome<SchemataBusinessException, SpecificationDiff>> answer) {
+      protocol.diff(typeDefinitionMiddleware, command.other).andThen(diff -> answer.with(diff));
     }
   }
 }

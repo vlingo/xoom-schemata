@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.vlingo.actors.CompletesEventually;
@@ -38,13 +39,15 @@ public class JavaCodeResourceTest extends ResourceTest {
     final Response response = resource.queryCodeForLanguage(reference(), "java").await();
     assertEquals(Ok, response.status);
     assertTrue(response.entity.content().contains("SchemaDefined"));
-    assertTrue(response.entity.content().equals(
+    assertEquals("package io.vlingo.schemata.event;\n" +
+            "\n" +
             "import io.vlingo.lattice.model.DomainEvent;\n" +
             "\n" +
             "public final class SchemaDefined extends DomainEvent {\n" +
-            "  public final SchemaDefined() {\n" +
+            "  public SchemaDefined() {\n" +
             "  }\n" +
-            "}\n"));
+            "}\n",
+            response.entity.content());
   }
 
   @Before

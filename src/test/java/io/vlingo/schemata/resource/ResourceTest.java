@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -7,15 +7,13 @@
 
 package io.vlingo.schemata.resource;
 
+import io.vlingo.actors.*;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
+import io.vlingo.schemata.SchemataConfig;
 import org.junit.Before;
 
-import io.vlingo.actors.Stage;
-import io.vlingo.actors.World;
 import io.vlingo.common.identity.IdentityGeneratorType;
-import io.vlingo.lattice.grid.Grid;
-import io.vlingo.lattice.grid.GridAddressFactory;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.Schemata;
@@ -36,6 +34,7 @@ public abstract class ResourceTest {
   protected ObjectStore objectStore;
   protected ObjectTypeRegistry registry;
   protected Stage stage;
+  protected Grid grid;
   protected World world;
 
   protected OrganizationQueries organizationQueries;
@@ -49,10 +48,11 @@ public abstract class ResourceTest {
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setUp() throws Exception {
     world = World.startWithDefaults("test-command-router");
-    world.stageNamed(Schemata.StageName, Grid.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
+    // TODO: Start an actual Grid here using Grid.start(...). Needs a test grid configuration first
+    world.stageNamed(Schemata.StageName, Stage.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
     stage = world.stageNamed(Schemata.StageName);
 
-    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance("dev");
+    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(SchemataConfig.forRuntime("test"));
     registry = new ObjectTypeRegistry(world);
     objectStore = schemataObjectStore.objectStoreFor(world, new NoopDispatcher(), schemataObjectStore.persistentMappers());
     schemataObjectStore.register(registry, objectStore);

@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -8,8 +8,10 @@
 package io.vlingo.schemata.codegen.processor;
 
 import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.Node;
+import io.vlingo.schemata.errors.SchemataBusinessException;
 
 public interface Processor {
     Completes<Node> process(final Node node, final TypeDefinitionMiddleware middleware, final String fullyQualifiedTypeName);

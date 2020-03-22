@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -10,13 +10,13 @@ package io.vlingo.schemata.infra.persistence;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.jdbi.v3.core.statement.SqlStatement;
 
 import io.vlingo.actors.World;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry;
 import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
+import io.vlingo.schemata.SchemataConfig;
 import io.vlingo.schemata.infra.persistence.mappers.ContextStateMapper;
 import io.vlingo.schemata.infra.persistence.mappers.OrganizationStateMapper;
 import io.vlingo.schemata.infra.persistence.mappers.SchemaStateMapper;
@@ -39,7 +39,7 @@ import io.vlingo.symbio.store.common.jdbc.Configuration;
 import io.vlingo.symbio.store.common.jdbc.DatabaseType;
 import io.vlingo.symbio.store.dispatch.Dispatchable;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
-import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
@@ -51,35 +51,31 @@ public abstract class SchemataObjectStore {
 
     protected JdbiOnDatabase jdbi;
 
-    public static SchemataObjectStore instance(final String runtimeType) throws Exception {
+    public static SchemataObjectStore instance(final SchemataConfig schemataConfig) throws Exception {
 
-      final Properties properties = new java.util.Properties();
-      final String propertiesFile = "/vlingo-schemata-" + runtimeType + ".properties";
-      properties.load(Properties.class.getResourceAsStream(propertiesFile));
+      final io.vlingo.symbio.store.common.jdbc.Configuration configuration = jdbcConfiguration(schemataConfig);
 
-      final io.vlingo.symbio.store.common.jdbc.Configuration configuration = jdbcConfiguration(properties);
-
-      final String classname = properties.getProperty("database.type");
+      final String classname = schemataConfig.databaseType;
       final Class<?> type = Class.forName(classname);
       final SchemataObjectStore schemataObjectStore = (SchemataObjectStore) type.newInstance();
       schemataObjectStore.initializeDatabase(configuration);
       return schemataObjectStore;
     }
 
-    private static Configuration jdbcConfiguration(final Properties properties) throws Exception {
-      final DatabaseType databaseType = DatabaseType.databaseType(properties.getProperty("database.url"));
+    private static Configuration jdbcConfiguration(final SchemataConfig config) throws Exception {
+      final DatabaseType databaseType = DatabaseType.databaseType(config.databaseUrl);
 
       return new Configuration(
               databaseType,
               Configuration.interestOf(databaseType),
-              properties.getProperty("database.driver"),
+              config.databaseDriver,
               DataFormat.Native,
-              properties.getProperty("database.url"),
-              properties.getProperty("database.name"),
-              properties.getProperty("database.username"),
-              properties.getProperty("database.password"),
+              config.databaseUrl,
+              config.databaseName,
+              config.databaseUsername,
+              config.databasePassword,
               false,          // useSSL
-              properties.getProperty("database.originator"),
+              config.databaseOriginator,
               true);
     }
 

@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -18,7 +18,7 @@ import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.symbio.store.object.MapQueryExpression;
+import io.vlingo.symbio.store.MapQueryExpression;
 import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;

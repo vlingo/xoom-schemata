@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -8,10 +8,7 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.Response.Status.BadRequest;
-import static io.vlingo.http.Response.Status.Conflict;
-import static io.vlingo.http.Response.Status.Created;
-import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.Response.Status.*;
 import static io.vlingo.http.ResponseHeader.ContentType;
 import static io.vlingo.http.ResponseHeader.Location;
 import static io.vlingo.http.ResponseHeader.of;
@@ -100,9 +97,12 @@ public class OrganizationResource extends ResourceHandler {
   }
 
   public Completes<Response> queryOrganization(final String organizationId) {
-    return Queries.forOrganizations()
-            .organization(organizationId)
-            .andThenTo(organization -> Completes.withSuccess(Response.of(Ok, serialized(organization))));
+    return Queries.forOrganizations().organization(organizationId)
+            .andThen(o -> o.resolve(
+                    e -> Response.of(NotFound, serialized(e)),
+                    org -> Response.of(Ok, serialized(org))
+            ))
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   @Override

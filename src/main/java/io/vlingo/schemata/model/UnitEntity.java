@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -19,6 +19,7 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   private UnitState state;
 
   public UnitEntity(final UnitId unitId) {
+    super(unitId.value);
     this.state = UnitState.from(unitId);
   }
 
@@ -40,11 +41,6 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
   @Override
   public Completes<UnitState> renameTo(final String name) {
     return apply(this.state.withName(name), new UnitRenamed(state.unitId, name), () -> this.state);
-  }
-
-  @Override
-  protected String id() {
-    return String.valueOf(state.persistenceId());
   }
 
   @Override

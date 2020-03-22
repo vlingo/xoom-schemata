@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -8,6 +8,7 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.http.Response.Status.Created;
+import static io.vlingo.http.Response.Status.NotFound;
 import static io.vlingo.http.ResponseHeader.Location;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -32,6 +33,15 @@ public class OrganizationResourceTest extends ResourceTest {
     assertNotNull(response.headers.headerOf(Location));
     assertTrue(response.entity.content().contains(OrgName));
     assertTrue(response.entity.content().contains(OrgDescription));
+  }
+
+  @Test
+  public void testThatNonExistingOrganizationReturns404() {
+    final OrganizationResource resource = new OrganizationResource(world);
+    String invalidOrganizationId = "-1";
+    final Response response = resource.queryOrganization(invalidOrganizationId).await();
+    assertEquals(NotFound, response.status);
+    assertTrue(response.entity.content().contains(invalidOrganizationId));
   }
 
   @Test

@@ -1,4 +1,4 @@
-// Copyright © 2012-2018 Vaughn Vernon. All rights reserved.
+// Copyright © 2012-2020 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
 // Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -8,11 +8,16 @@
 package io.vlingo.schemata.resource;
 
 import static io.vlingo.http.Response.Status.Created;
+import static io.vlingo.http.Response.Status.NotFound;
 import static io.vlingo.http.ResponseHeader.Location;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
+import io.vlingo.schemata.Schemata;
+import io.vlingo.schemata.model.Organization;
+import io.vlingo.schemata.model.OrganizationState;
+import io.vlingo.schemata.model.Unit;
+import io.vlingo.schemata.model.UnitState;
+import io.vlingo.schemata.resource.data.OrganizationData;
 import org.junit.Test;
 
 import io.vlingo.common.serialization.JsonSerialization;
@@ -34,6 +39,16 @@ public class ContextResourceTest extends ResourceTest {
     final ContextData data = JsonSerialization.deserialized(response.entity.content(), ContextData.class);
     assertEquals(ContextNamespace, data.namespace);
     assertEquals(ContextDescription, data.description);
+  }
+
+  @Test
+  public void testThatNonExistingContextReturns404() {
+    final ContextResource resource = new ContextResource(world);
+    OrganizationState org = Organization.with(world.stageNamed(Schemata.StageName), Organization.uniqueId(),"o", "d").await();
+    UnitState unit = Unit.with(world.stageNamed(Schemata.StageName), org.organizationId,"u", "d").await();
+    final Response response = resource.queryContext(org.organizationId.value, unit.unitId.value, "-1").await();
+    assertEquals(NotFound, response.status);
+    assertTrue(response.entity.content().contains("Context not found"));
   }
 
   @Test

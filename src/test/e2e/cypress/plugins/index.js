@@ -47,7 +47,7 @@ const createSchema = (context, config) => {
         }).then(response => response.data)
 }
 
-const createSchemaVersion = (schema, config) => {
+const createSchemaVersions = (schema, config) => {
     let majorMinorVersion = faker.random.number(9) + '.' + faker.random.number(9)
     let patchVersion = faker.random.number(9)
     let prevVersion = majorMinorVersion + '.' + patchVersion
@@ -59,12 +59,34 @@ const createSchemaVersion = (schema, config) => {
         + '/contexts/' + schema.contextId
         + '/schemas/' + schema.schemaId
         + '/versions', {
+            organizationId: schema.organizationId,
+            unitId: schema.unitId,
+            contextId: schema.contextId,
+            schemaId: schema.schemaId,
             schemaVersionId: '',
             specification: 'event SalutationHappened { type eventType }',
-            previousVersion: prevVersion,
-            currentVersion: currentVersion,
+            previousVersion: '0.0.0',
+            currentVersion: prevVersion,
             description: faker.lorem.sentence()
-        }).then(response => response.data)
+        })
+        .then(() => axios.post(
+            config.env.apiUrl + '/organizations/' + schema.organizationId
+            + '/units/' + schema.unitId
+            + '/contexts/' + schema.contextId
+            + '/schemas/' + schema.schemaId
+            + '/versions', {
+                organizationId: schema.organizationId,
+                unitId: schema.unitId,
+                contextId: schema.contextId,
+                schemaId: schema.schemaId,
+                schemaVersionId: '',
+                specification: 'event SalutationHappened { type eventType }',
+                previousVersion: prevVersion,
+                currentVersion: currentVersion,
+                description: faker.lorem.sentence()
+            })
+        )
+        .then(response => response.data)
 }
 
 
@@ -118,9 +140,13 @@ module.exports = (on, config) => {
                 })
                 .then(schema => {
                     data.schema = schema
-                    return createSchemaVersion(schema, config)
+                    return createSchemaVersions(schema, config)
                 })
                 .then(version => data.version = version)
+                .then(version => data.version.compatibleSpecification =
+                    'event SalutationHappened { type eventType \n version semVer }')
+                .then(version => data.version.incompatibleSpecification =
+                    'event SalutationHappened { type renamedEventType \nversion semVer }')
                 .then(() => data)
         }
     })
