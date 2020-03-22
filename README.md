@@ -1,7 +1,7 @@
 
 # vlingo-schemata
 
-[![Gitter](https://img.shields.io/gitter/room/vlingo-platform-java/community?logo=gitter)](&link=https://gitter.im/vlingo-platform-java/community)
+![Gitter](https://img.shields.io/gitter/room/vlingo-platform-java/community?logo=gitter&url=&link=https://gitter.im/vlingo-platform-java/community)
 ![Docker Stars](https://img.shields.io/docker/stars/vlingo/vlingo-schemata?logo=docker)
 ![Docker Pulls](https://img.shields.io/docker/pulls/vlingo/vlingo-schemata?logo=docker)
 ![Travis Build](https://img.shields.io/travis/vlingo/vlingo-schemata?logo=travis)
