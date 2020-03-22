@@ -1,7 +1,7 @@
 FROM openjdk:8-jdk-alpine
 
 ENV JAVA_OPTS=""
-ENV VLINGO_ENV="dev"
+ENV VLINGO_ENV="env"
 
 ADD ./target/vlingo-schemata-*-jar-with-dependencies.jar /app.jar
 
