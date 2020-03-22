@@ -1,11 +1,11 @@
 
 # vlingo-schemata
 
-![Gitter](https://img.shields.io/gitter/room/vlingo-platform-java/community?logo=gitter&url=&link=https://gitter.im/vlingo-platform-java/community)
-![Docker Stars](https://img.shields.io/docker/stars/vlingo/vlingo-schemata?logo=docker)
-![Docker Pulls](https://img.shields.io/docker/pulls/vlingo/vlingo-schemata?logo=docker)
-![Travis Build](https://img.shields.io/travis/vlingo/vlingo-schemata?logo=travis)
-![CircleCI](https://img.shields.io/circleci/build/github/vlingo/vlingo-schemata?logo=CircleCi)
+[![Gitter](https://img.shields.io/gitter/room/vlingo-platform-java/community?logo=gitter)](https://gitter.im/vlingo-platform-java/community)
+[![Docker Stars](https://img.shields.io/docker/stars/vlingo/vlingo-schemata?logo=docker)](https://hub.docker.com/r/vlingo/vlingo-schemata)
+[![Docker Pulls](https://img.shields.io/docker/pulls/vlingo/vlingo-schemata?logo=docker)](https://hub.docker.com/r/vlingo/vlingo-schemata)
+[![Travis Build](https://img.shields.io/travis/vlingo/vlingo-schemata?logo=travis)](https://travis-ci.org/vlingo/vlingo-schemata)
+[![CircleCI](https://img.shields.io/circleci/build/github/vlingo/vlingo-schemata?logo=CircleCi)](https://circleci.com/gh/vlingo/vlingo-schemata)
 
 
 The vlingo/PLATFORM schema registry.
