@@ -1,17 +1,43 @@
 
 # vlingo-schemata
 
-[![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.png)](https://gitter.im/vlingo-platform-java/schemata)
+[![Gitter](https://img.shields.io/gitter/room/vlingo-platform-java/community?logo=gitter)](https://gitter.im/vlingo-platform-java/community)
+[![Docker Stars](https://img.shields.io/docker/stars/vlingo/vlingo-schemata?logo=docker)](https://hub.docker.com/r/vlingo/vlingo-schemata)
+[![Docker Pulls](https://img.shields.io/docker/pulls/vlingo/vlingo-schemata?logo=docker)](https://hub.docker.com/r/vlingo/vlingo-schemata)
+[![Travis Build](https://img.shields.io/travis/vlingo/vlingo-schemata?logo=travis)](https://travis-ci.org/vlingo/vlingo-schemata)
+[![CircleCI](https://img.shields.io/circleci/build/github/vlingo/vlingo-schemata?logo=CircleCi)](https://circleci.com/gh/vlingo/vlingo-schemata)
+
 
 The vlingo/PLATFORM schema registry.
  
 ## Run
 
 You can run the registry with an in-memory database within docker using `docker run -p 9019:9019 vlingo/vlingo-schemata`.
+The docker image supports three runtime profiles that can be activated by setting `$VLINGO_ENV` accordingly:  
+* `dev` runs on `:9019` against an in-memory HSQLDB, 
+* `prod` runs `:9019` against a preconfigured PostgreSQL DB, for details see `src/main/resources/vlingo-schemata-prod.properties`
+* `env` uses environment variables for server configuration; the defaults correspond to the `dev` profile:
+
+|Property|Variable|Default|
+|---|---|---|
+|server.port        |VLINGO_SCHEMATA_PORT       |9019|
+|database.type      |VLINGO_SCHEMATA_DB_TYPE    |io.vlingo.schemata.infra.persistence.HSQLDBSchemataObjectStore|
+|database.driver    |VLINGO_SCHEMATA_DB_DRIVER  |org.hsqldb.jdbc.JDBCDriver|
+|database.url       |VLINGO_SCHEMATA_DB_URL     |jdbc:hsqldb:mem:|
+|database.name      |VLINGO_SCHEMATA_DB_NAME    |vlingo_schemata|
+|database.username  |VLINGO_SCHEMATA_DB_USER    |SA|
+|database.password  |VLINGO_SCHEMATA_DB_PASS    ||
+|database.originator|VLINGO_SCHEMATA_DB_ORIGINATOR|MAIN| 
 
 After building the fat jar, you can also simply execute it via `java -jar vlingo-schemata-<version>-jar-with-dependencies.jar`
 
-## Using curl or Postman
+## Usage
+
+You can find detailed instructions at https://docs.vlingo.io/vlingo-schemata#working-with-schema-specifications-and-schema-dependencies.
+
+An example for talking to the schema registry as part of a maven build is in https://github.com/vlingo/vlingo-examples/tree/master/vlingo-schemata-integration
+
+## API Examples
 
 ### Schema Definitions
 

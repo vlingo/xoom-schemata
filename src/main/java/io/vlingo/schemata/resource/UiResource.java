@@ -7,34 +7,15 @@
 
 package io.vlingo.schemata.resource;
 
-import static io.vlingo.http.Response.Status.InternalServerError;
-import static io.vlingo.http.Response.Status.MovedPermanently;
-import static io.vlingo.http.Response.Status.NotFound;
-import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.ResponseHeader.ContentLength;
-import static io.vlingo.http.ResponseHeader.ContentType;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.Schemata.StageName;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.activation.MimetypesFileTypeMap;
-
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalNotification;
 import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
-import io.vlingo.http.Body;
-import io.vlingo.http.Header;
-import io.vlingo.http.Response;
-import io.vlingo.http.ResponseHeader;
+import io.vlingo.http.*;
 import io.vlingo.http.resource.RequestHandler0.Handler0;
 import io.vlingo.http.resource.RequestHandler1.Handler1;
 import io.vlingo.http.resource.RequestHandler2.Handler2;
@@ -42,6 +23,24 @@ import io.vlingo.http.resource.RequestHandler3.Handler3;
 import io.vlingo.http.resource.RequestHandler4.Handler4;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
+
+import javax.activation.MimetypesFileTypeMap;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static io.vlingo.http.Response.Status.*;
+import static io.vlingo.http.ResponseHeader.ContentLength;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
+import static io.vlingo.schemata.Schemata.StageName;
 
 /**
  * Serves the files making up the UI from the classpath.
@@ -54,6 +53,18 @@ import io.vlingo.http.resource.ResourceHandler;
  * FIXME: This leaves the server wide open for read access. We should constrain access to the resources we actually provide.
  */
 public class UiResource extends ResourceHandler {
+
+    private final LoadingCache<String, byte[]> staticFileCache = CacheBuilder.newBuilder()
+            .maximumSize(1000)
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .removalListener(this::onRemoval)
+            .build(new CacheLoader<String, byte[]>() {
+                @Override
+                @ParametersAreNonnullByDefault
+                public byte[] load(String path) throws IOException {
+                    return readFileFromClasspath(path);
+                }
+            });
 
     @SuppressWarnings("unused")
     private final Stage stage;
@@ -74,56 +85,63 @@ public class UiResource extends ResourceHandler {
         final Handler4<String, String, String, String> serve4 = this::serve;
 
         return resource("ui", 10,
-            get("/")
-                .handle(this::redirectToApp),
-            get("/app/")
-                .handle(serve0),
-            get("/app/{file}")
-                .param(String.class)
-                .handle(serve1),
-            get("/app/{path1}/{file}")
-                .param(String.class)
-                .param(String.class)
-                .handle(serve2),
-            get("/app/{path1}/{path2}/{file}")
-                .param(String.class)
-                .param(String.class)
-                .param(String.class)
-                .handle(serve3),
-            get("/app/{path1}/{path2}/{path3}/{file}")
-                .param(String.class)
-                .param(String.class)
-                .param(String.class)
-                .param(String.class)
-                .handle(serve4)
+                get("/")
+                        .handle(this::redirectToApp),
+                get("/app/")
+                        .handle(serve0),
+                get("/app/{file}")
+                        .param(String.class)
+                        .handle(serve1),
+                get("/app/{path1}/{file}")
+                        .param(String.class)
+                        .param(String.class)
+                        .handle(serve2),
+                get("/app/{path1}/{path2}/{file}")
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .handle(serve3),
+                get("/app/{path1}/{path2}/{path3}/{file}")
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .param(String.class)
+                        .handle(serve4)
         );
     }
 
     private Completes<Response> redirectToApp() {
         return Completes.withSuccess(
-            Response.of(MovedPermanently,
-                Header.Headers.of(
-                    ResponseHeader.of("Location", "/app/"))));
+                Response.of(MovedPermanently,
+                        Header.Headers.of(
+                                ResponseHeader.of(ResponseHeader.ContentLength, 0),
+                                ResponseHeader.of("Location", "/app/")
+                                )));
     }
 
     private Completes<Response> serve(final String... pathSegments) {
-        if (pathSegments.length == 0)
-            return serve("index.html");
+        if (pathSegments.length == 0 || pathSegments[pathSegments.length - 1].split("\\.").length == 1)
+            return serve(Stream.concat(Stream.of(pathSegments), Stream.of("index.html")).toArray(String[]::new));
 
         String path = pathFrom(pathSegments);
         try {
-            byte[] content = readFileFromClasspath(path);
+            byte[] content;
+            try {
+                content = staticFileCache.get(path);
+            } catch (ExecutionException ex) {
+                throw ex.getCause();
+            }
             return Completes.withSuccess(
-                Response.of(Ok,
-                    Header.Headers.of(
-                        ResponseHeader.of(ContentType, guessContentType(path)),
-                        ResponseHeader.of(ContentLength, content.length)
-                    ),
-                    Body.from(content, Body.Encoding.UTF8).content()
-                ));
+                    Response.of(Ok,
+                            Header.Headers.of(
+                                    ResponseHeader.of(RequestHeader.ContentType, guessContentType(path)),
+                                    ResponseHeader.of(ContentLength, content.length)),
+                            Body.bytesToUTF8(content)
+                    )
+            );
         } catch (FileNotFoundException e) {
             return Completes.withSuccess(Response.of(NotFound, path + " not found."));
-        } catch (IOException e) {
+        } catch (Throwable e) {
             return Completes.withSuccess(Response.of(InternalServerError));
         }
     }
@@ -139,9 +157,9 @@ public class UiResource extends ResourceHandler {
 
     private String pathFrom(final String[] pathSegments) {
         return Stream.of(pathSegments)
-            .map(p -> p.startsWith("/") ? p.substring(1) : p)
-            .map(p -> p.endsWith("/") ? p.substring(0, p.length() - 1) : p)
-            .collect(Collectors.joining("/", "frontend/", ""));
+                .map(p -> p.startsWith("/") ? p.substring(1) : p)
+                .map(p -> p.endsWith("/") ? p.substring(0, p.length() - 1) : p)
+                .collect(Collectors.joining("/", "frontend/", ""));
     }
 
     private byte[] readFileFromClasspath(final String path) throws IOException {
@@ -167,5 +185,9 @@ public class UiResource extends ResourceHandler {
             is.close();
         }
         return readBytes;
+    }
+
+    private void onRemoval(RemovalNotification<Object, Object> notification) {
+        staticFileCache.invalidate(notification.getKey());
     }
 }
