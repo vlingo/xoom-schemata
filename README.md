@@ -107,6 +107,8 @@ An example for talking to the schema registry as part of a maven build is in htt
 
 Run the full build using `mvn clean package -Pfrontend`. 
 
+:warning: Make sure you are using a Java 8 JDK. 
+
 Afterwards, you can build the docker container with `docker build . -t vlingo/vlingo-schemata`.
 
 CI build runs on CircleCI: https://circleci.com/gh/vlingo/vlingo-schemata/.
@@ -123,7 +125,7 @@ The maven build takes care of the following:
 
 ### Prerequisites
 
-* Java >= 8
+* Java 8
 * Maven, 3.6.0 is known to work. Alternatively, you can rely on the bundled maven wrapper.
 * [frontend only] NodeJS & npm, Node 11.14.0 is known to work. Earlier versions probably too.
 * [frontend only; recommended] Chrome Devtools Vue.js extension 
