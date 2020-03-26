@@ -27,9 +27,9 @@ import org.junit.Test;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.TestWorld;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
-import io.vlingo.schemata.SchemataConfig;
 import io.vlingo.schemata.codegen.TypeDefinitionCompilerActor;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.backend.Backend;
@@ -41,7 +41,6 @@ import io.vlingo.schemata.codegen.processor.types.CacheTypeResolver;
 import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
 import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
-import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
@@ -49,20 +48,18 @@ import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
-import io.vlingo.symbio.store.dispatch.Dispatcher;
-import io.vlingo.symbio.store.object.ObjectStore;
+import io.vlingo.symbio.store.journal.Journal;
+import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 
 public class SchemaVersionTest {
-  @SuppressWarnings("unused")
-  private ObjectTypeRegistry registry;
+  protected Journal<String> journal;
+  protected SourcedTypeRegistry registry;
   private SchemaVersion simpleSchemaVersion;
   private SchemaVersionId simpleSchemaVersionId;
   private SchemaVersionState simpleVersion;
   private SchemaVersion basicTypesSchemaVersion;
   private SchemaVersionId basicTypesSchemaVersionId;
   private SchemaVersionState basicTypesVersion;
-  @SuppressWarnings("unused")
-  private ObjectStore objectStore;
   private TypeDefinitionMiddleware typeDefinitionMiddleware;
   @SuppressWarnings("unused")
   private World world;
@@ -74,13 +71,11 @@ public class SchemaVersionTest {
   public void setUp() throws Exception {
     World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
     TypeParser typeParser = world.actorFor(TypeParser.class, AntlrTypeParser.class);
-    Dispatcher dispatcher = new NoopDispatcher();
 
-    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(SchemataConfig.forRuntime("test"));
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
 
-    ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
-    final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
-    schemataObjectStore.register(registry, objectStore);
+    registry = new SourcedTypeRegistry(world);
+    registry.register(new Info(journal, SchemaVersionEntity.class, SchemaVersionEntity.class.getSimpleName()));
 
     TypeResolver typeResolver = new CacheTypeResolver();
 

@@ -7,15 +7,11 @@
 
 package io.vlingo.schemata.query;
 
-import java.util.List;
-
 import io.vlingo.common.Completes;
-import io.vlingo.schemata.resource.data.OrganizationData;
+import io.vlingo.schemata.query.view.OrganizationView;
+import io.vlingo.schemata.query.view.OrganizationsView;
 
 public interface OrganizationQueries {
-  Completes<List<OrganizationData>> organizations();
-  Completes<OrganizationData> organization(final String organizationId);
-  Completes<OrganizationData> organization(final String organizationId, final QueryResultsCollector collector);
-  Completes<OrganizationData> organizationNamed(final String name);
-  Completes<OrganizationData> organizationNamed(final String name, final QueryResultsCollector collector);
+  Completes<OrganizationsView> organizations();
+  Completes<OrganizationView> organization(final String organizationId);
 }

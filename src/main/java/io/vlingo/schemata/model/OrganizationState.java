@@ -7,15 +7,9 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.Map;
-
 import io.vlingo.schemata.model.Id.OrganizationId;
-import io.vlingo.symbio.store.MapQueryExpression.FluentMap;
-import io.vlingo.symbio.store.object.StateObject;
 
-public class OrganizationState extends StateObject {
-  private static final long serialVersionUID = 1L;
-
+public class OrganizationState {
   public final OrganizationId organizationId;
   public final String name;
   public final String description;
@@ -24,29 +18,24 @@ public class OrganizationState extends StateObject {
     return new OrganizationState(organizationId);
   }
 
-  public static OrganizationState from(final long id, final long version, final OrganizationId organizationId, final String name, final String description) {
-    return new OrganizationState(id, version, organizationId, name, description);
+  public static OrganizationState from(final OrganizationId organizationId, final String name, final String description) {
+    return new OrganizationState(organizationId, name, description);
   }
 
   public OrganizationState defineWith(final String name, final String description) {
-    return new OrganizationState(this.persistenceId(), this.version() + 1, this.organizationId, name, description);
+    return new OrganizationState(this.organizationId, name, description);
   }
 
   public OrganizationState withDescription(final String description) {
-    return new OrganizationState(this.persistenceId(), this.version() + 1, this.organizationId, this.name, description);
+    return new OrganizationState(this.organizationId, this.name, description);
   }
 
   public OrganizationState withName(final String name) {
-    return new OrganizationState(this.persistenceId(), this.version() + 1, this.organizationId, name, this.description);
+    return new OrganizationState(this.organizationId, name, this.description);
   }
 
   public OrganizationState redefineWith(final String name, final String description) {
-    return new OrganizationState(this.persistenceId(), this.version() + 1, this.organizationId, name, description);
-  }
-
-  @Override
-  public Map<String, Object> queryMap() {
-    return FluentMap.has("organizationId", organizationId.value);
+    return new OrganizationState(this.organizationId, name, description);
   }
 
   @Override
@@ -64,24 +53,21 @@ public class OrganizationState extends StateObject {
 
     final OrganizationState otherState = (OrganizationState) other;
 
-    return this.persistenceId() == otherState.persistenceId();
+    return this.organizationId.equals(otherState.organizationId);
   }
 
   @Override
   public String toString() {
-    return "OrganizationState[persistenceId=" + persistenceId() +
-            " version=" + version() +
-            " organizationId=" + organizationId.value +
+    return "OrganizationState[organizationId=" + organizationId.value +
             " name=" + name +
             " description=" + description + "]";
   }
 
   private OrganizationState(final OrganizationId organizationId) {
-    this(Unidentified, 0, organizationId, "", "");
+    this(organizationId, "", "");
   }
 
-  private OrganizationState(final long id, final long version, final OrganizationId organizationId, final String name, final String description) {
-    super(id, version);
+  private OrganizationState(final OrganizationId organizationId, final String name, final String description) {
     this.organizationId = organizationId;
     this.name = name;
     this.description = description;

@@ -7,76 +7,24 @@
 
 package io.vlingo.schemata.query;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import io.vlingo.common.Completes;
-import io.vlingo.lattice.query.StateObjectQueryActor;
-import io.vlingo.schemata.model.OrganizationState;
-import io.vlingo.schemata.resource.data.OrganizationData;
-import io.vlingo.symbio.store.MapQueryExpression;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.QueryExpression;
+import io.vlingo.lattice.query.StateStoreQueryActor;
+import io.vlingo.schemata.query.view.OrganizationView;
+import io.vlingo.schemata.query.view.OrganizationsView;
+import io.vlingo.symbio.store.state.StateStore;
 
-public class OrganizationQueriesActor extends StateObjectQueryActor implements OrganizationQueries {
-  private static final String ById =
-          "SELECT * FROM TBL_ORGANIZATIONS " +
-          "WHERE organizationId = :organizationId";
-
-  private static final String ByName =
-          "SELECT * FROM TBL_ORGANIZATIONS " +
-          "WHERE name = :name";
-
-  private final Map<String,String> parameters;
-  private final QueryExpression queryAll;
-
-  public OrganizationQueriesActor(final ObjectStore objectStore) {
-    super(objectStore);
-
-    this.parameters = new HashMap<>(1);
-
-    this.queryAll = QueryExpression.using(OrganizationState.class, "SELECT * FROM TBL_ORGANIZATIONS");
+public class OrganizationQueriesActor extends StateStoreQueryActor implements OrganizationQueries {
+  public OrganizationQueriesActor(final StateStore stateStore) {
+    super(stateStore);
   }
 
   @Override
-  public Completes<List<OrganizationData>> organizations() {
-    return queryAll(OrganizationState.class, queryAll, (List<OrganizationState> states) -> OrganizationData.from(states));
+  public Completes<OrganizationsView> organizations() {
+    return queryObjectStateFor(OrganizationsView.Id, OrganizationsView.class).andFinally();
   }
 
   @Override
-  public Completes<OrganizationData> organization(final String organizationId) {
-    parameters.clear();
-    parameters.put("organizationId", organizationId);
-
-    return queryOne(ById, parameters);
-  }
-
-  @Override
-  public Completes<OrganizationData> organization(final String organizationId, final QueryResultsCollector collector) {
-    final Completes<OrganizationData> data = organization(organizationId);
-    collector.expectOrganization(data);
-    return data;
-  }
-
-  @Override
-  public Completes<OrganizationData> organizationNamed(final String name) {
-    parameters.clear();
-    parameters.put("name", name);
-
-    return queryOne(ByName, parameters);
-  }
-
-  @Override
-  public Completes<OrganizationData> organizationNamed(final String name, final QueryResultsCollector collector) {
-    final Completes<OrganizationData> data = organizationNamed(name);
-    collector.expectOrganization(data);
-    return data;
-  }
-
-  private Completes<OrganizationData> queryOne(final String query, final Map<String,String> parameters) {
-    final QueryExpression expression = MapQueryExpression.using(OrganizationState.class, query, parameters);
-
-    return queryObject(OrganizationState.class, expression, (OrganizationState state) -> OrganizationData.from(state));
+  public Completes<OrganizationView> organization(final String organizationId) {
+    return queryObjectStateFor(organizationId, OrganizationView.class).andFinally();
   }
 }

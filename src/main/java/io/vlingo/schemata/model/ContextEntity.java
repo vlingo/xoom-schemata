@@ -8,7 +8,7 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.common.Completes;
-import io.vlingo.lattice.model.object.ObjectEntity;
+import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.ContextDefined;
 import io.vlingo.schemata.model.Events.ContextDescribed;
 import io.vlingo.schemata.model.Events.ContextMovedToNamespace;
@@ -16,10 +16,11 @@ import io.vlingo.schemata.model.Events.ContextRedefined;
 import io.vlingo.schemata.model.Id.ContextId;
 
 
-public class ContextEntity extends ObjectEntity<ContextState> implements Context {
+public class ContextEntity extends EventSourced implements Context {
   private ContextState state;
 
   public ContextEntity(final ContextId contextId) {
+    super(contextId.value);
     this.state = ContextState.from(contextId);
   }
 
@@ -27,51 +28,52 @@ public class ContextEntity extends ObjectEntity<ContextState> implements Context
   public Completes<ContextState> defineWith(final String namespace, final String description) {
     assert (namespace != null && !namespace.isEmpty());
     assert (description != null && !description.isEmpty());
-    return apply(state.defineWith(namespace, description), ContextDefined.with(this.state.contextId, namespace, description), () -> state);
+    return apply(ContextDefined.with(this.state.contextId, namespace, description), () -> state);
   }
 
   @Override
   public Completes<ContextState> describeAs(final String description) {
     assert (description != null && !description.isEmpty());
-    return apply(state.withDescription(description), ContextDescribed.with(state.contextId, description), () -> state);
+    return apply(ContextDescribed.with(state.contextId, description), () -> state);
   }
 
   @Override
   public Completes<ContextState> moveToNamespace(final String namespace) {
     assert (namespace != null && !namespace.isEmpty());
-    return apply(state.withNamespace(namespace), ContextMovedToNamespace.with(state.contextId, namespace), () -> state);
+    return apply(ContextMovedToNamespace.with(state.contextId, namespace), () -> state);
   }
 
   @Override
   public Completes<ContextState> redefineWith(final String namespace, final String description) {
     assert (namespace != null && !namespace.isEmpty());
     assert (description != null && !description.isEmpty());
-    return apply(state.redefineWith(namespace, description), ContextRedefined.with(this.state.contextId, namespace, description), () -> state);
+    return apply(ContextRedefined.with(this.state.contextId, namespace, description), () -> state);
   }
 
-  @Override
-  protected String id() {
-    return String.valueOf(state.persistenceId());
+  //==============================
+  // Internal implementation
+  //==============================
+
+  private void applyContextDefined(final ContextDefined event) {
+    this.state = state.defineWith(event.name, event.description);
   }
 
-  @Override
-  protected ContextState stateObject() {
-    return state;
+  private void applyContextDescribed(final ContextDescribed event) {
+    this.state = this.state.withDescription(event.description);
   }
 
-  @Override
-  protected void stateObject(final ContextState stateObject) {
-    this.state = stateObject;
+  private void applyContextMovedToNamespace(final ContextMovedToNamespace event) {
+    this.state = state.withNamespace(event.namespace);
   }
 
-  @Override
-  protected Class<ContextState> stateObjectType() {
-    return ContextState.class;
+  private void applyContextRedefined(final ContextRedefined event) {
+    this.state = this.state.redefineWith(event.name, event.description);
   }
 
-  @Override
-  public void applyRelocationSnapshot(String snapshot) {
-    stateObject(ContextState.from(ContextId.existing(snapshot)));
+  static {
+    registerConsumer(ContextEntity.class, ContextDefined.class, ContextEntity::applyContextDefined);
+    registerConsumer(ContextEntity.class, ContextDescribed.class, ContextEntity::applyContextDescribed);
+    registerConsumer(ContextEntity.class, ContextMovedToNamespace.class, ContextEntity::applyContextMovedToNamespace);
+    registerConsumer(ContextEntity.class, ContextRedefined.class, ContextEntity::applyContextRedefined);
   }
-
 }

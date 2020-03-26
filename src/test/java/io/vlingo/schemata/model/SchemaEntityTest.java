@@ -7,29 +7,33 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import io.vlingo.actors.World;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
+import io.vlingo.actors.testkit.AccessSafely;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.symbio.store.MapQueryExpression;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.StateObjectMapper;
-import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
+import io.vlingo.symbio.store.journal.Journal;
+import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 
 public class SchemaEntityTest {
-  private ObjectTypeRegistry registry;
+  private AccessSafely access;
+  private AtomicReference<SchemaState> schemaState;
+
+  private Journal<String> journal;
+  private SourcedTypeRegistry registry;
   private Schema schema;
   private SchemaId schemaId;
-  private ObjectStore objectStore;
   private World world;
 
   @Before
@@ -37,22 +41,18 @@ public class SchemaEntityTest {
   public void setUp() {
     world = World.start("schema-test");
 
-    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
 
-    registry = new ObjectTypeRegistry(world);
-
-    final Info<Schema> schemaInfo =
-            new Info(
-                  objectStore,
-                  SchemaState.class,
-                  "HR-Database",
-                  MapQueryExpression.using(Schema.class, "find", MapQueryExpression.map("id", "id")),
-                  StateObjectMapper.with(Schema.class, new Object(), new Object()));
-
-    registry.register(schemaInfo);
+    registry = new SourcedTypeRegistry(world);
+    registry.register(new Info(journal, SchemaEntity.class, SchemaEntity.class.getSimpleName()));
 
     schemaId = SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique())));
     schema = world.actorFor(Schema.class, SchemaEntity.class, schemaId);
+
+    schemaState = new AtomicReference<>();
+    access = AccessSafely.afterCompleting(1);
+    access.writingWith("state", (SchemaState s) -> schemaState.set(s));
+    access.readingWith("state", ()-> schemaState.get());
   }
 
   @After
@@ -62,8 +62,10 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaDefinedIsEquals() {
-    final SchemaState state = schema.defineWith(Category.Event, Scope.Public,"name", "description").await();
-    Assert.assertNotEquals(SchemaState.unidentified(), state.persistenceId());
+    schema.defineWith(Category.Event, Scope.Public,"name", "description").andThenConsume(s -> access.writeUsing("state", s));
+
+    final SchemaState state = access.readFrom("state");
+
     Assert.assertEquals(schemaId.value, state.schemaId.value);
     Assert.assertEquals(Category.Event.name(), state.category.name());
     Assert.assertEquals("name", state.name);
@@ -72,19 +74,28 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaIsDescribed() {
-    final SchemaState state = schema.describeAs("new description").await();
+    schema.describeAs("new description").andThenConsume(s -> access.writeUsing("state", s));
+
+    final SchemaState state = access.readFrom("state");
+
     Assert.assertEquals("new description", state.description);
   }
 
   @Test
   public void testThatSchemaRecategorised() {
-    final SchemaState state = schema.categorizeAs(Category.Document).await();
+    schema.categorizeAs(Category.Document).andThenConsume(s -> access.writeUsing("state", s));
+
+    final SchemaState state = access.readFrom("state");
+
     Assert.assertEquals(Category.Document.name(), state.category.name());
   }
 
   @Test
   public void testThatSchemaRenamed() {
-    final SchemaState state = schema.renameTo("new name").await();
+    schema.renameTo("new name").andThenConsume(s -> access.writeUsing("state", s));
+
+    final SchemaState state = access.readFrom("state");
+
     Assert.assertEquals("new name", state.name);
   }
 }

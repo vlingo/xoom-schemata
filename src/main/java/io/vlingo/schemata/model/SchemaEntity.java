@@ -8,7 +8,7 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.common.Completes;
-import io.vlingo.lattice.model.object.ObjectEntity;
+import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.SchemaCategorized;
 import io.vlingo.schemata.model.Events.SchemaDefined;
 import io.vlingo.schemata.model.Events.SchemaDescribed;
@@ -17,71 +17,78 @@ import io.vlingo.schemata.model.Events.SchemaRenamed;
 import io.vlingo.schemata.model.Events.SchemaScoped;
 import io.vlingo.schemata.model.Id.SchemaId;
 
-public class SchemaEntity extends ObjectEntity<SchemaState> implements Schema {
+public class SchemaEntity extends EventSourced implements Schema {
   private SchemaState state;
 
   public SchemaEntity(final SchemaId schemaId) {
+    super(schemaId.value);
     this.state = SchemaState.from(schemaId);
   }
 
   @Override
   public Completes<SchemaState> defineWith(final Category category, final Scope scope, final String name, final String description) {
-    return apply(
-      this.state.defineWith(category, scope, name, description),
-      SchemaDefined.with(state.schemaId, category, scope, name, description),
-      () -> this.state);
+    return apply(SchemaDefined.with(state.schemaId, category, scope, name, description), () -> this.state);
   }
 
   @Override
   public Completes<SchemaState> categorizeAs(final Category category) {
-    return apply(this.state.withCategory(category), SchemaCategorized.with(state.schemaId, category), () -> this.state);
+    return apply(SchemaCategorized.with(state.schemaId, category), () -> this.state);
   }
 
   @Override
   public Completes<SchemaState> scopeAs(final Scope scope) {
-    return apply(this.state.withScope(scope), SchemaScoped.with(state.schemaId, scope), () -> this.state);
+    return apply(SchemaScoped.with(state.schemaId, scope), () -> this.state);
   }
 
   @Override
   public Completes<SchemaState> describeAs(String description) {
-    return apply(this.state.withDescription(description), SchemaDescribed.with(state.schemaId, description), () -> this.state);
+    return apply(SchemaDescribed.with(state.schemaId, description), () -> this.state);
   }
 
   @Override
   public Completes<SchemaState> redefineWith(final Category category, final Scope scope, final String name, final String description) {
-    return apply(
-            this.state.redefineWith(category, scope, name, description),
-            SchemaRedefined.with(state.schemaId, category, scope, name, description),
-            () -> this.state);
+    return apply(SchemaRedefined.with(state.schemaId, category, scope, name, description), () -> this.state);
   }
 
   @Override
   public Completes<SchemaState> renameTo(String name) {
-    return apply(this.state.withName(name), SchemaRenamed.with(state.schemaId, name), () -> this.state);
+    return apply(SchemaRenamed.with(state.schemaId, name), () -> this.state);
   }
 
-  @Override
-  protected String id() {
-    return String.valueOf(state.persistenceId());
+  //==============================
+  // Internal implementation
+  //==============================
+
+  private void applySchemaDefined(final SchemaDefined event) {
+    this.state = state.defineWith(Category.valueOf(event.category), Scope.valueOf(event.scope), event.name, event.description);
   }
 
-  @Override
-  protected SchemaState stateObject() {
-    return state;
+  private void applySchemaCategorized(final SchemaCategorized event) {
+    this.state = state.withCategory(Category.valueOf(event.category));
   }
 
-  @Override
-  protected void stateObject(final SchemaState stateObject) {
-    this.state = stateObject;
+  private void applySchemaScoped(final SchemaScoped event) {
+    this.state = state.withScope(Scope.valueOf(event.scope));
   }
 
-  @Override
-  protected Class<SchemaState> stateObjectType() {
-    return SchemaState.class;
+  private void applySchemaDescribed(final SchemaDescribed event) {
+    this.state = state.withDescription(event.description);
   }
 
-  @Override
-  public void applyRelocationSnapshot(String snapshot) {
-    stateObject(SchemaState.from(SchemaId.existing(snapshot)));
+  private void applySchemaRedefined(final SchemaRedefined event) {
+    this.state = state.redefineWith(Category.valueOf(event.category), Scope.valueOf(event.scope), event.name, event.description);
+  }
+
+  private void applySchemaRenamed(final SchemaRenamed event) {
+    this.state = this.state.withName(event.name);
+  }
+
+  static {
+    registerConsumer(SchemaEntity.class, SchemaDefined.class, SchemaEntity::applySchemaDefined);
+    registerConsumer(SchemaEntity.class, SchemaCategorized.class, SchemaEntity::applySchemaCategorized);
+    registerConsumer(SchemaEntity.class, SchemaScoped.class, SchemaEntity::applySchemaScoped);
+    registerConsumer(SchemaEntity.class, SchemaDescribed.class, SchemaEntity::applySchemaDescribed);
+    registerConsumer(SchemaEntity.class, SchemaRedefined.class, SchemaEntity::applySchemaRedefined);
+    registerConsumer(SchemaEntity.class, SchemaRenamed.class, SchemaEntity::applySchemaRenamed);
   }
 }

@@ -8,67 +8,65 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.common.Completes;
-import io.vlingo.lattice.model.object.ObjectEntity;
+import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.OrganizationDefined;
 import io.vlingo.schemata.model.Events.OrganizationDescribed;
 import io.vlingo.schemata.model.Events.OrganizationRedefined;
 import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.schemata.model.Id.OrganizationId;
 
-public class OrganizationEntity extends ObjectEntity<OrganizationState> implements Organization {
+public class OrganizationEntity extends EventSourced implements Organization {
   private OrganizationState state;
 
   public OrganizationEntity(final OrganizationId organizationId) {
+    super(organizationId.value);
     this.state = OrganizationState.from(organizationId);
-  }
-
-  public OrganizationEntity() {
-    this.state = null;
   }
 
   @Override
   public Completes<OrganizationState> defineWith(final String name, final String description) {
-    return apply(state.defineWith(name, description), new OrganizationDefined(this.state.organizationId, name, description), () -> state);
+    return apply(OrganizationDefined.with(this.state.organizationId, name, description), () -> state);
   }
 
   @Override
   public Completes<OrganizationState> describeAs(final String description) {
-    return apply(state.withDescription(description), new OrganizationDescribed(state.organizationId, description), () -> state);
+    return apply(OrganizationDescribed.with(state.organizationId, description), () -> state);
   }
 
   @Override
   public Completes<OrganizationState> redefineWith(final String name, final String description) {
-    return apply(state.redefineWith(name, description), new OrganizationRedefined(state.organizationId, name, description), () -> state);
+    return apply(OrganizationRedefined.with(state.organizationId, name, description), () -> state);
   }
 
   @Override
   public Completes<OrganizationState> renameTo(final String name) {
-    return apply(state.withName(name), new OrganizationRenamed(state.organizationId, name), () -> state);
+    return apply(OrganizationRenamed.with(state.organizationId, name), () -> state);
   }
 
-  @Override
-  protected String id() {
-    return String.valueOf(state.persistenceId());
+  //==============================
+  // Internal implementation
+  //==============================
+
+  private void applyOrganizationDefined(final OrganizationDefined event) {
+    this.state = state.defineWith(event.name, event.description);
   }
 
-  @Override
-  protected OrganizationState stateObject() {
-    return state;
+  private void applyOrganizationDescribed(final OrganizationDescribed event) {
+    this.state = state.withDescription(event.description);
   }
 
-  @Override
-  protected void stateObject(final OrganizationState stateObject) {
-    this.state = stateObject;
+  private void applyOrganizationRedefined(final OrganizationRedefined event) {
+    this.state = state.redefineWith(event.name, event.description);
   }
 
-  @Override
-  protected Class<OrganizationState> stateObjectType() {
-    return OrganizationState.class;
+  private void applyOrganizationRenamed(final OrganizationRenamed event) {
+    this.state = state.withName(event.name);
   }
 
-  @Override
-  public void applyRelocationSnapshot(String snapshot) {
-    stateObject(OrganizationState.from(OrganizationId.existing(snapshot)));
+  static {
+    registerConsumer(OrganizationEntity.class, OrganizationDefined.class, OrganizationEntity::applyOrganizationDefined);
+    registerConsumer(OrganizationEntity.class, OrganizationDescribed.class, OrganizationEntity::applyOrganizationDescribed);
+    registerConsumer(OrganizationEntity.class, OrganizationRedefined.class, OrganizationEntity::applyOrganizationRedefined);
+    registerConsumer(OrganizationEntity.class, OrganizationRenamed.class, OrganizationEntity::applyOrganizationRenamed);
   }
-
 }

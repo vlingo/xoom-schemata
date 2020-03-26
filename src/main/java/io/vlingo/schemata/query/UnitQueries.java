@@ -7,13 +7,11 @@
 
 package io.vlingo.schemata.query;
 
-import java.util.List;
-
 import io.vlingo.common.Completes;
-import io.vlingo.schemata.resource.data.UnitData;
+import io.vlingo.schemata.query.view.UnitView;
+import io.vlingo.schemata.query.view.UnitsView;
 
 public interface UnitQueries {
-  Completes<List<UnitData>> units(final String organizationId);
-  Completes<UnitData> unit(final String organizationId, final String unitId);
-  Completes<UnitData> unitNamed(final String organizationId, final String name);
+  Completes<UnitsView> units(final String organizationId);
+  Completes<UnitView> unit(final String organizationId, final String unitId);
 }
