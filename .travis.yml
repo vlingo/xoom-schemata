@@ -1,33 +1,19 @@
 language: java
 dist: trusty
+
 before_install:
-- cd ${TRAVIS_BUILD_DIR}/..
-- git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-common.git
-- cd vlingo-common && mvn install -DskipTests=true
-- cd ${TRAVIS_BUILD_DIR}/..
-- git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-wire.git
-- cd vlingo-wire && mvn install -DskipTests=true
-- cd ${TRAVIS_BUILD_DIR}/..
-- git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-actors.git
-- cd vlingo-actors && mvn install -DskipTests=true
-- cd ${TRAVIS_BUILD_DIR}/..
-- git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-cluster.git
-- cd vlingo-cluster && mvn install -DskipTests=true
-- cd ${TRAVIS_BUILD_DIR}/..
-- git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-symbio.git
-- cd vlingo-symbio && mvn install -DskipTests=true
-- cd ${TRAVIS_BUILD_DIR}/..
-- git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-symbio-jdbc.git
-- cd vlingo-symbio-jdbc && mvn install -DskipTests=true
-- cd ${TRAVIS_BUILD_DIR}/..
-- git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-lattice.git
-- cd vlingo-lattice && mvn install -DskipTests=true
-- cd ${TRAVIS_BUILD_DIR}
-- git clone --depth=50 --branch=master https://github.com/vlingo/vlingo-http.git
-- cd vlingo-http && mvn install -DskipTests=true
-- cd ${TRAVIS_BUILD_DIR}
+  - rm -rf $HOME/.m2/repository/io/vlingo
+  - cp travis_settings.xml $HOME/.m2/settings.xml
+
 script:
-- mvn -B package
+  - mvn -B package
+
+before_cache:
+  - rm -rf $HOME/.m2/repository/io/vlingo
+cache:
+  directories:
+    - $HOME/.m2/repository
+
 notifications:
   slack:
     secure: AgEmeaQl5W+pb11ThGexSGdjQGHnkpOmRiQRBQbpcbG+B9JrItWirboKbLN4MlLMFz+sAX3IBI9LY09IcWT/ycmn4rXDIdfdfzH3edS5PXUkUZ3Ew8IaQ641OqZqhg/CbvacD/Pyv2gGCvF5UfRfKVrsNa7rQkGefP1mkQ4Z71bVxe+sokVDZYyInwVD5VuxIDCsmuM6AsbpQo8vGa6LvMlnqNhC5AYuOwWRntqrb6ncNYwuPUw5zT5cG43qr3iIlBP9uOr7+wgg1cAysMs3kd2uyq5g0hKvKY/HqW++BO7qWNLwnBdTcU0ibbr17znXfbgSfhG0shHWrzVE81hkAMpVD5uxWA1O6+VFnXvhicGQyZPR9zD4tyO1cge9KulU3xW2ZSO+vWJ0LahaszngFRaMETl7JtVddYJ8uT0Bsq8YyEaP9yOrXggt+MTp2XxtmTFCFdLs2T2BG7Ujz6+DsxbghYdTYN6lmhyZZSzPKqz/5/gpyo6HbP0byc4LQUM59RsG+sLckh9/FQHBAPwKgplcwiszMik/a2KnAlBrTasoXFWkfqeXrQJnZuDZp+JMs5Z9UMZeaGKrn+si8olBcMYEKOeoGsy2UrbSOMvwlew94C+6gSLfKOKhDswsCuMEj6B4ZAl4L1T3cvRRrVyViilTKbzhs9b2QBNXBBktJ2k=
