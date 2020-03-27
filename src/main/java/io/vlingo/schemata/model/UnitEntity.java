@@ -8,14 +8,14 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.common.Completes;
-import io.vlingo.lattice.model.object.ObjectEntity;
+import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.UnitDefined;
 import io.vlingo.schemata.model.Events.UnitDescribed;
 import io.vlingo.schemata.model.Events.UnitRedefined;
 import io.vlingo.schemata.model.Events.UnitRenamed;
 import io.vlingo.schemata.model.Id.UnitId;
 
-public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
+public class UnitEntity extends EventSourced implements Unit {
   private UnitState state;
 
   public UnitEntity(final UnitId unitId) {
@@ -25,36 +25,48 @@ public class UnitEntity extends ObjectEntity<UnitState> implements Unit {
 
   @Override
   public Completes<UnitState> defineWith(final String name, final String description) {
-    return apply(this.state.defineWith(name, description), new UnitDefined(state.unitId, name, description), () -> this.state);
+    return apply(UnitDefined.with(state.unitId, name, description), () -> this.state);
   }
 
   @Override
   public Completes<UnitState> describeAs(final String description) {
-    return apply(this.state.withDescription(description), new UnitDescribed(state.unitId, description), () -> this.state);
+    return apply(UnitDescribed.with(state.unitId, description), () -> this.state);
   }
 
   @Override
   public Completes<UnitState> redefineWith(final String name, final String description) {
-    return apply(this.state.redefineWith(name, description), new UnitRedefined(state.unitId, name, description), () -> this.state);
+    return apply(UnitRedefined.with(state.unitId, name, description), () -> this.state);
   }
 
   @Override
   public Completes<UnitState> renameTo(final String name) {
-    return apply(this.state.withName(name), new UnitRenamed(state.unitId, name), () -> this.state);
+    return apply(UnitRenamed.with(state.unitId, name), () -> this.state);
   }
 
-  @Override
-  protected UnitState stateObject() {
-    return state;
+  //==============================
+  // Internal implementation
+  //==============================
+
+  private void applyUnitDefined(final UnitDefined event) {
+    this.state = state.defineWith(event.name, event.description);
   }
 
-  @Override
-  protected void stateObject(final UnitState stateObject) {
-    this.state = stateObject;
+  private void applyUnitDescribed(final UnitDescribed event) {
+    this.state = this.state.withDescription(event.description);
   }
 
-  @Override
-  protected Class<UnitState> stateObjectType() {
-    return UnitState.class;
+  private void applyUnitRedefined(final UnitRedefined event) {
+    this.state = this.state.redefineWith(event.name, event.description);
+  }
+
+  private void applyUnitRenamed(final UnitRenamed event) {
+    this.state = state.withName(event.name);
+  }
+
+  static {
+    registerConsumer(UnitEntity.class, UnitDefined.class, UnitEntity::applyUnitDefined);
+    registerConsumer(UnitEntity.class, UnitDescribed.class, UnitEntity::applyUnitDescribed);
+    registerConsumer(UnitEntity.class, UnitRedefined.class, UnitEntity::applyUnitRedefined);
+    registerConsumer(UnitEntity.class, UnitRenamed.class, UnitEntity::applyUnitRenamed);
   }
 }

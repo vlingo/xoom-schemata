@@ -10,12 +10,10 @@ package io.vlingo.schemata.query;
 import java.util.List;
 
 import io.vlingo.common.Completes;
-import io.vlingo.common.Outcome;
-import io.vlingo.schemata.errors.SchemataBusinessException;
-import io.vlingo.schemata.resource.data.UnitData;
+import io.vlingo.schemata.query.view.UnitView;
+import io.vlingo.schemata.query.view.UnitsView;
 
 public interface UnitQueries {
-  Completes<List<UnitData>> units(final String organizationId);
-  Completes<Outcome<SchemataBusinessException,UnitData>> unit(final String organizationId, final String unitId);
-  Completes<Outcome<SchemataBusinessException,UnitData>> unitNamed(final String organizationId, final String name);
+  Completes<UnitsView> units(final String organizationId);
+  Completes<UnitView> unit(final String organizationId, final String unitId);
 }

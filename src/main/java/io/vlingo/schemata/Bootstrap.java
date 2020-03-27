@@ -7,7 +7,11 @@
 
 package io.vlingo.schemata;
 
-import io.vlingo.actors.Grid;
+import static io.vlingo.schemata.Schemata.StageName;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+
 import io.vlingo.actors.GridAddressFactory;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
@@ -15,18 +19,14 @@ import io.vlingo.common.identity.IdentityGeneratorType;
 import io.vlingo.http.resource.Configuration;
 import io.vlingo.http.resource.Resources;
 import io.vlingo.http.resource.Server;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
-import io.vlingo.schemata.query.Queries;
-import io.vlingo.schemata.resource.*;
-import io.vlingo.symbio.BaseEntry.TextEntry;
-import io.vlingo.symbio.State.TextState;
-import io.vlingo.symbio.store.object.ObjectStore;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-
-import static io.vlingo.schemata.Schemata.StageName;
+import io.vlingo.schemata.infra.persistence.StorageProvider;
+import io.vlingo.schemata.resource.CodeResource;
+import io.vlingo.schemata.resource.ContextResource;
+import io.vlingo.schemata.resource.OrganizationResource;
+import io.vlingo.schemata.resource.SchemaResource;
+import io.vlingo.schemata.resource.SchemaVersionResource;
+import io.vlingo.schemata.resource.UiResource;
+import io.vlingo.schemata.resource.UnitResource;
 
 public class Bootstrap {
 
@@ -42,16 +42,7 @@ public class Bootstrap {
     // TODO: Start an actual Grid here using Grid.start(...). Needs a complete grid configuration first
     world.stageNamed(StageName, Stage.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
 
-    final NoopDispatcher<TextEntry, TextState> dispatcher = new NoopDispatcher<>();
-
-    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(config);
-    final ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
-    final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
-    schemataObjectStore.register(registry, objectStore);
-
-    final Stage stage = world.stageNamed(StageName);
-
-    Queries.startAll(stage, objectStore);
+    StorageProvider.initialize(world, config);
 
     final OrganizationResource organizationResource = new OrganizationResource(world);
     final UnitResource unitResource = new UnitResource(world);

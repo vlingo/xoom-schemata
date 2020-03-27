@@ -7,27 +7,31 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import io.vlingo.actors.World;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
+import io.vlingo.actors.testkit.AccessSafely;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.symbio.store.MapQueryExpression;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.StateObjectMapper;
-import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
+import io.vlingo.symbio.store.journal.Journal;
+import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 
 public class ContextEntityTest {
+  private AccessSafely access;
+  private AtomicReference<ContextState> ctxState;
+
   private Context context;
-  private ObjectTypeRegistry registry;
-  private ObjectStore objectStore;
+  private Journal<String> journal;
+  private SourcedTypeRegistry registry;
   private World world;
   private ContextId contextId;
 
@@ -36,24 +40,18 @@ public class ContextEntityTest {
   public void setUp() {
     world = World.start("context-test");
 
-    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
 
-    registry = new ObjectTypeRegistry(world);
-
-    // NOTE: The InMemoryObjectStoreActor implementation currently
-    // does not use PersistentObjectMapper, and thus the no-op decl.
-    final Info<Context> contextInfo =
-            new Info(
-                    objectStore,
-                    ContextState.class,
-                    "HR-Database",
-                    MapQueryExpression.using(Context.class, "find", MapQueryExpression.map("id", "id")),
-                    StateObjectMapper.with(Context.class, new Object(), new Object()));
-
-    registry.register(contextInfo);
+    registry = new SourcedTypeRegistry(world);
+    registry.register(new Info(journal, ContextEntity.class, ContextEntity.class.getSimpleName()));
 
     contextId = ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()));
     context = world.actorFor(Context.class, ContextEntity.class, contextId);
+
+    ctxState = new AtomicReference<>();
+    access = AccessSafely.afterCompleting(1);
+    access.writingWith("state", (ContextState s) -> ctxState.set(s));
+    access.readingWith("state", ()-> ctxState.get());
   }
 
   @After
@@ -63,22 +61,30 @@ public class ContextEntityTest {
 
   @Test
   public void testThatContextIsDefined() {
-    final ContextState contextState = context.defineWith("namespace", "description").await();
-    Assert.assertNotEquals(ContextState.unidentified(), contextState.persistenceId());
-    Assert.assertEquals(contextId.value, contextState.contextId.value);
-    Assert.assertEquals("namespace", contextState.namespace);
-    Assert.assertEquals("description", contextState.description);
+    context.defineWith("namespace", "description").andThenConsume(s -> access.writeUsing("state", s));
+
+    final ContextState state = access.readFrom("state");
+
+    Assert.assertEquals(contextId.value, state.contextId.value);
+    Assert.assertEquals("namespace", state.namespace);
+    Assert.assertEquals("description", state.description);
   }
 
   @Test
   public void testThatContextRenamed() {
-    final ContextState contextState = context.moveToNamespace("new namespace").await();
-    Assert.assertEquals("new namespace", contextState.namespace);
+    context.moveToNamespace("new namespace").andThenConsume(s -> access.writeUsing("state", s));
+
+    final ContextState state = access.readFrom("state");
+
+    Assert.assertEquals("new namespace", state.namespace);
   }
 
   @Test
   public void testThatContextIsDescribed() {
-    final ContextState contextState = context.describeAs("new description").await();
-    Assert.assertEquals("new description", contextState.description);
+    context.describeAs("new description").andThenConsume(s -> access.writeUsing("state", s));
+
+    final ContextState state = access.readFrom("state");
+
+    Assert.assertEquals("new description", state.description);
   }
 }

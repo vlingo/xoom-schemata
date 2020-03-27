@@ -12,20 +12,6 @@
       <url>https://mozilla.org/MPL/2.0/</url>
     </license>
   </licenses>
-  <developers>
-    <developer>
-      <name>Vaughn Vernon</name>
-      <email>vaughn@kalele.io</email>
-      <organization>Kalele</organization>
-      <organizationUrl>http://kalele.io</organizationUrl>
-    </developer>
-    <developer>
-      <name>Tomasz Jaskula</name>
-      <email>tjaskula@luteceo.com</email>
-      <organization>Luteceo</organization>
-      <organizationUrl>http://luteceo.com/</organizationUrl>
-    </developer>
-  </developers>
   <scm>
     <connection>scm:git:git://github.com/vlingo/vlingo-schemata.git</connection>
     <developerConnection>scm:git:ssh://github.com/vlingo/vlingo-schemata.git</developerConnection>
@@ -157,6 +143,8 @@
       <artifactId>logback-classic</artifactId>
       <version>1.0.13</version>
     </dependency>
+    <!-- merged from master and commented out, don't know if required -->
+    <!--
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
@@ -172,6 +160,7 @@
       <artifactId>javax.activation</artifactId>
       <version>1.2.0</version>
     </dependency>
+    -->
   </dependencies>
   <profiles>
     <profile>

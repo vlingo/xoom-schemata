@@ -7,14 +7,17 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import io.vlingo.actors.World;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
+import io.vlingo.actors.testkit.AccessSafely;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
@@ -22,16 +25,17 @@ import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
-import io.vlingo.symbio.store.MapQueryExpression;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.StateObjectMapper;
-import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
+import io.vlingo.symbio.store.journal.Journal;
+import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 
 public class SchemaVersionEntityTest {
-  private ObjectTypeRegistry registry;
+  private AccessSafely access;
+  private AtomicReference<SchemaVersionState> schemaVersionState;
+
+  private Journal<String> journal;
+  private SourcedTypeRegistry registry;
   private SchemaVersion schemaVersion;
   private SchemaVersionId schemaVersionId;
-  private ObjectStore objectStore;
   private World world;
 
   @Before
@@ -39,22 +43,18 @@ public class SchemaVersionEntityTest {
   public void setUp() {
     world = World.start("schema-version-test");
 
-    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
 
-    registry = new ObjectTypeRegistry(world);
-
-    final Info<SchemaVersion> schemaVersionInfo =
-            new Info(
-                    objectStore,
-                    SchemaVersionState.class,
-                    "HR-Database",
-                    MapQueryExpression.using(SchemaVersion.class, "find", MapQueryExpression.map("id", "id")),
-                    StateObjectMapper.with(SchemaVersion.class, new Object(), new Object()));
-
-    registry.register(schemaVersionInfo);
+    registry = new SourcedTypeRegistry(world);
+    registry.register(new Info(journal, SchemaVersionEntity.class, SchemaVersionEntity.class.getSimpleName()));
 
     schemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
     schemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, schemaVersionId);
+
+    schemaVersionState = new AtomicReference<>();
+    access = AccessSafely.afterCompleting(1);
+    access.writingWith("state", (SchemaVersionState s) -> schemaVersionState.set(s));
+    access.readingWith("state", ()-> schemaVersionState.get());
   }
 
   @After
@@ -64,8 +64,11 @@ public class SchemaVersionEntityTest {
 
   @Test
   public void testThatSchemaVersionIsDefined() {
-    final SchemaVersionState state = schemaVersion.defineWith(new SchemaVersion.Specification("specification"), "description", new SchemaVersion.Version("0.0.0"), new SchemaVersion.Version("1.0.0")).await();
-    Assert.assertNotEquals(SchemaVersionState.unidentified(), state.persistenceId());
+    schemaVersion.defineWith(new SchemaVersion.Specification("specification"), "description", new SchemaVersion.Version("0.0.0"), new SchemaVersion.Version("1.0.0"))
+            .andThenConsume(s -> access.writeUsing("state", s));
+
+    final SchemaVersionState state = access.readFrom("state");
+
     Assert.assertEquals(schemaVersionId.value, state.schemaVersionId.value);
     Assert.assertEquals("description", state.description);
     Assert.assertEquals("specification", state.specification.value);
@@ -75,19 +78,31 @@ public class SchemaVersionEntityTest {
 
   @Test
   public void testThatSchemaVersionIsSpecified() {
-    final SchemaVersionState state = schemaVersion.specifyWith(Specification.of("new specification")).await();
+    schemaVersion.specifyWith(Specification.of("new specification"))
+            .andThenConsume(s -> access.writeUsing("state", s));
+
+    final SchemaVersionState state = access.readFrom("state");
+
     Assert.assertEquals("new specification", state.specification.value);
   }
 
   @Test
   public void testThatSchemaVersionIsDescribed() {
-    final SchemaVersionState state = schemaVersion.describeAs("new description").await();
+    schemaVersion.describeAs("new description")
+            .andThenConsume(s -> access.writeUsing("state", s));
+
+    final SchemaVersionState state = access.readFrom("state");
+
     Assert.assertEquals("new description", state.description);
   }
 
   @Test
   public void testThatSchemaVersionPublishes() {
-    final SchemaVersionState state = schemaVersion.publish().await();
+    schemaVersion.publish()
+            .andThenConsume(s -> access.writeUsing("state", s));
+
+    final SchemaVersionState state = access.readFrom("state");
+
     Assert.assertEquals(SchemaVersion.Status.Published, state.status);
   }
 
@@ -95,7 +110,12 @@ public class SchemaVersionEntityTest {
   public void testThatSchemaVersionRemoves() {
     schemaVersion.publish();
     schemaVersion.deprecate();
-    final SchemaVersionState state = schemaVersion.remove().await();
+
+    schemaVersion.remove()
+            .andThenConsume(s -> access.writeUsing("state", s));
+
+    final SchemaVersionState state = access.readFrom("state");
+
     Assert.assertEquals(SchemaVersion.Status.Removed, state.status);
   }
 }
