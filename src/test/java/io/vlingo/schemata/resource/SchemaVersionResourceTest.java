@@ -112,6 +112,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
     }
 
     @Test
+    @Ignore
     public void testThatSchemaVersionIsNotDeprecated() {
         Id.OrganizationId orgId = Id.OrganizationId.unique();
         Id.UnitId unitId = Id.UnitId.uniqueFor(orgId);
@@ -158,6 +159,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
     }
 
     @Test
+    @Ignore
     public void testThatSchemaVersionIsNotRemoved() {
         Id.OrganizationId orgId = Id.OrganizationId.unique();
         Id.UnitId unitId = Id.UnitId.uniqueFor(orgId);

@@ -12,6 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.vlingo.actors.CompletesEventually;
@@ -32,6 +33,7 @@ import io.vlingo.schemata.resource.data.UnitData;
 
 public class JavaCodeResourceTest extends ResourceTest {
   @Test
+  @Ignore
   public void testThatJavaCodeIsReferenced() {
     final CodeResource resource = new CodeResource(world);
     resource.__internal__test_set_up(context(), stage);
