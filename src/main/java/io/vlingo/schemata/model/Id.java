@@ -15,7 +15,7 @@ import io.vlingo.common.identity.UniqueTextGenerator;
 public abstract class Id implements Serializable {
   private static final long serialVersionUID = 1L;
 
-  private static final UniqueTextGenerator generator = new UniqueTextGenerator();
+  // private static final UniqueTextGenerator generator = new UniqueTextGenerator();
 
   private static final String Separator = ":";
 
@@ -80,7 +80,7 @@ public abstract class Id implements Serializable {
     }
 
     UnitId(final OrganizationId organizationId) {
-      this(organizationId, generator.generate().toString());
+      this(organizationId, IdentityGeneratorType.Random.generate().toString());
     }
 
     UnitId(final OrganizationId organizationId, final String unitIdValue) {
@@ -116,7 +116,7 @@ public abstract class Id implements Serializable {
     }
 
     ContextId(final UnitId unitId) {
-      this(unitId, generator.generate().toString());
+      this(unitId, IdentityGeneratorType.Random.generate().toString());
     }
 
     ContextId(final UnitId unitId, final String contextIdValue) {
@@ -161,7 +161,7 @@ public abstract class Id implements Serializable {
     }
 
     SchemaId(final ContextId contextId) {
-      this(contextId, generator.generate().toString());
+      this(contextId, IdentityGeneratorType.Random.generate().toString());
     }
 
     SchemaId(final ContextId contextId, final String schemaIdValue) {
@@ -210,7 +210,7 @@ public abstract class Id implements Serializable {
     }
 
     SchemaVersionId(final SchemaId schemaId) {
-      this(schemaId, generator.generate().toString());
+      this(schemaId, IdentityGeneratorType.Random.generate().toString());
     }
 
     SchemaVersionId(final SchemaId schemaId, final String value) {
