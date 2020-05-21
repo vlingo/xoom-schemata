@@ -20,6 +20,7 @@ import io.vlingo.http.resource.Configuration;
 import io.vlingo.http.resource.Resources;
 import io.vlingo.http.resource.Server;
 import io.vlingo.schemata.infra.persistence.ProjectionDispatcherProvider;
+import io.vlingo.schemata.infra.persistence.StateStoreProvider;
 import io.vlingo.schemata.infra.persistence.StorageProvider;
 import io.vlingo.schemata.resource.CodeResource;
 import io.vlingo.schemata.resource.ContextResource;
@@ -43,10 +44,11 @@ public class Bootstrap {
     // TODO: Start an actual Grid here using Grid.start(...). Needs a complete grid configuration first
     world.stageNamed(StageName, Stage.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
 
+    final StateStoreProvider stateStoreProvider = StateStoreProvider.using(world);
     final ProjectionDispatcherProvider projectionDispatcherProvider =
-            ProjectionDispatcherProvider.using(world.stage());
+            ProjectionDispatcherProvider.using(world.stage(), stateStoreProvider.stateStore);
 
-    StorageProvider.initialize(world, config, projectionDispatcherProvider.storeDispatcher);
+    StorageProvider.initialize(world, config, stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher);
 
     final OrganizationResource organizationResource = new OrganizationResource(world);
     final UnitResource unitResource = new UnitResource(world);

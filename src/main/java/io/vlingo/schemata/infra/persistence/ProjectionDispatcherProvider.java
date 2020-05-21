@@ -9,6 +9,7 @@ package io.vlingo.schemata.infra.persistence;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.Protocols;
@@ -21,6 +22,7 @@ import io.vlingo.schemata.model.Events.OrganizationDescribed;
 import io.vlingo.schemata.model.Events.OrganizationRedefined;
 import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
+import io.vlingo.symbio.store.state.StateStore;
 
 @SuppressWarnings("rawtypes")
 public class ProjectionDispatcherProvider {
@@ -33,19 +35,16 @@ public class ProjectionDispatcherProvider {
     return instance;
   }
 
-  public static ProjectionDispatcherProvider using(final Stage stage) {
+  public static ProjectionDispatcherProvider using(final Stage stage, final StateStore stateStore) {
     if (instance != null) return instance;
 
     final List<ProjectToDescription> descriptions =
             Arrays.asList(
-                    ProjectToDescription.with(
-                            OrganizationProjection.class,
+                    ProjectToDescription.with(OrganizationProjection.class, Optional.of(stateStore),
                             OrganizationDefined.class,
                             OrganizationDescribed.class,
                             OrganizationRedefined.class,
-                            OrganizationRenamed.class
-                            )
-                    );
+                            OrganizationRenamed.class));
 
     final Protocols dispatcherProtocols =
             stage.actorFor(
