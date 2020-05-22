@@ -68,14 +68,8 @@ public class Bootstrap {
 
     port = config.randomPort ? nextFreePort(9019, 9100) : config.serverPort;
 
-    server = Server.startWith(world.stage(),
-      allResources,
-      port,
-      Configuration.Sizing.define()
-          .withDispatcherPoolSize(2)
-          .withMaxBufferPoolSize(100)
-          .withMaxMessageSize(4096),
-      Configuration.Timing.define());
+    server = Server.startWith(world.stage(), allResources, port, 2);
+    
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       if (instance != null) {
         instance.server.stop();
