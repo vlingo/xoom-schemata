@@ -49,7 +49,14 @@ public class OrganizationsProjection extends StateStoreProjectionActor<Organizat
           final OrganizationsView currentData,
           final int currentVersion) {
 
-    return mergeInto(currentData);
+    final OrganizationsView accumulator;
+    if (previousData == null) {
+      accumulator = mergeInto(currentData);
+    } else {
+      accumulator = mergeInto(previousData);
+    }
+
+    return accumulator;
   }
 
   @Override

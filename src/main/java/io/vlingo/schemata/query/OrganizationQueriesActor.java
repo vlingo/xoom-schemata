@@ -20,11 +20,11 @@ public class OrganizationQueriesActor extends StateStoreQueryActor implements Or
 
   @Override
   public Completes<OrganizationsView> organizations() {
-    return queryObjectStateFor(OrganizationsView.Id, OrganizationsView.class).andFinally();
+    return queryStateFor(OrganizationsView.Id, OrganizationsView.class);
   }
 
   @Override
   public Completes<OrganizationView> organization(final String organizationId) {
-    return queryObjectStateFor(organizationId, OrganizationView.class).andFinally();
+    return queryStateFor(organizationId, OrganizationView.class);
   }
 }

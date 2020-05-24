@@ -11,28 +11,24 @@ import io.vlingo.actors.World;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
 import io.vlingo.schemata.SchemataConfig;
 import io.vlingo.schemata.model.Events;
-import io.vlingo.schemata.model.Events.ContextDefined;
-import io.vlingo.schemata.model.Events.ContextDescribed;
-import io.vlingo.schemata.model.Events.ContextMovedToNamespace;
-import io.vlingo.schemata.model.Events.ContextRedefined;
 import io.vlingo.schemata.model.OrganizationEntity;
 import io.vlingo.schemata.query.OrganizationQueries;
 import io.vlingo.schemata.query.OrganizationQueriesActor;
-import io.vlingo.schemata.query.view.OrganizationView;
-import io.vlingo.symbio.BaseEntry.TextEntry;
-import io.vlingo.symbio.DefaultTextEntryAdapter;
-import io.vlingo.symbio.EntryAdapterProvider;
-import io.vlingo.symbio.State.TextState;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.journal.Journal;
 import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 import io.vlingo.symbio.store.state.StateStore;
 
 public class StorageProvider {
+  private static StorageProvider instance;
+
   public final Journal<String> journal;
+  public final OrganizationQueries organizationQueries;
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static void initialize(final World world, final SchemataConfig config, StateStore stateStore, final Dispatcher dispatcher) throws Exception {
+  public static StorageProvider with(final World world, final SchemataConfig config, StateStore stateStore, final Dispatcher dispatcher) throws Exception {
+    if (instance != null) return instance;
+
 //    final EntryAdapterProvider entryAdapterProvider = EntryAdapterProvider.instance(world);
 
     // TODO Do we need below registrations? (look for: new EntryAdapterProvider(stage.world()); // future?)
@@ -49,7 +45,9 @@ public class StorageProvider {
     SourcedTypeRegistry registry = new SourcedTypeRegistry(world);
     registry.register(new SourcedTypeRegistry.Info(journal, OrganizationEntity.class, OrganizationEntity.class.getSimpleName()));
     registry.info(OrganizationEntity.class)
-            .registerEntryAdapter(Events.OrganizationDefined.class, new EventAdapter(Events.OrganizationDefined.class));
+            .registerEntryAdapter(Events.OrganizationDefined.class, new EventAdapter(Events.OrganizationDefined.class))
+            .registerEntryAdapter(Events.OrganizationRedefined.class, new EventAdapter(Events.OrganizationRedefined.class))
+            .registerEntryAdapter(Events.OrganizationDescribed.class, new EventAdapter(Events.OrganizationDescribed.class));
 
 //    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(config);
 //    final ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
@@ -57,9 +55,13 @@ public class StorageProvider {
 //    schemataObjectStore.register(registry, objectStore);
 //
 //    Queries.startAll(world.stageNamed(StageName), objectStore);
+
+    instance = new StorageProvider(journal, organizationQueries);
+    return instance;
   }
 
-  private StorageProvider(final Journal<String> journal) {
+  private StorageProvider(final Journal<String> journal, OrganizationQueries organizationQueries) {
     this.journal = journal;
+    this.organizationQueries = organizationQueries;
   }
 }

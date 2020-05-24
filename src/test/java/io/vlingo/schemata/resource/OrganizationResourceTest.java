@@ -26,7 +26,7 @@ public class OrganizationResourceTest extends ResourceTest {
 
   @Test
   public void testThatOrganizationIsDefined() {
-    final OrganizationResource resource = new OrganizationResource(world);
+    final OrganizationResource resource = new OrganizationResource(world, organizationQueries);
     final Response response = resource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
     assertEquals(Created, response.status);
     assertNotNull(response.headers.headerOf(Location));
@@ -36,7 +36,7 @@ public class OrganizationResourceTest extends ResourceTest {
 
   @Test
   public void testOrganizationDescribedAs() {
-    final OrganizationResource resource = new OrganizationResource(world);
+    final OrganizationResource resource = new OrganizationResource(world, organizationQueries);
     final Response response1 = resource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
     assertEquals(Created, response1.status);
     final OrganizationData data1 = JsonSerialization.deserialized(response1.entity.content(), OrganizationData.class);
@@ -50,7 +50,7 @@ public class OrganizationResourceTest extends ResourceTest {
 
   @Test
   public void testOrganizationRedefineWith() {
-    final OrganizationResource resource = new OrganizationResource(world);
+    final OrganizationResource resource = new OrganizationResource(world, organizationQueries);
     final Response response1 = resource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
     assertEquals(Created, response1.status);
     final OrganizationData data1 = JsonSerialization.deserialized(response1.entity.content(), OrganizationData.class);
@@ -66,7 +66,7 @@ public class OrganizationResourceTest extends ResourceTest {
 
   @Test
   public void testOrganizationRenameTo() {
-    final OrganizationResource resource = new OrganizationResource(world);
+    final OrganizationResource resource = new OrganizationResource(world, organizationQueries);
     final Response response1 = resource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
     assertEquals(Created, response1.status);
     final OrganizationData data1 = JsonSerialization.deserialized(response1.entity.content(), OrganizationData.class);

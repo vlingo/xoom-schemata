@@ -12,6 +12,7 @@ import io.vlingo.actors.World;
 import io.vlingo.lattice.model.stateful.StatefulTypeRegistry;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.query.view.OrganizationView;
+import io.vlingo.schemata.query.view.OrganizationsView;
 import io.vlingo.symbio.EntryAdapterProvider;
 import io.vlingo.symbio.StateAdapterProvider;
 import io.vlingo.symbio.store.state.StateStore;
@@ -36,7 +37,7 @@ public class StateStoreProvider {
                 InMemoryStateStoreActor.class,
                 Arrays.asList(new NoopDispatcher()));
 
-        registerStateAdapters(world.stage());
+        // registerStateAdapters(world.stage());
         registerStatefulTypes(stateStore, registry);
 
         instance = new StateStoreProvider(stateStore);
@@ -45,14 +46,15 @@ public class StateStoreProvider {
 
     private static void registerStatefulTypes(StateStore stateStore, StatefulTypeRegistry registry) {
         registry
-                .register(new StatefulTypeRegistry.Info<>(stateStore, OrganizationView.class, OrganizationView.class.getSimpleName()));
+                .register(new StatefulTypeRegistry.Info<>(stateStore, OrganizationView.class, OrganizationView.class.getSimpleName()))
+                .register(new StatefulTypeRegistry.Info<>(stateStore, OrganizationsView.class, OrganizationsView.class.getSimpleName()));
     }
 
-    private static void registerStateAdapters(Stage stage) {
-        final StateAdapterProvider stateAdapterProvider = new StateAdapterProvider(stage.world());
-        stateAdapterProvider.registerAdapter(OrganizationView.class, new OrganizationStateAdapter());
-        new EntryAdapterProvider(stage.world()); // future?
-    }
+//    private static void registerStateAdapters(Stage stage) {
+//        final StateAdapterProvider stateAdapterProvider = new StateAdapterProvider(stage.world());
+//        stateAdapterProvider.registerAdapter(OrganizationView.class, new OrganizationStateAdapter());
+//        new EntryAdapterProvider(stage.world()); // future?
+//    }
 
     private StateStoreProvider(StateStore stateStore) {
         this.stateStore = stateStore;

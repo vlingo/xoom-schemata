@@ -100,7 +100,7 @@ public class JavaCodeResourceTest extends ResourceTest {
   private String schemaVersionId;
 
   private void createFixtures() {
-    final OrganizationResource organizationResource = new OrganizationResource(world);
+    final OrganizationResource organizationResource = new OrganizationResource(world, organizationQueries);
     final Response organizationResponse = organizationResource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
     organizationId = extractResourceIdFrom(organizationResponse);
 

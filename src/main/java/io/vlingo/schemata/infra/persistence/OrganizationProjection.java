@@ -24,6 +24,11 @@ import io.vlingo.symbio.store.state.StateStore;
 
 public class OrganizationProjection extends StateStoreProjectionActor<OrganizationView> {
   private String dataId;
+
+  /**
+   * Keep state between prepareForMergeWith(...) and merge(...) methods.
+   * This list holds the latest events occurred which are not merged yet.
+   */
   private final List<IdentifiedDomainEvent> events;
 
   public OrganizationProjection(StateStore stateStore) {
@@ -51,7 +56,14 @@ public class OrganizationProjection extends StateStoreProjectionActor<Organizati
           final OrganizationView currentData,
           final int currentVersion) {
 
-    return mergeInto(currentData);
+    final OrganizationView accumulator;
+    if (previousData == null) {
+      accumulator = mergeEventsInto(currentData);
+    } else {
+      accumulator = mergeEventsInto(previousData);
+    }
+
+    return accumulator;
   }
 
   @Override
@@ -71,27 +83,24 @@ public class OrganizationProjection extends StateStoreProjectionActor<Organizati
     }
   }
 
-  private OrganizationView mergeInto(final OrganizationView accumulator) {
+  private OrganizationView mergeEventsInto(final OrganizationView accumulator) {
     for (final DomainEvent event : events) {
       switch (match(event)) {
       case OrganizationDefined:
         final OrganizationDefined defined = typed(event);
-        accumulator.organizationId(defined.organizationId);
-        accumulator.name(defined.name);
-        accumulator.description(defined.description);
+        accumulator.initializeWith(defined.organizationId, defined.name, defined.description);
         break;
       case OrganizationDescribed:
         final OrganizationDescribed described = typed(event);
-        accumulator.description(described.description);
+        accumulator.mergeDescriptionWith(described.organizationId, described.description);
         break;
       case OrganizationRedefined:
         final OrganizationRedefined redefined = typed(event);
-        accumulator.name(redefined.name);
-        accumulator.description(redefined.description);
+        accumulator.mergeWith(redefined.organizationId, redefined.name, redefined.description);
         break;
       case OrganizationRenamed:
         final OrganizationRenamed renamed = typed(event);
-        accumulator.name(renamed.name);
+        accumulator.mergeNameWith(renamed.organizationId, renamed.name);
         break;
       case Unmatched:
         logger().warn("Event of type " + event.typeName() + " was not matched.");

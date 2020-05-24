@@ -77,6 +77,31 @@ public class OrganizationView {
     return organizationId.equals(((OrganizationView) other).organizationId);
   }
 
+  public void initializeWith(String organizationId, String name, String description) {
+    this.organizationId = organizationId;
+    this.name = name;
+    this.description = description;
+  }
+
+  public void mergeDescriptionWith(String organizationId, String description) {
+    if (this.organizationId.equals(organizationId)) {
+      this.description = description;
+    }
+  }
+
+  public void mergeNameWith(String organizationId, String name) {
+    if (this.organizationId.equals(organizationId)) {
+      this.name = name;
+    }
+  }
+
+  public void mergeWith(String organizationId, String name, String description) {
+    if (this.description.equals(organizationId)) {
+      this.name = name;
+      this.description = description;
+    }
+  }
+
   @Override
   public String toString() {
     return "OrganizationView [organizationId=" + organizationId + ", name=" + name + ", description=" + description + "]";
