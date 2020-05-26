@@ -39,8 +39,7 @@ public class OrganizationProjection extends StateStoreProjectionActor<Organizati
 
   @Override
   protected OrganizationView currentDataFor(final Projectable projectable) {
-    final OrganizationView view = new OrganizationView(projectable.dataId());
-    return view;
+    return OrganizationView.empty();
   }
 
   @Override

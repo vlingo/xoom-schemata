@@ -14,7 +14,7 @@ import java.util.List;
 public class OrganizationsView {
   public static final String Id = "root";
 
-  private List<Tag> organizations;
+  private final List<Tag> organizations;
 
   public static OrganizationsView empty() {
     return new OrganizationsView();
@@ -24,9 +24,18 @@ public class OrganizationsView {
     this.organizations = new ArrayList<>();
   }
 
-  public void add(final Tag organization) {
-    if (!organizations.contains(organization)) {
-      organizations.add(organization);
+  public OrganizationsView(List<Tag> organizations) {
+    this.organizations = organizations;
+  }
+
+  public OrganizationsView add(final Tag organization) {
+    if (organizations.contains(organization)) {
+      return this;
+    } else {
+      OrganizationsView result = new OrganizationsView(new ArrayList<>(organizations));
+      result.organizations.add(organization);
+
+      return result;
     }
   }
 
@@ -42,10 +51,15 @@ public class OrganizationsView {
     return organization;
   }
 
-  public void replace(final Tag organization) {
+  public OrganizationsView replace(final Tag organization) {
     final int index = organizations.indexOf(organization);
     if (index >= 0) {
-      organizations.set(index, organization);
+      OrganizationsView result = new OrganizationsView(new ArrayList<>(organizations));
+      result.organizations.set(index, organization);
+
+      return result;
+    } else {
+      return this;
     }
   }
 
