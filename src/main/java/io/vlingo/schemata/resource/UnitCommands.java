@@ -128,7 +128,7 @@ class UnitCommands {
       protocol
         .defineWith(command.name, command.description)
         .andThen(state -> answer.with(state))
-        .otherwise(state -> answer.otherwise(none -> none));
+        .otherwise(state -> answer.otherwise((UnitState none) -> none));
     }
   }
 
