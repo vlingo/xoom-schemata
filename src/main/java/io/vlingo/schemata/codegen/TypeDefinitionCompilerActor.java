@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.codegen;
 
+import io.vlingo.actors.Actor;
 import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
 import io.vlingo.common.Outcome;
@@ -20,7 +21,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.function.Function;
 
-public class TypeDefinitionCompilerActor implements TypeDefinitionCompiler, TypeDefinitionMiddleware {
+public class TypeDefinitionCompilerActor extends Actor implements TypeDefinitionCompiler, TypeDefinitionMiddleware {
     private final TypeParser parser;
     private final List<Processor> processors;
     private final Backend backend;

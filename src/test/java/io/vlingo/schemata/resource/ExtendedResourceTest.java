@@ -55,7 +55,7 @@ public class ExtendedResourceTest extends ResourceTest {
      * @return An array with two schemaVersionIds created.
      */
     private String[] createFixture1() {
-        final OrganizationResource organizationResource = new OrganizationResource(world);
+        final OrganizationResource organizationResource = new OrganizationResource(world, organizationQueries);
         final Response organizationResponse = organizationResource.defineWith(orgData1).await();
         final String organizationId1 = extractResourceIdFrom(organizationResponse);
 
@@ -93,7 +93,7 @@ public class ExtendedResourceTest extends ResourceTest {
      * @return schemaVersionId for newly created {@link SchemaVersionData}
      */
     private String createFixture2() {
-        final OrganizationResource organizationResource = new OrganizationResource(world);
+        final OrganizationResource organizationResource = new OrganizationResource(world, organizationQueries);
         final Response organizationResponse2 = organizationResource.defineWith(orgData2).await();
         final String organizationId2 = extractResourceIdFrom(organizationResponse2);
 
@@ -120,7 +120,7 @@ public class ExtendedResourceTest extends ResourceTest {
      * Creates an organization w/o sub resources.
      */
     private void createFixture3() {
-        final OrganizationResource organizationResource = new OrganizationResource(world);
+        final OrganizationResource organizationResource = new OrganizationResource(world, organizationQueries);
         final Response organizationResponse3 = organizationResource.defineWith(orgData3).await();
         @SuppressWarnings("unused")
         final String organizationId3 = extractResourceIdFrom(organizationResponse3);

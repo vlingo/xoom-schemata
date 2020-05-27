@@ -71,13 +71,6 @@ public class OrganizationQueriesActor extends StateObjectQueryActor implements O
     return queryOne(ByName, parameters);
   }
 
-  @Override
-  public  Completes<Outcome<SchemataBusinessException, OrganizationData>> organizationNamed(final String name, final QueryResultsCollector collector) {
-    final  Completes<Outcome<SchemataBusinessException, OrganizationData>> data = organizationNamed(name);
-    collector.expectOrganization(data);
-    return data;
-  }
-
   private Completes<Outcome<SchemataBusinessException, OrganizationData>> queryOne(final String query, final Map<String,String> parameters) {
     final QueryExpression expression = MapQueryExpression.using(OrganizationState.class, query, parameters);
 

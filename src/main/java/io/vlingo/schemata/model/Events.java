@@ -8,6 +8,7 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.lattice.model.DomainEvent;
+import io.vlingo.lattice.model.IdentifiedDomainEvent;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
@@ -75,7 +76,7 @@ public final class Events {
     }
   }
 
-  public static final class OrganizationDefined extends DomainEvent {
+  public static final class OrganizationDefined extends IdentifiedDomainEvent {
     public final String organizationId;
     public final String name;
     public final String description;
@@ -89,9 +90,14 @@ public final class Events {
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return organizationId;
+    }
   }
 
-  public static final class OrganizationDescribed extends DomainEvent {
+  public static final class OrganizationDescribed extends IdentifiedDomainEvent {
     public final String organizationId;
     public final String description;
 
@@ -103,9 +109,14 @@ public final class Events {
       this.organizationId = organizationId.value;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return organizationId;
+    }
   }
 
-  public static final class OrganizationRedefined extends DomainEvent {
+  public static final class OrganizationRedefined extends IdentifiedDomainEvent {
     public final String organizationId;
     public final String name;
     public final String description;
@@ -119,9 +130,14 @@ public final class Events {
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return organizationId;
+    }
   }
 
-  public static final class OrganizationRenamed extends DomainEvent {
+  public static final class OrganizationRenamed extends IdentifiedDomainEvent {
     public final String organizationId;
     public final String name;
 
@@ -132,6 +148,11 @@ public final class Events {
     public OrganizationRenamed(final OrganizationId organizationId, final String name) {
       this.organizationId = organizationId.value;
       this.name = name;
+    }
+
+    @Override
+    public String identity() {
+      return organizationId;
     }
   }
 

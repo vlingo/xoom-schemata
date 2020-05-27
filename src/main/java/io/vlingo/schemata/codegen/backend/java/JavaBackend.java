@@ -49,7 +49,7 @@ import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.errors.SchemataBusinessException;
 
 @SuppressWarnings("rawtypes")
-public class JavaBackend implements Backend {
+public class JavaBackend extends Actor implements Backend {
     public JavaBackend() {
     }
 

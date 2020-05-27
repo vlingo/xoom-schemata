@@ -19,5 +19,4 @@ public interface OrganizationQueries {
   Completes<Outcome<SchemataBusinessException, OrganizationData>> organization(final String organizationId);
   Completes<Outcome<SchemataBusinessException, OrganizationData>> organization(final String organizationId, final QueryResultsCollector collector);
   Completes<Outcome<SchemataBusinessException, OrganizationData>> organizationNamed(final String name);
-  Completes<Outcome<SchemataBusinessException, OrganizationData>> organizationNamed(final String name, final QueryResultsCollector collector);
 }

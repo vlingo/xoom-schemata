@@ -33,16 +33,19 @@ import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Organization;
+import io.vlingo.schemata.query.OrganizationQueries;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.OrganizationData;
 
 public class OrganizationResource extends ResourceHandler {
   private final OrganizationCommands commands;
+  private final OrganizationQueries organizationQueries;
   private final Stage stage;
 
-  public OrganizationResource(final World world) {
+  public OrganizationResource(final World world, OrganizationQueries organizationQueries) {
     this.stage = world.stageNamed(StageName);
     this.commands = new OrganizationCommands(this.stage, 10);
+    this.organizationQueries = organizationQueries;
   }
 
   public Completes<Response> defineWith(final OrganizationData data) {
@@ -97,12 +100,16 @@ public class OrganizationResource extends ResourceHandler {
   }
 
   public Completes<Response> queryOrganization(final String organizationId) {
-    return Queries.forOrganizations().organization(organizationId)
-            .andThen(o -> o.resolve(
-                    e -> Response.of(NotFound, serialized(e)),
-                    org -> Response.of(Ok, serialized(org))
-            ))
-            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+//    return Queries.forOrganizations().organization(organizationId)
+//            .andThen(o -> o.resolve(
+//                    e -> Response.of(NotFound, serialized(e)),
+//                    org -> Response.of(Ok, serialized(org))
+//            ))
+//            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+
+    return organizationQueries
+            .organization(organizationId)
+            .andThenTo(organization -> Completes.withSuccess(Response.of(Ok, serialized(organization))));
   }
 
   @Override

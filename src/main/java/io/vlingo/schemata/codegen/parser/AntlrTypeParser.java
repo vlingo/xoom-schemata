@@ -45,7 +45,7 @@ import io.vlingo.schemata.codegen.ast.values.Value;
 import io.vlingo.schemata.model.Category;
 
 
-public class AntlrTypeParser implements TypeParser {
+public class AntlrTypeParser extends Actor implements TypeParser {
     private static final int BUFFER_SIZE = 2048;
     private final byte[] parserBuffer;
 

@@ -7,14 +7,17 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.testkit.AccessSafely;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry.Info;
+import io.vlingo.symbio.store.journal.Journal;
+import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import io.vlingo.actors.World;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.symbio.store.MapQueryExpression;
@@ -22,11 +25,16 @@ import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 public class OrganizationEntityTest {
-  private ObjectTypeRegistry registry;
+  private AccessSafely access;
+  private AtomicReference<OrganizationState> orgState;
+
+  private Journal<String> journal;
   private Organization organization;
   private OrganizationId organizationId;
-  private ObjectStore objectStore;
+  private SourcedTypeRegistry registry;
   private World world;
 
   @Before
@@ -34,21 +42,18 @@ public class OrganizationEntityTest {
   public void setUp() {
     world = World.start("organization-test");
 
-    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
 
-    registry = new ObjectTypeRegistry(world);
+    registry = new SourcedTypeRegistry(world);
+    registry.register(new Info(journal, OrganizationEntity.class, OrganizationEntity.class.getSimpleName()));
 
-    final Info<Organization> organizationInfo =
-            new Info(
-                    objectStore,
-                    OrganizationState.class,
-                    "HR-Database",
-                    MapQueryExpression.using(Organization.class, "find", MapQueryExpression.map("id", "id")),
-                    StateObjectMapper.with(Organization.class, new Object(), new Object()));
-
-    registry.register(organizationInfo);
     organizationId = OrganizationId.unique();
     organization = world.actorFor(Organization.class, OrganizationEntity.class, organizationId);
+
+    orgState = new AtomicReference<>();
+    access = AccessSafely.afterCompleting(1);
+    access.writingWith("state", (OrganizationState s) -> orgState.set(s));
+    access.readingWith("state", ()-> orgState.get());
   }
 
   @After
@@ -58,8 +63,9 @@ public class OrganizationEntityTest {
 
   @Test
   public void testThatOrganizationDefinedIsEquals() {
-    final OrganizationState state = organization.defineWith("name", "description").await();
-    Assert.assertNotEquals(OrganizationState.unidentified(), state.persistenceId());
+    organization.defineWith("name", "description").andThenConsume(s -> access.writeUsing("state", s));
+    final OrganizationState state = access.readFrom("state");
+
     Assert.assertEquals(organizationId.value, state.organizationId.value);
     Assert.assertEquals("name", state.name);
     Assert.assertEquals("description", state.description);
