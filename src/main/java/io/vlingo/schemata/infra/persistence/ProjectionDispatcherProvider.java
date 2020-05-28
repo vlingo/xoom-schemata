@@ -46,7 +46,9 @@ public class ProjectionDispatcherProvider {
                                 OrganizationRedefined.class,
                                 OrganizationRenamed.class),
                         ProjectToDescription.with(OrganizationsProjection.class, Optional.of(stateStore),
-                                OrganizationDefined.class));
+                                OrganizationDefined.class,
+                                OrganizationRedefined.class,
+                                OrganizationRenamed.class));
 
         final Protocols dispatcherProtocols =
                 stage.actorFor(

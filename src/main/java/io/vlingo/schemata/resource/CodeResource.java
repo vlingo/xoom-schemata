@@ -166,16 +166,12 @@ public class CodeResource extends ResourceHandler {
   private String mockAuth(String reference) {
     final String[] parts = reference.split(Schemata.ReferenceSeparator);
 
-    OrganizationData organization = Queries.forOrganizations().organizationNamed(parts[0]).andThen(o->o.getOrNull()).await();
-    UnitData unit = Queries.forUnits().unitNamed(organization.organizationId, parts[1]).andThen(o->o.getOrNull()).await();
-    ContextData context = Queries.forContexts().contextOfNamespace(organization.organizationId, unit.unitId, parts[2]).andThen(o->o.getOrNull()).await();
-
     return AuthorizationData.AuthorizationType +
-                    " source = " + organization.organizationId +
-                    "    dependent = " +
-                    organization.organizationId + Schemata.ReferenceSeparator +
-                    unit.unitId + Schemata.ReferenceSeparator +
-                    context.contextId;
+            " source = " + parts[0] +
+            "    dependent = " +
+            parts[0] + Schemata.ReferenceSeparator +
+            parts[1] + Schemata.ReferenceSeparator +
+            parts[2];
   }
 
   private Completes<Outcome<SchemataBusinessException,ContextData>> queryContextWith(final ContextData contextIds, final Collector collector) {
