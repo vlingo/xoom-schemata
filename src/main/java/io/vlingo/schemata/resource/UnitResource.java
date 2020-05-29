@@ -34,15 +34,18 @@ import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Unit;
 import io.vlingo.schemata.query.Queries;
+import io.vlingo.schemata.query.UnitQueries;
 import io.vlingo.schemata.resource.data.UnitData;
 
 public class UnitResource extends ResourceHandler {
   private final UnitCommands commands;
+  private final UnitQueries unitQueries;
   private final Stage stage;
 
-  public UnitResource(final World world) {
+  public UnitResource(final World world, UnitQueries unitQueries) {
     this.stage = world.stageNamed(StageName);
     this.commands = new UnitCommands(this.stage, 10);
+    this.unitQueries = unitQueries;
   }
 
   public Completes<Response> defineWith(final String organizationId, final UnitData data) {
@@ -91,18 +94,16 @@ public class UnitResource extends ResourceHandler {
   }
 
   public Completes<Response> queryUnits(final String organizationId) {
-    return Queries.forUnits()
+    return unitQueries
             .units(organizationId)
-            .andThenTo(units -> Completes.withSuccess(Response.of(Ok, serialized(units))));
+            .andThenTo(units -> Completes.withSuccess(Response.of(Ok, serialized(units))))
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   public Completes<Response> queryUnit(final String organizationId, final String unitId) {
-
-    return Queries.forUnits().unit(organizationId, unitId)
-            .andThen(o -> o.resolve(
-                    e -> Response.of(NotFound, serialized(e)),
-                    org -> Response.of(Ok, serialized(org))
-            ))
+    return unitQueries
+            .unit(organizationId, unitId)
+            .andThenTo(unit -> Completes.withSuccess(Response.of(Ok, serialized(unit))))
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 

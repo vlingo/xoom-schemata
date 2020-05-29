@@ -364,7 +364,8 @@ public final class Events {
     }
   }
 
-  public static final class UnitDefined extends DomainEvent {
+  public static final class UnitDefined extends IdentifiedDomainEvent {
+    public final String organizationId;
     public final String unitId;
     public final String name;
     public final String description;
@@ -374,13 +375,25 @@ public final class Events {
     }
 
     public UnitDefined(final UnitId unitId, final String name, final String description) {
+      this.organizationId = unitId.organizationId.value;
       this.unitId = unitId.value;
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return unitId;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return organizationId;
+    }
   }
 
-  public static final class UnitDescribed extends DomainEvent {
+  public static final class UnitDescribed extends IdentifiedDomainEvent {
+    public final String organizationId;
     public final String unitId;
     public final String description;
 
@@ -389,12 +402,24 @@ public final class Events {
     }
 
     public UnitDescribed(final UnitId unitId, final String description) {
+      this.organizationId = unitId.organizationId.value;
       this.unitId = unitId.value;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return unitId;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return organizationId;
+    }
   }
 
-  public static final class UnitRedefined extends DomainEvent {
+  public static final class UnitRedefined extends IdentifiedDomainEvent {
+    public final String organizationId;
     public final String unitId;
     public final String name;
     public final String description;
@@ -404,13 +429,25 @@ public final class Events {
     }
 
     public UnitRedefined(final UnitId unitId, final String name, final String description) {
+      this.organizationId = unitId.organizationId.value;
       this.unitId = unitId.value;
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return unitId;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return organizationId;
+    }
   }
 
-  public static final class UnitRenamed extends DomainEvent {
+  public static final class UnitRenamed extends IdentifiedDomainEvent {
+    public final String organizationId;
     public final String unitId;
     public final String name;
 
@@ -419,8 +456,19 @@ public final class Events {
     }
 
     public UnitRenamed(final UnitId unitId, final String name) {
+      this.organizationId = unitId.organizationId.value;
       this.unitId = unitId.value;
       this.name = name;
+    }
+
+    @Override
+    public String identity() {
+      return unitId;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return organizationId;
     }
   }
 }

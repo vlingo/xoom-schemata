@@ -8,25 +8,33 @@
 package io.vlingo.schemata.query.view;
 
 public class OrganizationView {
-    private String organizationId;
-    private String name;
-    private String description;
+    private final String organizationId;
+    private final String name;
+    private final String description;
 
     public static OrganizationView empty() {
         return new OrganizationView();
     }
 
-    public OrganizationView(final String organizationId, final String name, final String description) {
+    public static OrganizationView with(final String organizationId) {
+        return new OrganizationView(organizationId);
+    }
+
+    public static OrganizationView with(String organizationId, String name, String description) {
+        return new OrganizationView(organizationId, name, description);
+    }
+
+    private OrganizationView(final String organizationId, final String name, final String description) {
         this.organizationId = organizationId;
         this.name = name;
         this.description = description;
     }
 
-    public OrganizationView(final String organizationId) {
+    private OrganizationView(final String organizationId) {
         this(organizationId, "", "");
     }
 
-    public OrganizationView() {
+    private OrganizationView() {
         this("", "", "");
     }
 
@@ -34,24 +42,12 @@ public class OrganizationView {
         return organizationId;
     }
 
-    public void organizationId(final String organizationId) {
-        this.organizationId = organizationId;
-    }
-
     public String name() {
         return name;
     }
 
-    public String name(final String name) {
-        return this.name = name;
-    }
-
     public String description() {
         return description;
-    }
-
-    public String description(final String description) {
-        return this.description = description;
     }
 
     @Override
@@ -77,28 +73,27 @@ public class OrganizationView {
         return organizationId.equals(((OrganizationView) other).organizationId);
     }
 
-    public void initializeWith(String organizationId, String name, String description) {
-        this.organizationId = organizationId;
-        this.name = name;
-        this.description = description;
-    }
-
-    public void mergeDescriptionWith(String organizationId, String description) {
+    public OrganizationView mergeDescriptionWith(String organizationId, String description) {
         if (this.organizationId.equals(organizationId)) {
-            this.description = description;
+            return new OrganizationView(organizationId, this.name, description);
+        } else {
+            return this;
         }
     }
 
-    public void mergeNameWith(String organizationId, String name) {
+    public OrganizationView mergeNameWith(String organizationId, String name) {
         if (this.organizationId.equals(organizationId)) {
-            this.name = name;
+            return new OrganizationView(organizationId, name, this.description);
+        } else {
+            return this;
         }
     }
 
-    public void mergeWith(String organizationId, String name, String description) {
+    public OrganizationView mergeWith(String organizationId, String name, String description) {
         if (this.description.equals(organizationId)) {
-            this.name = name;
-            this.description = description;
+            return new OrganizationView(organizationId, name, description);
+        } else {
+            return this;
         }
     }
 

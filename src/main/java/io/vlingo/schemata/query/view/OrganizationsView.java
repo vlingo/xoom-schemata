@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class OrganizationsView {
-    public static final String Id = "rootOrganizations";
+    public static final String Id = "root";
 
     private final List<Tag> organizations;
 

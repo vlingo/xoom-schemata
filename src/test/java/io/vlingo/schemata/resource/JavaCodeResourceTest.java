@@ -103,7 +103,7 @@ public class JavaCodeResourceTest extends ResourceTest {
     final Response organizationResponse = organizationResource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
     organizationId = extractResourceIdFrom(organizationResponse);
 
-    final UnitResource unitResource = new UnitResource(world);
+    final UnitResource unitResource = new UnitResource(world, unitQueries);
     final Response unitResponse = unitResource.defineWith(organizationId, UnitData.just(UnitName, UnitDescription)).await();
     unitId = extractResourceIdFrom(unitResponse);
 

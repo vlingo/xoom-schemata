@@ -96,13 +96,15 @@ public class OrganizationResource extends ResourceHandler {
   public Completes<Response> queryOrganizations() {
     return organizationQueries
             .organizations()
-            .andThenTo(organizations -> Completes.withSuccess(Response.of(Ok, serialized(organizations))));
+            .andThenTo(organizations -> Completes.withSuccess(Response.of(Ok, serialized(organizations))))
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   public Completes<Response> queryOrganization(final String organizationId) {
     return organizationQueries
             .organization(organizationId)
-            .andThenTo(organization -> Completes.withSuccess(Response.of(Ok, serialized(organization))));
+            .andThenTo(organization -> Completes.withSuccess(Response.of(Ok, serialized(organization))))
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   @Override

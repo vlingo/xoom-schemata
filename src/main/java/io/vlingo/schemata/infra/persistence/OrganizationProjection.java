@@ -39,7 +39,7 @@ public class OrganizationProjection extends StateStoreProjectionActor<Organizati
 
     @Override
     protected OrganizationView currentDataFor(final Projectable projectable) {
-        final OrganizationView view = new OrganizationView(projectable.dataId());
+        final OrganizationView view = OrganizationView.with(projectable.dataId());
         return view;
     }
 
@@ -56,14 +56,14 @@ public class OrganizationProjection extends StateStoreProjectionActor<Organizati
             final OrganizationView currentData,
             final int currentVersion) {
 
-        final OrganizationView accumulator;
+        final OrganizationView mergedData;
         if (previousData == null) {
-            accumulator = mergeEventsInto(currentData);
+            mergedData = mergeEventsInto(currentData);
         } else {
-            accumulator = mergeEventsInto(previousData);
+            mergedData = mergeEventsInto(previousData);
         }
 
-        return accumulator;
+        return mergedData;
     }
 
     @Override
@@ -83,24 +83,26 @@ public class OrganizationProjection extends StateStoreProjectionActor<Organizati
         }
     }
 
-    private OrganizationView mergeEventsInto(final OrganizationView accumulator) {
+    private OrganizationView mergeEventsInto(final OrganizationView initialData) {
+        OrganizationView mergedData = initialData;
+
         for (final DomainEvent event : events) {
             switch (match(event)) {
                 case OrganizationDefined:
                     final OrganizationDefined defined = typed(event);
-                    accumulator.initializeWith(defined.organizationId, defined.name, defined.description);
+                    mergedData = OrganizationView.with(defined.organizationId, defined.name, defined.description);
                     break;
                 case OrganizationDescribed:
                     final OrganizationDescribed described = typed(event);
-                    accumulator.mergeDescriptionWith(described.organizationId, described.description);
+                    mergedData = mergedData.mergeDescriptionWith(described.organizationId, described.description);
                     break;
                 case OrganizationRedefined:
                     final OrganizationRedefined redefined = typed(event);
-                    accumulator.mergeWith(redefined.organizationId, redefined.name, redefined.description);
+                    mergedData = mergedData.mergeWith(redefined.organizationId, redefined.name, redefined.description);
                     break;
                 case OrganizationRenamed:
                     final OrganizationRenamed renamed = typed(event);
-                    accumulator.mergeNameWith(renamed.organizationId, renamed.name);
+                    mergedData = mergedData.mergeNameWith(renamed.organizationId, renamed.name);
                     break;
                 case Unmatched:
                     logger().warn("Event of type " + event.typeName() + " was not matched.");
@@ -108,8 +110,8 @@ public class OrganizationProjection extends StateStoreProjectionActor<Organizati
             }
         }
 
-        logger().info("PROJECTED: " + accumulator);
+        logger().info("PROJECTED: " + mergedData);
 
-        return accumulator;
+        return mergedData;
     }
 }

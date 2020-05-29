@@ -17,10 +17,7 @@ import io.vlingo.actors.Stage;
 import io.vlingo.lattice.model.projection.ProjectionDispatcher;
 import io.vlingo.lattice.model.projection.ProjectionDispatcher.ProjectToDescription;
 import io.vlingo.lattice.model.projection.TextProjectionDispatcherActor;
-import io.vlingo.schemata.model.Events.OrganizationDefined;
-import io.vlingo.schemata.model.Events.OrganizationDescribed;
-import io.vlingo.schemata.model.Events.OrganizationRedefined;
-import io.vlingo.schemata.model.Events.OrganizationRenamed;
+import io.vlingo.schemata.model.Events.*;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.state.StateStore;
 
@@ -48,7 +45,16 @@ public class ProjectionDispatcherProvider {
                         ProjectToDescription.with(OrganizationsProjection.class, Optional.of(stateStore),
                                 OrganizationDefined.class,
                                 OrganizationRedefined.class,
-                                OrganizationRenamed.class));
+                                OrganizationRenamed.class),
+                        ProjectToDescription.with(UnitProjection.class, Optional.of(stateStore),
+                                UnitDefined.class,
+                                UnitDescribed.class,
+                                UnitRedefined.class,
+                                UnitRenamed.class),
+                        ProjectToDescription.with(UnitsProjection.class, Optional.of(stateStore),
+                                UnitDefined.class,
+                                UnitRedefined.class,
+                                UnitRenamed.class));
 
         final Protocols dispatcherProtocols =
                 stage.actorFor(
