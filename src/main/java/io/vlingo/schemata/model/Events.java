@@ -16,7 +16,8 @@ import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.schemata.model.Id.UnitId;
 
 public final class Events {
-  public static final class ContextDefined extends DomainEvent {
+  public static final class ContextDefined extends IdentifiedDomainEvent {
+    public final String unitId;
     public final String contextId;
     public final String name;
     public final String description;
@@ -25,14 +26,26 @@ public final class Events {
       return new ContextDefined(contextId, namespace, description);
     }
 
-    public ContextDefined(final ContextId contextId, final String name, final String description) {
+    private ContextDefined(final ContextId contextId, final String name, final String description) {
+      this.unitId = contextId.unitId.value;
       this.contextId = contextId.value;
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return unitId;
+    }
+
+    @Override
+    public String identity() {
+      return contextId;
+    }
   }
 
-  public static final class ContextDescribed extends DomainEvent {
+  public static final class ContextDescribed extends IdentifiedDomainEvent {
+    public final String unitId;
     public final String contextId;
     public final String description;
 
@@ -41,12 +54,24 @@ public final class Events {
     }
 
     public ContextDescribed(final ContextId contextId, final String description) {
+      this.unitId = contextId.unitId.value;
       this.contextId = contextId.value;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return unitId;
+    }
+
+    @Override
+    public String identity() {
+      return contextId;
+    }
   }
 
-  public static final class ContextMovedToNamespace extends DomainEvent {
+  public static final class ContextMovedToNamespace extends IdentifiedDomainEvent {
+    public final String unitId;
     public final String contextId;
     public final String namespace;
 
@@ -55,12 +80,24 @@ public final class Events {
     }
 
     public ContextMovedToNamespace(final ContextId contextId, String namespace) {
+      this.unitId = contextId.unitId.value;
       this.contextId = contextId.value;
       this.namespace = namespace;
     }
+
+    @Override
+    public String parentIdentity() {
+      return unitId;
+    }
+
+    @Override
+    public String identity() {
+      return contextId;
+    }
   }
 
-  public static final class ContextRedefined extends DomainEvent {
+  public static final class ContextRedefined extends IdentifiedDomainEvent {
+    public final String unitId;
     public final String contextId;
     public final String name;
     public final String description;
@@ -70,9 +107,20 @@ public final class Events {
     }
 
     public ContextRedefined(final ContextId contextId, final String name, final String description) {
+      this.unitId = contextId.unitId.value;
       this.contextId = contextId.value;
       this.name = name;
       this.description = description;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return unitId;
+    }
+
+    @Override
+    public String identity() {
+      return contextId;
     }
   }
 

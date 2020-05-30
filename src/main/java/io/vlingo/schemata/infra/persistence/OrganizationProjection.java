@@ -56,14 +56,9 @@ public class OrganizationProjection extends StateStoreProjectionActor<Organizati
             final OrganizationView currentData,
             final int currentVersion) {
 
-        final OrganizationView mergedData;
-        if (previousData == null) {
-            mergedData = mergeEventsInto(currentData);
-        } else {
-            mergedData = mergeEventsInto(previousData);
-        }
-
-        return mergedData;
+        return previousData == null
+                ? mergeEventsInto(currentData)
+                : mergeEventsInto(previousData);
     }
 
     @Override
@@ -75,19 +70,11 @@ public class OrganizationProjection extends StateStoreProjectionActor<Organizati
         }
     }
 
-    private OrganizationViewType match(final DomainEvent event) {
-        try {
-            return OrganizationViewType.valueOf(event.typeName());
-        } catch (Exception e) {
-            return OrganizationViewType.Unmatched;
-        }
-    }
-
     private OrganizationView mergeEventsInto(final OrganizationView initialData) {
         OrganizationView mergedData = initialData;
 
         for (final DomainEvent event : events) {
-            switch (match(event)) {
+            switch (OrganizationViewType.match(event)) {
                 case OrganizationDefined:
                     final OrganizationDefined defined = typed(event);
                     mergedData = OrganizationView.with(defined.organizationId, defined.name, defined.description);

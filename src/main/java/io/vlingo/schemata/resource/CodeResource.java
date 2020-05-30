@@ -175,14 +175,16 @@ public class CodeResource extends ResourceHandler {
   }
 
   private Completes<Outcome<SchemataBusinessException,ContextData>> queryContextWith(final ContextData contextIds, final Collector collector) {
-    final Completes<Outcome<SchemataBusinessException,ContextData>> context =
-            Queries.forContexts().context(
-                    contextIds.organizationId,
-                    contextIds.unitId,
-                    contextIds.contextId,
-                    collector);
-
-    return context;
+//    final Completes<Outcome<SchemataBusinessException,ContextData>> context =
+//            Queries.forContexts().context(
+//                    contextIds.organizationId,
+//                    contextIds.unitId,
+//                    contextIds.contextId,
+//                    collector);
+//
+//    return context;
+    // TODO Implement this method
+    return null;
   }
 
   private Completes<String> recordDependency(final String code, final Collector collector) {

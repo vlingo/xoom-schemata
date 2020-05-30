@@ -52,14 +52,9 @@ public class UnitProjection extends StateStoreProjectionActor<UnitView> {
             final UnitView currentData,
             final int currentVersion) {
 
-        final UnitView mergedData;
-        if (previousData == null) {
-            mergedData = mergeInto(currentData);
-        } else {
-            mergedData = mergeInto(previousData);
-        }
-
-        return mergedData;
+        return previousData == null
+                ? mergeEventsInto(currentData)
+                : mergeEventsInto(previousData);
     }
 
     @Override
@@ -71,18 +66,10 @@ public class UnitProjection extends StateStoreProjectionActor<UnitView> {
         }
     }
 
-    private UnitViewType match(final DomainEvent event) {
-        try {
-            return UnitViewType.valueOf(event.typeName());
-        } catch (Exception e) {
-            return UnitViewType.Unmatched;
-        }
-    }
-
-    private UnitView mergeInto(final UnitView initialData) {
+    private UnitView mergeEventsInto(final UnitView initialData) {
         UnitView mergedData = initialData;
         for (final DomainEvent event : events) {
-            switch (match(event)) {
+            switch (UnitViewType.match(event)) {
                 case UnitDefined:
                     final UnitDefined defined = typed(event);
                     mergedData = UnitView.with(defined.unitId, defined.name, defined.description);

@@ -33,8 +33,7 @@ public class OrganizationsProjection extends StateStoreProjectionActor<Organizat
 
     @Override
     protected OrganizationsView currentDataFor(final Projectable projectable) {
-        final OrganizationsView view = new OrganizationsView();
-        return view;
+        return OrganizationsView.empty();
     }
 
     @Override
@@ -42,71 +41,58 @@ public class OrganizationsProjection extends StateStoreProjectionActor<Organizat
         return OrganizationsView.Id;
     }
 
-  @Override
-  protected boolean alwaysWrite() {
-    return false;
-  }
+    @Override
+    protected boolean alwaysWrite() {
+        return false;
+    }
 
-  @Override
-  protected OrganizationsView merge(
-          final OrganizationsView previousData,
-          final int previousVersion,
-          final OrganizationsView currentData,
-          final int currentVersion) {
+    @Override
+    protected OrganizationsView merge(
+            final OrganizationsView previousData,
+            final int previousVersion,
+            final OrganizationsView currentData,
+            final int currentVersion) {
 
-        final OrganizationsView mergedData;
-        if (previousData == null) {
-            mergedData = mergeInto(currentData);
-        } else {
-            mergedData = mergeInto(previousData);
-        }
-
-        return mergedData;
+        return previousData == null
+                ? mergeEventsInto(currentData)
+                : mergeEventsInto(previousData);
     }
 
     @Override
     protected void prepareForMergeWith(final Projectable projectable) {
         events.clear();
 
-        for (final Entry <?> entry : projectable.entries()) {
+        for (final Entry<?> entry : projectable.entries()) {
             events.add(entryAdapter().anyTypeFromEntry(entry));
         }
     }
 
-    private OrganizationViewType match(final DomainEvent event) {
-        try {
-            return OrganizationViewType.valueOf(event.typeName());
-        } catch (Exception e) {
-            return OrganizationViewType.Unmatched;
+    private OrganizationsView mergeEventsInto(final OrganizationsView initialData) {
+        OrganizationsView mergedData = initialData;
+        for (final DomainEvent event : events) {
+            switch (OrganizationViewType.match(event)) {
+                case OrganizationDefined:
+                    final OrganizationDefined defined = typed(event);
+                    mergedData = mergedData.add(Tag.of(defined.organizationId, defined.name));
+                    break;
+                case OrganizationDescribed:
+                    break;
+                case OrganizationRedefined:
+                    final OrganizationRedefined redefined = typed(event);
+                    mergedData = mergedData.replace(Tag.of(redefined.organizationId, redefined.name));
+                    break;
+                case OrganizationRenamed:
+                    final OrganizationRenamed renamed = typed(event);
+                    mergedData = mergedData.replace(Tag.of(renamed.organizationId, renamed.name));
+                    break;
+                case Unmatched:
+                    logger().warn("Event of type " + event.typeName() + " was not matched.");
+                    break;
+            }
         }
+
+        logger().info("PROJECTED: " + initialData);
+
+        return mergedData;
     }
-
-  private OrganizationsView mergeInto(final OrganizationsView initialData) {
-    OrganizationsView mergedData = initialData;
-    for (final DomainEvent event : events) {
-      switch (match(event)) {
-      case OrganizationDefined:
-        final OrganizationDefined defined = typed(event);
-        mergedData = mergedData.add(Tag.of(defined.organizationId, defined.name));
-        break;
-      case OrganizationDescribed:
-        break;
-      case OrganizationRedefined:
-        final OrganizationRedefined redefined = typed(event);
-        mergedData = mergedData.replace(Tag.of(redefined.organizationId, redefined.name));
-        break;
-      case OrganizationRenamed:
-        final OrganizationRenamed renamed = typed(event);
-        mergedData = mergedData.replace(Tag.of(renamed.organizationId, renamed.name));
-        break;
-      case Unmatched:
-        logger().warn("Event of type " + event.typeName() + " was not matched.");
-        break;
-      }
-    }
-
-    logger().info("PROJECTED: " + initialData);
-
-    return mergedData;
-  }
 }

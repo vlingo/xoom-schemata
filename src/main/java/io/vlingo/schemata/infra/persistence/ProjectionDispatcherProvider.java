@@ -54,7 +54,16 @@ public class ProjectionDispatcherProvider {
                         ProjectToDescription.with(UnitsProjection.class, Optional.of(stateStore),
                                 UnitDefined.class,
                                 UnitRedefined.class,
-                                UnitRenamed.class));
+                                UnitRenamed.class),
+                        ProjectToDescription.with(ContextProjection.class, Optional.of(stateStore),
+                                ContextDefined.class,
+                                ContextDescribed.class,
+                                ContextRedefined.class,
+                                ContextMovedToNamespace.class),
+                        ProjectToDescription.with(ContextsProjection.class, Optional.of(stateStore),
+                                ContextDefined.class,
+                                ContextRedefined.class,
+                                ContextMovedToNamespace.class));
 
         final Protocols dispatcherProtocols =
                 stage.actorFor(

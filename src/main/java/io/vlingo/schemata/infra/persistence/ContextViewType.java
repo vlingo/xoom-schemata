@@ -9,19 +9,19 @@ package io.vlingo.schemata.infra.persistence;
 
 import io.vlingo.lattice.model.DomainEvent;
 
-public enum OrganizationViewType {
-    OrganizationDefined,
-    OrganizationDescribed,
-    OrganizationRedefined,
-    OrganizationRenamed,
+public enum ContextViewType {
+    ContextDefined,
+    ContextDescribed,
+    ContextRedefined,
+    ContextMovedToNamespace,
 
     Unmatched;
 
-    public static OrganizationViewType match(final DomainEvent event) {
+    public static ContextViewType match(final DomainEvent event) {
         try {
-            return OrganizationViewType.valueOf(event.typeName());
+            return ContextViewType.valueOf(event.typeName());
         } catch (Exception e) {
-            return OrganizationViewType.Unmatched;
+            return ContextViewType.Unmatched;
         }
     }
 }

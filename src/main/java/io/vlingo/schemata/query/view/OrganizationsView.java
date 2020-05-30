@@ -20,7 +20,7 @@ public class OrganizationsView {
         return new OrganizationsView();
     }
 
-    public OrganizationsView() {
+    private OrganizationsView() {
         this.organizations = new ArrayList<>();
     }
 

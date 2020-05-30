@@ -12,12 +12,12 @@ import java.util.List;
 import io.vlingo.common.Completes;
 import io.vlingo.common.Outcome;
 import io.vlingo.schemata.errors.SchemataBusinessException;
+import io.vlingo.schemata.query.view.ContextView;
+import io.vlingo.schemata.query.view.ContextsView;
 import io.vlingo.schemata.resource.data.ContextData;
 
 public interface ContextQueries {
-  Completes<List<ContextData>> contexts(final String organizationId, final String unitId);
-  Completes<Outcome<SchemataBusinessException,ContextData>> context(final String organizationId, final String unitId, final String contextId);
-  Completes<Outcome<SchemataBusinessException,ContextData>> context(final String organizationId, final String unitId, final String contextId, final QueryResultsCollector collector);
-  Completes<Outcome<SchemataBusinessException,ContextData>> contextOfNamespace(final String organizationId, final String unitId, final String namespace);
-  Completes<Outcome<SchemataBusinessException,ContextData>> contextOfNamespace(final String organizationId, final String unitId, final String namespace, final QueryResultsCollector collector);
+  Completes<ContextsView> contexts(final String organizationId, final String unitId);
+  Completes<ContextView> context(final String organizationId, final String unitId, final String contextId);
+  Completes<ContextView> context(final String organizationId, final String unitId, final String contextId, final QueryResultsCollector collector);
 }

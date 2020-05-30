@@ -13,9 +13,7 @@ import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.symbio.store.MapQueryExpression.FluentMap;
 import io.vlingo.symbio.store.object.StateObject;
 
-public class ContextState extends StateObject {
-  private static final long serialVersionUID = 1L;
-
+public class ContextState {
   public final ContextId contextId;
   public final String description;
   public final String namespace;
@@ -24,32 +22,24 @@ public class ContextState extends StateObject {
     return new ContextState(contextId);
   }
 
-  public static ContextState from(final long id, final long version, final ContextId contextId, final String namespace, final String description) {
-    return new ContextState(id, version, contextId, namespace, description);
+  public static ContextState from(final ContextId contextId, final String namespace, final String description) {
+    return new ContextState(contextId, namespace, description);
   }
 
   public ContextState defineWith(final String namespace, final String description) {
-    return new ContextState(this.persistenceId(), this.version() + 1, this.contextId, namespace, description);
+    return new ContextState(this.contextId, namespace, description);
   }
 
   public ContextState withDescription(final String description) {
-    return new ContextState(this.persistenceId(), this.version() + 1, this.contextId, this.namespace, description);
+    return new ContextState(this.contextId, this.namespace, description);
   }
 
   public ContextState withNamespace(final String namespace) {
-    return new ContextState(this.persistenceId(), this.version() + 1, this.contextId, namespace, this.description);
+    return new ContextState(this.contextId, namespace, this.description);
   }
 
   public ContextState redefineWith(final String namespace, final String description) {
-    return new ContextState(this.persistenceId(), this.version() + 1, this.contextId, namespace, description);
-  }
-
-  @Override
-  public Map<String, Object> queryMap() {
-    return FluentMap
-            .has("organizationId", contextId.unitId.organizationId.value)
-            .and("unitId", contextId.unitId.value)
-            .and("contextId", contextId.value);
+    return new ContextState(this.contextId, namespace, description);
   }
 
   @Override
@@ -66,25 +56,21 @@ public class ContextState extends StateObject {
     }
 
     final ContextState otherState = (ContextState) other;
-
-    return this.persistenceId() == otherState.persistenceId();
+    return this.contextId.equals(otherState.contextId);
   }
 
   @Override
   public String toString() {
-    return "ContextState[persistenceId=" + persistenceId() +
-            " version=" + version() +
-            " contextId=" + contextId.value +
+    return "ContextState[contextId=" + contextId.value +
             " description=" + description +
             " namespace=" + namespace + "]";
   }
 
   private ContextState(final ContextId contextId) {
-    this(Unidentified, 0, contextId, "", "");
+    this(contextId, "", "");
   }
 
-  private ContextState(final long id, final long version, final ContextId contextId, final String namespace, final String description) {
-    super(id, version);
+  private ContextState(final ContextId contextId, final String namespace, final String description) {
     this.contextId = contextId;
     this.namespace = namespace;
     this.description = description;

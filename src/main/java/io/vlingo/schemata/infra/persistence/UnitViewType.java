@@ -7,11 +7,21 @@
 
 package io.vlingo.schemata.infra.persistence;
 
+import io.vlingo.lattice.model.DomainEvent;
+
 public enum UnitViewType {
     UnitDefined,
     UnitDescribed,
     UnitRedefined,
     UnitRenamed,
 
-    Unmatched
+    Unmatched;
+
+    public static UnitViewType match(final DomainEvent event) {
+        try {
+            return UnitViewType.valueOf(event.typeName());
+        } catch (Exception e) {
+            return UnitViewType.Unmatched;
+        }
+    }
 }

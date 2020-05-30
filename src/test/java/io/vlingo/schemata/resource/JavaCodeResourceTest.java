@@ -107,7 +107,7 @@ public class JavaCodeResourceTest extends ResourceTest {
     final Response unitResponse = unitResource.defineWith(organizationId, UnitData.just(UnitName, UnitDescription)).await();
     unitId = extractResourceIdFrom(unitResponse);
 
-    final ContextResource contextResource = new ContextResource(world);
+    final ContextResource contextResource = new ContextResource(world, contextQueries);
     final Response contextResponse = contextResource.defineWith(organizationId, unitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     contextId = extractResourceIdFrom(contextResponse);
 

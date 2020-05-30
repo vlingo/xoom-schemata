@@ -7,17 +7,11 @@
 
 package io.vlingo.schemata.infra.persistence;
 
-import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.lattice.model.stateful.StatefulTypeRegistry;
 import io.vlingo.lattice.model.stateful.StatefulTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
-import io.vlingo.schemata.query.view.OrganizationView;
-import io.vlingo.schemata.query.view.OrganizationsView;
-import io.vlingo.schemata.query.view.UnitView;
-import io.vlingo.schemata.query.view.UnitsView;
-import io.vlingo.symbio.EntryAdapterProvider;
-import io.vlingo.symbio.StateAdapterProvider;
+import io.vlingo.schemata.query.view.*;
 import io.vlingo.symbio.store.state.StateStore;
 import io.vlingo.symbio.store.state.inmemory.InMemoryStateStoreActor;
 
@@ -52,7 +46,9 @@ public class StateStoreProvider {
                 .register(new Info<>(stateStore, OrganizationView.class, OrganizationView.class.getSimpleName()))
                 .register(new Info<>(stateStore, OrganizationsView.class, OrganizationsView.class.getSimpleName()))
                 .register(new Info<>(stateStore, UnitView.class, UnitView.class.getSimpleName()))
-                .register(new Info<>(stateStore, UnitsView.class, UnitsView.class.getSimpleName()));
+                .register(new Info<>(stateStore, UnitsView.class, UnitsView.class.getSimpleName()))
+                .register(new Info<>(stateStore, ContextView.class, ContextView.class.getSimpleName()))
+                .register(new Info<>(stateStore, ContextsView.class, ContextsView.class.getSimpleName()));
     }
 
 //    private static void registerStateAdapters(Stage stage) {

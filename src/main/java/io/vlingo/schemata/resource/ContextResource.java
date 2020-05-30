@@ -34,16 +34,19 @@ import io.vlingo.schemata.model.Context;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Naming;
+import io.vlingo.schemata.query.ContextQueries;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.resource.data.ContextData;
 
 public class ContextResource extends ResourceHandler {
   private final ContextCommands commands;
+  private final ContextQueries contextQueries;
   private final Stage stage;
 
-  public ContextResource(final World world) {
+  public ContextResource(final World world, ContextQueries contextQueries) {
     this.stage = world.stageNamed(StageName);
     this.commands = new ContextCommands(this.stage, 10);
+    this.contextQueries = contextQueries;
   }
 
   public Completes<Response> defineWith(final String organizationId, final String unitId, final ContextData data) {
@@ -92,18 +95,15 @@ public class ContextResource extends ResourceHandler {
   }
 
   public Completes<Response> queryContexts(final String organizationId, final String unitId) {
-    return Queries.forContexts()
+    return contextQueries
             .contexts(organizationId, unitId)
             .andThenTo(contexts -> Completes.withSuccess(Response.of(Ok, serialized(contexts))));
   }
 
   public Completes<Response> queryContext(final String organizationId, final String unitId, final String contextId) {
-    return Queries.forContexts().context(organizationId, unitId, contextId)
-            .andThen(o -> o.resolve(
-                    e -> Response.of(NotFound, serialized(e)),
-                    org -> Response.of(Ok, serialized(org))
-            ))
-            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+    return contextQueries
+            .context(organizationId, unitId, contextId)
+            .andThenTo(context -> Completes.withSuccess(Response.of(Ok, serialized(context))));
   }
 
   @Override

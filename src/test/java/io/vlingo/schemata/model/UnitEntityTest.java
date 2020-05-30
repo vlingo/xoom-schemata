@@ -7,13 +7,6 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
@@ -23,6 +16,12 @@ import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.symbio.store.journal.Journal;
 import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 public class UnitEntityTest {
   private AccessSafely access;
@@ -50,7 +49,7 @@ public class UnitEntityTest {
     unitState = new AtomicReference<>();
     access = AccessSafely.afterCompleting(1);
     access.writingWith("state", (UnitState s) -> unitState.set(s));
-    access.readingWith("state", ()-> unitState.get());
+    access.readingWith("state", () -> unitState.get());
   }
 
   @After
@@ -61,9 +60,9 @@ public class UnitEntityTest {
   @Test
   public void testThatUnitDefined() {
     unit.defineWith("name", "description").andThenConsume(s -> access.writeUsing("state", s));
-
     final UnitState state = access.readFrom("state");
 
+    Assert.assertEquals(unitId.value, state.unitId.value);
     Assert.assertEquals("name", state.name);
     Assert.assertEquals("description", state.description);
   }
