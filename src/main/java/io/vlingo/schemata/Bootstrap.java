@@ -47,7 +47,7 @@ public class Bootstrap {
     final OrganizationResource organizationResource = new OrganizationResource(world, storageProvider.organizationQueries);
     final UnitResource unitResource = new UnitResource(world, storageProvider.unitQueries);
     final ContextResource contextResource = new ContextResource(world, storageProvider.contextQueries);
-    final SchemaResource schemaResource = new SchemaResource(world);
+    final SchemaResource schemaResource = new SchemaResource(world, storageProvider.schemaQueries);
     final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world);
     final CodeResource codeResource = new CodeResource(world);
     final UiResource uiResource = new UiResource(world);

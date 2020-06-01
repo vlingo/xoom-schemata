@@ -111,7 +111,7 @@ public class JavaCodeResourceTest extends ResourceTest {
     final Response contextResponse = contextResource.defineWith(organizationId, unitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     contextId = extractResourceIdFrom(contextResponse);
 
-    final SchemaResource schemaResource = new SchemaResource(world);
+    final SchemaResource schemaResource = new SchemaResource(world, schemaQueries);
     final Response schemaResponse = schemaResource.defineWith(organizationId, unitId, contextId, SchemaData.just(SchemaCategory, SchemaScope, SchemaName, SchemaDescription)).await();
     schemaId = extractResourceIdFrom(schemaResponse);
 

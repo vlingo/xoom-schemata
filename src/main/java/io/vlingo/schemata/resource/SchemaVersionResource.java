@@ -256,25 +256,20 @@ public class SchemaVersionResource extends ResourceHandler {
                     msg));
         }
 
-        SchemaVersionData updatedSchemaVersionData = Queries.forSchemas().schemaVersionByNames(
-                fqr.organization,
-                fqr.unit,
-                fqr.context,
-                fqr.schema
-        )
-                .andThen(outcome -> outcome.get()) // FIXME: Use transformer
-                .andThenTo(schemaData -> Completes.withSuccess(SchemaVersionData.from(
-                schemaData.organizationId,
-                schemaData.unitId,
-                schemaData.contextId,
-                schemaData.schemaId,
-                null,
-                data.specification,
-                data.description,
-                SchemaVersion.Status.Draft.value,
-                data.previousVersion,
-                fqr.schemaVersion))
-        ).await();
+        SchemaVersionData updatedSchemaVersionData = Queries.forSchemas().schemaVersionByNames(fqr.organization,
+                    fqr.unit, fqr.context, fqr.schema)
+                .andThenTo(schemaView -> Completes.withSuccess(SchemaVersionData.from(
+                        schemaView.organizationId(),
+                        schemaView.unitId(),
+                        schemaView.contextId(),
+                        schemaView.schemaId(),
+                        null,
+                        data.specification,
+                        data.description,
+                        SchemaVersion.Status.Draft.value,
+                        data.previousVersion,
+                        fqr.schemaVersion))
+                ).await();
 
         return this.defineWith(
           updatedSchemaVersionData.organizationId,

@@ -31,7 +31,7 @@ public class SchemaResourceTest extends ResourceTest {
 
   @Test
   public void testThatSchemaIsDefined() {
-    final SchemaResource resource = new SchemaResource(world);
+    final SchemaResource resource = new SchemaResource(world, schemaQueries);
     final Response response = resource.defineWith(OrgId, UnitId, ContextId, SchemaData.just(SchemaCategory, SchemaScope, SchemaName, SchemaDescription)).await();
     assertEquals(Created, response.status);
     assertNotNull(response.headers.headerOf(Location));
@@ -43,7 +43,7 @@ public class SchemaResourceTest extends ResourceTest {
 
   @Test
   public void testThatNonExistingSchemaReturns404() {
-    final SchemaResource resource = new SchemaResource(world);
+    final SchemaResource resource = new SchemaResource(world, schemaQueries);
     OrganizationState org = Organization.with(world.stageNamed(Schemata.StageName), Organization.uniqueId(),"o", "d").await();
     UnitState unit = Unit.with(world.stageNamed(Schemata.StageName), org.organizationId,"u", "d").await();
     ContextState context = Context.with(world.stageNamed(Schemata.StageName), unit.unitId,"c", "d").await();
@@ -55,7 +55,7 @@ public class SchemaResourceTest extends ResourceTest {
 
   @Test
   public void testSchemaCategorizeAs() {
-    final SchemaResource resource = new SchemaResource(world);
+    final SchemaResource resource = new SchemaResource(world, schemaQueries);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaData.just(SchemaCategory, SchemaScope, SchemaName, SchemaDescription)).await();
     assertEquals(Created, response1.status);
     final SchemaData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaData.class);
@@ -69,7 +69,7 @@ public class SchemaResourceTest extends ResourceTest {
 
   @Test
   public void testSchemaDescribedAs() {
-    final SchemaResource resource = new SchemaResource(world);
+    final SchemaResource resource = new SchemaResource(world, schemaQueries);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaData.just(SchemaCategory, SchemaScope, SchemaName, SchemaDescription)).await();
     assertEquals(Created, response1.status);
     final SchemaData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaData.class);
@@ -83,7 +83,7 @@ public class SchemaResourceTest extends ResourceTest {
 
   @Test
   public void testSchemaRedefineWith() {
-    final SchemaResource resource = new SchemaResource(world);
+    final SchemaResource resource = new SchemaResource(world, schemaQueries);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaData.just(SchemaCategory, SchemaScope, SchemaName, SchemaDescription)).await();
     assertEquals(Created, response1.status);
     final SchemaData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaData.class);
@@ -103,7 +103,7 @@ public class SchemaResourceTest extends ResourceTest {
 
   @Test
   public void testSchemaRenameTo() {
-    final SchemaResource resource = new SchemaResource(world);
+    final SchemaResource resource = new SchemaResource(world, schemaQueries);
     final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaData.just(SchemaCategory, SchemaScope, SchemaName, SchemaDescription)).await();
     assertEquals(Created, response1.status);
     final SchemaData data1 = JsonSerialization.deserialized(response1.entity.content(), SchemaData.class);

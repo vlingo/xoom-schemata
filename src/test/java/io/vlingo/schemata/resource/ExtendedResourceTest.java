@@ -71,7 +71,7 @@ public class ExtendedResourceTest extends ResourceTest {
         final Response contextResponse11 = contextResource.defineWith(organizationId1, unitId11, contextData11).await();
         final String contextId11 = extractResourceIdFrom(contextResponse11);
 
-        final SchemaResource schemaResource = new SchemaResource(world);
+        final SchemaResource schemaResource = new SchemaResource(world, schemaQueries);
         final Response schemaResponse10 = schemaResource.defineWith(organizationId1, unitId10, contextId10, schemaData10).await();
         final String schemaId10 = extractResourceIdFrom(schemaResponse10);
         final Response schemaResponse11 = schemaResource.defineWith(organizationId1, unitId11, contextId11, schemaData11).await();
@@ -105,7 +105,7 @@ public class ExtendedResourceTest extends ResourceTest {
         final Response contextResponse2 = contextResource.defineWith(organizationId2, unitId2, contextData2).await();
         final String contextId2 = extractResourceIdFrom(contextResponse2);
 
-        final SchemaResource schemaResource = new SchemaResource(world);
+        final SchemaResource schemaResource = new SchemaResource(world, schemaQueries);
         final Response schemaResponse2 = schemaResource.defineWith(organizationId2, unitId2, contextId2, schemaData2).await();
         final String schemaId2 = extractResourceIdFrom(schemaResponse2);
 

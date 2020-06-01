@@ -204,7 +204,10 @@ public final class Events {
     }
   }
 
-  public static final class SchemaDefined extends DomainEvent {
+  public static final class SchemaDefined extends IdentifiedDomainEvent {
+    public final String organizationId;
+    public final String unitId;
+    public final String contextId;
     public final String schemaId;
     public final String category;
     public final String scope;
@@ -216,15 +219,29 @@ public final class Events {
     }
 
     public SchemaDefined(final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+      this.organizationId = schemaId.organizationId().value;
+      this.unitId = schemaId.unitId().value;
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.category = category.name();
       this.scope = scope.name();
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
+    }
   }
 
-  public static final class SchemaDescribed extends DomainEvent {
+  public static final class SchemaDescribed extends IdentifiedDomainEvent {
+    public final String contextId;
     public final String schemaId;
     public final String description;
 
@@ -233,12 +250,24 @@ public final class Events {
     }
 
     public SchemaDescribed(final SchemaId schemaId, final String description) {
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
+    }
   }
 
-  public static final class SchemaCategorized extends DomainEvent {
+  public static final class SchemaCategorized extends IdentifiedDomainEvent {
+    public final String contextId;
     public final String schemaId;
     public final String category;
 
@@ -247,12 +276,24 @@ public final class Events {
     }
 
     public SchemaCategorized(final SchemaId schemaId, final Category category) {
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.category = category.name();
     }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
+    }
   }
 
-  public static final class SchemaScoped extends DomainEvent {
+  public static final class SchemaScoped extends IdentifiedDomainEvent {
+    public final String contextId;
     public final String schemaId;
     public final String scope;
 
@@ -261,12 +302,24 @@ public final class Events {
     }
 
     public SchemaScoped(final SchemaId schemaId, final Scope scope) {
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.scope = scope.name();
     }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
+    }
   }
 
-  public static final class SchemaRedefined extends DomainEvent {
+  public static final class SchemaRedefined extends IdentifiedDomainEvent {
+    public final String contextId;
     public final String schemaId;
     public final String category;
     public final String scope;
@@ -278,15 +331,27 @@ public final class Events {
     }
 
     public SchemaRedefined(final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.category = category.name();
       this.scope = scope.name();
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
+    }
   }
 
-  public static final class SchemaRenamed extends DomainEvent {
+  public static final class SchemaRenamed extends IdentifiedDomainEvent {
+    public final String contextId;
     public final String schemaId;
     public final String name;
 
@@ -295,8 +360,19 @@ public final class Events {
     }
 
     public SchemaRenamed(final SchemaId schemaId, final String name) {
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.name = name;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
     }
   }
 

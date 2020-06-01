@@ -7,21 +7,6 @@
 
 package io.vlingo.schemata.resource;
 
-import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.Response.Status.*;
-import static io.vlingo.http.Response.Status.InternalServerError;
-import static io.vlingo.http.ResponseHeader.ContentType;
-import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.of;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.patch;
-import static io.vlingo.http.resource.ResourceBuilder.post;
-import static io.vlingo.http.resource.ResourceBuilder.put;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.Schemata.NoId;
-import static io.vlingo.schemata.Schemata.SchemasPath;
-import static io.vlingo.schemata.Schemata.StageName;
-
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
@@ -36,16 +21,24 @@ import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Schema;
 import io.vlingo.schemata.model.Scope;
-import io.vlingo.schemata.query.Queries;
+import io.vlingo.schemata.query.SchemaQueries;
 import io.vlingo.schemata.resource.data.SchemaData;
+
+import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.*;
+import static io.vlingo.http.ResponseHeader.*;
+import static io.vlingo.http.resource.ResourceBuilder.*;
+import static io.vlingo.schemata.Schemata.*;
 
 public class SchemaResource extends ResourceHandler {
   private final SchemaCommands commands;
+  private final SchemaQueries queries;
   private final Stage stage;
 
-  public SchemaResource(final World world) {
+  public SchemaResource(final World world, SchemaQueries queries) {
     this.stage = world.stageNamed(StageName);
     this.commands = new SchemaCommands(this.stage, 10);
+    this.queries = queries;
   }
 
   public Completes<Response> defineWith(final String organizationId, final String unitId, final String contextId, final SchemaData data) {
@@ -107,19 +100,15 @@ public class SchemaResource extends ResourceHandler {
   }
 
   public Completes<Response> querySchemas(final String organizationId, final String unitId, final String contextId) {
-    return Queries.forSchemas()
+    return queries
             .schemas(organizationId, unitId, contextId)
             .andThenTo(schemas -> Completes.withSuccess(Response.of(Ok, serialized(schemas))));
   }
 
   public Completes<Response> querySchema(final String organizationId, final String unitId, final String contextId, final String schemaId) {
-    return Queries.forSchemas()
+    return queries
             .schema(organizationId, unitId, contextId, schemaId)
-            .andThen(o -> o.resolve(
-                    e -> Response.of(NotFound, serialized(e)),
-                    schema -> Response.of(Ok, serialized(schema))
-            ))
-            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+            .andThenTo(schema -> Completes.withSuccess(Response.of(Ok, serialized(schema))));
   }
 
   public Completes<Response> querySchemaCategories() {
@@ -139,7 +128,7 @@ public class SchemaResource extends ResourceHandler {
         .param(String.class)
         .body(SchemaData.class)
         .handle(this::defineWith),
-      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/cateogry")
+      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/category")
         .param(String.class)
         .param(String.class)
         .param(String.class)

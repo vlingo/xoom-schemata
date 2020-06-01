@@ -10,11 +10,8 @@ package io.vlingo.schemata.infra.persistence;
 import io.vlingo.actors.World;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
 import io.vlingo.schemata.SchemataConfig;
-import io.vlingo.schemata.model.ContextEntity;
-import io.vlingo.schemata.model.Events;
+import io.vlingo.schemata.model.*;
 import io.vlingo.schemata.model.Events.*;
-import io.vlingo.schemata.model.OrganizationEntity;
-import io.vlingo.schemata.model.UnitEntity;
 import io.vlingo.schemata.query.*;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.journal.Journal;
@@ -28,18 +25,13 @@ public class StorageProvider {
     public final OrganizationQueries organizationQueries;
     public final UnitQueries unitQueries;
     public final ContextQueries contextQueries;
+    public final SchemaQueries schemaQueries;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static StorageProvider with(final World world, final SchemataConfig config, StateStore stateStore, final Dispatcher dispatcher) throws Exception {
         if (instance != null) return instance;
 
         final Journal<String> journal = world.actorFor(Journal.class, InMemoryJournalActor.class, dispatcher);
-
-        // register Queries
-        OrganizationQueries organizationQueries = world.stage().actorFor(OrganizationQueries.class, OrganizationQueriesActor.class, stateStore);
-        UnitQueries unitQueries = world.stage().actorFor(UnitQueries.class, UnitQueriesActor.class, stateStore);
-        ContextQueries contextQueries = world.stage().actorFor(ContextQueries.class, ContextQueriesActor.class, stateStore);
-
         SourcedTypeRegistry registry = new SourcedTypeRegistry(world);
 
         registry.register(new SourcedTypeRegistry.Info(journal, OrganizationEntity.class, OrganizationEntity.class.getSimpleName()));
@@ -63,15 +55,31 @@ public class StorageProvider {
                 .registerEntryAdapter(ContextDescribed.class, new EventAdapter<>(ContextDescribed.class))
                 .registerEntryAdapter(ContextMovedToNamespace.class, new EventAdapter<>(ContextMovedToNamespace.class));
 
-        instance = new StorageProvider(journal, organizationQueries, unitQueries, contextQueries);
+        registry.register(new SourcedTypeRegistry.Info(journal, SchemaEntity.class, SchemaEntity.class.getSimpleName()));
+        registry.info(SchemaEntity.class)
+                .registerEntryAdapter(SchemaDefined.class, new EventAdapter<>(SchemaDefined.class))
+                .registerEntryAdapter(SchemaDescribed.class, new EventAdapter<>(SchemaDescribed.class))
+                .registerEntryAdapter(SchemaCategorized.class, new EventAdapter<>(SchemaCategorized.class))
+                .registerEntryAdapter(SchemaScoped.class, new EventAdapter<>(SchemaScoped.class))
+                .registerEntryAdapter(SchemaRedefined.class, new EventAdapter<>(SchemaRedefined.class))
+                .registerEntryAdapter(SchemaRenamed.class, new EventAdapter<>(SchemaRenamed.class));
+
+        // register Queries
+        OrganizationQueries organizationQueries = world.stage().actorFor(OrganizationQueries.class, OrganizationQueriesActor.class, stateStore);
+        UnitQueries unitQueries = world.stage().actorFor(UnitQueries.class, UnitQueriesActor.class, stateStore);
+        ContextQueries contextQueries = world.stage().actorFor(ContextQueries.class, ContextQueriesActor.class, stateStore);
+        SchemaQueries schemaQueries = world.stage().actorFor(SchemaQueries.class, SchemaQueriesActor.class, stateStore);
+
+        instance = new StorageProvider(journal, organizationQueries, unitQueries, contextQueries, schemaQueries);
         return instance;
     }
 
     private StorageProvider(final Journal<String> journal, OrganizationQueries organizationQueries, UnitQueries unitQueries,
-                            ContextQueries contextQueries) {
+                            ContextQueries contextQueries, SchemaQueries schemaQueries) {
         this.journal = journal;
         this.organizationQueries = organizationQueries;
         this.unitQueries = unitQueries;
         this.contextQueries = contextQueries;
+        this.schemaQueries = schemaQueries;
     }
 }

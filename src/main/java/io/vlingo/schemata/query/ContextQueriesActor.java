@@ -31,7 +31,7 @@ public class ContextQueriesActor extends StateStoreQueryActor implements Context
 
     @Override
     public Completes<ContextView> context(String organizationId, String unitId, String contextId, QueryResultsCollector collector) {
-        // TODO Update QueryResultsCollector and implement this method!
+        // TODO Implement this method and update QueryResultsCollector!
         return null;
     }
 }
