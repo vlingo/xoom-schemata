@@ -17,23 +17,19 @@ import java.util.List;
 
 import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.*;
-import io.vlingo.lattice.model.object.ObjectEntity;
+import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.errors.SchemataBusinessException;
-import io.vlingo.schemata.model.Events.SchemaVersionDefined;
-import io.vlingo.schemata.model.Events.SchemaVersionDeprecated;
-import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
-import io.vlingo.schemata.model.Events.SchemaVersionPublished;
-import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
-import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
+import io.vlingo.schemata.model.Events.*;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
+import io.vlingo.schemata.query.view.SchemaVersionView;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
-public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> implements SchemaVersion {
+public final class SchemaVersionEntity extends EventSourced implements SchemaVersion {
   private SchemaVersionState state;
 
   public SchemaVersionEntity(final SchemaVersionId schemaVersionId) {
@@ -48,16 +44,14 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
           final Version previousVersion,
           final Version nextVersion) {
     assert (description != null && !description.isEmpty());
-    return apply(
-        this.state.defineWith(description, specification, previousVersion, nextVersion),
-        SchemaVersionDefined.with(state.schemaVersionId, specification, description, Status.Draft, previousVersion, nextVersion),
-        () -> state);
+    return apply(SchemaVersionDefined.with(this.state.schemaVersionId, specification, description, Status.Draft, previousVersion, nextVersion),
+            () -> state);
   }
 
   @Override
   public Completes<SchemaVersionState> describeAs(final String description) {
     if (description != null && !description.isEmpty()) {
-      return apply(this.state.withDescription(description), SchemaVersionDescribed.with(state.schemaVersionId, description), () -> this.state);
+      return apply(SchemaVersionDescribed.with(state.schemaVersionId, description), () -> this.state);
     }
     return completes().with(state);
   }
@@ -65,7 +59,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   @Override
   public Completes<SchemaVersionState> publish() {
     if (state.status.isDraft()) {
-      return apply(this.state.asPublished(), SchemaVersionPublished.with(state.schemaVersionId), () -> this.state);
+      return apply(SchemaVersionPublished.with(state.schemaVersionId), () -> this.state);
     }
     return completes().with(state);
   }
@@ -73,7 +67,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   @Override
   public Completes<SchemaVersionState> deprecate() {
     if (state.status.isPublished()) {
-      return apply(this.state.asDeprecated(), SchemaVersionDeprecated.with(state.schemaVersionId), () -> this.state);
+      return apply(SchemaVersionDeprecated.with(state.schemaVersionId), () -> this.state);
     }
     return completes().with(state);
   }
@@ -81,7 +75,7 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   @Override
   public Completes<SchemaVersionState> remove() {
     if (state.status.isDeprecated()) {
-      return apply(this.state.asRemoved(), SchemaVersionRemoved.with(state.schemaVersionId), () -> this.state);
+      return apply(SchemaVersionRemoved.with(state.schemaVersionId), () -> this.state);
     }
     return completes().with(state);
   }
@@ -89,24 +83,9 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
   @Override
   public Completes<SchemaVersionState> specifyWith(final Specification specification) {
     if (specification != null) {
-      return apply(this.state.withSpecification(specification), SchemaVersionSpecified.with(state.schemaVersionId, specification), () -> this.state);
+      return apply(SchemaVersionSpecified.with(state.schemaVersionId, specification), () -> this.state);
     }
     return completes().with(state);
-  }
-
-  @Override
-  protected SchemaVersionState stateObject() {
-    return state;
-  }
-
-  @Override
-  protected void stateObject(final SchemaVersionState stateObject) {
-    this.state = stateObject;
-  }
-
-  @Override
-  protected Class<SchemaVersionState> stateObjectType() {
-    return SchemaVersionState.class;
   }
 
   @Override
@@ -118,11 +97,11 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
       return completes();
     }
 
-    SpecificationDiff diff = SpecificationDiff.between(stateObject().specification.value, other.specification);
+    SpecificationDiff diff = SpecificationDiff.between(state.specification.value, other.specification);
 
     // FIXME: Make reactive, don't await() the node
     Outcome<SchemataBusinessException,Node> leftAst = typeDefinitionMiddleware.compileToAST(
-            new ByteArrayInputStream(stateObject().specification.value.getBytes(StandardCharsets.UTF_8)),
+            new ByteArrayInputStream(state.specification.value.getBytes(StandardCharsets.UTF_8)),
             null).await();
 
     if(leftAst instanceof Failure) {
@@ -219,6 +198,10 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
     return completes();
   }
 
+  //==============================
+  // Internal implementation
+  //==============================
+
   private static TypeDefinition asTypeDefinition(Node n) {
     return Processor.requireBeing(n, TypeDefinition.class);
   }
@@ -227,4 +210,41 @@ public final class SchemaVersionEntity extends ObjectEntity<SchemaVersionState> 
     return Processor.requireBeing(n, FieldDefinition.class);
   }
 
+  private void applySchemaVersionDefined(SchemaVersionDefined event) {
+
+  }
+
+  private void applySchemaVersionDescribed(SchemaVersionDescribed event) {
+
+  }
+
+  private void applySchemaVersionAssigned(SchemaVersionAssigned event) {
+
+  }
+
+  private void applySchemaVersionSpecified(SchemaVersionSpecified event) {
+
+  }
+
+  private void applySchemaVersionPublished(SchemaVersionPublished event) {
+
+  }
+
+  private void applySchemaVersionDeprecated(SchemaVersionDeprecated event) {
+
+  }
+
+  private void applySchemaVersionRemoved(SchemaVersionRemoved event) {
+
+  }
+
+  static {
+    registerConsumer(SchemaVersionEntity.class, SchemaVersionDefined.class, SchemaVersionEntity::applySchemaVersionDefined);
+    registerConsumer(SchemaVersionEntity.class, SchemaVersionDescribed.class, SchemaVersionEntity::applySchemaVersionDescribed);
+    registerConsumer(SchemaVersionEntity.class, SchemaVersionAssigned.class, SchemaVersionEntity::applySchemaVersionAssigned);
+    registerConsumer(SchemaVersionEntity.class, SchemaVersionSpecified.class, SchemaVersionEntity::applySchemaVersionSpecified);
+    registerConsumer(SchemaVersionEntity.class, SchemaVersionPublished.class, SchemaVersionEntity::applySchemaVersionPublished);
+    registerConsumer(SchemaVersionEntity.class, SchemaVersionDeprecated.class, SchemaVersionEntity::applySchemaVersionDeprecated);
+    registerConsumer(SchemaVersionEntity.class, SchemaVersionRemoved.class, SchemaVersionEntity::applySchemaVersionRemoved);
+  }
 }

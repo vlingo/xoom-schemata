@@ -376,7 +376,11 @@ public final class Events {
     }
   }
 
-  public static final class SchemaVersionDefined extends DomainEvent {
+  public static final class SchemaVersionDefined extends IdentifiedDomainEvent {
+    public final String organizationId;
+    public final String unitId;
+    public final String contextId;
+    public final String schemaId;
     public final String schemaVersionId;
     public final String specification;
     public final String description;
@@ -401,6 +405,10 @@ public final class Events {
             final SchemaVersion.Status status,
             final SchemaVersion.Version previousVersion,
             final SchemaVersion.Version nextVersion) {
+      this.organizationId = schemaVersionId.organizationId().value;
+      this.unitId = schemaVersionId.unitId().value;
+      this.contextId = schemaVersionId.contextId().value;
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
       this.specification = specification.value;
       this.description = description;
@@ -408,9 +416,20 @@ public final class Events {
       this.previousVersion = previousVersion.value;
       this.nextVersion = nextVersion.value;
     }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
+    }
   }
 
-  public static final class SchemaVersionDescribed extends DomainEvent {
+  public static final class SchemaVersionDescribed extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
     public final String description;
 
@@ -419,12 +438,24 @@ public final class Events {
     }
 
     public SchemaVersionDescribed(final SchemaVersionId schemaVersionId, final String description) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
+    }
   }
 
-  public static final class SchemaVersionAssigned extends DomainEvent {
+  public static final class SchemaVersionAssigned extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
     public final String version;
 
@@ -433,12 +464,24 @@ public final class Events {
     }
 
     public SchemaVersionAssigned(SchemaVersionId schemaVersionId, final SchemaVersion.Version version) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
       this.version = version.value;
     }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
+    }
   }
 
-  public static final class SchemaVersionSpecified extends DomainEvent {
+  public static final class SchemaVersionSpecified extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
     public final String specification;
 
@@ -447,12 +490,24 @@ public final class Events {
     }
 
     public SchemaVersionSpecified(SchemaVersionId schemaVersionId, final SchemaVersion.Specification specification) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
       this.specification = specification.value;
     }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
+    }
   }
 
-  public static final class SchemaVersionPublished extends DomainEvent {
+  public static final class SchemaVersionPublished extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
 
     public static SchemaVersionPublished with(final SchemaVersionId schemaVersionId) {
@@ -460,11 +515,23 @@ public final class Events {
     }
 
     public SchemaVersionPublished(final SchemaVersionId schemaVersionId) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
     }
   }
 
-  public static final class SchemaVersionDeprecated extends DomainEvent {
+  public static final class SchemaVersionDeprecated extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
 
     public static SchemaVersionDeprecated with(final SchemaVersionId schemaVersionId) {
@@ -472,11 +539,23 @@ public final class Events {
     }
 
     public SchemaVersionDeprecated(final SchemaVersionId schemaVersionId) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
     }
   }
 
-  public static final class SchemaVersionRemoved extends DomainEvent {
+  public static final class SchemaVersionRemoved extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
 
     public static SchemaVersionRemoved with(final SchemaVersionId schemaVersionId) {
@@ -484,7 +563,18 @@ public final class Events {
     }
 
     public SchemaVersionRemoved(final SchemaVersionId schemaVersionId) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
     }
   }
 

@@ -50,7 +50,8 @@ public class StateStoreProvider {
                 .register(new Info<>(stateStore, ContextView.class, ContextView.class.getSimpleName()))
                 .register(new Info<>(stateStore, ContextsView.class, ContextsView.class.getSimpleName()))
                 .register(new Info<>(stateStore, SchemaView.class, SchemaView.class.getSimpleName()))
-                .register(new Info<>(stateStore, SchemasView.class, SchemasView.class.getSimpleName()));;
+                .register(new Info<>(stateStore, SchemasView.class, SchemasView.class.getSimpleName()))
+                .register(new Info<>(stateStore, SchemaVersionView.class, SchemaVersionView.class.getSimpleName()));
     }
 
 //    private static void registerStateAdapters(Stage stage) {
