@@ -42,16 +42,19 @@ import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.schemata.model.SchemaVersionState;
 import io.vlingo.schemata.query.Queries;
+import io.vlingo.schemata.query.SchemaVersionQueries;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public class SchemaVersionResource extends ResourceHandler {
     private final SchemaVersionCommands commands;
+    private final SchemaVersionQueries queries;
     private final Stage stage;
     private final Logger logger;
 
-  public SchemaVersionResource(final World world) {
+  public SchemaVersionResource(final World world, SchemaVersionQueries queries) {
         this.stage = world.stageNamed(StageName);
         this.commands = new SchemaVersionCommands(this.stage, 10);
+        this.queries = queries;
         this.logger = world.defaultLogger();
     }
 
@@ -125,7 +128,8 @@ public class SchemaVersionResource extends ResourceHandler {
         }
       }
 
-      return SchemaVersion.with(stage, SchemaId.existing(organizationId, unitId, contextId, schemaId), Specification.of(data.specification), data.description, Version.of(data.previousVersion), Version.of(data.currentVersion))
+      return SchemaVersion.with(stage, SchemaId.existing(organizationId, unitId, contextId, schemaId), Specification.of(data.specification), data.description,
+              Version.of(data.previousVersion), Version.of(data.currentVersion))
               .andThenTo(3000, state -> {
                   final String location = schemaVersionLocation(state.schemaVersionId);
                   final Headers<ResponseHeader> headers = Headers.of(
@@ -191,41 +195,27 @@ public class SchemaVersionResource extends ResourceHandler {
     }
 
     public Completes<Response> querySchemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId) {
-        return Queries.forSchemaVersions()
+        return queries
                 .schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
                 .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
     }
 
     public Completes<Response> querySchemaVersionByIds(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
-        return Queries.forSchemaVersions()
+        return queries
                 .schemaVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
-                .andThen(o -> o.resolve(
-                        e -> Response.of(NotFound, serialized(e)),
-                        sv -> Response.of(
-                                Ok,
-                                Headers.of(of(ContentType, "application/json; charset=UTF-8")),
-                                serialized(sv))
-                ))
-                .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+                .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
     }
 
     public Completes<Response> searchSchemaVersionsByNames(final String organization, final String unit, final String context, final String schema) {
         return Queries.forSchemaVersions()
                 .schemaVersionsByNames(organization, unit, context, schema)
-                .andThenTo(schemaVersionData -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersionData))));
+                .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
     }
 
     public Completes<Response> searchSchemaVersionByNames(final String organization, final String unit, final String context, final String schema, final String schemaVersion) {
         return Queries.forSchemaVersions()
                 .schemaVersionOf(organization, unit, context, schema, schemaVersion)
-                .andThen(o -> o.resolve(
-                        e -> Response.of(NotFound, serialized(e)),
-                        sv -> Response.of(
-                                Ok,
-                                Headers.of(of(ContentType, "application/json; charset=UTF-8")),
-                                serialized(sv))
-                ))
-                .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+                .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
   }
 
     public Completes<Response> searchSchemaVersions(final String schemaVersion, final String organization, final String unit, final String context, final String schema) {
@@ -281,74 +271,75 @@ public class SchemaVersionResource extends ResourceHandler {
     }
 
     public Completes<Response> retrieveSchemaVersion(final String reference) {
-        FullyQualifiedReference fqr;
-        try {
-            fqr = FullyQualifiedReference.from(reference);
-        } catch (IllegalArgumentException ex) {
-            return Completes.withSuccess(Response.of(
-              BadRequest,
-              Headers.of(of(ContentLength, ex.getMessage().length())),
-              ex.getMessage()));
-        }
-
-        if (!fqr.isSchemaVersionReference()) {
-            final String msg = "Include the version of the schema to retrieve";
-            return Completes.withSuccess(Response.of(
-              BadRequest,
-              Headers.of(of(ContentLength, msg.length())),
-              msg));
-        }
-
-        return Queries.forSchemaVersions().schemaVersionOf(
-          fqr.organization,
-          fqr.unit,
-          fqr.context,
-          fqr.schema,
-          fqr.schemaVersion)
-          .andThen(o -> o.resolve(
-                  e -> Response.of(NotFound, serialized(e)),
-                  sv -> Response.of(
-                          Ok,
-                          Headers.of(of(ContentType, "application/json; charset=UTF-8")),
-                          serialized(sv))
-          ))
-          .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
-
+        return null;
+//        FullyQualifiedReference fqr;
+//        try {
+//            fqr = FullyQualifiedReference.from(reference);
+//        } catch (IllegalArgumentException ex) {
+//            return Completes.withSuccess(Response.of(
+//              BadRequest,
+//              Headers.of(of(ContentLength, ex.getMessage().length())),
+//              ex.getMessage()));
+//        }
+//
+//        if (!fqr.isSchemaVersionReference()) {
+//            final String msg = "Include the version of the schema to retrieve";
+//            return Completes.withSuccess(Response.of(
+//              BadRequest,
+//              Headers.of(of(ContentLength, msg.length())),
+//              msg));
+//        }
+//
+//        return Queries.forSchemaVersions().schemaVersionOf(
+//          fqr.organization,
+//          fqr.unit,
+//          fqr.context,
+//          fqr.schema,
+//          fqr.schemaVersion)
+//          .andThen(o -> o.resolve(
+//                  e -> Response.of(NotFound, serialized(e)),
+//                  sv -> Response.of(
+//                          Ok,
+//                          Headers.of(of(ContentType, "application/json; charset=UTF-8")),
+//                          serialized(sv))
+//          ))
+//          .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
     }
 
     public Completes<Response> retrieveSchemaVersionStatus(final String reference) {
-        FullyQualifiedReference fqr;
-        try {
-            fqr = FullyQualifiedReference.from(reference);
-        } catch (IllegalArgumentException ex) {
-            return Completes.withSuccess(Response.of(
-              BadRequest,
-              Headers.of(of(ContentLength, ex.getMessage().length())),
-              ex.getMessage()));
-        }
-
-        if (!fqr.isSchemaVersionReference()) {
-            final String msg = "Include the version of the schema to retrieve";
-            return Completes.withSuccess(Response.of(
-              BadRequest,
-              Headers.of(of(ContentLength, msg.length())),
-              msg));
-        }
-
-        return Queries.forSchemaVersions().schemaVersionOf(
-          fqr.organization,
-          fqr.unit,
-          fqr.context,
-          fqr.schema,
-          fqr.schemaVersion)
-          .andThen(o -> o.resolve(
-                  e -> Response.of(NotFound, serialized(e)),
-                  sv -> Response.of(
-                          Ok,
-                          Headers.of(of(ContentType, "text/plain; charset=UTF-8")),
-                          sv.status)
-          ))
-          .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+        return null;
+//        FullyQualifiedReference fqr;
+//        try {
+//            fqr = FullyQualifiedReference.from(reference);
+//        } catch (IllegalArgumentException ex) {
+//            return Completes.withSuccess(Response.of(
+//              BadRequest,
+//              Headers.of(of(ContentLength, ex.getMessage().length())),
+//              ex.getMessage()));
+//        }
+//
+//        if (!fqr.isSchemaVersionReference()) {
+//            final String msg = "Include the version of the schema to retrieve";
+//            return Completes.withSuccess(Response.of(
+//              BadRequest,
+//              Headers.of(of(ContentLength, msg.length())),
+//              msg));
+//        }
+//
+//        return Queries.forSchemaVersions().schemaVersionOf(
+//          fqr.organization,
+//          fqr.unit,
+//          fqr.context,
+//          fqr.schema,
+//          fqr.schemaVersion)
+//          .andThen(o -> o.resolve(
+//                  e -> Response.of(NotFound, serialized(e)),
+//                  sv -> Response.of(
+//                          Ok,
+//                          Headers.of(of(ContentType, "text/plain; charset=UTF-8")),
+//                          sv.status)
+//          ))
+//          .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
     }
 
     @Override

@@ -35,7 +35,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testThatSchemaVersionIsDefined() {
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
         final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
         assertEquals(Created, response1.status);
@@ -49,7 +49,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testThatNonExistingSchemaVersionReturns404() {
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         OrganizationState org = Organization.with(world.stageNamed(Schemata.StageName), Organization.uniqueId(),"o", "d").await();
         UnitState unit = Unit.with(world.stageNamed(Schemata.StageName), org.organizationId,"u", "d").await();
         ContextState context = Context.with(world.stageNamed(Schemata.StageName), unit.unitId,"c", "d").await();
@@ -64,7 +64,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
     @Ignore("Temporarily ignored as it currently hangs, see https://github.com/vlingo/vlingo-schemata/issues/135")
     public void testThatSchemaVersionMinorUpgradeIsDefined() {
 
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData previousData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
         resource.defineWith(OrgId, UnitId, ContextId, SchemaId, previousData).await();
 
@@ -81,7 +81,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testSchemaVersionDescribedAs() {
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
         final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
         assertEquals(Created, response1.status);
@@ -96,7 +96,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testThatSchemaVersionIsPublished() {
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
         final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
         assertEquals(Created, response1.status);
@@ -111,7 +111,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testThatSchemaVersionIsDeprecated() {
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
         final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
         assertEquals(Created, response1.status);
@@ -132,7 +132,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
         Id.ContextId contextId = Id.ContextId.uniqueFor(unitId);
         Id.SchemaId schemaId = Id.SchemaId.uniqueFor(contextId);
 
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
         final Response response1 = resource.defineWith(
                 orgId.value, unitId.value, contextId.value, schemaId.value, defineData)
@@ -157,7 +157,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testThatSchemaVersionIsRemoved() {
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
         final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
         assertEquals(Created, response1.status);
@@ -178,7 +178,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
         Id.ContextId contextId = Id.ContextId.uniqueFor(unitId);
         Id.SchemaId schemaId = Id.SchemaId.uniqueFor(contextId);
 
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
         final Response response1 =
                 resource.defineWith(orgId.value, unitId.value, contextId.value, schemaId.value, defineData)
@@ -201,7 +201,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testFailDefineWithNullSpecification() {
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just(null, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
         final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
         assertEquals(BadRequest, response1.status);
@@ -211,7 +211,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testFailDefineWithEmptySpecification() {
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just("", SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
         final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
         assertEquals(BadRequest, response1.status);
@@ -221,7 +221,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testFailDefineWithZeroVersions() {
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion000);
         final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
         assertEquals(BadRequest, response1.status);
@@ -231,7 +231,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testFailDefineWithHighLowVersions() {
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion100, SchemaVersionVersion000);
         final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
         assertEquals(BadRequest, response1.status);
@@ -241,7 +241,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
     @Test
     public void testFailDefineWithGappedVersions() {
-        final SchemaVersionResource resource = new SchemaVersionResource(world);
+        final SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
         final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion100, SchemaVersionVersion300);
         final Response response1 = resource.defineWith(OrgId, UnitId, ContextId, SchemaId, defineData).await();
         assertEquals(BadRequest, response1.status);

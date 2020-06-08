@@ -26,17 +26,18 @@ public class TypeResolverQueriesActor extends Actor implements TypeResolverQueri
 
     @Override
     public Completes<Optional<TypeDefinition>> resolve(TypeDefinitionMiddleware middleware, String fullyQualifiedTypeName) {
-        return schemaVersionQueries
-                .schemaVersion(fullyQualifiedTypeName)
-                .andThen(o -> o.resolve(
-                        e -> Success.of(null), // it is ok not to find a schema for the fqtn, e.g. for basic types
-                        data -> middleware.compileToAST(new ByteArrayInputStream(data.specification.getBytes()), fullyQualifiedTypeName).await()
-                ))
-                .andThen(o -> o.resolve(
-                        ex -> null,
-                        node -> node
-                ))
-               .andThen(node ->  Optional.ofNullable((TypeDefinition) node))
-               .otherwise(ex -> Optional.empty());
+        return null;
+//        return schemaVersionQueries
+//                .schemaVersion(fullyQualifiedTypeName)
+//                .andThen(o -> o.resolve(
+//                        e -> Success.of(null), // it is ok not to find a schema for the fqtn, e.g. for basic types
+//                        data -> middleware.compileToAST(new ByteArrayInputStream(data.specification.getBytes()), fullyQualifiedTypeName).await()
+//                ))
+//                .andThen(o -> o.resolve(
+//                        ex -> null,
+//                        node -> node
+//                ))
+//               .andThen(node ->  Optional.ofNullable((TypeDefinition) node))
+//               .otherwise(ex -> Optional.empty());
     }
 }

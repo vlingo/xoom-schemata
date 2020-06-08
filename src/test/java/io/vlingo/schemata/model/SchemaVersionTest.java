@@ -293,35 +293,35 @@ public class SchemaVersionTest {
 
   private SchemaVersionState simpleSchemaVersionState() {
     return simpleSchemaVersion.defineWith(
-        new Specification("event Foo { " +
-            "string bar\n" +
-            "}"),
-        "description",
-        new SchemaVersion.Version("0.0.0"),
-        new SchemaVersion.Version("1.0.0"))
-        .await();
+            new Specification("event Foo { " +
+                    "string bar\n" +
+                    "}"),
+            "description",
+            new SchemaVersion.Version("0.0.0"),
+            new SchemaVersion.Version("1.0.0"))
+            .await();
   }
 
   private SchemaVersionState completeBasicTypesSchemaVersionState() {
     return basicTypesSchemaVersion.defineWith(
-      new Specification("event Foo { " +
-        "type eventType\n"+
-        "timestamp occurredOn\n"+
-        "version eventVersion\n"+
-        "boolean booleanAttribute\n"+
-        "byte byteAttribute\n"+
-        "char charAttribute\n"+
-        "double doubleAttribute\n"+
-        "float floatAttribute\n"+
-        "int intAttribute\n"+
-        "long longAttribute\n"+
-        "short shortAttribute\n"+
-        "string stringAttribute\n"+
-        "}"),
-      "description",
-      new SchemaVersion.Version("0.0.0"),
-      new SchemaVersion.Version("1.0.0"))
-      .await();
+            new Specification("event Foo { " +
+                    "type eventType\n" +
+                    "timestamp occurredOn\n" +
+                    "version eventVersion\n" +
+                    "boolean booleanAttribute\n" +
+                    "byte byteAttribute\n" +
+                    "char charAttribute\n" +
+                    "double doubleAttribute\n" +
+                    "float floatAttribute\n" +
+                    "int intAttribute\n" +
+                    "long longAttribute\n" +
+                    "short shortAttribute\n" +
+                    "string stringAttribute\n" +
+                    "}"),
+            "description",
+            new SchemaVersion.Version("0.0.0"),
+            new SchemaVersion.Version("1.0.0"))
+            .await();
   }
 
   private static void assertCompatible(String message, SpecificationDiff diff) {

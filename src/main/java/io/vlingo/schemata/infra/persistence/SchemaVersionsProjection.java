@@ -15,7 +15,6 @@ import io.vlingo.schemata.model.Events;
 import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.query.view.SchemaVersionView;
 import io.vlingo.schemata.query.view.SchemaVersionsView;
-import io.vlingo.schemata.query.view.Tag;
 import io.vlingo.symbio.Entry;
 import io.vlingo.symbio.store.state.StateStore;
 

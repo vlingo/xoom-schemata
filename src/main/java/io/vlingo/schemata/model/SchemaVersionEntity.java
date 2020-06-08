@@ -211,31 +211,31 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
   }
 
   private void applySchemaVersionDefined(SchemaVersionDefined event) {
-
+    this.state = state.defineWith(event.description, Specification.of(event.specification), Version.of(event.previousVersion), Version.of(event.nextVersion));
   }
 
   private void applySchemaVersionDescribed(SchemaVersionDescribed event) {
-
+    this.state = state.withDescription(event.description);
   }
 
   private void applySchemaVersionAssigned(SchemaVersionAssigned event) {
-
+    this.state = state.withVersion(Version.of(event.version));
   }
 
   private void applySchemaVersionSpecified(SchemaVersionSpecified event) {
-
+    this.state = state.withSpecification(Specification.of(event.specification));
   }
 
   private void applySchemaVersionPublished(SchemaVersionPublished event) {
-
+    this.state = state.asPublished();
   }
 
   private void applySchemaVersionDeprecated(SchemaVersionDeprecated event) {
-
+    this.state = state.asDeprecated();
   }
 
   private void applySchemaVersionRemoved(SchemaVersionRemoved event) {
-
+    this.state = state.asRemoved();
   }
 
   static {

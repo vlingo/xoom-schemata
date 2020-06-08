@@ -65,7 +65,6 @@ public class SchemaVersionEntityTest {
   @Test
   public void testThatSchemaVersionIsDefined() {
     final SchemaVersionState state = schemaVersion.defineWith(new SchemaVersion.Specification("specification"), "description", new SchemaVersion.Version("0.0.0"), new SchemaVersion.Version("1.0.0")).await();
-    Assert.assertNotEquals(SchemaVersionState.unidentified(), state.persistenceId());
     Assert.assertEquals(schemaVersionId.value, state.schemaVersionId.value);
     Assert.assertEquals("description", state.description);
     Assert.assertEquals("specification", state.specification.value);

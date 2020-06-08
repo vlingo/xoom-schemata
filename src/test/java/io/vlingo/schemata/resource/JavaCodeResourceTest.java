@@ -115,7 +115,7 @@ public class JavaCodeResourceTest extends ResourceTest {
     final Response schemaResponse = schemaResource.defineWith(organizationId, unitId, contextId, SchemaData.just(SchemaCategory, SchemaScope, SchemaName, SchemaDescription)).await();
     schemaId = extractResourceIdFrom(schemaResponse);
 
-    final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world);
+    final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world, schemaVersionQueries);
     final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, SchemaVersionStatus, SchemaVersionVersion000, SchemaVersionVersion100);
     final Response schemaVersionResponse = schemaVersionResource.defineWith(organizationId, unitId, contextId, schemaId, defineData).await();
     schemaVersionId = extractResourceIdFrom(schemaVersionResponse);

@@ -26,6 +26,7 @@ public class StorageProvider {
     public final UnitQueries unitQueries;
     public final ContextQueries contextQueries;
     public final SchemaQueries schemaQueries;
+    public final SchemaVersionQueries schemaVersionQueries;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static StorageProvider with(final World world, final SchemataConfig config, StateStore stateStore, final Dispatcher dispatcher) throws Exception {
@@ -64,22 +65,34 @@ public class StorageProvider {
                 .registerEntryAdapter(SchemaRedefined.class, new EventAdapter<>(SchemaRedefined.class))
                 .registerEntryAdapter(SchemaRenamed.class, new EventAdapter<>(SchemaRenamed.class));
 
+        registry.register(new SourcedTypeRegistry.Info(journal, SchemaVersionEntity.class, SchemaVersionEntity.class.getSimpleName()));
+        registry.info(SchemaVersionEntity.class)
+                .registerEntryAdapter(SchemaVersionDefined.class, new EventAdapter<>(SchemaVersionDefined.class))
+                .registerEntryAdapter(SchemaVersionDescribed.class, new EventAdapter<>(SchemaVersionDescribed.class))
+                .registerEntryAdapter(SchemaVersionAssigned.class, new EventAdapter<>(SchemaVersionAssigned.class))
+                .registerEntryAdapter(SchemaVersionSpecified.class, new EventAdapter<>(SchemaVersionSpecified.class))
+                .registerEntryAdapter(SchemaVersionPublished.class, new EventAdapter<>(SchemaVersionPublished.class))
+                .registerEntryAdapter(SchemaVersionDeprecated.class, new EventAdapter<>(SchemaVersionDeprecated.class))
+                .registerEntryAdapter(SchemaVersionRemoved.class, new EventAdapter<>(SchemaVersionRemoved.class));
+
         // register Queries
         OrganizationQueries organizationQueries = world.stage().actorFor(OrganizationQueries.class, OrganizationQueriesActor.class, stateStore);
         UnitQueries unitQueries = world.stage().actorFor(UnitQueries.class, UnitQueriesActor.class, stateStore);
         ContextQueries contextQueries = world.stage().actorFor(ContextQueries.class, ContextQueriesActor.class, stateStore);
         SchemaQueries schemaQueries = world.stage().actorFor(SchemaQueries.class, SchemaQueriesActor.class, stateStore);
+        SchemaVersionQueries schemaVersionQueries = world.stage().actorFor(SchemaVersionQueries.class, SchemaVersionQueriesActor.class, stateStore);
 
-        instance = new StorageProvider(journal, organizationQueries, unitQueries, contextQueries, schemaQueries);
+        instance = new StorageProvider(journal, organizationQueries, unitQueries, contextQueries, schemaQueries, schemaVersionQueries);
         return instance;
     }
 
     private StorageProvider(final Journal<String> journal, OrganizationQueries organizationQueries, UnitQueries unitQueries,
-                            ContextQueries contextQueries, SchemaQueries schemaQueries) {
+                            ContextQueries contextQueries, SchemaQueries schemaQueries, SchemaVersionQueries schemaVersionQueries) {
         this.journal = journal;
         this.organizationQueries = organizationQueries;
         this.unitQueries = unitQueries;
         this.contextQueries = contextQueries;
         this.schemaQueries = schemaQueries;
+        this.schemaVersionQueries = schemaVersionQueries;
     }
 }

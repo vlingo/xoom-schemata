@@ -31,13 +31,14 @@ public class CodeQueriesActor extends Actor implements CodeQueries {
 
   @Override
   public Completes<Outcome<SchemataBusinessException, SchemaVersionData>> schemaVersionFor(final AuthorizationData authorization, final PathData path) {
-    final CompletesEventually completesEventually = completesEventually();
-
-    schemaVersionQueries.schemaVersionOf(path.organization, path.unit, path.context, path.schema, path.version)
-      .andThen(schemaVersion -> validate(authorization, schemaVersion.getOrNull()))
-      .andFinallyConsume(completesEventually::with);
-
-    return completes();
+    return null;
+//    final CompletesEventually completesEventually = completesEventually();
+//
+//    schemaVersionQueries.schemaVersionOf(path.organization, path.unit, path.context, path.schema, path.version)
+//      .andThen(schemaVersion -> validate(authorization, schemaVersion.getOrNull()))
+//      .andFinallyConsume(completesEventually::with);
+//
+//    return completes();
   }
 
   @Override
