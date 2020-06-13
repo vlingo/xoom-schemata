@@ -27,6 +27,8 @@ public class StorageProvider {
     public final ContextQueries contextQueries;
     public final SchemaQueries schemaQueries;
     public final SchemaVersionQueries schemaVersionQueries;
+    public final CodeQueries codeQueries;
+    public final TypeResolverQueries typeResolverQueries;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static StorageProvider with(final World world, final SchemataConfig config, StateStore stateStore, final Dispatcher dispatcher) throws Exception {
@@ -81,18 +83,28 @@ public class StorageProvider {
         ContextQueries contextQueries = world.stage().actorFor(ContextQueries.class, ContextQueriesActor.class, stateStore);
         SchemaQueries schemaQueries = world.stage().actorFor(SchemaQueries.class, SchemaQueriesActor.class, stateStore);
         SchemaVersionQueries schemaVersionQueries = world.stage().actorFor(SchemaVersionQueries.class, SchemaVersionQueriesActor.class, stateStore);
+        CodeQueries codeQueries = world.stage().actorFor(CodeQueries.class, CodeQueriesActor.class, stateStore);
+        TypeResolverQueries typeResolverQueries = world.stage().actorFor(TypeResolverQueries.class, TypeResolverQueriesActor.class, codeQueries);
 
-        instance = new StorageProvider(journal, organizationQueries, unitQueries, contextQueries, schemaQueries, schemaVersionQueries);
+        instance = new StorageProvider(journal, organizationQueries, unitQueries, contextQueries, schemaQueries, schemaVersionQueries, codeQueries,
+                typeResolverQueries);
+        return instance;
+    }
+
+    public static StorageProvider instance() {
         return instance;
     }
 
     private StorageProvider(final Journal<String> journal, OrganizationQueries organizationQueries, UnitQueries unitQueries,
-                            ContextQueries contextQueries, SchemaQueries schemaQueries, SchemaVersionQueries schemaVersionQueries) {
+                            ContextQueries contextQueries, SchemaQueries schemaQueries, SchemaVersionQueries schemaVersionQueries, CodeQueries codeQueries,
+                            TypeResolverQueries typeResolverQueries) {
         this.journal = journal;
         this.organizationQueries = organizationQueries;
         this.unitQueries = unitQueries;
         this.contextQueries = contextQueries;
         this.schemaQueries = schemaQueries;
         this.schemaVersionQueries = schemaVersionQueries;
+        this.codeQueries = codeQueries;
+        this.typeResolverQueries = typeResolverQueries;
     }
 }

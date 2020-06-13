@@ -7,6 +7,8 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.schemata.Schemata;
+
 public class Path {
     public final String organization;
     public final String unit;
@@ -58,7 +60,31 @@ public class Path {
                 + ", version=" + version + "]";
     }
 
-    public Path(final String organization, final String unit, final String context, final String schema, final String version) {
+    public static Path with(final String organization, final String unit, final String context, final String schema, final String version) {
+        return new Path(organization, unit, context, schema, version);
+    }
+
+    public static Path with(final String reference, final boolean versionOptional) {
+        final String[] parts = reference.split(Schemata.ReferenceSeparator);
+
+        if (!versionOptional && parts.length != 5) {
+            throw new IllegalArgumentException("The reference path must have five parts: org:unit:context:schema:version");
+        }
+
+        if (parts.length < 4) {
+            throw new IllegalArgumentException("The reference path must have five parts: org:unit:context:schema[:version]");
+        }
+
+        return new Path(parts[0].trim(), parts[1].trim(), parts[2].trim(), parts[3].trim(), parts.length == 5 ? parts[4].trim() : "");
+    }
+
+    public static boolean isValidReference(final String reference, final boolean versionOptional) {
+        final String[] parts = reference.split(Schemata.ReferenceSeparator);
+
+        return parts.length == 5 || (versionOptional && parts.length == 4);
+    }
+
+    private Path(final String organization, final String unit, final String context, final String schema, final String version) {
         this.organization = organization;
         this.unit = unit;
         this.context = context;
@@ -66,19 +92,19 @@ public class Path {
         this.version = version;
     }
 
-    public Path(final String organization, final String unit, final String context, final String schema) {
+    private Path(final String organization, final String unit, final String context, final String schema) {
         this(organization, unit, context, schema, "");
     }
 
-    public Path(final String organization, final String unit, final String context) {
+    private Path(final String organization, final String unit, final String context) {
         this(organization, unit, context, "", "");
     }
 
-    public Path(final String organization, final String unit) {
+    private Path(final String organization, final String unit) {
         this(organization, unit, "", "", "");
     }
 
-    public Path(final String organization) {
+    private Path(final String organization) {
         this(organization, "", "", "", "");
     }
 }

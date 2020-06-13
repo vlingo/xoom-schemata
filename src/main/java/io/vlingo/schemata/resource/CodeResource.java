@@ -23,6 +23,8 @@ import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.errors.SchemataBusinessException;
+import io.vlingo.schemata.model.Path;
+import io.vlingo.schemata.query.CodeQueries;
 import io.vlingo.schemata.query.Queries;
 import io.vlingo.schemata.query.QueryResultsCollector;
 import io.vlingo.schemata.resource.data.*;
@@ -49,11 +51,13 @@ import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
 //
 public class CodeResource extends ResourceHandler {
   private final Logger logger;
+  private final CodeQueries queries;
   private final Stage stage;
 
-  public CodeResource(final World world) {
+  public CodeResource(final World world, CodeQueries queries) {
     this.stage = world.stageNamed(StageName);
     this.logger = world.defaultLogger();
+    this.queries = queries;
   }
 
   private boolean isReferenceValid(final String reference) {
@@ -75,32 +79,16 @@ public class CodeResource extends ResourceHandler {
     // FIXME: temporary workaround for missing context in handler, see #55
     final Request request = context() == null ? null : context().request;
     final Collector collector = given(request, reference);
+    final Path path = Path.with(reference, true);
 
-    return Queries.forCode()
-            .schemaVersionFor(collector.authorization, collector.path, collector)
-            .andThenTo(version -> {
-              logger.debug("VERSION: " + version);
-              return queryContextWith(collector.contextIndentities, collector);
+    return queries.codeFor(path)
+            .andThenTo(codeView -> {
+              logger.debug("COMPILING: " + codeView.specification());
+              return compile(codeView.pathId(), codeView.specification(), codeView.currentVersion(), language);
             })
-            .andThen( o -> o.resolve(
-                    Completes::withFailure,
-                    ctx -> ctx
-            ))
-            .andThen(context -> {
-              logger.debug("CONTEXT: " + context);
-              return validateContext((ContextData) context, collector).await();
-            })
-            .andThenTo(context -> {
-              logger.debug("COMPILING: " + collector.schemaVersion().specification);
-              return compile(collector.path.reference, collector.schemaVersion(), language);
-            })
-            .andThen( o -> o.resolve(
-                    Completes::withFailure,
-                    code -> code
-            ))
             .andThenTo(code -> {
-              logger.debug("CODE: \n" + code);
-              return recordDependency((String)code, collector);
+              logger.debug("CODE: \n" + code.get());
+              return recordDependency(code.get(), collector);
             })
             .andThenTo(code -> {
               logger.debug("SUCCESS: \n" + code);
@@ -121,6 +109,52 @@ public class CodeResource extends ResourceHandler {
                       exception.getMessage()
               );
             });
+
+//    return Queries.forCode()
+//            .schemaVersionFor(collector.authorization, collector.path, collector)
+//            .andThenTo(version -> {
+//              logger.debug("VERSION: " + version);
+//              return queryContextWith(collector.contextIndentities, collector);
+//            })
+//            .andThen( o -> o.resolve(
+//                    Completes::withFailure,
+//                    ctx -> ctx
+//            ))
+//            .andThen(context -> {
+//              logger.debug("CONTEXT: " + context);
+//              return validateContext((ContextData) context, collector).await();
+//            })
+//            .andThenTo(context -> {
+//              logger.debug("COMPILING: " + collector.schemaVersion().specification);
+//              return compile(collector.path.reference, collector.schemaVersion(), language);
+//            })
+//            .andThen( o -> o.resolve(
+//                    Completes::withFailure,
+//                    code -> code
+//            ))
+//            .andThenTo(code -> {
+//              logger.debug("CODE: \n" + code);
+//              return recordDependency((String)code, collector);
+//            })
+//            .andThenTo(code -> {
+//              logger.debug("SUCCESS: \n" + code);
+//              return Completes.withSuccess(Response.of(Ok, code));
+//            })
+//            .otherwise(failure -> {
+//              logger.error("FAILED: " + failure);
+//              return Response.of(
+//                      InternalServerError,
+//                      Header.Headers.of(ResponseHeader.contentLength(0))
+//              );
+//            })
+//            .recoverFrom(exception -> {
+//              logger.error("EXCEPTION: " + exception, exception);
+//              return Response.of(
+//                      BadRequest,
+//                      Header.Headers.of(ResponseHeader.contentLength(exception.getMessage().length())),
+//                      exception.getMessage()
+//              );
+//            });
   }
 
   @Override
@@ -136,9 +170,9 @@ public class CodeResource extends ResourceHandler {
   // Internal implementation
   //////////////////////////////////
 
-  private Completes<Outcome<SchemataBusinessException,String>> compile(final String reference, final SchemaVersionData version, final String language) {
-    final InputStream inputStream = new ByteArrayInputStream(version.specification.getBytes());
-    return compilerFor(stage, language).compile(inputStream, reference, version.currentVersion);
+  private Completes<Outcome<SchemataBusinessException,String>> compile(final String reference, final String specification, final String currentVersion, final String language) {
+    final InputStream inputStream = new ByteArrayInputStream(specification.getBytes());
+    return compilerFor(stage, language).compile(inputStream, reference, currentVersion);
   }
 
   private Collector given(final Request request, final String reference) {

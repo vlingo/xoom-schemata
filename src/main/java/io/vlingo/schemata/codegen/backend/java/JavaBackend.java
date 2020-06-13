@@ -49,17 +49,17 @@ import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.errors.SchemataBusinessException;
 
 @SuppressWarnings("rawtypes")
-public class JavaBackend extends Actor implements Backend {
+public class JavaBackend implements Backend {
     public JavaBackend() {
     }
 
     @Override
-    public Outcome<SchemataBusinessException,String> generateOutput(Node node, String version) {
+    public Outcome<SchemataBusinessException, String> generateOutput(Node node, String version) {
         TypeDefinition type = Processor.requireBeing(node, TypeDefinition.class);
         return compileJavaClass(type, version);
     }
 
-    private Outcome<SchemataBusinessException,String> compileJavaClass(TypeDefinition type, String version) {
+    private Outcome<SchemataBusinessException, String> compileJavaClass(TypeDefinition type, String version) {
         final Class<?> baseClass = baseClassOf(type);
         final String typeName = type.typeName;
         final String typeReference = type.fullyQualifiedTypeName;

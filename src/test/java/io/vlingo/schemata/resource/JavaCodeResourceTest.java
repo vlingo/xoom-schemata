@@ -34,7 +34,7 @@ import io.vlingo.schemata.resource.data.UnitData;
 public class JavaCodeResourceTest extends ResourceTest {
   @Test
   public void testThatJavaCodeIsReferenced() {
-    final CodeResource resource = new CodeResource(world);
+    final CodeResource resource = new CodeResource(world, codeQueries);
     resource.__internal__test_set_up(context(), stage);
     final Response response = resource.queryCodeForLanguage(reference(), "java").await();
     assertEquals(Ok, response.status);

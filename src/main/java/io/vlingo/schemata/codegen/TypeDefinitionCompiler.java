@@ -20,6 +20,7 @@ import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
 import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
 import io.vlingo.schemata.errors.SchemataBusinessException;
+import io.vlingo.schemata.infra.persistence.StorageProvider;
 import io.vlingo.schemata.query.Queries;
 
 import java.io.InputStream;
@@ -67,7 +68,7 @@ public interface TypeDefinitionCompiler {
    */
   static TypeDefinitionCompiler forBackend(final Stage stage, Backend backend) {
     final TypeParser typeParser =  new AntlrTypeParser();
-    final TypeResolver typeResolver = Queries.forTypeResolver();
+    final TypeResolver typeResolver = StorageProvider.instance().typeResolverQueries;
 
     return new TypeDefinitionCompilerActor(typeParser,
             Arrays.asList(

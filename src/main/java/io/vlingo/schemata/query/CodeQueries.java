@@ -10,13 +10,16 @@ package io.vlingo.schemata.query;
 import io.vlingo.common.Completes;
 import io.vlingo.common.Outcome;
 import io.vlingo.schemata.errors.SchemataBusinessException;
+import io.vlingo.schemata.model.Path;
+import io.vlingo.schemata.query.view.CodeView;
 import io.vlingo.schemata.resource.data.AuthorizationData;
 import io.vlingo.schemata.resource.data.PathData;
 import io.vlingo.schemata.resource.data.SchemaData;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public interface CodeQueries {
-  Completes<Outcome<SchemataBusinessException, SchemaVersionData>> schemaVersionFor(final AuthorizationData authorization, final PathData path);
-  Completes<Outcome<SchemataBusinessException, SchemaVersionData>> schemaVersionFor(final AuthorizationData authorization, final PathData path, final QueryResultsCollector collector);
-  Completes<Outcome<SchemataBusinessException, SchemaVersionData>> schemaVersionFor(final String fullQualifiedTypeName);
+  Completes<CodeView> codeFor(final Path path);
+//  Completes<Outcome<SchemataBusinessException, SchemaVersionData>> schemaVersionFor(final AuthorizationData authorization, final PathData path);
+//  Completes<Outcome<SchemataBusinessException, SchemaVersionData>> schemaVersionFor(final AuthorizationData authorization, final PathData path, final QueryResultsCollector collector);
+//  Completes<Outcome<SchemataBusinessException, SchemaVersionData>> schemaVersionFor(final String fullQualifiedTypeName);
 }

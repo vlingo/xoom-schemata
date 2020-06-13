@@ -49,7 +49,7 @@ public class Bootstrap {
     final ContextResource contextResource = new ContextResource(world, storageProvider.contextQueries);
     final SchemaResource schemaResource = new SchemaResource(world, storageProvider.schemaQueries);
     final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world, storageProvider.schemaVersionQueries);
-    final CodeResource codeResource = new CodeResource(world);
+    final CodeResource codeResource = new CodeResource(world, storageProvider.codeQueries);
     final UiResource uiResource = new UiResource(world);
 
     Resources allResources = Resources.are(

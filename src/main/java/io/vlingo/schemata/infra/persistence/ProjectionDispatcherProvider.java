@@ -90,7 +90,9 @@ public class ProjectionDispatcherProvider {
                                 SchemaVersionSpecified.class,
                                 SchemaVersionPublished.class,
                                 SchemaVersionDeprecated.class,
-                                SchemaVersionRemoved.class));
+                                SchemaVersionRemoved.class),
+                        ProjectToDescription.with(CodeProjection.class, Optional.of(stateStore),
+                                SchemaVersionDefined.class));
 
         final Protocols dispatcherProtocols =
                 stage.actorFor(

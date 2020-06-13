@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.function.Function;
 
-public class TypeDefinitionCompilerActor extends Actor implements TypeDefinitionCompiler, TypeDefinitionMiddleware {
+public class TypeDefinitionCompilerActor implements TypeDefinitionCompiler, TypeDefinitionMiddleware {
     private final TypeParser parser;
     private final List<Processor> processors;
     private final Backend backend;

@@ -62,7 +62,7 @@ public class SchemaVersionTest {
   @SuppressWarnings({"unchecked", "rawtypes"})
   public void setUp() throws Exception {
     World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
-    TypeParser typeParser = world.actorFor(TypeParser.class, AntlrTypeParser.class);
+    TypeParser typeParser = new AntlrTypeParser();
 
     journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
 
@@ -71,12 +71,12 @@ public class SchemaVersionTest {
 
     TypeResolver typeResolver = new CacheTypeResolver();
 
-    typeDefinitionMiddleware = world.actorFor(TypeDefinitionMiddleware.class, TypeDefinitionCompilerActor.class,
+    typeDefinitionMiddleware = new TypeDefinitionCompilerActor(
             typeParser,
             Arrays.asList(
                     world.actorFor(Processor.class, ComputableTypeProcessor.class),
                     world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)),
-            world.actorFor(Backend.class, JavaBackend.class));
+            new JavaBackend());
 
     simpleSchemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
     simpleSchemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, simpleSchemaVersionId);
