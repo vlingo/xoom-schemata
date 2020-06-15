@@ -198,9 +198,9 @@ public class SchemaVersionResource extends ResourceHandler {
     public Completes<Response> querySchemaVersionByIds(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
         return schemaVersionQueries
                 .schemaVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
-                .andThen(schemaVersions -> schemaVersions == null
-                        ? Response.of(NotFound, serialized("SchemaVersion not found!"))
-                        : Response.of(Ok, serialized(schemaVersions)))
+                .andThenTo(schemaVersion -> schemaVersion == null
+                        ? Completes.withSuccess(Response.of(NotFound, serialized("SchemaVersion not found!")))
+                        : Completes.withSuccess(Response.of(Ok, serialized(schemaVersion))))
                 .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
     }
 

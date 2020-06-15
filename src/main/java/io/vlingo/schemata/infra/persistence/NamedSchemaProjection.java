@@ -22,6 +22,7 @@ import io.vlingo.symbio.store.state.StateStore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class NamedSchemaProjection extends StateStoreProjectionActor<NamedSchemaView> {
 	private String dataId;
@@ -43,7 +44,7 @@ public class NamedSchemaProjection extends StateStoreProjectionActor<NamedSchema
 		IdentifiedDomainEvent event = events.get(0);
 		if (event instanceof Events.SchemaDefined) {
 			Events.SchemaDefined defined = typed(events.get(0));
-			dataId = dataIdFromIds(defined.organizationId, defined.unitId, defined.contextId, defined.schemaId);
+			dataId = dataIdFromIdsAndName(defined.organizationId, defined.unitId, defined.contextId, defined.name);
 		} else if (event instanceof Events.SchemaVersionDefined) {
 			Events.SchemaVersionDefined defined = typed(events.get(0));
 			dataId = dataIdFromIds(defined.organizationId, defined.unitId, defined.contextId, defined.schemaId);
@@ -75,17 +76,47 @@ public class NamedSchemaProjection extends StateStoreProjectionActor<NamedSchema
 		}
 	}
 
-	private String dataIdFromIds(String organizationId, String unitId, String contextId, String schemaId) {
-		Completes<OrganizationView> organization = StorageProvider.instance().organizationQueries.organization(organizationId);
-		Completes<UnitView> unit = StorageProvider.instance().unitQueries.unit(organizationId, unitId);
-		Completes<ContextView> context = StorageProvider.instance().contextQueries.context(organizationId, unitId, contextId);
-		Completes<SchemaView> schema = StorageProvider.instance().schemaQueries.schema(organizationId, unitId, contextId, schemaId);
+	private OrganizationView organizationView(String organizationId) {
+		Completes<OrganizationView> organizationView = StorageProvider.instance().organizationQueries.organization(organizationId);
+		return Optional.ofNullable(organizationView.<OrganizationView>await())
+				.orElse(OrganizationView.empty());
+	}
 
-		String result = dataIdFrom(Schemata.ReferenceSeparator,
-				organization.<OrganizationView>await().name(),
-				unit.<UnitView>await().name(),
-				context.<ContextView>await().namespace(),
-				schema.<SchemaView>await().name());
+	private UnitView unitView(String organizationId, String unitId) {
+		Completes<UnitView> unitView = StorageProvider.instance().unitQueries.unit(organizationId, unitId);
+		return Optional.ofNullable(unitView.<UnitView>await())
+				.orElse(UnitView.empty());
+	}
+
+	private ContextView contextView(String organizationId, String unitId, String contextId) {
+		Completes<ContextView> contextView = StorageProvider.instance().contextQueries.context(organizationId, unitId, contextId);
+		return Optional.ofNullable(contextView.<ContextView>await())
+				.orElse(ContextView.empty());
+	}
+
+	private SchemaView schemaView(String organizationId, String unitId, String contextId, String schemaId) {
+		Completes<SchemaView> schemaView = StorageProvider.instance().schemaQueries.schema(organizationId, unitId, contextId, schemaId);
+		return Optional.ofNullable(schemaView.<SchemaView>await())
+				.orElse(SchemaView.empty());
+	}
+
+	private String dataIdFromIds(String organizationId, String unitId, String contextId, String schemaId) {
+		String organization = organizationView(organizationId).name();
+		String unit = unitView(organizationId, unitId).name();
+		String context = contextView(organizationId, unitId, contextId).namespace();
+		String schema = schemaView(organizationId, unitId, contextId, schemaId).name();
+
+		String result = dataIdFrom(Schemata.ReferenceSeparator, organization, unit, context, schema);
+
+		return result;
+	}
+
+	private String dataIdFromIdsAndName(String organizationId, String unitId, String contextId, String schema) {
+		String organization = organizationView(organizationId).name();
+		String unit = unitView(organizationId, unitId).name();
+		String context = contextView(organizationId, unitId, contextId).namespace();
+
+		String result = dataIdFrom(Schemata.ReferenceSeparator, organization, unit, context, schema);
 
 		return result;
 	}
@@ -96,7 +127,7 @@ public class NamedSchemaProjection extends StateStoreProjectionActor<NamedSchema
 			switch(NamedSchemaViewType.match(event)) {
 				case SchemaDefined:
 					Events.SchemaDefined schemaDefined = typed(event);
-					final String reference = dataIdFromIds(schemaDefined.organizationId, schemaDefined.unitId, schemaDefined.contextId, schemaDefined.schemaId);
+					final String reference = dataIdFromIdsAndName(schemaDefined.organizationId, schemaDefined.unitId, schemaDefined.contextId, schemaDefined.name);
 					mergedData = NamedSchemaView.with(reference, SchemaView.with(schemaDefined.organizationId, schemaDefined.unitId, schemaDefined.contextId,
 							schemaDefined.schemaId, Category.valueOf(schemaDefined.category), Scope.valueOf(schemaDefined.scope), schemaDefined.name,
 							schemaDefined.description));

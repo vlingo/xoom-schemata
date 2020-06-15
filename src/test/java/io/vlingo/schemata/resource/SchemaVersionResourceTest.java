@@ -48,7 +48,6 @@ public class SchemaVersionResourceTest extends ResourceTest {
     }
 
     @Test
-    @Ignore("Temporarily ignored until 'querySchemaVersionByIds' handles missing ids")
     public void testThatNonExistingSchemaVersionReturns404() {
         final SchemaVersionResource resource = new SchemaVersionResource(world, schemaQueries, schemaVersionQueries, codeQueries);
         OrganizationState org = Organization.with(world.stageNamed(Schemata.StageName), Organization.uniqueId(),"o", "d").await();
@@ -58,7 +57,7 @@ public class SchemaVersionResourceTest extends ResourceTest {
 
         final Response response = resource.querySchemaVersionByIds(org.organizationId.value, unit.unitId.value, context.contextId.value, schema.schemaId.value, "-1").await();
         assertEquals(NotFound, response.status);
-        assertTrue(response.entity.content().contains("Schema Version not found"));
+        assertTrue(response.entity.content().contains("SchemaVersion not found"));
     }
 
     @Test
