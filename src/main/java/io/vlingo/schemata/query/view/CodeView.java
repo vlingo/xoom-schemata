@@ -8,57 +8,63 @@
 package io.vlingo.schemata.query.view;
 
 public class CodeView {
-	// pathId of form org:unit:context:schema:version (a.k.a. reference)
-	private final String pathId;
-	private final String specification;
-	private final String currentVersion;
+	// reference in the form of 'org:unit:context:schema:version'
+	private final String reference;
+
+	private final SchemaVersionView schemaVersionView;
 
 	public static CodeView empty() {
 		return new CodeView();
 	}
 
-	public static CodeView with(final String pathId) {
-		return new CodeView(pathId);
+	public static CodeView with(final String reference) {
+		return new CodeView(reference);
 	}
 
-	public static CodeView with(final String pathId, final String specification, final String currentVersion) {
-		return new CodeView(pathId, specification, currentVersion);
+	public static CodeView with(final String reference, SchemaVersionView schemaVersionView) {
+		return new CodeView(reference, schemaVersionView);
 	}
 
 	private CodeView() {
-		this("", "", "");
+		this("", SchemaVersionView.empty());
 	}
 
-	private CodeView(final String pathId) {
-		this(pathId, "", "");
+	private CodeView(final String reference) {
+		this(reference, SchemaVersionView.empty());
 	}
 
-	private CodeView(String pathId, String specification, String currentVersion) {
-		this.pathId = pathId;
-		this.specification = specification;
-		this.currentVersion = currentVersion;
+	private CodeView(String reference, SchemaVersionView schemaVersionView) {
+		this.reference = reference;
+		this.schemaVersionView = schemaVersionView;
 	}
 
-	public String pathId() {
-		return pathId;
+	public SchemaVersionView schemaVersionView() {
+		return schemaVersionView;
+	}
+
+	public String reference() {
+		return reference;
+	}
+
+	public String status() {
+		return schemaVersionView.status();
 	}
 
 	public String specification() {
-		return specification;
+		return schemaVersionView.specification();
 	}
 
 	public String currentVersion() {
-		return currentVersion;
+		return schemaVersionView.currentVersion();
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+		final int prime = 89;
 		int result = 1;
 
-		result = prime * result + (pathId == null ? 0 : pathId.hashCode());
-		result = prime * result + (specification == null ? 0 : specification.hashCode());
-		result = prime * result + (currentVersion == null ? 0 : currentVersion.hashCode());
+		result = prime * result + (reference == null ? 0 : reference.hashCode());
+		result = prime * result + (schemaVersionView == null ? 0 : schemaVersionView.hashCode());
 		return result;
 	}
 
@@ -72,11 +78,21 @@ public class CodeView {
 			return false;
 		}
 
-		return pathId.equals(((CodeView) other).pathId);
+		return reference.equals(((CodeView) other).reference);
+	}
+
+	public CodeView mergeStatusWith(String reference, String status) {
+		if (this.reference.equals(reference)) {
+			SchemaVersionView merged = schemaVersionView.mergeStatusWith(schemaVersionView.schemaVersionId(), status);
+			return new CodeView(this.reference, merged);
+		} else {
+			return this;
+		}
 	}
 
 	@Override
 	public String toString() {
-		return "CodeView [pathId=" + pathId + ", specification=" + specification + ", currentVersion=" + currentVersion + "]";
+		return "CodeView [reference=" + reference + ", status=" + schemaVersionView.status() + ", specification=" + schemaVersionView.specification()
+				+ ", currentVersion=" + schemaVersionView.currentVersion() + "]";
 	}
 }

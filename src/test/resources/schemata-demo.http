@@ -78,13 +78,13 @@ Content-Type: application/json
 
 ### Update schema by reference
 
-POST http://localhost:9019/versions/Vlingo:schemata:io.vlingo.schemata:SchemaDefined:1.0.1
+POST http://localhost:9019/versions/Vlingo:schemata:io.vlingo.schemata:SchemaDefined:1.0.0
 Content-Type: application/json
 
 {
   "description": "Updated revision.",
   "specification": "event SchemaDefined { type eventType\nlong version }",
-  "previousVersion": "1.0.0"
+  "previousVersion": "0.0.1"
 }
 
 > {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}

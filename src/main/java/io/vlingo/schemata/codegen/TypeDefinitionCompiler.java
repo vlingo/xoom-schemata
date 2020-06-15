@@ -7,7 +7,6 @@
 
 package io.vlingo.schemata.codegen;
 
-import io.vlingo.actors.Actor;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.common.Outcome;
@@ -21,7 +20,6 @@ import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
 import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.infra.persistence.StorageProvider;
-import io.vlingo.schemata.query.Queries;
 
 import java.io.InputStream;
 import java.util.Arrays;

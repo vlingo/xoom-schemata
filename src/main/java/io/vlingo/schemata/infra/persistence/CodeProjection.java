@@ -12,6 +12,7 @@ import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.IdentifiedDomainEvent;
 import io.vlingo.lattice.model.projection.Projectable;
 import io.vlingo.lattice.model.projection.StateStoreProjectionActor;
+import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.model.Events;
 import io.vlingo.schemata.query.view.*;
 import io.vlingo.symbio.Entry;
@@ -64,7 +65,7 @@ public class CodeProjection extends StateStoreProjectionActor<CodeView> {
 		Completes<ContextView> context = StorageProvider.instance().contextQueries.context(event.organizationId, event.unitId, event.contextId);
 		Completes<SchemaView> schema = StorageProvider.instance().schemaQueries.schema(event.organizationId, event.unitId, event.contextId, event.schemaId);
 
-		String result = dataIdFrom(":",
+		String result = dataIdFrom(Schemata.ReferenceSeparator,
 				organization.<OrganizationView>await().name(),
 				unit.<UnitView>await().name(),
 				context.<ContextView>await().namespace(),
@@ -80,8 +81,9 @@ public class CodeProjection extends StateStoreProjectionActor<CodeView> {
 			switch (CodeViewType.match(event)) {
 				case SchemaVersionDefined:
 					final Events.SchemaVersionDefined defined = typed(event);
-					final String id = dataIdFrom(defined);
-					mergedData = CodeView.with(id, defined.specification, defined.nextVersion);
+					final String reference = dataIdFrom(defined);
+					mergedData = CodeView.with(reference, SchemaVersionView.with(defined.organizationId, defined.unitId, defined.contextId, defined.schemaId,
+							defined.schemaVersionId, defined.description, defined.specification, defined.status, defined.previousVersion, defined.nextVersion));
 				case Unmatched:
 					logger().warn("Event of type " + event.typeName() + " was not matched.");
 					break;

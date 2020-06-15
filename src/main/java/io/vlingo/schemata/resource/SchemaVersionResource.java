@@ -7,25 +7,10 @@
 
 package io.vlingo.schemata.resource;
 
-import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.Response.Status.*;
-import static io.vlingo.http.ResponseHeader.ContentLength;
-import static io.vlingo.http.ResponseHeader.ContentType;
-import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.of;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.patch;
-import static io.vlingo.http.resource.ResourceBuilder.post;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.Schemata.NoId;
-import static io.vlingo.schemata.Schemata.SchemaVersionsPath;
-import static io.vlingo.schemata.Schemata.StageName;
-
 import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
-import io.vlingo.common.Outcome;
 import io.vlingo.common.serialization.JsonSerialization;
 import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.http.Header.Headers;
@@ -33,28 +18,41 @@ import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
-import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.FullyQualifiedReference;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
+import io.vlingo.schemata.model.Path;
 import io.vlingo.schemata.model.SchemaVersion;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.model.SchemaVersion.Version;
 import io.vlingo.schemata.model.SchemaVersionState;
-import io.vlingo.schemata.query.Queries;
+import io.vlingo.schemata.query.CodeQueries;
+import io.vlingo.schemata.query.SchemaQueries;
 import io.vlingo.schemata.query.SchemaVersionQueries;
+import io.vlingo.schemata.query.view.SchemaVersionView;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
+
+import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.*;
+import static io.vlingo.http.ResponseHeader.*;
+import static io.vlingo.http.resource.ResourceBuilder.*;
+import static io.vlingo.schemata.Schemata.*;
+import static io.vlingo.schemata.query.SchemaVersionQueries.GreatestVersion;
 
 public class SchemaVersionResource extends ResourceHandler {
     private final SchemaVersionCommands commands;
-    private final SchemaVersionQueries queries;
+    private final SchemaQueries schemaQueries;
+    private final SchemaVersionQueries schemaVersionQueries;
+    private final CodeQueries codeQueries;
     private final Stage stage;
     private final Logger logger;
 
-  public SchemaVersionResource(final World world, SchemaVersionQueries queries) {
+  public SchemaVersionResource(final World world, SchemaQueries schemaQueries, SchemaVersionQueries schemaVersionQueries, CodeQueries codeQueries) {
         this.stage = world.stageNamed(StageName);
         this.commands = new SchemaVersionCommands(this.stage, 10);
-        this.queries = queries;
+        this.schemaQueries = schemaQueries;
+        this.schemaVersionQueries = schemaVersionQueries;
+        this.codeQueries = codeQueries;
         this.logger = world.defaultLogger();
     }
 
@@ -76,28 +74,25 @@ public class SchemaVersionResource extends ResourceHandler {
             final String schemaId,
             final SchemaVersionData data) {
 
-        if (!data.hasSpecification()) {
-            return Completes.withSuccess(Response.of(BadRequest, "Missing specification"));
-        }
-        if (!data.validVersions()) {
-            return Completes.withSuccess(Response.of(BadRequest, "Conflicting versions"));
-        }
+      if (!data.hasSpecification()) {
+        return Completes.withSuccess(Response.of(BadRequest, "Missing specification"));
+      }
+      if (!data.validVersions()) {
+        return Completes.withSuccess(Response.of(BadRequest, "Conflicting versions"));
+      }
 
       final SemanticVersion previousSemantic = SemanticVersion.from(data.previousVersion);
       final SemanticVersion currentSemantic = SemanticVersion.from(data.currentVersion);
 
-        // FIXME: Refactor into one reactive pipeline without awaiting
+      // FIXME: Refactor into one reactive pipeline without awaiting
       if(currentSemantic.equals(previousSemantic.nextPatch()) || currentSemantic.equals(previousSemantic.nextMinor())) {
-        Outcome<SchemataBusinessException, SchemaVersionData> previousVersionQueryOutcome  = Queries.forSchemaVersions().schemaVersionOfVersion(
-            organizationId,
-            unitId,
-            contextId,
-            schemaId,
-            data.previousVersion).await();
+        SchemaVersionView previousVersion  = schemaVersionQueries.schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
+                .andThen(view -> GreatestVersion.equals(data.previousVersion)
+                  ? view.greatestVersion()
+                  : view.withVersion(data.previousVersion))
+                .await();
 
-        SchemaVersionData previousVersion = previousVersionQueryOutcome.getOrNull();
-
-        if(
+        if (
           (previousVersion == null || previousVersion.isNone())
           && !previousSemantic.equals(SemanticVersion.from(0,0,0))
         ) {
@@ -109,7 +104,7 @@ public class SchemaVersionResource extends ResourceHandler {
               .diffAgainst(
                   SchemaVersionId.existing(
                       organizationId, unitId, contextId, schemaId,
-                      previousVersion.schemaVersionId),
+                      previousVersion.schemaVersionId()),
                   data)
               .answer()
               .andThen(o -> o.resolve(
@@ -195,27 +190,27 @@ public class SchemaVersionResource extends ResourceHandler {
     }
 
     public Completes<Response> querySchemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId) {
-        return queries
+        return schemaVersionQueries
                 .schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
-                .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
+                .andThen(schemaVersions -> Response.of(Ok, serialized(schemaVersions)));
     }
 
     public Completes<Response> querySchemaVersionByIds(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {
-        return queries
+        return schemaVersionQueries
                 .schemaVersion(organizationId, unitId, contextId, schemaId, schemaVersionId)
-                .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
+                .andThen(schemaVersions -> Response.of(Ok, serialized(schemaVersions)));
     }
 
     public Completes<Response> searchSchemaVersionsByNames(final String organization, final String unit, final String context, final String schema) {
-        return Queries.forSchemaVersions()
-                .schemaVersionsByNames(organization, unit, context, schema)
-                .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
+        return schemaQueries
+                .schemaByNames(organization, unit, context, schema)
+                .andThen(namedSchemaView -> Response.of(Ok, serialized(namedSchemaView.schemaVersions())));
     }
 
     public Completes<Response> searchSchemaVersionByNames(final String organization, final String unit, final String context, final String schema, final String schemaVersion) {
-        return Queries.forSchemaVersions()
-                .schemaVersionOf(organization, unit, context, schema, schemaVersion)
-                .andThenTo(schemaVersions -> Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))));
+        return schemaQueries
+                .schemaByNames(organization, unit, context, schema)
+                .andThen(namedSchemaView -> Response.of(Ok, serialized(namedSchemaView.versionOf(schemaVersion))));
   }
 
     public Completes<Response> searchSchemaVersions(final String schemaVersion, final String organization, final String unit, final String context, final String schema) {
@@ -227,7 +222,6 @@ public class SchemaVersionResource extends ResourceHandler {
     }
 
     public Completes<Response> pushSchemaVersion(final String reference, final SchemaVersionData data) {
-
         FullyQualifiedReference fqr;
         try {
             fqr = FullyQualifiedReference.from(reference);
@@ -246,13 +240,13 @@ public class SchemaVersionResource extends ResourceHandler {
                     msg));
         }
 
-        SchemaVersionData updatedSchemaVersionData = Queries.forSchemas().schemaVersionByNames(fqr.organization,
+        SchemaVersionData updatedSchemaVersionData = schemaQueries.schemaByNames(fqr.organization,
                     fqr.unit, fqr.context, fqr.schema)
-                .andThenTo(schemaView -> Completes.withSuccess(SchemaVersionData.from(
-                        schemaView.organizationId(),
-                        schemaView.unitId(),
-                        schemaView.contextId(),
-                        schemaView.schemaId(),
+                .andThenTo(namedSchemaView -> Completes.withSuccess(SchemaVersionData.from(
+                        namedSchemaView.organizationId(),
+                        namedSchemaView.unitId(),
+                        namedSchemaView.contextId(),
+                        namedSchemaView.schemaId(),
                         null,
                         data.specification,
                         data.description,
@@ -271,75 +265,36 @@ public class SchemaVersionResource extends ResourceHandler {
     }
 
     public Completes<Response> retrieveSchemaVersion(final String reference) {
-        return null;
-//        FullyQualifiedReference fqr;
-//        try {
-//            fqr = FullyQualifiedReference.from(reference);
-//        } catch (IllegalArgumentException ex) {
-//            return Completes.withSuccess(Response.of(
-//              BadRequest,
-//              Headers.of(of(ContentLength, ex.getMessage().length())),
-//              ex.getMessage()));
-//        }
-//
-//        if (!fqr.isSchemaVersionReference()) {
-//            final String msg = "Include the version of the schema to retrieve";
-//            return Completes.withSuccess(Response.of(
-//              BadRequest,
-//              Headers.of(of(ContentLength, msg.length())),
-//              msg));
-//        }
-//
-//        return Queries.forSchemaVersions().schemaVersionOf(
-//          fqr.organization,
-//          fqr.unit,
-//          fqr.context,
-//          fqr.schema,
-//          fqr.schemaVersion)
-//          .andThen(o -> o.resolve(
-//                  e -> Response.of(NotFound, serialized(e)),
-//                  sv -> Response.of(
-//                          Ok,
-//                          Headers.of(of(ContentType, "application/json; charset=UTF-8")),
-//                          serialized(sv))
-//          ))
-//          .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+        if (Path.isValidReference(reference, false)) {
+            Path path = Path.with(reference, false);
+            return codeQueries.codeFor(path)
+                    .andThen(codeView -> Response.of(Ok, serialized(codeView.schemaVersionView())));
+        } else {
+            String message = "Invalid reference. Please provide the reference in the form of 'org:unit:context:schema:version'!";
+            return Completes.withSuccess(Response.of(
+                    BadRequest,
+                    Headers.of(of(ContentLength, message.length())),
+                    message
+            ));
+        }
     }
 
     public Completes<Response> retrieveSchemaVersionStatus(final String reference) {
-        return null;
-//        FullyQualifiedReference fqr;
-//        try {
-//            fqr = FullyQualifiedReference.from(reference);
-//        } catch (IllegalArgumentException ex) {
-//            return Completes.withSuccess(Response.of(
-//              BadRequest,
-//              Headers.of(of(ContentLength, ex.getMessage().length())),
-//              ex.getMessage()));
-//        }
-//
-//        if (!fqr.isSchemaVersionReference()) {
-//            final String msg = "Include the version of the schema to retrieve";
-//            return Completes.withSuccess(Response.of(
-//              BadRequest,
-//              Headers.of(of(ContentLength, msg.length())),
-//              msg));
-//        }
-//
-//        return Queries.forSchemaVersions().schemaVersionOf(
-//          fqr.organization,
-//          fqr.unit,
-//          fqr.context,
-//          fqr.schema,
-//          fqr.schemaVersion)
-//          .andThen(o -> o.resolve(
-//                  e -> Response.of(NotFound, serialized(e)),
-//                  sv -> Response.of(
-//                          Ok,
-//                          Headers.of(of(ContentType, "text/plain; charset=UTF-8")),
-//                          sv.status)
-//          ))
-//          .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
+        if (Path.isValidReference(reference, false)) {
+            Path path = Path.with(reference, false);
+            return codeQueries.codeFor(path)
+                    .andThen(view -> Response.of(
+                          Ok,
+                          Headers.of(of(ContentType, "text/plain; charset=UTF-8")),
+                          view.status()));
+        } else {
+            String message = "Invalid reference. Please provide the reference in the form of 'org:unit:context:schema:version'!";
+            return Completes.withSuccess(Response.of(
+                    BadRequest,
+                    Headers.of(of(ContentLength, message.length())),
+                    message
+            ));
+        }
     }
 
     @Override

@@ -9,6 +9,8 @@ package io.vlingo.schemata.query;
 
 import io.vlingo.common.Completes;
 import io.vlingo.lattice.query.StateStoreQueryActor;
+import io.vlingo.schemata.model.Path;
+import io.vlingo.schemata.query.view.NamedSchemaView;
 import io.vlingo.schemata.query.view.SchemaView;
 import io.vlingo.schemata.query.view.SchemasView;
 import io.vlingo.symbio.store.state.StateStore;
@@ -31,8 +33,9 @@ public class SchemaQueriesActor extends StateStoreQueryActor implements SchemaQu
     }
 
     @Override
-    public Completes<SchemaView> schemaVersionByNames(String organization, String unit, String context, String schema) {
-        // TODO Implement this version and update SchemaVersionResource!
-        return null;
+    public Completes<NamedSchemaView> schemaByNames(String organization, String unit, String context, String schema) {
+        Path path = Path.with(organization, unit, context, schema);
+        String reference = path.toReference();
+        return queryStateFor(reference, NamedSchemaView.class);
     }
 }

@@ -91,6 +91,9 @@ public class ProjectionDispatcherProvider {
                                 SchemaVersionPublished.class,
                                 SchemaVersionDeprecated.class,
                                 SchemaVersionRemoved.class),
+                        ProjectToDescription.with(NamedSchemaProjection.class, Optional.of(stateStore),
+                                SchemaDefined.class,
+                                SchemaVersionDefined.class),
                         ProjectToDescription.with(CodeProjection.class, Optional.of(stateStore),
                                 SchemaVersionDefined.class));
 

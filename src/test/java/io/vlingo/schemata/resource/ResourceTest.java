@@ -73,20 +73,8 @@ public abstract class ResourceTest {
     codeQueries = Queries.forCode();
   }
 
-  protected JdbiOnDatabase jdbi() throws Exception {
-    return JdbiOnDatabase.openUsing(
-            HSQLDBConfigurationProvider.configuration(
-                    DataFormat.Native,
-                    "jdbc:hsqldb:mem:",
-                    "vlingo_schemata",
-                    "SA",
-                    "",
-                    "MAIN",
-                    true));
-  }
-
   protected String extractResourceIdFrom(final Response response) {
     final String[] parts = response.headerValueOr(ResponseHeader.Location, null).split("/");
-    return parts[parts.length-1];
+    return parts[parts.length - 1];
   }
 }

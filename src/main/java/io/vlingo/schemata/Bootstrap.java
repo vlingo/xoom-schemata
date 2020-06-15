@@ -42,13 +42,14 @@ public class Bootstrap {
     final ProjectionDispatcherProvider projectionDispatcherProvider =
             ProjectionDispatcherProvider.using(world.stage(), stateStoreProvider.stateStore);
 
-    StorageProvider storageProvider = StorageProvider.with(world, config, stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher);
+    StorageProvider storageProvider = StorageProvider.with(world, stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher);
 
     final OrganizationResource organizationResource = new OrganizationResource(world, storageProvider.organizationQueries);
     final UnitResource unitResource = new UnitResource(world, storageProvider.unitQueries);
     final ContextResource contextResource = new ContextResource(world, storageProvider.contextQueries);
     final SchemaResource schemaResource = new SchemaResource(world, storageProvider.schemaQueries);
-    final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world, storageProvider.schemaVersionQueries);
+    final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world, storageProvider.schemaQueries, storageProvider.schemaVersionQueries,
+            storageProvider.codeQueries);
     final CodeResource codeResource = new CodeResource(world, storageProvider.codeQueries);
     final UiResource uiResource = new UiResource(world);
 

@@ -29,7 +29,7 @@ public class SchemaView {
     }
 
     public static SchemaView with(String organizationId, String unitId, String contextId, String schemaId, Category category, Scope scope,
-                                  String description, String name) {
+                                  String name, String description) {
         return new SchemaView(organizationId, unitId, contextId, schemaId, category, scope, name, description);
     }
 
@@ -79,6 +79,10 @@ public class SchemaView {
 
     public String name() {
         return name;
+    }
+
+    public String description() {
+        return description;
     }
 
     @Override

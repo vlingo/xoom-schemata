@@ -66,7 +66,7 @@ public class SchemaProjection extends StateStoreProjectionActor<SchemaView> {
                 case SchemaDefined:
                     final SchemaDefined defined = typed(event);
                     mergedData = SchemaView.with(defined.organizationId, defined.unitId, defined.contextId, defined.schemaId,
-                            Category.valueOf(defined.category), Scope.valueOf(defined.scope), defined.description, defined.name);
+                            Category.valueOf(defined.category), Scope.valueOf(defined.scope), defined.name, defined.description);
                     break;
                 case SchemaCategorized:
                     final SchemaCategorized categorized = typed(event);

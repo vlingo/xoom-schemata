@@ -53,7 +53,7 @@ public class OrganizationEntityTest {
     orgState = new AtomicReference<>();
     access = AccessSafely.afterCompleting(1);
     access.writingWith("state", (OrganizationState s) -> orgState.set(s));
-    access.readingWith("state", ()-> orgState.get());
+    access.readingWith("state", () -> orgState.get());
   }
 
   @After
@@ -63,7 +63,8 @@ public class OrganizationEntityTest {
 
   @Test
   public void testThatOrganizationDefinedIsEquals() {
-    organization.defineWith("name", "description").andThenConsume(s -> access.writeUsing("state", s));
+    organization.defineWith("name", "description")
+            .andThenConsume(s -> access.writeUsing("state", s));
     final OrganizationState state = access.readFrom("state");
 
     Assert.assertEquals(organizationId.value, state.organizationId.value);

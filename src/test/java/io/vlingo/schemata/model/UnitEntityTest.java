@@ -59,7 +59,8 @@ public class UnitEntityTest {
 
   @Test
   public void testThatUnitDefined() {
-    unit.defineWith("name", "description").andThenConsume(s -> access.writeUsing("state", s));
+    unit.defineWith("name", "description")
+            .andThenConsume(s -> access.writeUsing("state", s));
     final UnitState state = access.readFrom("state");
 
     Assert.assertEquals(unitId.value, state.unitId.value);

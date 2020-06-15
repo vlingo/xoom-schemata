@@ -7,7 +7,6 @@
 
 package io.vlingo.schemata.model;
 
-import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.TestWorld;
 import io.vlingo.common.Completes;
@@ -17,7 +16,6 @@ import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.codegen.TypeDefinitionCompilerActor;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
-import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.schemata.codegen.parser.TypeParser;
@@ -32,7 +30,6 @@ import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.journal.Journal;
 import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
-import io.vlingo.symbio.store.object.ObjectStore;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,8 +52,6 @@ public class SchemaVersionTest {
   private SchemaVersionId basicTypesSchemaVersionId;
   private SchemaVersionState basicTypesVersion;
   private TypeDefinitionMiddleware typeDefinitionMiddleware;
-  private World world;
-  private Stage stage;
 
   @Before
   @SuppressWarnings({"unchecked", "rawtypes"})

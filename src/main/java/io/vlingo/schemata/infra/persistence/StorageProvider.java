@@ -31,7 +31,7 @@ public class StorageProvider {
     public final TypeResolverQueries typeResolverQueries;
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static StorageProvider with(final World world, final SchemataConfig config, StateStore stateStore, final Dispatcher dispatcher) throws Exception {
+    public static StorageProvider with(final World world, StateStore stateStore, final Dispatcher dispatcher) {
         if (instance != null) return instance;
 
         final Journal<String> journal = world.actorFor(Journal.class, InMemoryJournalActor.class, dispatcher);

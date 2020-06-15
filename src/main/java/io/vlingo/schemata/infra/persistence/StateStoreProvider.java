@@ -53,6 +53,7 @@ public class StateStoreProvider {
                 .register(new Info<>(stateStore, SchemasView.class, SchemasView.class.getSimpleName()))
                 .register(new Info<>(stateStore, SchemaVersionView.class, SchemaVersionView.class.getSimpleName()))
                 .register(new Info<>(stateStore, SchemaVersionsView.class, SchemaVersionsView.class.getSimpleName()))
+                .register(new Info<>(stateStore, NamedSchemaView.class, NamedSchemaView.class.getSimpleName()))
                 .register(new Info<>(stateStore, CodeView.class, CodeView.class.getSimpleName()));
     }
 

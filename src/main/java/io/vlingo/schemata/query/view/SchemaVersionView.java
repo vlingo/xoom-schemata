@@ -7,6 +7,8 @@
 
 package io.vlingo.schemata.query.view;
 
+import io.vlingo.common.version.SemanticVersion;
+
 public class SchemaVersionView {
     private final String organizationId;
     private final String unitId;
@@ -33,7 +35,7 @@ public class SchemaVersionView {
                 previousVersion, currentVersion);
     }
 
-    private SchemaVersionView() {
+    protected SchemaVersionView() {
         this("", "", "", "", "", "", "", "", "", "");
     }
 
@@ -41,7 +43,7 @@ public class SchemaVersionView {
         this("", "", "", "", schemaVersionId, "", "", "", "", "");
     }
 
-    private SchemaVersionView(String organizationId, String unitId, String contextId, String schemaId, String schemaVersionId,
+    protected SchemaVersionView(String organizationId, String unitId, String contextId, String schemaId, String schemaVersionId,
                              String description, String specification, String status, String previousVersion, String currentVersion) {
         this.organizationId = organizationId;
         this.unitId = unitId;
@@ -93,6 +95,27 @@ public class SchemaVersionView {
 
     public String currentVersion() {
         return currentVersion;
+    }
+
+    public boolean hasCurrentVersion(String version) {
+        return currentVersion.equals(version);
+    }
+
+    public int compareWith(SchemaVersionView view) {
+        SemanticVersion sv1 = SemanticVersion.from(this.currentVersion());
+        SemanticVersion sv2 = SemanticVersion.from(view.currentVersion());
+
+        if (sv1.equals(sv2)) {
+            return 0;
+        } else if (sv2.isGreaterThan(sv1)) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    public boolean isNone() {
+        return organizationId.isEmpty() && unitId.isEmpty() && contextId.isEmpty() && schemaId.isEmpty() && schemaVersionId.isEmpty();
     }
 
     @Override

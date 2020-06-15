@@ -42,22 +42,22 @@ public class Path {
 
     public String toReference() {
         final StringBuilder builder = new StringBuilder();
+        final String[] parts = hasVersion()
+                ? new String[] { organization, unit, context, schema, version }
+                : new String[] { organization, unit, context, schema };
+        String reference =  String.join(Schemata.ReferenceSeparator, parts);
 
-        final String[] all = new String[] { organization, unit, context, schema, version };
-        String separator = "";
-
-        for (final String reference : all) {
-            builder.append(separator).append(reference);
-            separator = ":";
-        }
-
-        return builder.toString();
+        return reference;
     }
 
     @Override
     public String toString() {
         return "Path [organization=" + organization + ", unit=" + unit + ", context=" + context + ", schema=" + schema
                 + ", version=" + version + "]";
+    }
+
+    public static Path with(final String organization, final String unit, final String context, final String schema) {
+        return new Path(organization, unit, context, schema);
     }
 
     public static Path with(final String organization, final String unit, final String context, final String schema, final String version) {
@@ -67,11 +67,11 @@ public class Path {
     public static Path with(final String reference, final boolean versionOptional) {
         final String[] parts = reference.split(Schemata.ReferenceSeparator);
 
-        if (!versionOptional && parts.length != 5) {
+        if (!versionOptional && parts.length != Schemata.MaxReferenceParts) {
             throw new IllegalArgumentException("The reference path must have five parts: org:unit:context:schema:version");
         }
 
-        if (parts.length < 4) {
+        if (parts.length < Schemata.MinReferenceParts) {
             throw new IllegalArgumentException("The reference path must have five parts: org:unit:context:schema[:version]");
         }
 
@@ -81,7 +81,7 @@ public class Path {
     public static boolean isValidReference(final String reference, final boolean versionOptional) {
         final String[] parts = reference.split(Schemata.ReferenceSeparator);
 
-        return parts.length == 5 || (versionOptional && parts.length == 4);
+        return parts.length == Schemata.MaxReferenceParts || (versionOptional && parts.length == Schemata.MinReferenceParts);
     }
 
     private Path(final String organization, final String unit, final String context, final String schema, final String version) {

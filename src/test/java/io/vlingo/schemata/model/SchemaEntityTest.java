@@ -7,6 +7,10 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.testkit.AccessSafely;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
+import io.vlingo.symbio.store.journal.Journal;
+import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -25,11 +29,16 @@ import io.vlingo.symbio.store.object.ObjectStore;
 import io.vlingo.symbio.store.object.StateObjectMapper;
 import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 public class SchemaEntityTest {
-  private ObjectTypeRegistry registry;
+  private AccessSafely access;
+  private AtomicReference<SchemaState> schemaState;
+
+  private Journal<String> journal;
   private Schema schema;
   private SchemaId schemaId;
-  private ObjectStore objectStore;
+  private SourcedTypeRegistry registry;
   private World world;
 
   @Before
@@ -37,22 +46,18 @@ public class SchemaEntityTest {
   public void setUp() {
     world = World.start("schema-test");
 
-    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
 
-    registry = new ObjectTypeRegistry(world);
-
-    final Info<Schema> schemaInfo =
-            new Info(
-                  objectStore,
-                  SchemaState.class,
-                  "HR-Database",
-                  MapQueryExpression.using(Schema.class, "find", MapQueryExpression.map("id", "id")),
-                  StateObjectMapper.with(Schema.class, new Object(), new Object()));
-
-    registry.register(schemaInfo);
+    registry = new SourcedTypeRegistry(world);
+    registry.register(new SourcedTypeRegistry.Info(journal, SchemaEntity.class, SchemaEntity.class.getSimpleName()));
 
     schemaId = SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique())));
     schema = world.actorFor(Schema.class, SchemaEntity.class, schemaId);
+
+    schemaState = new AtomicReference<>();
+    access = AccessSafely.afterCompleting(1);
+    access.writingWith("state", (SchemaState s) -> schemaState.set(s));
+    access.readingWith("state", () -> schemaState.get());
   }
 
   @After
@@ -62,7 +67,10 @@ public class SchemaEntityTest {
 
   @Test
   public void testThatSchemaDefinedIsEquals() {
-    final SchemaState state = schema.defineWith(Category.Event, Scope.Public,"name", "description").await();
+    schema.defineWith(Category.Event, Scope.Public,"name", "description")
+            .andThenConsume(s -> access.writeUsing("state", s));
+    final SchemaState state = access.readFrom("state");
+
     Assert.assertEquals(schemaId.value, state.schemaId.value);
     Assert.assertEquals(Category.Event.name(), state.category.name());
     Assert.assertEquals("name", state.name);

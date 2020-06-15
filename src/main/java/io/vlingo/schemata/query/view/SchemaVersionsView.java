@@ -18,6 +18,10 @@ public class SchemaVersionsView {
         return new SchemaVersionsView();
     }
 
+    public static SchemaVersionsView with(List<SchemaVersionView> schemaVersions) {
+        return new SchemaVersionsView(schemaVersions);
+    }
+
     private SchemaVersionsView() {
         this.schemaVersions = new ArrayList<>();
     }
@@ -44,6 +48,19 @@ public class SchemaVersionsView {
         return index >= 0
                 ? schemaVersions.get(index)
                 : view;
+    }
+
+    public SchemaVersionView greatestVersion() {
+        return schemaVersions.stream()
+                .max(SchemaVersionView::compareWith)
+                .orElse(SchemaVersionView.empty());
+    }
+
+    public SchemaVersionView withVersion(String version) {
+        return schemaVersions.stream()
+                .filter(view -> view.hasCurrentVersion(version))
+                .findAny()
+                .orElse(SchemaVersionView.empty());
     }
 
     public SchemaVersionsView mergeDescriptionWith(String schemaVersionId, String description) {

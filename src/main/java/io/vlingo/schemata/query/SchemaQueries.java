@@ -8,11 +8,12 @@
 package io.vlingo.schemata.query;
 
 import io.vlingo.common.Completes;
+import io.vlingo.schemata.query.view.NamedSchemaView;
 import io.vlingo.schemata.query.view.SchemaView;
 import io.vlingo.schemata.query.view.SchemasView;
 
 public interface SchemaQueries {
   Completes<SchemasView> schemas(final String organizationId, final String unitId, final String contextId);
   Completes<SchemaView> schema(final String organizationId, final String unitId, final String contextId, final String schemaId);
-  Completes<SchemaView> schemaVersionByNames(final String organization, final String unit, final String context, final String schema);
+  Completes<NamedSchemaView> schemaByNames(final String organization, final String unit, final String context, final String schema);
 }

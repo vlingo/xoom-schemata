@@ -7,23 +7,10 @@
 
 package io.vlingo.schemata.query;
 
-import java.util.Optional;
-
-import io.vlingo.actors.Actor;
-import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
-import io.vlingo.common.Failure;
-import io.vlingo.common.Outcome;
-import io.vlingo.common.Success;
-import io.vlingo.common.version.SemanticVersion;
 import io.vlingo.lattice.query.StateStoreQueryActor;
-import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.Path;
 import io.vlingo.schemata.query.view.CodeView;
-import io.vlingo.schemata.resource.data.AuthorizationData;
-import io.vlingo.schemata.resource.data.PathData;
-import io.vlingo.schemata.resource.data.SchemaData;
-import io.vlingo.schemata.resource.data.SchemaVersionData;
 import io.vlingo.symbio.store.state.StateStore;
 
 public class CodeQueriesActor extends StateStoreQueryActor implements CodeQueries {
@@ -33,8 +20,8 @@ public class CodeQueriesActor extends StateStoreQueryActor implements CodeQuerie
 
   @Override
   public Completes<CodeView> codeFor(Path path) {
-    String pathId = path.toReference();
-    return queryStateFor(pathId, CodeView.class);
+    String reference = path.toReference();
+    return queryStateFor(reference, CodeView.class);
   }
 
 //  private final SchemaVersionQueries schemaVersionQueries;

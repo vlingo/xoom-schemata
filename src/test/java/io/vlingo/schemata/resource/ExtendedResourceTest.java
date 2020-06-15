@@ -77,7 +77,7 @@ public class ExtendedResourceTest extends ResourceTest {
         final Response schemaResponse11 = schemaResource.defineWith(organizationId1, unitId11, contextId11, schemaData11).await();
         final String schemaId11 = extractResourceIdFrom(schemaResponse11);
 
-        final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world, schemaVersionQueries);
+        final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world, schemaQueries, schemaVersionQueries, codeQueries);
         final Response schemaVersionResponse10 = schemaVersionResource.defineWith(organizationId1, unitId10, contextId10, schemaId10, schemaVersionData10).await();
         final String schemaVersionId10 = extractResourceIdFrom(schemaVersionResponse10);
         final Response schemaVersionResponse10_2 = schemaVersionResource.defineWith(organizationId1, unitId10, contextId10, schemaId10, schemaVersionData10_2).await();
@@ -109,7 +109,7 @@ public class ExtendedResourceTest extends ResourceTest {
         final Response schemaResponse2 = schemaResource.defineWith(organizationId2, unitId2, contextId2, schemaData2).await();
         final String schemaId2 = extractResourceIdFrom(schemaResponse2);
 
-        final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world, schemaVersionQueries);
+        final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world, schemaQueries, schemaVersionQueries, codeQueries);
         final Response schemaVersionResponse2 = schemaVersionResource.defineWith(organizationId2, unitId2, contextId2, schemaId2, schemaVersionData2).await();
         final String schemaVersionId2 = extractResourceIdFrom(schemaVersionResponse2);
 
@@ -133,7 +133,7 @@ public class ExtendedResourceTest extends ResourceTest {
         createFixture3();
 
         // Select first schemaVersion
-        SchemaVersionResource resource = new SchemaVersionResource(world, schemaVersionQueries);
+        SchemaVersionResource resource = new SchemaVersionResource(world, schemaQueries, schemaVersionQueries, codeQueries);
         final Response response10 = resource.searchSchemaVersionByNames(orgData1.name, unitData10.name, contextData10.namespace, schemaData10.name,
                 schemaVersionData10.currentVersion).await();
         assertEquals(Ok, response10.status);

@@ -28,10 +28,4 @@ public class ContextQueriesActor extends StateStoreQueryActor implements Context
         final String id = dataIdFrom(":", unitId, contextId);
         return queryStateFor(id, ContextView.class);
     }
-
-    @Override
-    public Completes<ContextView> context(String organizationId, String unitId, String contextId, QueryResultsCollector collector) {
-        // TODO Implement this method and update QueryResultsCollector!
-        return null;
-    }
 }
