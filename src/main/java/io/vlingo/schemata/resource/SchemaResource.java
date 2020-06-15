@@ -22,6 +22,7 @@ import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Schema;
 import io.vlingo.schemata.model.Scope;
 import io.vlingo.schemata.query.SchemaQueries;
+import io.vlingo.schemata.query.view.SchemasView;
 import io.vlingo.schemata.resource.data.SchemaData;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
@@ -102,7 +103,10 @@ public class SchemaResource extends ResourceHandler {
   public Completes<Response> querySchemas(final String organizationId, final String unitId, final String contextId) {
     return queries
             .schemas(organizationId, unitId, contextId)
-            .andThenTo(schemas -> Completes.withSuccess(Response.of(Ok, serialized(schemas))));
+            .andThenTo(schemas -> schemas == null
+                    ? Completes.withSuccess(Response.of(Ok, serialized(SchemasView.empty())))
+                    : Completes.withSuccess(Response.of(Ok, serialized(schemas))))
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   public Completes<Response> querySchema(final String organizationId, final String unitId, final String contextId, final String schemaId) {

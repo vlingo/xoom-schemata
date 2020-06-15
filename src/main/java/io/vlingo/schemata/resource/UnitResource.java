@@ -20,6 +20,7 @@ import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Unit;
 import io.vlingo.schemata.query.UnitQueries;
+import io.vlingo.schemata.query.view.UnitsView;
 import io.vlingo.schemata.resource.data.UnitData;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
@@ -87,7 +88,9 @@ public class UnitResource extends ResourceHandler {
   public Completes<Response> queryUnits(final String organizationId) {
     return queries
             .units(organizationId)
-            .andThenTo(units -> Completes.withSuccess(Response.of(Ok, serialized(units))))
+            .andThenTo(units -> units == null
+                    ? Completes.withSuccess(Response.of(Ok, serialized(UnitsView.empty())))
+                    : Completes.withSuccess(Response.of(Ok, serialized(units))))
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 

@@ -20,6 +20,7 @@ import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Organization;
 import io.vlingo.schemata.query.OrganizationQueries;
+import io.vlingo.schemata.query.view.OrganizationsView;
 import io.vlingo.schemata.resource.data.OrganizationData;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
@@ -87,7 +88,9 @@ public class OrganizationResource extends ResourceHandler {
   public Completes<Response> queryOrganizations() {
     return queries
             .organizations()
-            .andThenTo(organizations -> Completes.withSuccess(Response.of(Ok, serialized(organizations))))
+            .andThenTo(organizations -> organizations == null
+                    ? Completes.withSuccess(Response.of(Ok, serialized(OrganizationsView.empty())))
+                    : Completes.withSuccess(Response.of(Ok, serialized(organizations))))
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 

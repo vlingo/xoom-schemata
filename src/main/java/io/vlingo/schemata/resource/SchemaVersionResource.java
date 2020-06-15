@@ -30,6 +30,7 @@ import io.vlingo.schemata.query.CodeQueries;
 import io.vlingo.schemata.query.SchemaQueries;
 import io.vlingo.schemata.query.SchemaVersionQueries;
 import io.vlingo.schemata.query.view.SchemaVersionView;
+import io.vlingo.schemata.query.view.SchemaVersionsView;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
@@ -192,7 +193,10 @@ public class SchemaVersionResource extends ResourceHandler {
     public Completes<Response> querySchemaVersions(final String organizationId, final String unitId, final String contextId, final String schemaId) {
         return schemaVersionQueries
                 .schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
-                .andThen(schemaVersions -> Response.of(Ok, serialized(schemaVersions)));
+                .andThenTo(schemaVersions -> schemaVersions == null
+                        ? Completes.withSuccess(Response.of(Ok, serialized(SchemaVersionsView.empty())))
+                        : Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))))
+                .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
     }
 
     public Completes<Response> querySchemaVersionByIds(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId) {

@@ -20,6 +20,7 @@ import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.query.ContextQueries;
+import io.vlingo.schemata.query.view.ContextsView;
 import io.vlingo.schemata.resource.data.ContextData;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
@@ -87,7 +88,10 @@ public class ContextResource extends ResourceHandler {
   public Completes<Response> queryContexts(final String organizationId, final String unitId) {
     return queries
             .contexts(organizationId, unitId)
-            .andThenTo(contexts -> Completes.withSuccess(Response.of(Ok, serialized(contexts))));
+            .andThenTo(contexts -> contexts == null
+                    ? Completes.withSuccess(Response.of(Ok, serialized(ContextsView.empty())))
+                    : Completes.withSuccess(Response.of(Ok, serialized(contexts))))
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   public Completes<Response> queryContext(final String organizationId, final String unitId, final String contextId) {
