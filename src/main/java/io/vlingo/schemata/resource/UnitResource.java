@@ -94,7 +94,9 @@ public class UnitResource extends ResourceHandler {
   public Completes<Response> queryUnit(final String organizationId, final String unitId) {
     return queries
             .unit(organizationId, unitId)
-            .andThenTo(unit -> Completes.withSuccess(Response.of(Ok, serialized(unit))))
+            .andThenTo(unit -> unit == null
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Unit not found!")))
+                    : Completes.withSuccess(Response.of(Ok, serialized(unit))))
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 

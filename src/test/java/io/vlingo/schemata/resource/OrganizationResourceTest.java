@@ -41,7 +41,7 @@ public class OrganizationResourceTest extends ResourceTest {
     String invalidOrganizationId = "-1";
     final Response response = resource.queryOrganization(invalidOrganizationId).await();
     assertEquals(NotFound, response.status);
-    assertTrue(response.entity.content().contains(invalidOrganizationId));
+    assertTrue(response.entity.content().contains("Organization not found"));
   }
 
   @Test

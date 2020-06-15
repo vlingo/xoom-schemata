@@ -23,18 +23,10 @@ import io.vlingo.symbio.store.state.StateStore;
 
 @SuppressWarnings("rawtypes")
 public class ProjectionDispatcherProvider {
-    private static ProjectionDispatcherProvider instance;
-
     public final ProjectionDispatcher projectionDispatcher;
     public final Dispatcher storeDispatcher;
 
-    public static ProjectionDispatcherProvider instance() {
-        return instance;
-    }
-
     public static ProjectionDispatcherProvider using(final Stage stage, final StateStore stateStore) {
-        if (instance != null) return instance;
-
         final List<ProjectToDescription> descriptions =
                 Arrays.asList(
                         ProjectToDescription.with(OrganizationProjection.class, Optional.of(stateStore),
@@ -104,9 +96,7 @@ public class ProjectionDispatcherProvider {
 
         final Protocols.Two<Dispatcher, ProjectionDispatcher> dispatchers = Protocols.two(dispatcherProtocols);
 
-        instance = new ProjectionDispatcherProvider(dispatchers._1, dispatchers._2);
-
-        return instance;
+        return new ProjectionDispatcherProvider(dispatchers._1, dispatchers._2);
     }
 
     private ProjectionDispatcherProvider(final Dispatcher storeDispatcher, final ProjectionDispatcher projectionDispatcher) {

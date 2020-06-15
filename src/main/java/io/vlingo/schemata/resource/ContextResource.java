@@ -93,7 +93,10 @@ public class ContextResource extends ResourceHandler {
   public Completes<Response> queryContext(final String organizationId, final String unitId, final String contextId) {
     return queries
             .context(organizationId, unitId, contextId)
-            .andThenTo(context -> Completes.withSuccess(Response.of(Ok, serialized(context))));
+            .andThenTo(context -> context == null
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Context not found!")))
+                    : Completes.withSuccess(Response.of(Ok, serialized(context))))
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   @Override

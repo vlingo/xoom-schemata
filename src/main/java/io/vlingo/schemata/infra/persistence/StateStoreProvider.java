@@ -18,17 +18,9 @@ import io.vlingo.symbio.store.state.inmemory.InMemoryStateStoreActor;
 import java.util.Arrays;
 
 public class StateStoreProvider {
-    private static StateStoreProvider instance;
-
     public final StateStore stateStore;
 
-    public static StateStoreProvider instance() {
-        return instance;
-    }
-
     public static StateStoreProvider using(World world) {
-        if (instance != null) return instance;
-
         final StatefulTypeRegistry registry = new StatefulTypeRegistry(world);
         final StateStore stateStore = world.stage().actorFor(StateStore.class,
                 InMemoryStateStoreActor.class,
@@ -37,8 +29,7 @@ public class StateStoreProvider {
         // registerStateAdapters(world.stage());
         registerStatefulTypes(stateStore, registry);
 
-        instance = new StateStoreProvider(stateStore);
-        return instance;
+        return new StateStoreProvider(stateStore);
     }
 
     private static void registerStatefulTypes(StateStore stateStore, StatefulTypeRegistry registry) {

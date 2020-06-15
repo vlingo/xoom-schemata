@@ -123,7 +123,7 @@ public class CodeResource extends ResourceHandler {
   // Internal implementation
   //////////////////////////////////
 
-  private Completes<Outcome<SchemataBusinessException,String>> compile(final String reference, final String specification, final String currentVersion, final String language) {
+  private Completes<Outcome<SchemataBusinessException, String>> compile(final String reference, final String specification, final String currentVersion, final String language) {
     final InputStream inputStream = new ByteArrayInputStream(specification.getBytes());
     return compilerFor(stage, language).compile(inputStream, reference, currentVersion);
   }

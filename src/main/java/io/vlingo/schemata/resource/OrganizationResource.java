@@ -95,7 +95,7 @@ public class OrganizationResource extends ResourceHandler {
     return queries
             .organization(organizationId)
             .andThenTo(organization -> organization == null
-                    ? Completes.withSuccess(Response.of(NotFound, serialized("Organization with id " + organizationId + " not found!")))
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Organization not found!")))
                     : Completes.withSuccess(Response.of(Ok, serialized(organization))))
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }

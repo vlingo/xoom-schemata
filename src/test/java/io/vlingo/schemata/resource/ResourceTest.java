@@ -7,32 +7,21 @@
 
 package io.vlingo.schemata.resource;
 
-import io.vlingo.actors.*;
+import io.vlingo.actors.Grid;
+import io.vlingo.actors.GridAddressFactory;
+import io.vlingo.actors.Stage;
+import io.vlingo.actors.World;
+import io.vlingo.common.identity.IdentityGeneratorType;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry.Info;
-import io.vlingo.schemata.SchemataConfig;
-import io.vlingo.schemata.model.*;
-import io.vlingo.symbio.store.journal.Journal;
-import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
-import org.junit.Before;
-
-import io.vlingo.common.identity.IdentityGeneratorType;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.Schemata;
-import io.vlingo.schemata.query.CodeQueries;
-import io.vlingo.schemata.query.ContextQueries;
-import io.vlingo.schemata.query.OrganizationQueries;
-import io.vlingo.schemata.query.Queries;
-import io.vlingo.schemata.query.SchemaQueries;
-import io.vlingo.schemata.query.SchemaVersionQueries;
-import io.vlingo.schemata.query.UnitQueries;
-import io.vlingo.symbio.store.DataFormat;
-import io.vlingo.symbio.store.common.jdbc.hsqldb.HSQLDBConfigurationProvider;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
+import io.vlingo.schemata.infra.persistence.ProjectionDispatcherProvider;
+import io.vlingo.schemata.infra.persistence.StateStoreProvider;
+import io.vlingo.schemata.infra.persistence.StorageProvider;
+import io.vlingo.schemata.query.*;
+import io.vlingo.symbio.store.journal.Journal;
+import org.junit.Before;
 
 public abstract class ResourceTest {
   protected Journal<String> journal;
@@ -56,21 +45,18 @@ public abstract class ResourceTest {
     world.stageNamed(Schemata.StageName, Stage.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
     stage = world.stageNamed(Schemata.StageName);
 
-    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
+    final StateStoreProvider stateStoreProvider = StateStoreProvider.using(world);
+    final ProjectionDispatcherProvider projectionDispatcherProvider =
+            ProjectionDispatcherProvider.using(world.stage(), stateStoreProvider.stateStore);
 
-    registry = new SourcedTypeRegistry(world);
-    registry.register(new Info(journal, OrganizationEntity.class, OrganizationEntity.class.getSimpleName()));
-    registry.register(new Info(journal, UnitEntity.class, UnitEntity.class.getSimpleName()));
-    registry.register(new Info(journal, ContextEntity.class, ContextEntity.class.getSimpleName()));
-    registry.register(new Info(journal, SchemaEntity.class, SchemaEntity.class.getSimpleName()));
-    registry.register(new Info(journal, SchemaVersionEntity.class, SchemaVersionEntity.class.getSimpleName()));
+    StorageProvider storageProvider = StorageProvider.newInstance(world, stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher);
 
-    organizationQueries = Queries.forOrganizations();
-    unitQueries = Queries.forUnits();
-    contextQueries = Queries.forContexts();
-    schemaQueries = Queries.forSchemas();
-    schemaVersionQueries = Queries.forSchemaVersions();
-    codeQueries = Queries.forCode();
+    organizationQueries = storageProvider.organizationQueries;
+    unitQueries = storageProvider.unitQueries;
+    contextQueries = storageProvider.contextQueries;
+    schemaQueries = storageProvider.schemaQueries;
+    schemaVersionQueries = storageProvider.schemaVersionQueries;
+    codeQueries = storageProvider.codeQueries;
   }
 
   protected String extractResourceIdFrom(final Response response) {

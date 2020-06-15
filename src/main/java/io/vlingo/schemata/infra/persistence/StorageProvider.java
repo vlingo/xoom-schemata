@@ -30,10 +30,14 @@ public class StorageProvider {
     public final CodeQueries codeQueries;
     public final TypeResolverQueries typeResolverQueries;
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public static StorageProvider with(final World world, StateStore stateStore, final Dispatcher dispatcher) {
         if (instance != null) return instance;
 
+        return newInstance(world, stateStore, dispatcher);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static StorageProvider newInstance(final World world, StateStore stateStore, final Dispatcher dispatcher) {
         final Journal<String> journal = world.actorFor(Journal.class, InMemoryJournalActor.class, dispatcher);
         SourcedTypeRegistry registry = new SourcedTypeRegistry(world);
 

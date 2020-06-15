@@ -108,7 +108,10 @@ public class SchemaResource extends ResourceHandler {
   public Completes<Response> querySchema(final String organizationId, final String unitId, final String contextId, final String schemaId) {
     return queries
             .schema(organizationId, unitId, contextId, schemaId)
-            .andThenTo(schema -> Completes.withSuccess(Response.of(Ok, serialized(schema))));
+            .andThenTo(schema -> schema == null
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Schema not found!")))
+                    : Completes.withSuccess(Response.of(Ok, serialized(schema))))
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   public Completes<Response> querySchemaCategories() {
