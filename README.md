@@ -8,7 +8,7 @@
 [![CircleCI](https://img.shields.io/circleci/build/github/vlingo/vlingo-schemata?logo=CircleCi)](https://circleci.com/gh/vlingo/vlingo-schemata)
 
 
-The vlingo/PLATFORM schema registry.
+The VLINGO/PLATFORM schema registry.
  
 ## Run
 
