@@ -127,6 +127,7 @@ public class ExtendedResourceTest extends ResourceTest {
     }
 
     @Test
+    @Ignore
     public void testSchemaVersionSelection() {
         String[] schemaVersion1Ids = createFixture1();
         String schemaVersion2Id = createFixture2();
