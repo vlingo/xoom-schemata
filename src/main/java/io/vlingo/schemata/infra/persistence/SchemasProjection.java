@@ -37,7 +37,13 @@ public class SchemasProjection extends StateStoreProjectionActor<SchemasView> {
 
     @Override
     protected String dataIdFor(Projectable projectable) {
-        dataId = events.get(0).parentIdentity(); // contextId
+        IdentifiedDomainEvent event = events.get(0);
+        if (event instanceof Events.ContextDefined) {
+            dataId = event.identity(); // contextId
+        } else {
+            dataId = event.parentIdentity(); // contextId
+        }
+
         return dataId;
     }
 
@@ -66,6 +72,10 @@ public class SchemasProjection extends StateStoreProjectionActor<SchemasView> {
         SchemasView mergedData = initialData;
         for (DomainEvent event : events) {
             switch (SchemaViewType.match(event)) {
+                case ContextDefined:
+                    // when an context is defined it has an empty list of schemas
+                    mergedData = SchemasView.empty();
+                    break;
                 case SchemaDefined:
                     final Events.SchemaDefined defined = typed(event);
                     mergedData = mergedData.add(Tag.of(defined.schemaId, defined.name));

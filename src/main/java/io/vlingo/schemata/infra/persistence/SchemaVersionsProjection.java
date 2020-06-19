@@ -38,7 +38,13 @@ public class SchemaVersionsProjection extends StateStoreProjectionActor<SchemaVe
 
     @Override
     protected String dataIdFor(Projectable projectable) {
-        dataId = events.get(0).parentIdentity(); // schema
+        IdentifiedDomainEvent event = events.get(0);
+        if (event instanceof Events.SchemaDefined) {
+            dataId = event.identity(); // schema
+        } else {
+            dataId = event.parentIdentity(); // schema
+        }
+
         return dataId;
     }
 
@@ -67,6 +73,10 @@ public class SchemaVersionsProjection extends StateStoreProjectionActor<SchemaVe
         SchemaVersionsView mergedData = initialData;
         for (DomainEvent event : events) {
             switch (SchemaVersionViewType.match(event)) {
+                case SchemaDefined:
+                    // when an schema is defined it has an empty list of schemaVersions
+                    mergedData = SchemaVersionsView.empty();
+                    break;
                 case SchemaVersionDefined:
                     final Events.SchemaVersionDefined defined = typed(event);
                     SchemaVersionView view = SchemaVersionView.with(defined.organizationId, defined.unitId, defined.contextId, defined.schemaId,

@@ -10,6 +10,7 @@ package io.vlingo.schemata.infra.persistence;
 import io.vlingo.lattice.model.DomainEvent;
 
 public enum UnitViewType {
+    OrganizationDefined,
     UnitDefined,
     UnitDescribed,
     UnitRedefined,

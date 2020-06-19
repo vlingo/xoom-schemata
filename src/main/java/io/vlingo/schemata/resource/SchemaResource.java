@@ -104,8 +104,9 @@ public class SchemaResource extends ResourceHandler {
     return queries
             .schemas(organizationId, unitId, contextId)
             .andThenTo(schemas -> schemas == null
-                    ? Completes.withSuccess(Response.of(Ok, serialized(SchemasView.empty())))
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Schemas not found!"))) // hit in unit tests
                     : Completes.withSuccess(Response.of(Ok, serialized(schemas))))
+            .otherwise(response -> Response.of(NotFound, serialized("Schemas not found!"))) // hit in production
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
@@ -113,8 +114,9 @@ public class SchemaResource extends ResourceHandler {
     return queries
             .schema(organizationId, unitId, contextId, schemaId)
             .andThenTo(schema -> schema == null
-                    ? Completes.withSuccess(Response.of(NotFound, serialized("Schema not found!")))
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Schema not found!"))) // hit in unit tests
                     : Completes.withSuccess(Response.of(Ok, serialized(schema))))
+            .otherwise(response -> Response.of(NotFound, serialized("Schema not found!"))) // hit in production
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 

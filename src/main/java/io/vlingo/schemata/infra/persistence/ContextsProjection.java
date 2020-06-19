@@ -38,7 +38,13 @@ public class ContextsProjection extends StateStoreProjectionActor<ContextsView> 
 
     @Override
     protected String dataIdFor(Projectable projectable) {
-        dataId = events.get(0).parentIdentity(); // unitId
+        IdentifiedDomainEvent event = events.get(0);
+        if (event instanceof Events.UnitDefined) {
+            dataId = event.identity(); // unitId
+        } else {
+            dataId = event.parentIdentity(); // unitId
+        }
+
         return dataId;
     }
 
@@ -72,6 +78,10 @@ public class ContextsProjection extends StateStoreProjectionActor<ContextsView> 
         ContextsView mergedData = initialData;
         for (DomainEvent event : events) {
             switch (ContextViewType.match(event)) {
+                case UnitDefined:
+                    // when an unit is defined it has an empty list of contexts
+                    mergedData = ContextsView.empty();
+                    break;
                 case ContextDefined:
                     final Events.ContextDefined defined = typed(event);
                     mergedData = mergedData.add(Tag.of(defined.contextId, defined.name));

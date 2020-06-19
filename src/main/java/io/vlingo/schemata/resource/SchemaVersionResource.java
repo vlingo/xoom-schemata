@@ -275,7 +275,11 @@ public class SchemaVersionResource extends ResourceHandler {
         if (Path.isValidReference(reference, false)) {
             Path path = Path.with(reference, false);
             return codeQueries.codeFor(path)
-                    .andThen(codeView -> Response.of(Ok, serialized(codeView.schemaVersionView())));
+                    .andThenTo(codeView -> codeView == null
+                            ? Completes.withSuccess(Response.of(NotFound, serialized("Code not found!")))
+                            : Completes.withSuccess(Response.of(Ok, serialized(codeView.schemaVersionView()))))
+                    .otherwise(response -> Response.of(NotFound, serialized("Code not found!"))) // hit in production
+                    .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
         } else {
             String message = "Invalid reference. Please provide the reference in the form of 'org:unit:context:schema:version'!";
             return Completes.withSuccess(Response.of(
@@ -290,10 +294,9 @@ public class SchemaVersionResource extends ResourceHandler {
         if (Path.isValidReference(reference, false)) {
             Path path = Path.with(reference, false);
             return codeQueries.codeFor(path)
-                    .andThen(view -> Response.of(
-                          Ok,
-                          Headers.of(of(ContentType, "text/plain; charset=UTF-8")),
-                          view.status()));
+                    .andThenTo(view -> Completes.withSuccess(Response.of(Ok, Headers.of(of(ContentType, "text/plain; charset=UTF-8")), view.status())))
+                    .otherwise(response -> Response.of(NotFound, Headers.of(of(ContentType, "text/plain; charset=UTF-8")), "SchemaVersion not found!"))
+                    .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
         } else {
             String message = "Invalid reference. Please provide the reference in the form of 'org:unit:context:schema:version'!";
             return Completes.withSuccess(Response.of(

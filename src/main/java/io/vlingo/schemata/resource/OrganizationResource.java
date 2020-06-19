@@ -89,8 +89,9 @@ public class OrganizationResource extends ResourceHandler {
     return queries
             .organizations()
             .andThenTo(organizations -> organizations == null
-                    ? Completes.withSuccess(Response.of(Ok, serialized(OrganizationsView.empty())))
-                    : Completes.withSuccess(Response.of(Ok, serialized(organizations))))
+                    ? Completes.withSuccess(Response.of(Ok, serialized(OrganizationsView.empty().all())))
+                    : Completes.withSuccess(Response.of(Ok, serialized(organizations.all()))))
+            .otherwise(response -> Response.of(Ok, serialized(OrganizationsView.empty().all()))) // no OrganizationsView state found in stateStore
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
@@ -98,8 +99,9 @@ public class OrganizationResource extends ResourceHandler {
     return queries
             .organization(organizationId)
             .andThenTo(organization -> organization == null
-                    ? Completes.withSuccess(Response.of(NotFound, serialized("Organization not found!")))
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Organization not found!"))) // hit by unit tests
                     : Completes.withSuccess(Response.of(Ok, serialized(organization))))
+            .otherwise(response -> Response.of(NotFound, serialized("Organization not found!"))) // hit in production
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 

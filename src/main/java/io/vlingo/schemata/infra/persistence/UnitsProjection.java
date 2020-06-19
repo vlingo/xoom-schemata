@@ -14,6 +14,7 @@ import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.IdentifiedDomainEvent;
 import io.vlingo.lattice.model.projection.Projectable;
 import io.vlingo.lattice.model.projection.StateStoreProjectionActor;
+import io.vlingo.schemata.model.Events;
 import io.vlingo.schemata.model.Events.UnitDefined;
 import io.vlingo.schemata.model.Events.UnitRedefined;
 import io.vlingo.schemata.model.Events.UnitRenamed;
@@ -40,7 +41,13 @@ public class UnitsProjection extends StateStoreProjectionActor<UnitsView> {
 
     @Override
     protected String dataIdFor(final Projectable projectable) {
-        dataId = events.get(0).parentIdentity(); // organizationId
+        IdentifiedDomainEvent event = events.get(0);
+        if (event instanceof Events.OrganizationDefined) {
+            dataId = event.identity(); // organizationId
+        } else {
+            dataId = event.parentIdentity(); // organizationId
+        }
+
         return dataId;
     }
 
@@ -74,6 +81,10 @@ public class UnitsProjection extends StateStoreProjectionActor<UnitsView> {
         UnitsView mergedData = initialData;
         for (final DomainEvent event : events) {
             switch (UnitViewType.match(event)) {
+                case OrganizationDefined:
+                    // when an organization is defined it has an empty list of units
+                    mergedData = UnitsView.empty();
+                    break;
                 case UnitDefined:
                     final UnitDefined defined = typed(event);
                     mergedData = mergedData.add(Tag.of(defined.unitId, defined.name));

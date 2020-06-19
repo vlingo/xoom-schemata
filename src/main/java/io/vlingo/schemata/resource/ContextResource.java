@@ -89,8 +89,9 @@ public class ContextResource extends ResourceHandler {
     return queries
             .contexts(organizationId, unitId)
             .andThenTo(contexts -> contexts == null
-                    ? Completes.withSuccess(Response.of(Ok, serialized(ContextsView.empty())))
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Contexts not found!")))
                     : Completes.withSuccess(Response.of(Ok, serialized(contexts))))
+            .otherwise(response -> Response.of(NotFound, serialized("Contexts not found!"))) // hit in production
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
@@ -100,6 +101,7 @@ public class ContextResource extends ResourceHandler {
             .andThenTo(context -> context == null
                     ? Completes.withSuccess(Response.of(NotFound, serialized("Context not found!")))
                     : Completes.withSuccess(Response.of(Ok, serialized(context))))
+            .otherwise(response -> Response.of(NotFound, serialized("Context not found!"))) // hit in production
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 

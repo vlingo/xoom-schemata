@@ -89,8 +89,9 @@ public class UnitResource extends ResourceHandler {
     return queries
             .units(organizationId)
             .andThenTo(units -> units == null
-                    ? Completes.withSuccess(Response.of(Ok, serialized(UnitsView.empty())))
-                    : Completes.withSuccess(Response.of(Ok, serialized(units))))
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Units not found!"))) // hit in unit tests
+                    : Completes.withSuccess(Response.of(Ok, serialized(units.all()))))
+            .otherwise(response -> Response.of(NotFound, serialized("Units not found!"))) // hit in production
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
@@ -98,8 +99,9 @@ public class UnitResource extends ResourceHandler {
     return queries
             .unit(organizationId, unitId)
             .andThenTo(unit -> unit == null
-                    ? Completes.withSuccess(Response.of(NotFound, serialized("Unit not found!")))
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Unit not found!"))) // hit in unit tests
                     : Completes.withSuccess(Response.of(Ok, serialized(unit))))
+            .otherwise(response -> Response.of(NotFound, serialized("Unit not found!"))) // hit in production
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
