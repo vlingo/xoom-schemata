@@ -15,8 +15,8 @@ import io.vlingo.symbio.store.object.StateObject;
 
 public class ContextState {
   public final ContextId contextId;
-  public final String description;
   public final String namespace;
+  public final String description;
 
   public static ContextState from(final ContextId contextId) {
     return new ContextState(contextId);

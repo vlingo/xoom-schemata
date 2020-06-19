@@ -105,7 +105,7 @@ public class SchemaResource extends ResourceHandler {
             .schemas(organizationId, unitId, contextId)
             .andThenTo(schemas -> schemas == null
                     ? Completes.withSuccess(Response.of(NotFound, serialized("Schemas not found!"))) // hit in unit tests
-                    : Completes.withSuccess(Response.of(Ok, serialized(schemas))))
+                    : Completes.withSuccess(Response.of(Ok, serialized(schemas.all()))))
             .otherwise(response -> Response.of(NotFound, serialized("Schemas not found!"))) // hit in production
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }

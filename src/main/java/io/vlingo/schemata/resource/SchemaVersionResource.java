@@ -194,8 +194,9 @@ public class SchemaVersionResource extends ResourceHandler {
         return schemaVersionQueries
                 .schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
                 .andThenTo(schemaVersions -> schemaVersions == null
-                        ? Completes.withSuccess(Response.of(Ok, serialized(SchemaVersionsView.empty())))
-                        : Completes.withSuccess(Response.of(Ok, serialized(schemaVersions))))
+                        ? Completes.withSuccess(Response.of(NotFound, serialized("SchemaVersions not found!")))
+                        : Completes.withSuccess(Response.of(Ok, serialized(schemaVersions.all()))))
+                .otherwise(response -> Response.of(NotFound, serialized("SchemaVersions not found!"))) // hit in production
                 .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
     }
 
@@ -205,19 +206,28 @@ public class SchemaVersionResource extends ResourceHandler {
                 .andThenTo(schemaVersion -> schemaVersion == null
                         ? Completes.withSuccess(Response.of(NotFound, serialized("SchemaVersion not found!")))
                         : Completes.withSuccess(Response.of(Ok, serialized(schemaVersion))))
+                .otherwise(response -> Response.of(NotFound, serialized("SchemaVersion not found!"))) // hit in production
                 .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
     }
 
     public Completes<Response> searchSchemaVersionsByNames(final String organization, final String unit, final String context, final String schema) {
         return schemaQueries
                 .schemaByNames(organization, unit, context, schema)
-                .andThen(namedSchemaView -> Response.of(Ok, serialized(namedSchemaView.schemaVersions())));
+                .andThenTo(namedSchemaView -> namedSchemaView == null
+                        ? Completes.withSuccess(Response.of(NotFound, serialized("NamedSchema not found!")))
+                        : Completes.withSuccess(Response.of(Ok, serialized(namedSchemaView.schemaVersions()))))
+                .otherwise(response -> Response.of(NotFound, serialized("NamedSchema not found!"))) // hit in production
+                .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
     }
 
     public Completes<Response> searchSchemaVersionByNames(final String organization, final String unit, final String context, final String schema, final String schemaVersion) {
         return schemaQueries
                 .schemaByNames(organization, unit, context, schema)
-                .andThen(namedSchemaView -> Response.of(Ok, serialized(namedSchemaView.versionOf(schemaVersion))));
+                .andThenTo(namedSchemaView -> namedSchemaView == null
+                        ? Completes.withSuccess(Response.of(NotFound, serialized("NamedSchema not found!")))
+                        : Completes.withSuccess(Response.of(Ok, serialized(namedSchemaView.versionOf(schemaVersion)))))
+                .otherwise(response -> Response.of(NotFound, serialized("NamedSchema not found!"))) // hit in production
+                .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
     public Completes<Response> searchSchemaVersions(final String schemaVersion, final String organization, final String unit, final String context, final String schema) {
