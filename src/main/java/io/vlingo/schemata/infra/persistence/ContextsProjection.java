@@ -12,10 +12,8 @@ import io.vlingo.lattice.model.IdentifiedDomainEvent;
 import io.vlingo.lattice.model.projection.Projectable;
 import io.vlingo.lattice.model.projection.StateStoreProjectionActor;
 import io.vlingo.schemata.model.Events;
-import io.vlingo.schemata.query.view.ContextView;
 import io.vlingo.schemata.query.view.ContextsView;
 import io.vlingo.schemata.query.view.ContextsView.ContextItem;
-import io.vlingo.schemata.query.view.Tag;
 import io.vlingo.symbio.Entry;
 import io.vlingo.symbio.store.state.StateStore;
 

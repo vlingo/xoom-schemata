@@ -7,9 +7,6 @@
 
 package io.vlingo.schemata.infra.persistence;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.IdentifiedDomainEvent;
 import io.vlingo.lattice.model.projection.Projectable;
@@ -19,9 +16,11 @@ import io.vlingo.schemata.model.Events.OrganizationRedefined;
 import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.schemata.query.view.OrganizationsView;
 import io.vlingo.schemata.query.view.OrganizationsView.OrganizationItem;
-import io.vlingo.schemata.query.view.Tag;
 import io.vlingo.symbio.Entry;
 import io.vlingo.symbio.store.state.StateStore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class OrganizationsProjection extends StateStoreProjectionActor<OrganizationsView> {
     private final List<IdentifiedDomainEvent> events;
