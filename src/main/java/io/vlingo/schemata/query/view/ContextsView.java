@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class ContextsView {
-    private final List<Tag> contexts;
+    private final List<ContextItem> contexts;
 
     public static ContextsView empty() {
         return new ContextsView();
@@ -22,11 +22,11 @@ public class ContextsView {
         this.contexts = new ArrayList<>();
     }
 
-    private ContextsView(List<Tag> contexts) {
+    private ContextsView(List<ContextItem> contexts) {
         this.contexts = contexts;
     }
 
-    public ContextsView add(final Tag unit) {
+    public ContextsView add(final ContextItem unit) {
         if (contexts.contains(unit)) {
             return this;
         } else {
@@ -37,8 +37,8 @@ public class ContextsView {
         }
     }
 
-    public Tag get(final String contextId) {
-        Tag context = Tag.only(contextId);
+    public ContextItem get(final String contextId) {
+        ContextItem context = ContextItem.only(contextId);
 
         final int index = contexts.indexOf(context);
 
@@ -49,7 +49,7 @@ public class ContextsView {
         return context;
     }
 
-    public ContextsView replace(final Tag context) {
+    public ContextsView replace(final ContextItem context) {
         final int index = contexts.indexOf(context);
         if (index >= 0) {
             ContextsView result = new ContextsView(new ArrayList<>(contexts));
@@ -61,12 +61,57 @@ public class ContextsView {
         }
     }
 
-    public List<Tag> all() {
+    public List<ContextItem> all() {
         return Collections.unmodifiableList(contexts);
     }
 
     @Override
     public String toString() {
         return "ContextsView [contexts=" + contexts + "]";
+    }
+
+    public static class ContextItem {
+        public final String contextId;
+        public final String namespace;
+
+        public static ContextItem of(final String contextId, final String namespace) {
+            return new ContextItem(contextId, namespace);
+        }
+
+        public static ContextItem only(final String contextId) {
+            return new ContextItem(contextId, "");
+        }
+
+        public ContextItem(final String contextId, final String namespace) {
+            this.contextId = contextId;
+            this.namespace = namespace;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((namespace == null) ? 0 : namespace.hashCode());
+            result = prime * result + ((contextId == null) ? 0 : contextId.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object other) {
+            if (this == other) {
+                return true;
+            }
+
+            if (other == null || getClass() != other.getClass()) {
+                return false;
+            }
+
+            return contextId.equals(((ContextItem) other).contextId);
+        }
+
+        @Override
+        public String toString() {
+            return "ContextItem [contextId=" + contextId + ", namespace=" + namespace + "]";
+        }
     }
 }

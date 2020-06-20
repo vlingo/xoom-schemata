@@ -14,6 +14,7 @@ import io.vlingo.lattice.model.projection.StateStoreProjectionActor;
 import io.vlingo.schemata.model.Events;
 import io.vlingo.schemata.query.view.ContextView;
 import io.vlingo.schemata.query.view.ContextsView;
+import io.vlingo.schemata.query.view.ContextsView.ContextItem;
 import io.vlingo.schemata.query.view.Tag;
 import io.vlingo.symbio.Entry;
 import io.vlingo.symbio.store.state.StateStore;
@@ -84,17 +85,17 @@ public class ContextsProjection extends StateStoreProjectionActor<ContextsView> 
                     break;
                 case ContextDefined:
                     final Events.ContextDefined defined = typed(event);
-                    mergedData = mergedData.add(Tag.of(defined.contextId, defined.name));
+                    mergedData = mergedData.add(ContextItem.of(defined.contextId, defined.name));
                     break;
                 case ContextDescribed:
                     break;
                 case ContextRedefined:
                     final Events.ContextRedefined redefined = typed(event);
-                    mergedData = mergedData.replace(Tag.of(redefined.contextId, redefined.name));
+                    mergedData = mergedData.replace(ContextItem.of(redefined.contextId, redefined.name));
                     break;
                 case ContextMovedToNamespace:
                     final Events.ContextMovedToNamespace movedToNamespace = typed(event);
-                    mergedData = mergedData.replace(Tag.of(movedToNamespace.contextId, movedToNamespace.namespace));
+                    mergedData = mergedData.replace(ContextItem.of(movedToNamespace.contextId, movedToNamespace.namespace));
                     break;
                 case Unmatched:
                     logger().warn("Event of type " + event.typeName() + " was not matched.");

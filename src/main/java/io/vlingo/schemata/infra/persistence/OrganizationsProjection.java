@@ -18,6 +18,7 @@ import io.vlingo.schemata.model.Events.OrganizationDefined;
 import io.vlingo.schemata.model.Events.OrganizationRedefined;
 import io.vlingo.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.schemata.query.view.OrganizationsView;
+import io.vlingo.schemata.query.view.OrganizationsView.OrganizationItem;
 import io.vlingo.schemata.query.view.Tag;
 import io.vlingo.symbio.Entry;
 import io.vlingo.symbio.store.state.StateStore;
@@ -73,17 +74,17 @@ public class OrganizationsProjection extends StateStoreProjectionActor<Organizat
             switch (OrganizationViewType.match(event)) {
                 case OrganizationDefined:
                     final OrganizationDefined defined = typed(event);
-                    mergedData = mergedData.add(Tag.of(defined.organizationId, defined.name));
+                    mergedData = mergedData.add(OrganizationItem.of(defined.organizationId, defined.name));
                     break;
                 case OrganizationDescribed:
                     break;
                 case OrganizationRedefined:
                     final OrganizationRedefined redefined = typed(event);
-                    mergedData = mergedData.replace(Tag.of(redefined.organizationId, redefined.name));
+                    mergedData = mergedData.replace(OrganizationItem.of(redefined.organizationId, redefined.name));
                     break;
                 case OrganizationRenamed:
                     final OrganizationRenamed renamed = typed(event);
-                    mergedData = mergedData.replace(Tag.of(renamed.organizationId, renamed.name));
+                    mergedData = mergedData.replace(OrganizationItem.of(renamed.organizationId, renamed.name));
                     break;
                 case Unmatched:
                     logger().warn("Event of type " + event.typeName() + " was not matched.");

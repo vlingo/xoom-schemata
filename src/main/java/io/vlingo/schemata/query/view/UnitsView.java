@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class UnitsView {
-    private final List<Tag> units;
+    private final List<UnitItem> units;
 
     public static UnitsView empty() {
         return new UnitsView();
@@ -22,11 +22,11 @@ public class UnitsView {
         this.units = new ArrayList<>();
     }
 
-    private UnitsView(List<Tag> units) {
+    private UnitsView(List<UnitItem> units) {
         this.units = units;
     }
 
-    public UnitsView add(final Tag unit) {
+    public UnitsView add(final UnitItem unit) {
         if (units.contains(unit)) {
             return this;
         } else {
@@ -37,8 +37,8 @@ public class UnitsView {
         }
     }
 
-    public Tag get(final String unitId) {
-        Tag unit = Tag.only(unitId);
+    public UnitItem get(final String unitId) {
+        UnitItem unit = UnitItem.only(unitId);
 
         final int index = units.indexOf(unit);
 
@@ -49,7 +49,7 @@ public class UnitsView {
         return unit;
     }
 
-    public UnitsView replace(final Tag unit) {
+    public UnitsView replace(final UnitItem unit) {
         final int index = units.indexOf(unit);
         if (index >= 0) {
             UnitsView result = new UnitsView(new ArrayList<>(units));
@@ -61,12 +61,57 @@ public class UnitsView {
         }
     }
 
-    public List<Tag> all() {
+    public List<UnitItem> all() {
         return Collections.unmodifiableList(units);
     }
 
     @Override
     public String toString() {
         return "UnitsView [units=" + units + "]";
+    }
+
+    public static class UnitItem {
+        public final String unitId;
+        public final String name;
+
+        public static UnitItem of(final String unitId, final String name) {
+            return new UnitItem(unitId, name);
+        }
+
+        public static UnitItem only(final String unitId) {
+            return new UnitItem(unitId, "");
+        }
+
+        public UnitItem(final String unitId, final String name) {
+            this.unitId = unitId;
+            this.name = name;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((name == null) ? 0 : name.hashCode());
+            result = prime * result + ((unitId == null) ? 0 : unitId.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object other) {
+            if (this == other) {
+                return true;
+            }
+
+            if (other == null || getClass() != other.getClass()) {
+                return false;
+            }
+
+            return unitId.equals(((UnitItem) other).unitId);
+        }
+
+        @Override
+        public String toString() {
+            return "UnitItem [unitId=" + unitId + ", name=" + name + "]";
+        }
     }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 public class OrganizationsView {
     public static final String Id = "root";
 
-    private final List<Tag> organizations;
+    private final List<OrganizationItem> organizations;
 
     public static OrganizationsView empty() {
         return new OrganizationsView();
@@ -24,11 +24,11 @@ public class OrganizationsView {
         this.organizations = new ArrayList<>();
     }
 
-    public OrganizationsView(List<Tag> organizations) {
+    public OrganizationsView(List<OrganizationItem> organizations) {
         this.organizations = organizations;
     }
 
-    public OrganizationsView add(final Tag organization) {
+    public OrganizationsView add(final OrganizationItem organization) {
         if (organizations.contains(organization)) {
             return this;
         } else {
@@ -39,8 +39,8 @@ public class OrganizationsView {
         }
     }
 
-    public Tag get(final String organizationId) {
-        Tag organization = Tag.only(organizationId);
+    public OrganizationItem get(final String organizationId) {
+        OrganizationItem organization = OrganizationItem.only(organizationId);
 
         final int index = organizations.indexOf(organization);
 
@@ -51,7 +51,7 @@ public class OrganizationsView {
         return organization;
     }
 
-    public OrganizationsView replace(final Tag organization) {
+    public OrganizationsView replace(final OrganizationItem organization) {
         final int index = organizations.indexOf(organization);
         if (index >= 0) {
             OrganizationsView result = new OrganizationsView(new ArrayList<>(organizations));
@@ -63,12 +63,57 @@ public class OrganizationsView {
         }
     }
 
-    public List<Tag> all() {
+    public List<OrganizationItem> all() {
         return Collections.unmodifiableList(organizations);
     }
 
     @Override
     public String toString() {
         return "OrganizationsView [organizations=" + organizations + "]";
+    }
+
+    public static class OrganizationItem {
+        public final String organizationId;
+        public final String name;
+
+        public static OrganizationItem of(final String organizationId, final String name) {
+            return new OrganizationItem(organizationId, name);
+        }
+
+        public static OrganizationItem only(final String organizationId) {
+            return new OrganizationItem(organizationId, "");
+        }
+
+        public OrganizationItem(final String organizationId, final String name) {
+            this.organizationId = organizationId;
+            this.name = name;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((name == null) ? 0 : name.hashCode());
+            result = prime * result + ((organizationId == null) ? 0 : organizationId.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object other) {
+            if (this == other) {
+                return true;
+            }
+
+            if (other == null || getClass() != other.getClass()) {
+                return false;
+            }
+
+            return organizationId.equals(((OrganizationItem) other).organizationId);
+        }
+
+        @Override
+        public String toString() {
+            return "OrganizationItem [organizationId=" + organizationId + ", name=" + name + "]";
+        }
     }
 }

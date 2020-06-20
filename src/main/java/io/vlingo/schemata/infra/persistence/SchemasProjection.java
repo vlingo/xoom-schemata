@@ -13,6 +13,7 @@ import io.vlingo.lattice.model.projection.Projectable;
 import io.vlingo.lattice.model.projection.StateStoreProjectionActor;
 import io.vlingo.schemata.model.Events;
 import io.vlingo.schemata.query.view.SchemasView;
+import io.vlingo.schemata.query.view.SchemasView.SchemaItem;
 import io.vlingo.schemata.query.view.Tag;
 import io.vlingo.symbio.Entry;
 import io.vlingo.symbio.store.state.StateStore;
@@ -78,7 +79,7 @@ public class SchemasProjection extends StateStoreProjectionActor<SchemasView> {
                     break;
                 case SchemaDefined:
                     final Events.SchemaDefined defined = typed(event);
-                    mergedData = mergedData.add(Tag.of(defined.schemaId, defined.name));
+                    mergedData = mergedData.add(SchemaItem.of(defined.schemaId, defined.name));
                     break;
                 case SchemaCategorized:
                     break;
@@ -86,13 +87,13 @@ public class SchemasProjection extends StateStoreProjectionActor<SchemasView> {
                     break;
                 case SchemaRenamed:
                     final Events.SchemaRenamed renamed = typed(event);
-                    mergedData = mergedData.replace(Tag.of(renamed.schemaId, renamed.name));
+                    mergedData = mergedData.replace(SchemaItem.of(renamed.schemaId, renamed.name));
                     break;
                 case SchemaDescribed:
                     break;
                 case SchemaRedefined:
                     final Events.SchemaRedefined redefined = typed(event);
-                    mergedData = mergedData.replace(Tag.of(redefined.schemaId, redefined.name));
+                    mergedData = mergedData.replace(SchemaItem.of(redefined.schemaId, redefined.name));
                     break;
                 case Unmatched:
                     logger().warn("Event of type " + event.typeName() + " was not matched.");
