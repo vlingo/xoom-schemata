@@ -31,7 +31,7 @@ public class UnitResourceTest extends ResourceTest {
 
   @Test
   public void testThatUnitIsDefined() {
-    final UnitResource resource = new UnitResource(world);
+    final UnitResource resource = new UnitResource(world, unitQueries);
     final Response response = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();
     assertEquals(Created, response.status);
     assertNotNull(response.headers.headerOf(Location));
@@ -41,7 +41,7 @@ public class UnitResourceTest extends ResourceTest {
 
   @Test
   public void testThatNonExistingUnitReturns404() {
-    final UnitResource resource = new UnitResource(world);
+    final UnitResource resource = new UnitResource(world, unitQueries);
     OrganizationState org = Organization.with(world.stageNamed(Schemata.StageName), Organization.uniqueId(),"o", "d").await();
     final Response response = resource.queryUnit(org.organizationId.value,"-1").await();
     assertEquals(NotFound, response.status);
@@ -50,7 +50,7 @@ public class UnitResourceTest extends ResourceTest {
 
   @Test
   public void testUnitDescribedAs() {
-    final UnitResource resource = new UnitResource(world);
+    final UnitResource resource = new UnitResource(world, unitQueries);
     final Response response1 = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();
     assertEquals(Created, response1.status);
     final UnitData data1 = JsonSerialization.deserialized(response1.entity.content(), UnitData.class);
@@ -64,7 +64,7 @@ public class UnitResourceTest extends ResourceTest {
 
   @Test
   public void testUnitRedefineWith() {
-    final UnitResource resource = new UnitResource(world);
+    final UnitResource resource = new UnitResource(world, unitQueries);
     final Response response1 = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();
     assertEquals(Created, response1.status);
     final UnitData data1 = JsonSerialization.deserialized(response1.entity.content(), UnitData.class);
@@ -79,7 +79,7 @@ public class UnitResourceTest extends ResourceTest {
 
   @Test
   public void testUnitRenameTo() {
-    final UnitResource resource = new UnitResource(world);
+    final UnitResource resource = new UnitResource(world, unitQueries);
     final Response response1 = resource.defineWith(OrgId, UnitData.just(UnitName, UnitDescription)).await();
     assertEquals(Created, response1.status);
     final UnitData data1 = JsonSerialization.deserialized(response1.entity.content(), UnitData.class);

@@ -7,32 +7,25 @@
 
 package io.vlingo.schemata.resource;
 
-import io.vlingo.actors.*;
+import io.vlingo.actors.Grid;
+import io.vlingo.actors.GridAddressFactory;
+import io.vlingo.actors.Stage;
+import io.vlingo.actors.World;
+import io.vlingo.common.identity.IdentityGeneratorType;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
-import io.vlingo.schemata.SchemataConfig;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
+import io.vlingo.schemata.Schemata;
+import io.vlingo.schemata.infra.persistence.ProjectionDispatcherProvider;
+import io.vlingo.schemata.infra.persistence.StateStoreProvider;
+import io.vlingo.schemata.infra.persistence.StorageProvider;
+import io.vlingo.schemata.query.*;
+import io.vlingo.symbio.store.journal.Journal;
 import org.junit.Before;
 
-import io.vlingo.common.identity.IdentityGeneratorType;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.schemata.NoopDispatcher;
-import io.vlingo.schemata.Schemata;
-import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
-import io.vlingo.schemata.query.CodeQueries;
-import io.vlingo.schemata.query.ContextQueries;
-import io.vlingo.schemata.query.OrganizationQueries;
-import io.vlingo.schemata.query.Queries;
-import io.vlingo.schemata.query.SchemaQueries;
-import io.vlingo.schemata.query.SchemaVersionQueries;
-import io.vlingo.schemata.query.UnitQueries;
-import io.vlingo.symbio.store.DataFormat;
-import io.vlingo.symbio.store.common.jdbc.hsqldb.HSQLDBConfigurationProvider;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.jdbc.jdbi.JdbiOnDatabase;
-
 public abstract class ResourceTest {
-  protected ObjectStore objectStore;
-  protected ObjectTypeRegistry registry;
+  protected Journal<String> journal;
+  protected SourcedTypeRegistry registry;
   protected Stage stage;
   protected Grid grid;
   protected World world;
@@ -52,35 +45,22 @@ public abstract class ResourceTest {
     world.stageNamed(Schemata.StageName, Stage.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
     stage = world.stageNamed(Schemata.StageName);
 
-    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(SchemataConfig.forRuntime("test"));
-    registry = new ObjectTypeRegistry(world);
-    objectStore = schemataObjectStore.objectStoreFor(world, new NoopDispatcher(), schemataObjectStore.persistentMappers());
-    schemataObjectStore.register(registry, objectStore);
+    final StateStoreProvider stateStoreProvider = StateStoreProvider.using(world);
+    final ProjectionDispatcherProvider projectionDispatcherProvider =
+            ProjectionDispatcherProvider.using(world.stage(), stateStoreProvider.stateStore);
 
-    Queries.startAll(stage, objectStore);
+    StorageProvider storageProvider = StorageProvider.newInstance(world, stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher);
 
-    organizationQueries = Queries.forOrganizations();
-    unitQueries = Queries.forUnits();
-    contextQueries = Queries.forContexts();
-    schemaQueries = Queries.forSchemas();
-    schemaVersionQueries = Queries.forSchemaVersions();
-    codeQueries = Queries.forCode();
-  }
-
-  protected JdbiOnDatabase jdbi() throws Exception {
-    return JdbiOnDatabase.openUsing(
-            HSQLDBConfigurationProvider.configuration(
-                    DataFormat.Native,
-                    "jdbc:hsqldb:mem:",
-                    "vlingo_schemata",
-                    "SA",
-                    "",
-                    "MAIN",
-                    true));
+    organizationQueries = storageProvider.organizationQueries;
+    unitQueries = storageProvider.unitQueries;
+    contextQueries = storageProvider.contextQueries;
+    schemaQueries = storageProvider.schemaQueries;
+    schemaVersionQueries = storageProvider.schemaVersionQueries;
+    codeQueries = storageProvider.codeQueries;
   }
 
   protected String extractResourceIdFrom(final Response response) {
     final String[] parts = response.headerValueOr(ResponseHeader.Location, null).split("/");
-    return parts[parts.length-1];
+    return parts[parts.length - 1];
   }
 }

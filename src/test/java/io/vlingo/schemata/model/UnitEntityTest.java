@@ -7,27 +7,30 @@
 
 package io.vlingo.schemata.model;
 
+import io.vlingo.actors.World;
+import io.vlingo.actors.testkit.AccessSafely;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry.Info;
+import io.vlingo.schemata.NoopDispatcher;
+import io.vlingo.schemata.model.Id.OrganizationId;
+import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.symbio.store.journal.Journal;
+import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.vlingo.actors.World;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
-import io.vlingo.schemata.NoopDispatcher;
-import io.vlingo.schemata.model.Id.OrganizationId;
-import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.symbio.store.MapQueryExpression;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.StateObjectMapper;
-import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class UnitEntityTest {
-  private ObjectTypeRegistry registry;
+  private AccessSafely access;
+  private AtomicReference<UnitState> unitState;
+
+  private Journal<String> journal;
   private Unit unit;
   private UnitId unitId;
-  private ObjectStore objectStore;
+  private SourcedTypeRegistry registry;
   private World world;
 
   @Before
@@ -35,21 +38,18 @@ public class UnitEntityTest {
   public void setUp() {
     world = World.start("unit-entity-test");
 
-    objectStore = world.actorFor(ObjectStore.class, InMemoryObjectStoreActor.class, new NoopDispatcher());
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
 
-    registry = new ObjectTypeRegistry(world);
+    registry = new SourcedTypeRegistry(world);
+    registry.register(new Info(journal, UnitEntity.class, UnitEntity.class.getSimpleName()));
 
-    final Info<Unit> unitInfo =
-            new Info(
-                  objectStore,
-                  UnitState.class,
-                  "HR-Database",
-                  MapQueryExpression.using(Unit.class, "find", MapQueryExpression.map("id", "id")),
-                  StateObjectMapper.with(Unit.class, new Object(), new Object()));
-
-    registry.register(unitInfo);
     unitId = UnitId.uniqueFor(OrganizationId.unique());
     unit = world.actorFor(Unit.class, UnitEntity.class, unitId);
+
+    unitState = new AtomicReference<>();
+    access = AccessSafely.afterCompleting(1);
+    access.writingWith("state", (UnitState s) -> unitState.set(s));
+    access.readingWith("state", () -> unitState.get());
   }
 
   @After
@@ -59,21 +59,30 @@ public class UnitEntityTest {
 
   @Test
   public void testThatUnitDefined() {
-    final UnitState state = unit.defineWith("name", "description").await();
-    Assert.assertNotEquals(UnitState.unidentified(), state.persistenceId());
+    unit.defineWith("name", "description")
+            .andThenConsume(s -> access.writeUsing("state", s));
+    final UnitState state = access.readFrom("state");
+
+    Assert.assertEquals(unitId.value, state.unitId.value);
     Assert.assertEquals("name", state.name);
     Assert.assertEquals("description", state.description);
   }
 
   @Test
   public void testThatUnitDescribed() {
-    final UnitState state = unit.describeAs("new description").await();
+    unit.describeAs("new description").andThenConsume(s -> access.writeUsing("state", s));
+
+    final UnitState state = access.readFrom("state");
+
     Assert.assertEquals("new description", state.description);
   }
 
   @Test
   public void testThatUnitRenamed() {
-    final UnitState state = unit.renameTo("new name").await();
+    unit.renameTo("new name").andThenConsume(s -> access.writeUsing("state", s));
+
+    final UnitState state = access.readFrom("state");
+
     Assert.assertEquals("new name", state.name);
   }
 }

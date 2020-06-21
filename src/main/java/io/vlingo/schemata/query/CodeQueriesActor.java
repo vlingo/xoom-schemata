@@ -7,70 +7,72 @@
 
 package io.vlingo.schemata.query;
 
-import java.util.Optional;
-
-import io.vlingo.actors.Actor;
-import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
-import io.vlingo.common.Failure;
-import io.vlingo.common.Outcome;
-import io.vlingo.common.Success;
-import io.vlingo.common.version.SemanticVersion;
-import io.vlingo.schemata.errors.SchemataBusinessException;
-import io.vlingo.schemata.resource.data.AuthorizationData;
-import io.vlingo.schemata.resource.data.PathData;
-import io.vlingo.schemata.resource.data.SchemaData;
-import io.vlingo.schemata.resource.data.SchemaVersionData;
+import io.vlingo.lattice.query.StateStoreQueryActor;
+import io.vlingo.schemata.model.Path;
+import io.vlingo.schemata.query.view.CodeView;
+import io.vlingo.symbio.store.state.StateStore;
 
-public class CodeQueriesActor extends Actor implements CodeQueries {
-  private final SchemaVersionQueries schemaVersionQueries;
-
-  public CodeQueriesActor(final SchemaVersionQueries schemaVersionQueries) {
-    this.schemaVersionQueries = schemaVersionQueries;
+public class CodeQueriesActor extends StateStoreQueryActor implements CodeQueries {
+  public CodeQueriesActor(StateStore stateStore) {
+    super(stateStore);
   }
 
   @Override
-  public Completes<Outcome<SchemataBusinessException, SchemaVersionData>> schemaVersionFor(final AuthorizationData authorization, final PathData path) {
-    final CompletesEventually completesEventually = completesEventually();
-
-    schemaVersionQueries.schemaVersionOf(path.organization, path.unit, path.context, path.schema, path.version)
-      .andThen(schemaVersion -> validate(authorization, schemaVersion.getOrNull()))
-      .andFinallyConsume(completesEventually::with);
-
-    return completes();
+  public Completes<CodeView> codeFor(Path path) {
+    String reference = path.toReference();
+    return queryStateFor(reference, CodeView.class);
   }
 
-  @Override
-  public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionFor(final AuthorizationData authorization, final PathData path, final QueryResultsCollector collector) {
-    final Completes<Outcome<SchemataBusinessException,SchemaVersionData>> data = schemaVersionFor(authorization, path);
-    collector.expectSchemaVersion(data);
-    return data;
-  }
+//  private final SchemaVersionQueries schemaVersionQueries;
 
-  @Override
-  public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionFor(final String fullQualifiedTypeName) {
-    pathFrom(fullQualifiedTypeName).ifPresent(path -> {
-      final CompletesEventually completesEventually = completesEventually();
+//  public CodeQueriesActor(final SchemaVersionQueries schemaVersionQueries) {
+//    this.schemaVersionQueries = schemaVersionQueries;
+//  }
 
-      @SuppressWarnings("unused")
-      final String version = path.versionOrElse(SemanticVersion.greatest().toString());
+//  @Override
+//  public Completes<Outcome<SchemataBusinessException, SchemaVersionData>> schemaVersionFor(final AuthorizationData authorization, final PathData path) {
+//    return null;
+//    final CompletesEventually completesEventually = completesEventually();
+//
+//    schemaVersionQueries.schemaVersionOf(path.organization, path.unit, path.context, path.schema, path.version)
+//      .andThen(schemaVersion -> validate(authorization, schemaVersion.getOrNull()))
+//      .andFinallyConsume(completesEventually::with);
+//
+//    return completes();
+//  }
 
-      schemaVersionQueries.schemaVersionOf(path.organization, path.unit, path.context, path.schema, path.version)
-        .andThenTo(schemaVersion -> { completesEventually.with(schemaVersion); return Completes.withSuccess(schemaVersion); });
-    });
+//  @Override
+//  public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionFor(final AuthorizationData authorization, final PathData path, final QueryResultsCollector collector) {
+//    final Completes<Outcome<SchemataBusinessException,SchemaVersionData>> data = schemaVersionFor(authorization, path);
+//    collector.expectSchemaVersion(data);
+//    return data;
+//  }
 
-    return completes();
-  }
+//  @Override
+//  public Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionFor(final String fullQualifiedTypeName) {
+//    pathFrom(fullQualifiedTypeName).ifPresent(path -> {
+//      final CompletesEventually completesEventually = completesEventually();
+//
+//      @SuppressWarnings("unused")
+//      final String version = path.versionOrElse(SemanticVersion.greatest().toString());
+//
+//      schemaVersionQueries.schemaVersionOf(path.organization, path.unit, path.context, path.schema, path.version)
+//        .andThenTo(schemaVersion -> { completesEventually.with(schemaVersion); return Completes.withSuccess(schemaVersion); });
+//    });
+//
+//    return completes();
+//  }
 
-  private Outcome<SchemataBusinessException,SchemaVersionData> validate(final AuthorizationData authorization, final SchemaVersionData schemaVersion) {
-    return (authorization.sameSource(schemaVersion.organizationId) ? Success.of(schemaVersion) : Failure.of(SchemataBusinessException.notAuthorized(schemaVersion.schemaVersionId)));
-  }
+//  private Outcome<SchemataBusinessException,SchemaVersionData> validate(final AuthorizationData authorization, final SchemaVersionData schemaVersion) {
+//    return (authorization.sameSource(schemaVersion.organizationId) ? Success.of(schemaVersion) : Failure.of(SchemataBusinessException.notAuthorized(schemaVersion.schemaVersionId)));
+//  }
 
-  private Optional<PathData> pathFrom(final String fullQualifiedTypeName) {
-    try {
-      return Optional.of(PathData.versionOptional(fullQualifiedTypeName));
-    } catch (Exception e) {
-      return Optional.empty();
-    }
-  }
+//  private Optional<PathData> pathFrom(final String fullQualifiedTypeName) {
+//    try {
+//      return Optional.of(PathData.versionOptional(fullQualifiedTypeName));
+//    } catch (Exception e) {
+//      return Optional.empty();
+//    }
+//  }
 }

@@ -34,7 +34,7 @@ import io.vlingo.schemata.resource.data.UnitData;
 public class JavaCodeResourceTest extends ResourceTest {
   @Test
   public void testThatJavaCodeIsReferenced() {
-    final CodeResource resource = new CodeResource(world);
+    final CodeResource resource = new CodeResource(world, codeQueries);
     resource.__internal__test_set_up(context(), stage);
     final Response response = resource.queryCodeForLanguage(reference(), "java").await();
     assertEquals(Ok, response.status);
@@ -99,23 +99,23 @@ public class JavaCodeResourceTest extends ResourceTest {
   private String schemaVersionId;
 
   private void createFixtures() {
-    final OrganizationResource organizationResource = new OrganizationResource(world);
+    final OrganizationResource organizationResource = new OrganizationResource(world, organizationQueries);
     final Response organizationResponse = organizationResource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
     organizationId = extractResourceIdFrom(organizationResponse);
 
-    final UnitResource unitResource = new UnitResource(world);
+    final UnitResource unitResource = new UnitResource(world, unitQueries);
     final Response unitResponse = unitResource.defineWith(organizationId, UnitData.just(UnitName, UnitDescription)).await();
     unitId = extractResourceIdFrom(unitResponse);
 
-    final ContextResource contextResource = new ContextResource(world);
+    final ContextResource contextResource = new ContextResource(world, contextQueries);
     final Response contextResponse = contextResource.defineWith(organizationId, unitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     contextId = extractResourceIdFrom(contextResponse);
 
-    final SchemaResource schemaResource = new SchemaResource(world);
+    final SchemaResource schemaResource = new SchemaResource(world, schemaQueries);
     final Response schemaResponse = schemaResource.defineWith(organizationId, unitId, contextId, SchemaData.just(SchemaCategory, SchemaScope, SchemaName, SchemaDescription)).await();
     schemaId = extractResourceIdFrom(schemaResponse);
 
-    final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world);
+    final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world, schemaQueries, schemaVersionQueries, codeQueries);
     final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, SchemaVersionStatus, SchemaVersionVersion000, SchemaVersionVersion100);
     final Response schemaVersionResponse = schemaVersionResource.defineWith(organizationId, unitId, contextId, schemaId, defineData).await();
     schemaVersionId = extractResourceIdFrom(schemaVersionResponse);

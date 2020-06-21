@@ -7,20 +7,6 @@
 
 package io.vlingo.schemata.resource;
 
-import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.Response.Status.*;
-import static io.vlingo.http.ResponseHeader.ContentType;
-import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.of;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.patch;
-import static io.vlingo.http.resource.ResourceBuilder.post;
-import static io.vlingo.http.resource.ResourceBuilder.put;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.Schemata.NoId;
-import static io.vlingo.schemata.Schemata.StageName;
-import static io.vlingo.schemata.Schemata.UnitsPath;
-
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
@@ -33,16 +19,25 @@ import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Unit;
-import io.vlingo.schemata.query.Queries;
+import io.vlingo.schemata.query.UnitQueries;
+import io.vlingo.schemata.query.view.UnitsView;
 import io.vlingo.schemata.resource.data.UnitData;
+
+import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.*;
+import static io.vlingo.http.ResponseHeader.*;
+import static io.vlingo.http.resource.ResourceBuilder.*;
+import static io.vlingo.schemata.Schemata.*;
 
 public class UnitResource extends ResourceHandler {
   private final UnitCommands commands;
+  private final UnitQueries queries;
   private final Stage stage;
 
-  public UnitResource(final World world) {
+  public UnitResource(final World world, UnitQueries queries) {
     this.stage = world.stageNamed(StageName);
     this.commands = new UnitCommands(this.stage, 10);
+    this.queries = queries;
   }
 
   public Completes<Response> defineWith(final String organizationId, final UnitData data) {
@@ -91,18 +86,22 @@ public class UnitResource extends ResourceHandler {
   }
 
   public Completes<Response> queryUnits(final String organizationId) {
-    return Queries.forUnits()
+    return queries
             .units(organizationId)
-            .andThenTo(units -> Completes.withSuccess(Response.of(Ok, serialized(units))));
+            .andThenTo(units -> units == null
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Units not found!"))) // hit in unit tests
+                    : Completes.withSuccess(Response.of(Ok, serialized(units.all()))))
+            .otherwise(response -> Response.of(NotFound, serialized("Units not found!"))) // hit in production
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   public Completes<Response> queryUnit(final String organizationId, final String unitId) {
-
-    return Queries.forUnits().unit(organizationId, unitId)
-            .andThen(o -> o.resolve(
-                    e -> Response.of(NotFound, serialized(e)),
-                    org -> Response.of(Ok, serialized(org))
-            ))
+    return queries
+            .unit(organizationId, unitId)
+            .andThenTo(unit -> unit == null
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Unit not found!"))) // hit in unit tests
+                    : Completes.withSuccess(Response.of(Ok, serialized(unit))))
+            .otherwise(response -> Response.of(NotFound, serialized("Unit not found!"))) // hit in production
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 

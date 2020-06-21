@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.codegen;
 
+import io.vlingo.actors.Actor;
 import io.vlingo.actors.CompletesEventually;
 import io.vlingo.common.Completes;
 import io.vlingo.common.Outcome;

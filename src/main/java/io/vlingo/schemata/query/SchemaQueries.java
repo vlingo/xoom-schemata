@@ -7,16 +7,13 @@
 
 package io.vlingo.schemata.query;
 
-import java.util.List;
-
 import io.vlingo.common.Completes;
-import io.vlingo.common.Outcome;
-import io.vlingo.schemata.errors.SchemataBusinessException;
-import io.vlingo.schemata.resource.data.SchemaData;
+import io.vlingo.schemata.query.view.NamedSchemaView;
+import io.vlingo.schemata.query.view.SchemaView;
+import io.vlingo.schemata.query.view.SchemasView;
 
 public interface SchemaQueries {
-  Completes<List<SchemaData>> schemas(final String organizationId, final String unitId, final String contextId);
-  Completes<Outcome<SchemataBusinessException,SchemaData>> schema(final String organizationId, final String unitId, final String contextId, final String schemaId);
-  Completes<Outcome<SchemataBusinessException,SchemaData>> schemaNamed(final String organizationId, final String unitId, final String contextId, final String name);
-  Completes<Outcome<SchemataBusinessException,SchemaData>> schemaVersionByNames(final String organization, final String unit, final String context, final String schema);
+  Completes<SchemasView> schemas(final String organizationId, final String unitId, final String contextId);
+  Completes<SchemaView> schema(final String organizationId, final String unitId, final String contextId, final String schemaId);
+  Completes<NamedSchemaView> schemaByNames(final String organization, final String unit, final String context, final String schema);
 }

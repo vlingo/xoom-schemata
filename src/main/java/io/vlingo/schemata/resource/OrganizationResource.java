@@ -7,20 +7,6 @@
 
 package io.vlingo.schemata.resource;
 
-import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.Response.Status.*;
-import static io.vlingo.http.ResponseHeader.ContentType;
-import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.of;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.patch;
-import static io.vlingo.http.resource.ResourceBuilder.post;
-import static io.vlingo.http.resource.ResourceBuilder.put;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.Schemata.NoId;
-import static io.vlingo.schemata.Schemata.OrganizationsPath;
-import static io.vlingo.schemata.Schemata.StageName;
-
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
@@ -33,16 +19,25 @@ import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Organization;
-import io.vlingo.schemata.query.Queries;
+import io.vlingo.schemata.query.OrganizationQueries;
+import io.vlingo.schemata.query.view.OrganizationsView;
 import io.vlingo.schemata.resource.data.OrganizationData;
+
+import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.*;
+import static io.vlingo.http.ResponseHeader.*;
+import static io.vlingo.http.resource.ResourceBuilder.*;
+import static io.vlingo.schemata.Schemata.*;
 
 public class OrganizationResource extends ResourceHandler {
   private final OrganizationCommands commands;
+  private final OrganizationQueries queries;
   private final Stage stage;
 
-  public OrganizationResource(final World world) {
+  public OrganizationResource(final World world, OrganizationQueries queries) {
     this.stage = world.stageNamed(StageName);
     this.commands = new OrganizationCommands(this.stage, 10);
+    this.queries = queries;
   }
 
   public Completes<Response> defineWith(final OrganizationData data) {
@@ -91,17 +86,22 @@ public class OrganizationResource extends ResourceHandler {
   }
 
   public Completes<Response> queryOrganizations() {
-    return Queries.forOrganizations()
+    return queries
             .organizations()
-            .andThenTo(organizations -> Completes.withSuccess(Response.of(Ok, serialized(organizations))));
+            .andThenTo(organizations -> organizations == null
+                    ? Completes.withSuccess(Response.of(Ok, serialized(OrganizationsView.empty().all())))
+                    : Completes.withSuccess(Response.of(Ok, serialized(organizations.all()))))
+            .otherwise(response -> Response.of(Ok, serialized(OrganizationsView.empty().all()))) // no OrganizationsView state found in stateStore
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   public Completes<Response> queryOrganization(final String organizationId) {
-    return Queries.forOrganizations().organization(organizationId)
-            .andThen(o -> o.resolve(
-                    e -> Response.of(NotFound, serialized(e)),
-                    org -> Response.of(Ok, serialized(org))
-            ))
+    return queries
+            .organization(organizationId)
+            .andThenTo(organization -> organization == null
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Organization not found!"))) // hit by unit tests
+                    : Completes.withSuccess(Response.of(Ok, serialized(organization))))
+            .otherwise(response -> Response.of(NotFound, serialized("Organization not found!"))) // hit in production
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 

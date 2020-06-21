@@ -8,6 +8,7 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.lattice.model.DomainEvent;
+import io.vlingo.lattice.model.IdentifiedDomainEvent;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
@@ -15,7 +16,8 @@ import io.vlingo.schemata.model.Id.SchemaVersionId;
 import io.vlingo.schemata.model.Id.UnitId;
 
 public final class Events {
-  public static final class ContextDefined extends DomainEvent {
+  public static final class ContextDefined extends IdentifiedDomainEvent {
+    public final String unitId;
     public final String contextId;
     public final String name;
     public final String description;
@@ -24,14 +26,26 @@ public final class Events {
       return new ContextDefined(contextId, namespace, description);
     }
 
-    public ContextDefined(final ContextId contextId, final String name, final String description) {
+    private ContextDefined(final ContextId contextId, final String name, final String description) {
+      this.unitId = contextId.unitId.value;
       this.contextId = contextId.value;
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return unitId;
+    }
+
+    @Override
+    public String identity() {
+      return contextId;
+    }
   }
 
-  public static final class ContextDescribed extends DomainEvent {
+  public static final class ContextDescribed extends IdentifiedDomainEvent {
+    public final String unitId;
     public final String contextId;
     public final String description;
 
@@ -40,12 +54,24 @@ public final class Events {
     }
 
     public ContextDescribed(final ContextId contextId, final String description) {
+      this.unitId = contextId.unitId.value;
       this.contextId = contextId.value;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return unitId;
+    }
+
+    @Override
+    public String identity() {
+      return contextId;
+    }
   }
 
-  public static final class ContextMovedToNamespace extends DomainEvent {
+  public static final class ContextMovedToNamespace extends IdentifiedDomainEvent {
+    public final String unitId;
     public final String contextId;
     public final String namespace;
 
@@ -54,12 +80,24 @@ public final class Events {
     }
 
     public ContextMovedToNamespace(final ContextId contextId, String namespace) {
+      this.unitId = contextId.unitId.value;
       this.contextId = contextId.value;
       this.namespace = namespace;
     }
+
+    @Override
+    public String parentIdentity() {
+      return unitId;
+    }
+
+    @Override
+    public String identity() {
+      return contextId;
+    }
   }
 
-  public static final class ContextRedefined extends DomainEvent {
+  public static final class ContextRedefined extends IdentifiedDomainEvent {
+    public final String unitId;
     public final String contextId;
     public final String name;
     public final String description;
@@ -69,13 +107,24 @@ public final class Events {
     }
 
     public ContextRedefined(final ContextId contextId, final String name, final String description) {
+      this.unitId = contextId.unitId.value;
       this.contextId = contextId.value;
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return unitId;
+    }
+
+    @Override
+    public String identity() {
+      return contextId;
+    }
   }
 
-  public static final class OrganizationDefined extends DomainEvent {
+  public static final class OrganizationDefined extends IdentifiedDomainEvent {
     public final String organizationId;
     public final String name;
     public final String description;
@@ -89,9 +138,14 @@ public final class Events {
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return organizationId;
+    }
   }
 
-  public static final class OrganizationDescribed extends DomainEvent {
+  public static final class OrganizationDescribed extends IdentifiedDomainEvent {
     public final String organizationId;
     public final String description;
 
@@ -103,9 +157,14 @@ public final class Events {
       this.organizationId = organizationId.value;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return organizationId;
+    }
   }
 
-  public static final class OrganizationRedefined extends DomainEvent {
+  public static final class OrganizationRedefined extends IdentifiedDomainEvent {
     public final String organizationId;
     public final String name;
     public final String description;
@@ -119,9 +178,14 @@ public final class Events {
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return organizationId;
+    }
   }
 
-  public static final class OrganizationRenamed extends DomainEvent {
+  public static final class OrganizationRenamed extends IdentifiedDomainEvent {
     public final String organizationId;
     public final String name;
 
@@ -133,9 +197,17 @@ public final class Events {
       this.organizationId = organizationId.value;
       this.name = name;
     }
+
+    @Override
+    public String identity() {
+      return organizationId;
+    }
   }
 
-  public static final class SchemaDefined extends DomainEvent {
+  public static final class SchemaDefined extends IdentifiedDomainEvent {
+    public final String organizationId;
+    public final String unitId;
+    public final String contextId;
     public final String schemaId;
     public final String category;
     public final String scope;
@@ -147,15 +219,29 @@ public final class Events {
     }
 
     public SchemaDefined(final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+      this.organizationId = schemaId.organizationId().value;
+      this.unitId = schemaId.unitId().value;
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.category = category.name();
       this.scope = scope.name();
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
+    }
   }
 
-  public static final class SchemaDescribed extends DomainEvent {
+  public static final class SchemaDescribed extends IdentifiedDomainEvent {
+    public final String contextId;
     public final String schemaId;
     public final String description;
 
@@ -164,12 +250,24 @@ public final class Events {
     }
 
     public SchemaDescribed(final SchemaId schemaId, final String description) {
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
+    }
   }
 
-  public static final class SchemaCategorized extends DomainEvent {
+  public static final class SchemaCategorized extends IdentifiedDomainEvent {
+    public final String contextId;
     public final String schemaId;
     public final String category;
 
@@ -178,12 +276,24 @@ public final class Events {
     }
 
     public SchemaCategorized(final SchemaId schemaId, final Category category) {
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.category = category.name();
     }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
+    }
   }
 
-  public static final class SchemaScoped extends DomainEvent {
+  public static final class SchemaScoped extends IdentifiedDomainEvent {
+    public final String contextId;
     public final String schemaId;
     public final String scope;
 
@@ -192,12 +302,24 @@ public final class Events {
     }
 
     public SchemaScoped(final SchemaId schemaId, final Scope scope) {
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.scope = scope.name();
     }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
+    }
   }
 
-  public static final class SchemaRedefined extends DomainEvent {
+  public static final class SchemaRedefined extends IdentifiedDomainEvent {
+    public final String contextId;
     public final String schemaId;
     public final String category;
     public final String scope;
@@ -209,15 +331,27 @@ public final class Events {
     }
 
     public SchemaRedefined(final SchemaId schemaId, final Category category, final Scope scope, final String name, final String description) {
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.category = category.name();
       this.scope = scope.name();
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
+    }
   }
 
-  public static final class SchemaRenamed extends DomainEvent {
+  public static final class SchemaRenamed extends IdentifiedDomainEvent {
+    public final String contextId;
     public final String schemaId;
     public final String name;
 
@@ -226,12 +360,27 @@ public final class Events {
     }
 
     public SchemaRenamed(final SchemaId schemaId, final String name) {
+      this.contextId = schemaId.contextId.value;
       this.schemaId = schemaId.value;
       this.name = name;
     }
+
+    @Override
+    public String parentIdentity() {
+      return contextId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaId;
+    }
   }
 
-  public static final class SchemaVersionDefined extends DomainEvent {
+  public static final class SchemaVersionDefined extends IdentifiedDomainEvent {
+    public final String organizationId;
+    public final String unitId;
+    public final String contextId;
+    public final String schemaId;
     public final String schemaVersionId;
     public final String specification;
     public final String description;
@@ -256,6 +405,10 @@ public final class Events {
             final SchemaVersion.Status status,
             final SchemaVersion.Version previousVersion,
             final SchemaVersion.Version nextVersion) {
+      this.organizationId = schemaVersionId.organizationId().value;
+      this.unitId = schemaVersionId.unitId().value;
+      this.contextId = schemaVersionId.contextId().value;
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
       this.specification = specification.value;
       this.description = description;
@@ -263,9 +416,20 @@ public final class Events {
       this.previousVersion = previousVersion.value;
       this.nextVersion = nextVersion.value;
     }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
+    }
   }
 
-  public static final class SchemaVersionDescribed extends DomainEvent {
+  public static final class SchemaVersionDescribed extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
     public final String description;
 
@@ -274,12 +438,24 @@ public final class Events {
     }
 
     public SchemaVersionDescribed(final SchemaVersionId schemaVersionId, final String description) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
       this.description = description;
     }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
+    }
   }
 
-  public static final class SchemaVersionAssigned extends DomainEvent {
+  public static final class SchemaVersionAssigned extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
     public final String version;
 
@@ -288,12 +464,24 @@ public final class Events {
     }
 
     public SchemaVersionAssigned(SchemaVersionId schemaVersionId, final SchemaVersion.Version version) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
       this.version = version.value;
     }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
+    }
   }
 
-  public static final class SchemaVersionSpecified extends DomainEvent {
+  public static final class SchemaVersionSpecified extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
     public final String specification;
 
@@ -302,12 +490,24 @@ public final class Events {
     }
 
     public SchemaVersionSpecified(SchemaVersionId schemaVersionId, final SchemaVersion.Specification specification) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
       this.specification = specification.value;
     }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
+    }
   }
 
-  public static final class SchemaVersionPublished extends DomainEvent {
+  public static final class SchemaVersionPublished extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
 
     public static SchemaVersionPublished with(final SchemaVersionId schemaVersionId) {
@@ -315,11 +515,23 @@ public final class Events {
     }
 
     public SchemaVersionPublished(final SchemaVersionId schemaVersionId) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
     }
   }
 
-  public static final class SchemaVersionDeprecated extends DomainEvent {
+  public static final class SchemaVersionDeprecated extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
 
     public static SchemaVersionDeprecated with(final SchemaVersionId schemaVersionId) {
@@ -327,11 +539,23 @@ public final class Events {
     }
 
     public SchemaVersionDeprecated(final SchemaVersionId schemaVersionId) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
     }
   }
 
-  public static final class SchemaVersionRemoved extends DomainEvent {
+  public static final class SchemaVersionRemoved extends IdentifiedDomainEvent {
+    public final String schemaId;
     public final String schemaVersionId;
 
     public static SchemaVersionRemoved with(final SchemaVersionId schemaVersionId) {
@@ -339,11 +563,23 @@ public final class Events {
     }
 
     public SchemaVersionRemoved(final SchemaVersionId schemaVersionId) {
+      this.schemaId = schemaVersionId.schemaId.value;
       this.schemaVersionId = schemaVersionId.value;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return schemaId;
+    }
+
+    @Override
+    public String identity() {
+      return schemaVersionId;
     }
   }
 
-  public static final class UnitDefined extends DomainEvent {
+  public static final class UnitDefined extends IdentifiedDomainEvent {
+    public final String organizationId;
     public final String unitId;
     public final String name;
     public final String description;
@@ -353,13 +589,25 @@ public final class Events {
     }
 
     public UnitDefined(final UnitId unitId, final String name, final String description) {
+      this.organizationId = unitId.organizationId.value;
       this.unitId = unitId.value;
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return unitId;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return organizationId;
+    }
   }
 
-  public static final class UnitDescribed extends DomainEvent {
+  public static final class UnitDescribed extends IdentifiedDomainEvent {
+    public final String organizationId;
     public final String unitId;
     public final String description;
 
@@ -368,12 +616,24 @@ public final class Events {
     }
 
     public UnitDescribed(final UnitId unitId, final String description) {
+      this.organizationId = unitId.organizationId.value;
       this.unitId = unitId.value;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return unitId;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return organizationId;
+    }
   }
 
-  public static final class UnitRedefined extends DomainEvent {
+  public static final class UnitRedefined extends IdentifiedDomainEvent {
+    public final String organizationId;
     public final String unitId;
     public final String name;
     public final String description;
@@ -383,13 +643,25 @@ public final class Events {
     }
 
     public UnitRedefined(final UnitId unitId, final String name, final String description) {
+      this.organizationId = unitId.organizationId.value;
       this.unitId = unitId.value;
       this.name = name;
       this.description = description;
     }
+
+    @Override
+    public String identity() {
+      return unitId;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return organizationId;
+    }
   }
 
-  public static final class UnitRenamed extends DomainEvent {
+  public static final class UnitRenamed extends IdentifiedDomainEvent {
+    public final String organizationId;
     public final String unitId;
     public final String name;
 
@@ -398,8 +670,19 @@ public final class Events {
     }
 
     public UnitRenamed(final UnitId unitId, final String name) {
+      this.organizationId = unitId.organizationId.value;
       this.unitId = unitId.value;
       this.name = name;
+    }
+
+    @Override
+    public String identity() {
+      return unitId;
+    }
+
+    @Override
+    public String parentIdentity() {
+      return organizationId;
     }
   }
 }

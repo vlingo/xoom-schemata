@@ -7,20 +7,13 @@
 
 package io.vlingo.schemata.query;
 
-import java.util.List;
-
 import io.vlingo.common.Completes;
-import io.vlingo.common.Outcome;
-import io.vlingo.schemata.errors.SchemataBusinessException;
-import io.vlingo.schemata.resource.data.SchemaVersionData;
+import io.vlingo.schemata.query.view.SchemaVersionView;
+import io.vlingo.schemata.query.view.SchemaVersionsView;
 
 public interface SchemaVersionQueries {
-  public final static String GreatestVersion = "99999.99999.99999";
+  String GreatestVersion = "99999.99999.99999";
 
-  Completes<List<SchemaVersionData>> schemaVersionsByIds(final String organizationId, final String unitId, final String contextId, final String schemaId);
-  Completes<List<SchemaVersionData>> schemaVersionsByNames(final String organization, final String unit, final String context, final String schema);
-  Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId);
-  Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersion(final String fullyQualifiedTypeName);
-  Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionOf(final String organization, final String unit, final String context, final String schema, final String schemaVersion);
-  Completes<Outcome<SchemataBusinessException,SchemaVersionData>> schemaVersionOfVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String version);
+  Completes<SchemaVersionsView> schemaVersionsByIds(final String organizationId, final String unitId, final String contextId, final String schemaId);
+  Completes<SchemaVersionView> schemaVersion(final String organizationId, final String unitId, final String contextId, final String schemaId, final String schemaVersionId);
 }

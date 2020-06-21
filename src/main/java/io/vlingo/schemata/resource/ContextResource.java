@@ -7,21 +7,6 @@
 
 package io.vlingo.schemata.resource;
 
-import static io.vlingo.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.http.Response.Status.*;
-import static io.vlingo.http.Response.Status.InternalServerError;
-import static io.vlingo.http.ResponseHeader.ContentType;
-import static io.vlingo.http.ResponseHeader.Location;
-import static io.vlingo.http.ResponseHeader.of;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.patch;
-import static io.vlingo.http.resource.ResourceBuilder.post;
-import static io.vlingo.http.resource.ResourceBuilder.put;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.Schemata.ContextsPath;
-import static io.vlingo.schemata.Schemata.NoId;
-import static io.vlingo.schemata.Schemata.StageName;
-
 import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
@@ -34,16 +19,25 @@ import io.vlingo.schemata.model.Context;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Naming;
-import io.vlingo.schemata.query.Queries;
+import io.vlingo.schemata.query.ContextQueries;
+import io.vlingo.schemata.query.view.ContextsView;
 import io.vlingo.schemata.resource.data.ContextData;
+
+import static io.vlingo.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.http.Response.Status.*;
+import static io.vlingo.http.ResponseHeader.*;
+import static io.vlingo.http.resource.ResourceBuilder.*;
+import static io.vlingo.schemata.Schemata.*;
 
 public class ContextResource extends ResourceHandler {
   private final ContextCommands commands;
+  private final ContextQueries queries;
   private final Stage stage;
 
-  public ContextResource(final World world) {
+  public ContextResource(final World world, ContextQueries queries) {
     this.stage = world.stageNamed(StageName);
     this.commands = new ContextCommands(this.stage, 10);
+    this.queries = queries;
   }
 
   public Completes<Response> defineWith(final String organizationId, final String unitId, final ContextData data) {
@@ -92,17 +86,22 @@ public class ContextResource extends ResourceHandler {
   }
 
   public Completes<Response> queryContexts(final String organizationId, final String unitId) {
-    return Queries.forContexts()
+    return queries
             .contexts(organizationId, unitId)
-            .andThenTo(contexts -> Completes.withSuccess(Response.of(Ok, serialized(contexts))));
+            .andThenTo(contexts -> contexts == null
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Contexts not found!")))
+                    : Completes.withSuccess(Response.of(Ok, serialized(contexts.all()))))
+            .otherwise(response -> Response.of(NotFound, serialized("Contexts not found!"))) // hit in production
+            .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 
   public Completes<Response> queryContext(final String organizationId, final String unitId, final String contextId) {
-    return Queries.forContexts().context(organizationId, unitId, contextId)
-            .andThen(o -> o.resolve(
-                    e -> Response.of(NotFound, serialized(e)),
-                    org -> Response.of(Ok, serialized(org))
-            ))
+    return queries
+            .context(organizationId, unitId, contextId)
+            .andThenTo(context -> context == null
+                    ? Completes.withSuccess(Response.of(NotFound, serialized("Context not found!")))
+                    : Completes.withSuccess(Response.of(Ok, serialized(context))))
+            .otherwise(response -> Response.of(NotFound, serialized("Context not found!"))) // hit in production
             .recoverFrom(e -> Response.of(InternalServerError, serialized(e)));
   }
 

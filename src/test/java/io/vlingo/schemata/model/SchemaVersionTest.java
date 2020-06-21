@@ -7,37 +7,15 @@
 
 package io.vlingo.schemata.model;
 
-import static io.vlingo.schemata.LambdaMatcher.matches;
-import static java.util.stream.Collectors.toList;
-import static junit.framework.TestCase.assertTrue;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-
-import java.util.Arrays;
-import java.util.List;
-
-import io.vlingo.common.Completes;
-import io.vlingo.common.Outcome;
-import io.vlingo.common.Success;
-import io.vlingo.schemata.errors.SchemataBusinessException;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import io.vlingo.actors.Stage;
 import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.TestWorld;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
+import io.vlingo.common.Completes;
+import io.vlingo.common.Outcome;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
+import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
-import io.vlingo.schemata.SchemataConfig;
 import io.vlingo.schemata.codegen.TypeDefinitionCompilerActor;
 import io.vlingo.schemata.codegen.TypeDefinitionMiddleware;
-import io.vlingo.schemata.codegen.backend.Backend;
 import io.vlingo.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.schemata.codegen.parser.TypeParser;
@@ -46,57 +24,54 @@ import io.vlingo.schemata.codegen.processor.types.CacheTypeResolver;
 import io.vlingo.schemata.codegen.processor.types.ComputableTypeProcessor;
 import io.vlingo.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.schemata.codegen.processor.types.TypeResolverProcessor;
-import io.vlingo.schemata.infra.persistence.SchemataObjectStore;
-import io.vlingo.schemata.model.Id.ContextId;
-import io.vlingo.schemata.model.Id.OrganizationId;
-import io.vlingo.schemata.model.Id.SchemaId;
-import io.vlingo.schemata.model.Id.SchemaVersionId;
-import io.vlingo.schemata.model.Id.UnitId;
+import io.vlingo.schemata.errors.SchemataBusinessException;
+import io.vlingo.schemata.model.Id.*;
 import io.vlingo.schemata.model.SchemaVersion.Specification;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
-import io.vlingo.symbio.store.dispatch.Dispatcher;
-import io.vlingo.symbio.store.object.ObjectStore;
+import io.vlingo.symbio.store.journal.Journal;
+import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static io.vlingo.schemata.LambdaMatcher.matches;
+import static java.util.stream.Collectors.toList;
+import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class SchemaVersionTest {
-  @SuppressWarnings("unused")
-  private ObjectTypeRegistry registry;
+  protected Journal<String> journal;
+  protected SourcedTypeRegistry registry;
   private SchemaVersion simpleSchemaVersion;
   private SchemaVersionId simpleSchemaVersionId;
   private SchemaVersionState simpleVersion;
   private SchemaVersion basicTypesSchemaVersion;
   private SchemaVersionId basicTypesSchemaVersionId;
   private SchemaVersionState basicTypesVersion;
-  @SuppressWarnings("unused")
-  private ObjectStore objectStore;
   private TypeDefinitionMiddleware typeDefinitionMiddleware;
-  @SuppressWarnings("unused")
-  private World world;
-  @SuppressWarnings("unused")
-  private Stage stage;
 
   @Before
   @SuppressWarnings({"unchecked", "rawtypes"})
   public void setUp() throws Exception {
     World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
     TypeParser typeParser = new AntlrTypeParser();
-    Dispatcher dispatcher = new NoopDispatcher();
 
-    final SchemataObjectStore schemataObjectStore = SchemataObjectStore.instance(SchemataConfig.forRuntime("test"));
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
 
-    ObjectStore objectStore = schemataObjectStore.objectStoreFor(world, dispatcher, schemataObjectStore.persistentMappers());
-    final ObjectTypeRegistry registry = new ObjectTypeRegistry(world);
-    schemataObjectStore.register(registry, objectStore);
+    registry = new SourcedTypeRegistry(world);
+    registry.register(new Info(journal, SchemaVersionEntity.class, SchemaVersionEntity.class.getSimpleName()));
 
     TypeResolver typeResolver = new CacheTypeResolver();
 
     typeDefinitionMiddleware = new TypeDefinitionCompilerActor(
-        typeParser,
-        Arrays.asList(
-            world.actorFor(Processor.class, ComputableTypeProcessor.class),
-            world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
-        ),
-        new JavaBackend()
-    );
+            typeParser,
+            Arrays.asList(
+                    world.actorFor(Processor.class, ComputableTypeProcessor.class),
+                    world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)),
+            new JavaBackend());
 
     simpleSchemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
     simpleSchemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, simpleSchemaVersionId);
@@ -313,35 +288,35 @@ public class SchemaVersionTest {
 
   private SchemaVersionState simpleSchemaVersionState() {
     return simpleSchemaVersion.defineWith(
-        new Specification("event Foo { " +
-            "string bar\n" +
-            "}"),
-        "description",
-        new SchemaVersion.Version("0.0.0"),
-        new SchemaVersion.Version("1.0.0"))
-        .await();
+            new Specification("event Foo { " +
+                    "string bar\n" +
+                    "}"),
+            "description",
+            new SchemaVersion.Version("0.0.0"),
+            new SchemaVersion.Version("1.0.0"))
+            .await();
   }
 
   private SchemaVersionState completeBasicTypesSchemaVersionState() {
     return basicTypesSchemaVersion.defineWith(
-      new Specification("event Foo { " +
-        "type eventType\n"+
-        "timestamp occurredOn\n"+
-        "version eventVersion\n"+
-        "boolean booleanAttribute\n"+
-        "byte byteAttribute\n"+
-        "char charAttribute\n"+
-        "double doubleAttribute\n"+
-        "float floatAttribute\n"+
-        "int intAttribute\n"+
-        "long longAttribute\n"+
-        "short shortAttribute\n"+
-        "string stringAttribute\n"+
-        "}"),
-      "description",
-      new SchemaVersion.Version("0.0.0"),
-      new SchemaVersion.Version("1.0.0"))
-      .await();
+            new Specification("event Foo { " +
+                    "type eventType\n" +
+                    "timestamp occurredOn\n" +
+                    "version eventVersion\n" +
+                    "boolean booleanAttribute\n" +
+                    "byte byteAttribute\n" +
+                    "char charAttribute\n" +
+                    "double doubleAttribute\n" +
+                    "float floatAttribute\n" +
+                    "int intAttribute\n" +
+                    "long longAttribute\n" +
+                    "short shortAttribute\n" +
+                    "string stringAttribute\n" +
+                    "}"),
+            "description",
+            new SchemaVersion.Version("0.0.0"),
+            new SchemaVersion.Version("1.0.0"))
+            .await();
   }
 
   private static void assertCompatible(String message, SpecificationDiff diff) {
