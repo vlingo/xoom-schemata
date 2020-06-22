@@ -9,10 +9,31 @@
 
 
 The VLINGO/PLATFORM schema registry.
+
+## Build
+
+Run the full build using `mvn clean package -Pfrontend`.
+
+:warning: Make sure you are using a Java 8 JDK. 
+
+Afterwards (optionally), you can build the docker container with `docker build . -t vlingo/vlingo-schemata`.
+
+CI build runs on CircleCI: https://circleci.com/gh/vlingo/vlingo-schemata/ and Travis CI: https://travis-ci.org/github/vlingo/vlingo-schemata.
+
+
+The maven build takes care of the following:
+* Generate sources for the schema grammars in `src/main/antlr4`
+* Build the backend application
+* Download the dependencies for the UI build (`node` & `npm`) [Maven Profile 'frontend']
+* Run the UI build (`npm run build` in `src/main/frontend`) [Maven Profile 'frontend']
+* Package the backend, frontend and dependencies within a fat jar
  
 ## Run
 
-You can run the registry with an in-memory database within docker using `docker run -p 9019:9019 vlingo/vlingo-schemata`.
+The easiest way to run vlingo-schemata with an in-memory database is to invoke the command: `java -jar vlingo-schemata-<version>-jar-with-dependencies.jar dev`
+after a complete build: `mvn clean package -Pfrontend`. Frontend can be accessed at http://localhost:9019.
+
+Also, you can run the registry with an in-memory database within docker using `docker run -p 9019:9019 vlingo/vlingo-schemata`.
 The docker image supports three runtime profiles that can be activated by setting `$VLINGO_ENV` accordingly:  
 * `dev` runs on `:9019` against an in-memory HSQLDB, 
 * `prod` runs `:9019` against a preconfigured PostgreSQL DB, for details see `src/main/resources/vlingo-schemata-prod.properties`
@@ -101,25 +122,6 @@ An example for talking to the schema registry as part of a maven build is in htt
 `$ curl -i -X POST -H "Content-Type: application/json" -d 'Initial revision of SchemaDefined.' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/description`
 `$ curl -i -X POST -H "Content-Type: application/json" -d 'event SchemaDefined { type eventType\n timestamp occurredOn }' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/specification`
 `$ curl -i -X POST -H "Content-Type: application/json" -d 'Published' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/status`
-
-
-## Build
-
-Run the full build using `mvn clean package -Pfrontend`. 
-
-:warning: Make sure you are using a Java 8 JDK. 
-
-Afterwards, you can build the docker container with `docker build . -t vlingo/vlingo-schemata`.
-
-CI build runs on CircleCI: https://circleci.com/gh/vlingo/vlingo-schemata/.
-
-
-The maven build takes care of the following:
-* Generate sources for the schema grammars in `src/main/antlr4`
-* Build the backend application
-* Download the dependencies for the UI build (`node` & `npm`) [Maven Profile 'frontend']
-* Run the UI build (`npm run build` in `src/main/frontend`) [Maven Profile 'frontend']
-* Package the backend, frontend and dependencies within a fat jar
 
 ## Development
 
