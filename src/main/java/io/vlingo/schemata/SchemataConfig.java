@@ -28,7 +28,7 @@ public class SchemataConfig {
         final Properties properties = new EnvVarProperties();
         final String propertiesFile = "/vlingo-schemata-" + runtimeType + ".properties";
 
-        properties.load(Properties.class.getResourceAsStream(propertiesFile));
+        properties.load(SchemataConfig.class.getResourceAsStream(propertiesFile));
         return SchemataConfig.from(properties);
     }
 
