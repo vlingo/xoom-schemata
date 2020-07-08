@@ -45,12 +45,15 @@ public class Bootstrap implements XoomInitializationAware {
   @Override
   public Configuration configureServer(final Stage stage, final String[] args) {
     try {
-      final SchemataConfig config = SchemataConfig.forRuntime(args[0]);
-
       final Timing timing = Timing.defineWith(7, 3,100);
 
-      final Sizing sizing = Sizing.define().withDispatcherPoolSize(2)
-              .withMaxBufferPoolSize(100).withMaxMessageSize(4096);
+      final Sizing sizing =
+              Sizing.define().withDispatcherPoolSize(2)
+                      .withMaxBufferPoolSize(100)
+                      .withMaxMessageSize(4096);
+
+      final SchemataConfig config =
+              SchemataConfig.forRuntime(args[0]);
 
       final int port =
               config.randomPort ? nextFreePort(9019, 9100) :
