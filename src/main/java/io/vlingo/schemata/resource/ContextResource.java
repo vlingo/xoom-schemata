@@ -15,6 +15,7 @@ import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
+import io.vlingo.schemata.infra.persistence.StorageProvider;
 import io.vlingo.schemata.model.Context;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.UnitId;
@@ -34,10 +35,10 @@ public class ContextResource extends ResourceHandler {
   private final ContextQueries queries;
   private final Stage stage;
 
-  public ContextResource(final World world, ContextQueries queries) {
-    this.stage = world.stageNamed(StageName);
+  public ContextResource(final Stage stage) {
+    this.stage = stage;
     this.commands = new ContextCommands(this.stage, 10);
-    this.queries = queries;
+    this.queries = StorageProvider.instance().contextQueries;
   }
 
   public Completes<Response> defineWith(final String organizationId, final String unitId, final ContextData data) {

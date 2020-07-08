@@ -7,19 +7,12 @@
 
 package io.vlingo.schemata.resource;
 
-import static org.junit.Assert.assertEquals;
-
-import java.nio.ByteBuffer;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.http.Response;
 import io.vlingo.schemata.Bootstrap;
+import io.vlingo.schemata.XoomInitializer;
 import io.vlingo.schemata.resource.TestResponseChannelConsumer.Progress;
 import io.vlingo.wire.channel.ResponseChannelConsumer;
 import io.vlingo.wire.fdx.bidirectional.BasicClientRequestResponseChannel;
@@ -29,6 +22,13 @@ import io.vlingo.wire.message.Converters;
 import io.vlingo.wire.node.Address;
 import io.vlingo.wire.node.AddressType;
 import io.vlingo.wire.node.Host;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.nio.ByteBuffer;
+
+import static org.junit.Assert.assertEquals;
 
 public class UiResourceTest {
   private Bootstrap bootstrap;
@@ -56,22 +56,18 @@ public class UiResourceTest {
 
   @Before
   public void setUp() throws Exception {
-    bootstrap = new Bootstrap("dev");
-
-    world = bootstrap.__internal__only_test_world();
-
+    XoomInitializer.main(new String[]{"test"});
     progress = new Progress();
-
+    world = XoomInitializer.instance().world;
     consumer = world.actorFor(ResponseChannelConsumer.class, Definition.has(TestResponseChannelConsumer.class, Definition.parameters(progress)));
-
-    client = new BasicClientRequestResponseChannel(Address.from(Host.of("localhost"), bootstrap.__internal__only_test_port(), AddressType.NONE), consumer, 100, 10240, world.defaultLogger());
+    client = new BasicClientRequestResponseChannel(Address.from(Host.of("localhost"), 19090, AddressType.NONE), consumer, 100, 10240, world.defaultLogger());
   }
 
   @After
   public void tearDown() {
     client.close();
-
-    world.terminate();
+    XoomInitializer.instance().server.shutDown();
+    XoomInitializer.instance().world.terminate();
   }
 
   private ByteBuffer toByteBuffer(final String requestContent) {

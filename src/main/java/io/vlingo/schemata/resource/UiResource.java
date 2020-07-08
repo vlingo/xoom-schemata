@@ -13,7 +13,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalNotification;
 import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
-import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
 import io.vlingo.http.*;
 import io.vlingo.http.resource.RequestHandler0.Handler0;
@@ -40,7 +39,6 @@ import static io.vlingo.http.Response.Status.*;
 import static io.vlingo.http.ResponseHeader.ContentLength;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.Schemata.StageName;
 
 /**
  * Serves the files making up the UI from the classpath.
@@ -71,9 +69,9 @@ public class UiResource extends ResourceHandler {
     @SuppressWarnings("unused")
     private final Logger logger;
 
-    public UiResource(final World world) {
-        this.stage = world.stageNamed(StageName);
-        this.logger = world.defaultLogger();
+    public UiResource(final Stage stage) {
+        this.stage = stage;
+        this.logger = stage.world().defaultLogger();
     }
 
     @Override

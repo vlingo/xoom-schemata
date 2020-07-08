@@ -7,34 +7,23 @@
 
 package io.vlingo.schemata.resource;
 
+import io.vlingo.actors.CompletesEventually;
+import io.vlingo.http.*;
+import io.vlingo.schemata.Schemata;
+import io.vlingo.schemata.model.Category;
+import io.vlingo.schemata.model.Scope;
+import io.vlingo.schemata.resource.data.*;
+import org.junit.Before;
+import org.junit.Test;
+
 import static io.vlingo.http.Response.Status.Ok;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import io.vlingo.actors.CompletesEventually;
-import io.vlingo.http.Context;
-import io.vlingo.http.Method;
-import io.vlingo.http.Request;
-import io.vlingo.http.RequestHeader;
-import io.vlingo.http.Response;
-import io.vlingo.schemata.Schemata;
-import io.vlingo.schemata.model.Category;
-import io.vlingo.schemata.model.Scope;
-import io.vlingo.schemata.resource.data.AuthorizationData;
-import io.vlingo.schemata.resource.data.ContextData;
-import io.vlingo.schemata.resource.data.OrganizationData;
-import io.vlingo.schemata.resource.data.SchemaData;
-import io.vlingo.schemata.resource.data.SchemaVersionData;
-import io.vlingo.schemata.resource.data.UnitData;
-
 public class JavaCodeResourceTest extends ResourceTest {
   @Test
   public void testThatJavaCodeIsReferenced() {
-    final CodeResource resource = new CodeResource(world, codeQueries);
+    final CodeResource resource = new CodeResource(stage);
     resource.__internal__test_set_up(context(), stage);
     final Response response = resource.queryCodeForLanguage(reference(), "java").await();
     assertEquals(Ok, response.status);
@@ -99,23 +88,23 @@ public class JavaCodeResourceTest extends ResourceTest {
   private String schemaVersionId;
 
   private void createFixtures() {
-    final OrganizationResource organizationResource = new OrganizationResource(world, organizationQueries);
+    final OrganizationResource organizationResource = new OrganizationResource(stage);
     final Response organizationResponse = organizationResource.defineWith(OrganizationData.just(OrgName, OrgDescription)).await();
     organizationId = extractResourceIdFrom(organizationResponse);
 
-    final UnitResource unitResource = new UnitResource(world, unitQueries);
+    final UnitResource unitResource = new UnitResource(stage);
     final Response unitResponse = unitResource.defineWith(organizationId, UnitData.just(UnitName, UnitDescription)).await();
     unitId = extractResourceIdFrom(unitResponse);
 
-    final ContextResource contextResource = new ContextResource(world, contextQueries);
+    final ContextResource contextResource = new ContextResource(stage);
     final Response contextResponse = contextResource.defineWith(organizationId, unitId, ContextData.just(ContextNamespace, ContextDescription)).await();
     contextId = extractResourceIdFrom(contextResponse);
 
-    final SchemaResource schemaResource = new SchemaResource(world, schemaQueries);
+    final SchemaResource schemaResource = new SchemaResource(stage);
     final Response schemaResponse = schemaResource.defineWith(organizationId, unitId, contextId, SchemaData.just(SchemaCategory, SchemaScope, SchemaName, SchemaDescription)).await();
     schemaId = extractResourceIdFrom(schemaResponse);
 
-    final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(world, schemaQueries, schemaVersionQueries, codeQueries);
+    final SchemaVersionResource schemaVersionResource = new SchemaVersionResource(stage);
     final SchemaVersionData defineData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, SchemaVersionStatus, SchemaVersionVersion000, SchemaVersionVersion100);
     final Response schemaVersionResponse = schemaVersionResource.defineWith(organizationId, unitId, contextId, schemaId, defineData).await();
     schemaVersionId = extractResourceIdFrom(schemaVersionResponse);

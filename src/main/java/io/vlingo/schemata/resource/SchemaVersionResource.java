@@ -9,7 +9,6 @@ package io.vlingo.schemata.resource;
 
 import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
-import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
 import io.vlingo.common.serialization.JsonSerialization;
 import io.vlingo.common.version.SemanticVersion;
@@ -18,6 +17,7 @@ import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
+import io.vlingo.schemata.infra.persistence.StorageProvider;
 import io.vlingo.schemata.model.FullyQualifiedReference;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
@@ -30,14 +30,14 @@ import io.vlingo.schemata.query.CodeQueries;
 import io.vlingo.schemata.query.SchemaQueries;
 import io.vlingo.schemata.query.SchemaVersionQueries;
 import io.vlingo.schemata.query.view.SchemaVersionView;
-import io.vlingo.schemata.query.view.SchemaVersionsView;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;
 import static io.vlingo.http.Response.Status.*;
 import static io.vlingo.http.ResponseHeader.*;
 import static io.vlingo.http.resource.ResourceBuilder.*;
-import static io.vlingo.schemata.Schemata.*;
+import static io.vlingo.schemata.Schemata.NoId;
+import static io.vlingo.schemata.Schemata.SchemaVersionsPath;
 import static io.vlingo.schemata.query.SchemaVersionQueries.GreatestVersion;
 
 public class SchemaVersionResource extends ResourceHandler {
@@ -48,13 +48,13 @@ public class SchemaVersionResource extends ResourceHandler {
     private final Stage stage;
     private final Logger logger;
 
-  public SchemaVersionResource(final World world, SchemaQueries schemaQueries, SchemaVersionQueries schemaVersionQueries, CodeQueries codeQueries) {
-        this.stage = world.stageNamed(StageName);
+  public SchemaVersionResource(final Stage stage) {
+        this.stage = stage;
         this.commands = new SchemaVersionCommands(this.stage, 10);
-        this.schemaQueries = schemaQueries;
-        this.schemaVersionQueries = schemaVersionQueries;
-        this.codeQueries = codeQueries;
-        this.logger = world.defaultLogger();
+        this.schemaQueries = StorageProvider.instance().schemaQueries;
+        this.schemaVersionQueries = StorageProvider.instance().schemaVersionQueries;
+        this.codeQueries = StorageProvider.instance().codeQueries;
+        this.logger = stage.world().defaultLogger();
     }
 
     /*

@@ -16,6 +16,7 @@ import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
+import io.vlingo.schemata.infra.persistence.StorageProvider;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Organization;
@@ -34,10 +35,10 @@ public class OrganizationResource extends ResourceHandler {
   private final OrganizationQueries queries;
   private final Stage stage;
 
-  public OrganizationResource(final World world, OrganizationQueries queries) {
-    this.stage = world.stageNamed(StageName);
+  public OrganizationResource(final Stage stage) {
+    this.stage = stage;
     this.commands = new OrganizationCommands(this.stage, 10);
-    this.queries = queries;
+    this.queries = StorageProvider.instance().organizationQueries;
   }
 
   public Completes<Response> defineWith(final OrganizationData data) {

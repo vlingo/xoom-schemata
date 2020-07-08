@@ -7,25 +7,30 @@
 
 package io.vlingo.schemata;
 
-import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertNotNull;
+import org.junit.After;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URL;
 
-import org.junit.Test;
+import static org.junit.Assert.fail;
 
 public class BootstrapTest {
 
   @Test
   public void testThatBootstrapStartsServerCleanly() throws Exception {
-    final Bootstrap bootstrap = Bootstrap.instance("dev");
-    assertNotNull(bootstrap);
+    XoomInitializer.main(new String[]{"test"});
 
     try {
-      new URL("http://127.0.0.1:" + bootstrap.__internal__only_test_port()).openConnection().connect();
+      new URL("http://127.0.0.1:19090").openConnection().connect();
     } catch (IOException e) {
-      fail("Server did not open port " + bootstrap.__internal__only_test_port() + ":" + e.getMessage());
+      fail("Server did not open port 19090:" + e.getMessage());
     }
+  }
+
+  @After
+  public void tearDown() {
+    XoomInitializer.instance().server.shutDown();
+    XoomInitializer.instance().world.terminate();
   }
 }

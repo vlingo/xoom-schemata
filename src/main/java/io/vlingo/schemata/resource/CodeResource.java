@@ -7,11 +7,8 @@
 
 package io.vlingo.schemata.resource;
 
-import static io.vlingo.common.serialization.JsonSerialization.serialized;
-
 import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
-import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
 import io.vlingo.common.Outcome;
 import io.vlingo.common.Tuple3;
@@ -23,6 +20,7 @@ import io.vlingo.http.resource.Resource;
 import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.errors.SchemataBusinessException;
+import io.vlingo.schemata.infra.persistence.StorageProvider;
 import io.vlingo.schemata.model.Path;
 import io.vlingo.schemata.query.CodeQueries;
 import io.vlingo.schemata.query.QueryResultsCollector;
@@ -35,7 +33,6 @@ import static io.vlingo.http.RequestHeader.Authorization;
 import static io.vlingo.http.Response.Status.*;
 import static io.vlingo.http.resource.ResourceBuilder.get;
 import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.Schemata.StageName;
 import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
 
 //
@@ -53,10 +50,10 @@ public class CodeResource extends ResourceHandler {
   private final CodeQueries queries;
   private final Stage stage;
 
-  public CodeResource(final World world, CodeQueries queries) {
-    this.stage = world.stageNamed(StageName);
-    this.logger = world.defaultLogger();
-    this.queries = queries;
+  public CodeResource(final Stage stage) {
+    this.stage = stage;
+    this.logger = stage.world().defaultLogger();
+    this.queries = StorageProvider.instance().codeQueries;
   }
 
   private boolean isReferenceValid(final String reference) {
