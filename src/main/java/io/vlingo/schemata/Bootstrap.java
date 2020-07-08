@@ -14,12 +14,11 @@ import io.vlingo.http.resource.Configuration.Timing;
 import io.vlingo.schemata.infra.persistence.ProjectionDispatcherProvider;
 import io.vlingo.schemata.infra.persistence.StateStoreProvider;
 import io.vlingo.schemata.infra.persistence.StorageProvider;
-import io.vlingo.schemata.resource.*;
 import io.vlingo.xoom.XoomInitializationAware;
 import io.vlingo.xoom.annotation.initializer.AddressFactory;
-import io.vlingo.xoom.annotation.initializer.ResourceHandlers;
 import io.vlingo.xoom.annotation.initializer.Xoom;
 import io.vlingo.xoom.annotation.initializer.XoomInitializationException;
+import io.vlingo.xoom.annotation.initializer.methods.ResourceHandlers;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -27,9 +26,8 @@ import java.net.ServerSocket;
 import static io.vlingo.xoom.annotation.initializer.AddressFactory.IdentityGenerator.RANDOM;
 import static io.vlingo.xoom.annotation.initializer.AddressFactory.Type.GRID;
 
+@ResourceHandlers(packages = "io.vlingo.schemata.resource")
 @Xoom(name = "vlingo-schemata", addressFactory = @AddressFactory(type = GRID, generator = RANDOM))
-@ResourceHandlers({OrganizationResource.class, UnitResource.class, ContextResource.class,
-        SchemaResource.class, SchemaVersionResource.class, CodeResource.class, UiResource.class})
 public class Bootstrap implements XoomInitializationAware {
 
   @Override
