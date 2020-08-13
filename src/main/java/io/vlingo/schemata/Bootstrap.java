@@ -18,7 +18,7 @@ import io.vlingo.xoom.XoomInitializationAware;
 import io.vlingo.xoom.annotation.initializer.AddressFactory;
 import io.vlingo.xoom.annotation.initializer.Xoom;
 import io.vlingo.xoom.annotation.initializer.XoomInitializationException;
-import io.vlingo.xoom.annotation.initializer.methods.ResourceHandlers;
+import io.vlingo.xoom.annotation.initializer.ResourceHandlers;
 
 import java.io.IOException;
 import java.net.ServerSocket;
