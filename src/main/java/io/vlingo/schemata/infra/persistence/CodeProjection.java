@@ -84,6 +84,7 @@ public class CodeProjection extends StateStoreProjectionActor<CodeView> {
 					final String reference = dataIdFrom(defined);
 					mergedData = CodeView.with(reference, SchemaVersionView.with(defined.organizationId, defined.unitId, defined.contextId, defined.schemaId,
 							defined.schemaVersionId, defined.description, defined.specification, defined.status, defined.previousVersion, defined.nextVersion));
+					break;
 				case Unmatched:
 					logger().warn("Event of type " + event.typeName() + " was not matched.");
 					break;
