@@ -19,6 +19,9 @@ build/
 .gradle/
 out/
 
+# vscode
+.vscode/
+
 # Node
 node_modules/
 
