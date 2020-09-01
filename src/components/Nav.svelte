@@ -36,6 +36,12 @@ import {
 			<NavLink href="context">Context</NavLink>
 		</NavItem>
 		<NavItem>
+			<NavLink href="schema">Schema</NavLink>
+		</NavItem>
+		<NavItem>
+			<NavLink href="schemaVersion">Schema Version</NavLink>
+		</NavItem>
+		<NavItem>
 		  <NavLink href=".">Home</NavLink>
 		</NavItem>
 		<UncontrolledDropdown nav inNavbar>
