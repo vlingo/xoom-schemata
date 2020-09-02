@@ -1,5 +1,4 @@
 <script>
-	import { Card, CardBody, Form, FormGroup, FormText, Input, Label, CustomInput, Button } from 'sveltestrap/src';
 	import CardForm from '../components/CardForm.svelte';
 	import ValidatedInput from '../components/ValidatedInput.svelte';
 
@@ -38,8 +37,10 @@
 
 <CardForm title="Context" next="schema" on:clear={clear} on:update on:create>
 	<ValidatedInput label="ContextID" bind:value={id} disabled/>
-	<ValidatedInput type="select" label="Organization" bind:value={organization} clear={clearFlag} options={organizations}/>
-	<ValidatedInput type="select" label="Unit" bind:value={unit} clear={clearFlag} options={units}/>
+	<div class="flex">
+		<ValidatedInput type="select" label="Organization" bind:value={organization} clear={clearFlag} options={organizations}/>
+		<ValidatedInput type="select" label="Unit" bind:value={unit} clear={clearFlag} options={units}/>
+	</div>
 	<ValidatedInput label="Name" bind:value={name} clear={clearFlag}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} clear={clearFlag}/>
 </CardForm>

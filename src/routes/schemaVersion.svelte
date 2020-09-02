@@ -1,5 +1,4 @@
 <script>
-	import { Card, CardBody, Form, FormGroup, FormText, Input, Label, CustomInput, Button } from 'sveltestrap/src';
 	import CardForm from '../components/CardForm.svelte';
 	import ValidatedInput from '../components/ValidatedInput.svelte';
 
@@ -52,18 +51,33 @@
 		createUnit(name, description, organization);
 	}
 
+	const validator = (v) => {
+		return /^\d+\.\d+\.\d+$/.test(v)
+	}
 </script>
 
 <CardForm title="Schema Version" next="schemaVersion" on:clear={clear} on:update on:create>
 	<ValidatedInput label="SchemaID" bind:value={id} disabled/>
-	<ValidatedInput type="select" label="Organization" bind:value={organization} clear={clearFlag} options={organizations}/>
-	<ValidatedInput type="select" label="Unit" bind:value={unit} clear={clearFlag} options={units}/>
-	<ValidatedInput type="select" label="Context" bind:value={context} clear={clearFlag} options={contexts}/>
-	<ValidatedInput type="select" label="Schema" bind:value={schema} clear={clearFlag} options={schemas}/>
-	<ValidatedInput label="Previous Version" bind:value={previous} clear={clearFlag}/>
-	<ValidatedInput label="Current Version" bind:value={current} clear={clearFlag}/>
+	<div class="flex">
+		<ValidatedInput type="select" label="Organization" bind:value={organization} clear={clearFlag} options={organizations}/>
+		<ValidatedInput type="select" label="Unit" bind:value={unit} clear={clearFlag} options={units}/>
+	</div>
+	<div class="flex">
+		<ValidatedInput type="select" label="Context" bind:value={context} clear={clearFlag} options={contexts}/>
+		<ValidatedInput type="select" label="Schema" bind:value={schema} clear={clearFlag} options={schemas}/>
+	</div>
+	<div class="flex">
+		<ValidatedInput label="Previous Version" bind:value={previous} clear={clearFlag} validator={validator}/>
+		<ValidatedInput label="Current Version" bind:value={current} clear={clearFlag} validator={validator}/>
+	</div>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} clear={clearFlag}/>
 	<ValidatedInput type="textarea" label="Specification" bind:value={specification} clear={clearFlag}/>
-	
 </CardForm>
 {@html marked(description)}
+
+<style>
+	.flex {
+		display: flex;
+		flex-grow: 1;
+	}
+</style>

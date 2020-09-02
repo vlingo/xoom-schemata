@@ -3,7 +3,7 @@
 	import { Card, CardBody, Form, FormGroup, FormText, Input, Label, CustomInput, Button } from 'sveltestrap/src';
 	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
 
-	export let title = "Title";
+	export let title = "";
 	export let next = "next";
 
 	const dispatch = createEventDispatcher();
