@@ -42,7 +42,7 @@ import {
 			<NavLink href="schemaVersion">Schema Version</NavLink>
 		</NavItem>
 		<NavItem>
-		  <NavLink href=".">Home</NavLink>
+		  <NavLink href="">Home</NavLink>
 		</NavItem>
 		<UncontrolledDropdown nav inNavbar>
 		  <DropdownToggle nav caret>Options</DropdownToggle>

@@ -1,4 +1,24 @@
+
+
+
+<script context="module">
+	// export async function preload(page, session) {
+	// 	// `this.fetch` is a wrapper around `fetch` that allows
+	// 	// you to make credentialled requests on both
+	// 	// server and client
+	// 	const res = await this.fetch('http://localhost:9019/organizations');
+	// 	const orgs = await res.json();
+
+	// 	return { orgs };
+	// }
+</script>
+
+
+
+
 <script>
+	// export let orgs;
+
 	import Button from 'sveltestrap/src/Button.svelte';
 	import Card from 'sveltestrap/src/Card.svelte';
 	import CardBody from 'sveltestrap/src/CardBody.svelte';
@@ -11,7 +31,7 @@
 	import marked from 'marked';
 	import ValidatedInput from '../components/ValidatedInput.svelte';
 	import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull} from '@mdi/js'
-import Icon from '../components/Icon.svelte';
+	import Icon from '../components/Icon.svelte';
 
 	let root = [
 		{
@@ -82,6 +102,12 @@ import Icon from '../components/Icon.svelte';
 	let description = "";
 </script>
 
+<!-- {@debug orgs}
+<p>{orgs[0].organizationId}</p>
+<p>{orgs[0].name}</p>
+{@debug orgs} -->
+
+
 <Card>
 	<CardHeader tag="h3">
 		<!-- <FormGroup> -->
@@ -149,9 +175,9 @@ import Icon from '../components/Icon.svelte';
 		{:else}
 			<ValidatedInput type="textarea" bind:value={description}/>
 			<div class="flex">
-				<Button>preview</Button>
-				<Button>revert</Button>
-				<Button>save description</Button>
+				<Button color="success">preview</Button>
+				<Button color="warning">revert</Button>
+				<Button color="info">save description</Button>
 			</div>
 		{/if}
 </Card>
