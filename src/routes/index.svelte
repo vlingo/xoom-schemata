@@ -1,23 +1,129 @@
 
-
-
 <script context="module">
-	// export async function preload(page, session) {
-	// 	// `this.fetch` is a wrapper around `fetch` that allows
-	// 	// you to make credentialled requests on both
-	// 	// server and client
-	// 	const res = await this.fetch('http://localhost:9019/organizations');
-	// 	const orgs = await res.json();
+	export async function preload(page, session) {
+		// `this.fetch` is a wrapper around `fetch` that allows you to make credentialled requests on both server and client
+		var _this = this;
 
-	// 	return { orgs };
-	// }
+		let tree = [];
+
+		async function fetchOrgsInto(tree) {
+			const res = await _this.fetch('http://localhost:9019/organizations');
+			const orgs = await res.json();
+			for(const org of orgs) {
+				tree.push(
+					{
+						type: 'organization',
+						name: org.name,
+						id: org.organizationId,
+					}
+				)
+			}
+		};
+		await fetchOrgsInto(tree);
+		console.log("after orgs:", {tree});
+
+		async function fetchUnitsInto(tree) {
+			for(const org of tree) {
+				const res = await _this.fetch(`http://localhost:9019/organizations/${org.id}/units`);
+				const units = await res.json();
+				for(const unit of units) {
+					if(!org.files) org.files = [];
+					org.files.push(
+						{
+							type: 'unit',
+							name: unit.name,
+							id: unit.unitId,
+						}
+					)
+				}
+			}
+		};
+		await fetchUnitsInto(tree);
+		console.log("after units:", {tree}, tree[0].files);
+
+		async function fetchContextsInto(tree) {
+			for(const org of tree) {
+				if(org.files) {
+					for(const unit of org.files) {
+						const res = await _this.fetch(`http://localhost:9019/organizations/${org.id}/units/${unit.id}/contexts`);
+						const contexts = await res.json();
+
+						for(const context of contexts) {
+							if(!unit.files) unit.files = [];
+							unit.files.push(
+								{
+									type: 'context',
+									name: context.namespace,
+									id: context.contextId,
+								}
+							)
+						}
+					}
+				}
+			}
+		};
+		await fetchContextsInto(tree);
+		console.log("after contexts:", {tree}, tree[0].files, tree[0].files[0].files);
+
+
+		return { tree };
+	}
 </script>
+
+<!-- <script context="module">
+	export async function preload(page, session) {
+		const { slug } = page.params;
+
+		const res = await this.fetch(`blog/${slug}.json`);
+		const article = await res.json();
+
+		return { article };
+	}
+</script> -->
 
 
 
 
 <script>
+
+	import { onMount } from 'svelte';
+	// let MyComponent;
+	onMount(async () => {
+		console.log(document.querySelector(".navbar-brand"));
+	// 	const module = await import('my-non-ssr-component');
+	// 	MyComponent = module.default;
+	});
+
+
+
+
+	// var data = { name: "testtest", description: "testtestdesc" }
+	// // var url = '/process/contact' // associated script = /src/routes/process/contact.js
+	// var url = '/organizations';
+	// fetch(url, {
+	// 	method: 'POST',
+	// 	body: JSON.stringify(data),
+	// 	headers: {
+	// 		'Content-Type': 'application/json'
+	// 	}
+	// })
+	// .then(r => {
+	// 	r.json()
+	// 	.then(function(result) {
+	// 		// The data is posted: do something with the result...
+	// 		console.log(result);
+	// 	})
+	// })
+	// .catch(err => {
+	// 	// POST error: do something...
+	// 	console.log('POST error', err.message)
+	// })
+
+	export let tree;
 	// export let orgs;
+	// export let units;
+	// export let contexts;
+	// export let schemas;
 
 	import Button from 'sveltestrap/src/Button.svelte';
 	import Card from 'sveltestrap/src/Card.svelte';
@@ -93,6 +199,9 @@
 			]
 		},
 	];
+
+	root = tree;
+
 	let activeSpec = true;
 	let activeDesc = false;
 	let activeOne = true;

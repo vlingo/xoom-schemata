@@ -9,7 +9,7 @@
 	export let type = "";
 	type = type;
 
-	let expanded = true;
+	let expanded = false;
 
 	function toggle() {
 		expanded = !expanded;
