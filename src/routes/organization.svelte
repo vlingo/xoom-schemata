@@ -75,6 +75,14 @@
 		// 	console.log("valid changed", object);
 		// 	console.log(name, nameValid, nameInvalid);
 		// }
+		import { onMount } from 'svelte';
+		onMount(async () => {
+		// console.log(document.querySelector(".navbar-brand"));
+		console.log("org");
+		
+	// 	const module = await import('my-non-ssr-component');
+	// 	MyComponent = module.default;
+	});
 </script>
 
 <Card>

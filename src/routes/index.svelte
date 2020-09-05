@@ -1,5 +1,5 @@
 
-<script context="module">
+<!-- <script context="module">
 	export async function preload(page, session) {
 		// `this.fetch` is a wrapper around `fetch` that allows you to make credentialled requests on both server and client
 		var _this = this;
@@ -39,7 +39,7 @@
 			}
 		};
 		await fetchUnitsInto(tree);
-		console.log("after units:", {tree}, tree[0].files);
+		// console.log("after units:", {tree}, tree[0].files);
 
 		async function fetchContextsInto(tree) {
 			for(const org of tree) {
@@ -63,12 +63,12 @@
 			}
 		};
 		await fetchContextsInto(tree);
-		console.log("after contexts:", {tree}, tree[0].files, tree[0].files[0].files);
+		// console.log("after contexts:", {tree}, tree[0].files, tree[0].files[0].files);
 
 
 		return { tree };
 	}
-</script>
+</script> -->
 
 <!-- <script context="module">
 	export async function preload(page, session) {
@@ -85,17 +85,32 @@
 
 
 <script>
-
+	import SchemataRepository from '../api/SchemataRepository';
 	import { onMount } from 'svelte';
 	// let MyComponent;
 	onMount(async () => {
-		console.log(document.querySelector(".navbar-brand"));
+		// console.log(document.querySelector(".navbar-brand"));
+		console.log("index");
+
+		const orgs = await SchemataRepository.getOrganizations();
+		console.log({orgs});
+		// const test = await SchemataRepository.createOrganization("test2", "test2desc")
+		
+
 	// 	const module = await import('my-non-ssr-component');
 	// 	MyComponent = module.default;
 	});
-
-
-
+	
+	
+	// if (process.browser) {
+	// 	fetch('http://localhost:9019/organizations', {
+	// 		method: 'POST',
+	// 		headers: { 'Content-Type': 'application/json'},
+	// 		body: JSON.stringify({name : "test2", description : "test2desc"})
+	// 	})
+	// 		.then(results => results.json())
+	// 		.then(console.log);
+	// }
 
 	// var data = { name: "testtest", description: "testtestdesc" }
 	// // var url = '/process/contact' // associated script = /src/routes/process/contact.js
@@ -200,7 +215,7 @@
 		},
 	];
 
-	root = tree;
+	// root = tree;
 
 	let activeSpec = true;
 	let activeDesc = false;

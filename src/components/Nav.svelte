@@ -22,10 +22,13 @@ import {
 </script>
 
 <Navbar color="light" light expand="md">
-	<NavbarBrand href="/">vlingo/schemata</NavbarBrand>
+	<NavbarBrand href="/"><span>VLINGO</span>/SCHEMATA</NavbarBrand>
 	<NavbarToggler on:click={() => (isOpen = !isOpen)} />
 	<Collapse {isOpen} navbar expand="md" on:update={handleUpdate}>
 	  <Nav class="ml-auto" navbar>
+		<NavItem>
+			<NavLink href="">Home</NavLink>
+		</NavItem>
 		<NavItem>
 		  <NavLink href="organization">Organization</NavLink>
 		</NavItem>
@@ -41,10 +44,7 @@ import {
 		<NavItem>
 			<NavLink href="schemaVersion">Schema Version</NavLink>
 		</NavItem>
-		<NavItem>
-		  <NavLink href="">Home</NavLink>
-		</NavItem>
-		<UncontrolledDropdown nav inNavbar>
+		<!-- <UncontrolledDropdown nav inNavbar>
 		  <DropdownToggle nav caret>Options</DropdownToggle>
 		  <DropdownMenu right>
 			<DropdownItem>Option 1</DropdownItem>
@@ -52,7 +52,7 @@ import {
 			<DropdownItem divider />
 			<DropdownItem>Reset</DropdownItem>
 		  </DropdownMenu>
-		</UncontrolledDropdown>
+		</UncontrolledDropdown> -->
 	  </Nav>
 	</Collapse>
   </Navbar>

@@ -32,7 +32,14 @@
 		//id gets generated
 		createUnit(name, description, organization);
 	}
-
+	import { onMount } from 'svelte';
+	onMount(async () => {
+		// console.log(document.querySelector(".navbar-brand"));
+		console.log("context");
+		
+	// 	const module = await import('my-non-ssr-component');
+	// 	MyComponent = module.default;
+	});
 </script>
 
 <CardForm title="Context" next="schema" on:clear={clear} on:update on:create>
