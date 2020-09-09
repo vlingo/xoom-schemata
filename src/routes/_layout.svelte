@@ -6,6 +6,7 @@
 	main {
 		position: relative;
 		max-width: 56em;
+		min-width: 20em;
 		background-color: white;
 		padding: 2em;
 		margin: 0 auto;

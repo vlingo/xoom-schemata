@@ -1,5 +1,5 @@
 
-<!-- <script context="module">
+<script context="module">
 	export async function preload(page, session) {
 		// `this.fetch` is a wrapper around `fetch` that allows you to make credentialled requests on both server and client
 		var _this = this;
@@ -20,7 +20,7 @@
 			}
 		};
 		await fetchOrgsInto(tree);
-		console.log("after orgs:", {tree});
+		// console.log("after orgs:", {tree});
 
 		async function fetchUnitsInto(tree) {
 			for(const org of tree) {
@@ -68,7 +68,7 @@
 
 		return { tree };
 	}
-</script> -->
+</script>
 
 <!-- <script context="module">
 	export async function preload(page, session) {
@@ -94,27 +94,16 @@
 
 		const orgs = await SchemataRepository.getOrganizations();
 		console.log({orgs});
-		// const test = await SchemataRepository.createOrganization("test2", "test2desc")
-		
+		const newOrg = await SchemataRepository.createOrganization("test2", "test2desc");
+		console.log({newOrg});
+		const orgs2 = await SchemataRepository.getOrganizations();
+		console.log({orgs2});
 
 	// 	const module = await import('my-non-ssr-component');
 	// 	MyComponent = module.default;
 	});
-	
-	
-	// if (process.browser) {
-	// 	fetch('http://localhost:9019/organizations', {
-	// 		method: 'POST',
-	// 		headers: { 'Content-Type': 'application/json'},
-	// 		body: JSON.stringify({name : "test2", description : "test2desc"})
-	// 	})
-	// 		.then(results => results.json())
-	// 		.then(console.log);
-	// }
+	// if (process.browser) {}
 
-	// var data = { name: "testtest", description: "testtestdesc" }
-	// // var url = '/process/contact' // associated script = /src/routes/process/contact.js
-	// var url = '/organizations';
 	// fetch(url, {
 	// 	method: 'POST',
 	// 	body: JSON.stringify(data),
@@ -129,18 +118,11 @@
 	// 		console.log(result);
 	// 	})
 	// })
-	// .catch(err => {
-	// 	// POST error: do something...
-	// 	console.log('POST error', err.message)
-	// })
+	// .catch(err => { })
 
 	export let tree;
-	// export let orgs;
-	// export let units;
-	// export let contexts;
-	// export let schemas;
 
-	import Button from 'sveltestrap/src/Button.svelte';
+	import StrapButton from 'sveltestrap/src/Button.svelte';
 	import Card from 'sveltestrap/src/Card.svelte';
 	import CardBody from 'sveltestrap/src/CardBody.svelte';
 	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
@@ -153,6 +135,8 @@
 	import ValidatedInput from '../components/ValidatedInput.svelte';
 	import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull} from '@mdi/js'
 	import Icon from '../components/Icon.svelte';
+import ButtonBar from '../components/ButtonBar.svelte';
+import Button from '../components/Button.svelte';
 
 	let root = [
 		{
@@ -215,7 +199,7 @@
 		},
 	];
 
-	// root = tree;
+	root = tree;
 
 	let activeSpec = true;
 	let activeDesc = false;
@@ -224,13 +208,8 @@
 
 	let specification = "";
 	let description = "";
+
 </script>
-
-<!-- {@debug orgs}
-<p>{orgs[0].organizationId}</p>
-<p>{orgs[0].name}</p>
-{@debug orgs} -->
-
 
 <Card>
 	<CardHeader tag="h3">
@@ -246,81 +225,70 @@
 	</CardBody>
 </Card>
 
-
-<div class="margin-top flex">
-<Card>
-		<div class="bottom-left">
-			<ListGroup>
+<!-- <Card> -->
+<div class="bottom-container">
+	<div class="bottom-left">
+		<Card>
+			<ListGroup class="py-1">
 				<ListGroupItem active={activeOne} tag="button" action on:click={() => {activeOne = true; activeTwo = false;}}>0.0.1</ListGroupItem>
 				<ListGroupItem active={activeTwo} tag="button" action on:click={() => {activeTwo = true; activeOne = false;}}>1.0.0</ListGroupItem>
 			</ListGroup>
-		</div>
-</Card>
+		</Card>
+	</div>
 
-<div class="spacer"></div>
+	<div class="spacer"></div>
 
-<div class="bottom-right">
-<Card>
-	
-		<ListGroup class="d-flex flex-row w-75">
-				
-					<ListGroupItem active={activeSpec} tag="button" action on:click={() => {activeSpec = true; activeDesc = false;}}>Specification</ListGroupItem>
-				
-					<ListGroupItem active={activeDesc} tag="button" action on:click={() => {activeDesc = true; activeSpec = false;}}>Description</ListGroupItem>
-				
+	<div class="bottom-right">
+
+	<Card>
+		<ListGroup class="d-flex flex-row p-1">
+			<ListGroupItem active={activeSpec} tag="button" action on:click={() => {activeSpec = true; activeDesc = false;}}>Specification</ListGroupItem>
+			<ListGroupItem active={activeDesc} tag="button" action on:click={() => {activeDesc = true; activeSpec = false;}}>Description</ListGroupItem>
 		</ListGroup>
+
 		{#if activeSpec}
 			<ValidatedInput type="textarea" bind:value={specification}/>
-			<div class="flex">
-				<Button outline color="primary">
-					<div class="flex">
-						<Icon icon={mdiLabel}/> publish
-					</div>
-				</Button>
-				<Button outline color="warning">
-					<div class="flex">
-						<Icon icon={mdiLabelOff}/> deprecate
-					</div>
-				</Button>
-				<Button outline color="danger">
-					<div class="flex">
-						<Icon icon={mdiDelete}/> remove
-					</div>
-				</Button>
-				<Button outline color="info">
-					<div class="flex">
-						<Icon icon={mdiSourcePull}/> source
-					</div>
-				</Button>
-				<Button color="info">
-					save specification
-				</Button>
-			</div>
+			<ButtonBar>
+				<Button outline color="primary" icon={mdiLabel} text="PUBLISH"/>
+				<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE"/>
+				<Button outline color="danger" icon={mdiDelete} text="REMOVE"/>
+				<Button outline color="info" icon={mdiSourcePull} text="INFO"/>
+				<Button color="info" text="SAVE SPECIFICATION"/>
+			</ButtonBar>
 		{:else}
 			<ValidatedInput type="textarea" bind:value={description}/>
-			<div class="flex">
-				<Button color="success">preview</Button>
-				<Button color="warning">revert</Button>
-				<Button color="info">save description</Button>
-			</div>
+			<ButtonBar>
+				<Button color="success" text="PREVIEW"/>
+				<Button color="warning" text="REVERT"/>
+				<Button color="info" text="SAVE DESCRIPTION"/>
+			</ButtonBar>
 		{/if}
-</Card>
+	</Card>
+
+	</div>
 </div>
-</div>
+<!-- </Card> -->
 
 <style>
-	.margin-top {
+	.bottom-container {
 		margin-top: 1rem;
+
+		display: flex;
+		flex-direction: column;
 	}
 	.spacer {
-		flex-grow: 1;
+		width: 10rem;
 		display: block;
 	}
-	.flex {
-		display: flex;
+
+	.bottom-left {
+		width: 10rem;
 	}
 
-	.bottom-right {
-		width: 40rem;
+	@media (min-width: 820px) {
+		.bottom-container {
+			flex-direction: row;
+		}
 	}
+
 </style>

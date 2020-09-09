@@ -47,7 +47,7 @@
 
 </script>
 
-<CardForm title="Schema" next="schemaVersion" on:clear={clear} on:update on:create>
+<CardForm title="Schema" next="SCHEMA VERSION" on:clear={clear} on:update on:create>
 	<ValidatedInput label="SchemaID" bind:value={id} disabled/>
 	<div class="flex">
 		<ValidatedInput type="select" label="Organization" bind:value={organization} clear={clearFlag} options={organizations}/>

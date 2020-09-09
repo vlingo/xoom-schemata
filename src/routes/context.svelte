@@ -42,7 +42,7 @@
 	});
 </script>
 
-<CardForm title="Context" next="schema" on:clear={clear} on:update on:create>
+<CardForm title="Context" next="SCHEMA" on:clear={clear} on:update on:create>
 	<ValidatedInput label="ContextID" bind:value={id} disabled/>
 	<div class="flex">
 		<ValidatedInput type="select" label="Organization" bind:value={organization} clear={clearFlag} options={organizations}/>

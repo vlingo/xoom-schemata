@@ -3,6 +3,7 @@
 	import ValidatedInput from '../components/ValidatedInput.svelte';
 
 	import marked from 'marked';
+import Button from '../components/Button.svelte';
 
 	let id;
 	let name;
@@ -72,6 +73,10 @@
 	</div>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} clear={clearFlag}/>
 	<ValidatedInput type="textarea" label="Specification" bind:value={specification} clear={clearFlag}/>
+
+	<div slot="buttons">
+		<Button color="primary" text="CREATE" on:click={() => {}}/>
+	</div>
 </CardForm>
 {@html marked(description)}
 
