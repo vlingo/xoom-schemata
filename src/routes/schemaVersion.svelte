@@ -57,32 +57,32 @@ import Button from '../components/Button.svelte';
 	}
 </script>
 
-<CardForm title="Schema Version" next="schemaVersion" on:clear={clear} on:update on:create>
+<CardForm title="Schema Version" next="" on:clear{clear} on:update on:create>
 	<ValidatedInput label="SchemaID" bind:value={id} disabled/>
-	<div class="flex">
-		<ValidatedInput type="select" label="Organization" bind:value={organization} clear={clearFlag} options={organizations}/>
-		<ValidatedInput type="select" label="Unit" bind:value={unit} clear={clearFlag} options={units}/>
+	<div class="flex-two-col">
+		<ValidatedInput type="select" label="Organization" bind:value={organization} {clearFlag} options={organizations}/>
+		<ValidatedInput type="select" label="Unit" bind:value={unit} {clearFlag} options={units}/>
 	</div>
-	<div class="flex">
-		<ValidatedInput type="select" label="Context" bind:value={context} clear={clearFlag} options={contexts}/>
-		<ValidatedInput type="select" label="Schema" bind:value={schema} clear={clearFlag} options={schemas}/>
+	<div class="flex-two-col">
+		<ValidatedInput type="select" label="Context" bind:value={context} {clearFlag} options={contexts}/>
+		<ValidatedInput type="select" label="Schema" bind:value={schema} {clearFlag} options={schemas}/>
 	</div>
-	<div class="flex">
-		<ValidatedInput label="Previous Version" bind:value={previous} clear={clearFlag} validator={validator}/>
-		<ValidatedInput label="Current Version" bind:value={current} clear={clearFlag} validator={validator}/>
+	<div class="flex-two-col">
+		<ValidatedInput label="Previous Version" bind:value={previous} {clearFlag} validator={validator}/>
+		<ValidatedInput label="Current Version" bind:value={current} {clearFlag} validator={validator}/>
 	</div>
-	<ValidatedInput type="textarea" label="Description" bind:value={description} clear={clearFlag}/>
-	<ValidatedInput type="textarea" label="Specification" bind:value={specification} clear={clearFlag}/>
+	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
+	<ValidatedInput type="textarea" label="Specification" bind:value={specification} {clearFlag}/>
 
-	<div slot="buttons">
+	<!-- <div slot="buttons">
 		<Button color="primary" text="CREATE" on:click={() => {}}/>
-	</div>
+	</div> -->
 </CardForm>
 {@html marked(description)}
 
 <style>
-	.flex {
+	.flex-two-col {
 		display: flex;
-		flex-grow: 1;
+		flex-wrap: wrap;
 	}
 </style>
