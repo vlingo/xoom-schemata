@@ -1,78 +1,69 @@
 <script>
-	import { Card, CardBody, Form, FormGroup, FormText, Input, Label, CustomInput, Button } from 'sveltestrap/src';
-	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
 	import CardForm from '../components/CardForm.svelte';
+	import ValidatedInput from '../components/ValidatedInput.svelte';
+
+	import SchemataRepository from '../api/SchemataRepository';
+	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
+	import { orgStringReturner, selectStringsFrom } from '../utils';
+import errors from '../errors';
 
 	let id;
 	let name;
 	let description;
-	let nameValid = false;
-	let nameInvalid = false;
-	let descriptionValid = false;
-	let descriptionInvalid = false;
 
-	let organizations = ["1", "2", "3"]; //["1", "2", "3"];
-	let organization;
-	let organizationValid = false;
-	let organizationInvalid = false;
+	// $: $organizationStore = changedOrg(orgId);
+	// function changedOrg(orgId) {
+	// 	return ($organizationsStore).find(o => o.name == orgId);
+	// }
 
+	let org = $organizationStore? orgStringReturner(($organizationStore)) : ""; //initial value
+	$: orgId = org.split(" ")[org.split(" ").length-1]; //last index should always be the id!
+	$: if(orgId || !orgId) $organizationStore = ($organizationsStore).find(o => o.organizationId == orgId);
+
+	const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
+	
+	let clearFlag = false;
 	const clear = () => {
 		id = "";
 		name = "";
 		description = "";
-		organization = "";
-		nameValid = false;
-		nameInvalid = false;
-		descriptionValid = false;
-		descriptionInvalid = false;
-		organizationValid = false;
-		organizationInvalid = false;
+
+		clearFlag = !clearFlag;
 	}
 
-	const update = () => {
-		updateUnit(id, name, description, organization);
-	}
-
-	const create = () => {
-		//id gets generated
-		createUnit(name, description, organization);
-	}
-
-	const nameCheck = () => {
-		if(name) {
-			nameValid = true;
-			nameInvalid = false;
-		} else {
-			nameValid = false;
-			nameInvalid = true;
+	const create = async () => {
+		if(!name || !description || !$organizationStore) {
+			console.log(errors.SUBMIT);
+			return;
 		}
+		SchemataRepository.createUnit(($organizationStore).organizationId, name, description)
+			.then(created => {
+				console.log({created});
+				$unitStore = created;
+				$unitsStore.push(created);
+				clear();
+			})
 	}
 
-	const descriptionCheck = () => {
-		if(description) {
-			descriptionValid = true;
-			descriptionInvalid = false;
-		} else {
-			descriptionValid = false;
-			descriptionInvalid = true;
-		}
-	}
-
-	const organizationCheck = (e) => {
-		organization = e.target.value;
-
-		if(organization) {
-			organizationValid = true;
-			organizationInvalid = false;
-		} else {
-			organizationValid = false;
-			organizationInvalid = true;
-		}
-	}
-
+	// logic if I were to abstract id
+	// let id;
+	// obj.organizationId? id=obj.organizationId :
+	// obj.unitId? id=obj.unitId :
+	// obj.contextId? id=obj.contextId :
+	// obj.schemaId? id=obj.schemaId :
+	// obj.schemaVersionId? id=obj.schemaVersionId :
+	// id=null;
+	$: console.log(org, orgId);
 </script>
 
-<CardForm title="Unit" next="CONTEXT" on:clear={clear} on:update on:create>
+<CardForm title="Unit" next="CONTEXT" on:clear={clear} on:update on:create={create}>
+	<ValidatedInput label="UnitID" bind:value={id} disabled/>
+	<ValidatedInput type="select" label="Organization" bind:value={org} {clearFlag} options={orgSelect}/>
+	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
+	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
+</CardForm>
+
+<!-- <CardForm title="Unit" next="CONTEXT" on:clear={clear} on:update on:create>
 	<FormGroup>
 		<Label for="unitId">UnitID</Label>
 		<Input type="text" name="unitId" id="unitId" placeholder="" bind:value={id} disabled/>
@@ -82,13 +73,9 @@
 		<Input type="select" name="organization" id="organization" placeholder=""
 		bind:value={organization} valid={organizationValid} invalid={organizationInvalid}
 		on:change={organizationCheck} on:blur={organizationCheck}>
-		<!-- on:blur={organizationCheck} on:keyup={organizationCheck}
-		//before, it worked like the others (but works only with first option being empty) -->
 			<option/>
 			{#each organizations as organization}
 				<option>{organization}</option>
-			<!-- {:else}
-				<option>none</option> -->
 			{/each}
 		</Input>
 	</FormGroup>
@@ -97,14 +84,11 @@
 		<Input type="text" name="name" id="name" placeholder="Name"
 		bind:value={name} valid={nameValid} invalid={nameInvalid}
 		on:blur={nameCheck} on:keyup={nameCheck}/>
-		<!-- on:change={nameCheck} -->
 	</FormGroup>
 	<FormGroup>
 		<Label for="description">Description</Label>
 		<Input type="textarea" name="description" id="description" placeholder="Description"
 		bind:value={description} valid={descriptionValid} invalid={descriptionInvalid}
 		on:blur={descriptionCheck} on:keyup={descriptionCheck}/>
-		<!-- on:change={descriptionCheck} -->
-		<!-- make github pull request: <textarea> should have placeholder too -->
 	</FormGroup>
-</CardForm>
+</CardForm> -->

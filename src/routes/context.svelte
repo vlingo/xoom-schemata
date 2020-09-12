@@ -2,52 +2,73 @@
 	import CardForm from '../components/CardForm.svelte';
 	import ValidatedInput from '../components/ValidatedInput.svelte';
 
+	import SchemataRepository from '../api/SchemataRepository';
+	import { contextsStore, contextStore, organizationsStore, organizationStore, unitsStore, unitStore } from '../stores';
+	import { isCompatibleToOrg, getCompatible, getId, orgStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
+	import errors from "../errors";
+
 	let id;
-	let name;
+	let namespace;
 	let description;
 
-	let organizations = ["1", "2", "3"];
-	let organization;
+	let compatibleUnits;
 
-	let units = ["1", "2", "3"];
-	let unit;
+	let selectedOrg = $organizationStore? orgStringReturner(($organizationStore)) : ""; //initial value
+	$: organizationId = getId(selectedOrg); //last index should always be the id!
+	$: if(organizationId || !organizationId) {
+		$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
+		compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg);
+	}
 
+	let selectedUnit = $unitStore? unitStringReturner(($unitStore)) : ""; //initial, should always be compatible, because you need to choose org first.
+	$: unitId = getId(selectedUnit);
+	$: if(unitId) $unitStore = ($unitsStore).find(u => (u.unitId == unitId) && (u.organizationId == organizationId));
+
+
+	//strings which are shown to the user, unitSelect changes if compatibleUnits change
+	const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
+	$: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner);
+
+	
 	let clearFlag = false;
-
 	const clear = () => {
 		id = "";
-		name = "";
+		namespace = "";
 		description = "";
-		organization = "";
-		unit = "";
 
 		clearFlag = !clearFlag;
 	}
 
-	const update = () => {
-		updateUnit(id, name, description, organization);
+	const create = async () => {
+		if(!namespace || !description || !$organizationStore || !$unitStore) {
+			console.log(errors.SUBMIT);
+			return;
+		}
+		SchemataRepository.createContext(($organizationStore).organizationId, ($unitStore).unitId, namespace, description)
+			.then(created => {
+				console.log({created});
+				$contextStore = created;
+				$contextsStore.push(created);
+				clear();
+			})
 	}
 
-	const create = () => {
-		//id gets generated
-		createUnit(name, description, organization);
-	}
-	import { onMount } from 'svelte';
-	onMount(async () => {
-		// console.log(document.querySelector(".navbar-brand"));
-		console.log("context");
-		
-	// 	const module = await import('my-non-ssr-component');
-	// 	MyComponent = module.default;
-	});
 </script>
 
-<CardForm title="Context" next="SCHEMA" on:clear={clear} on:update on:create>
+<CardForm title="Context" next="SCHEMA" on:clear={clear} on:update on:create={create}>
 	<ValidatedInput label="ContextID" bind:value={id} disabled/>
-	<div class="flex">
-		<ValidatedInput type="select" label="Organization" bind:value={organization} clear={clearFlag} options={organizations}/>
-		<ValidatedInput type="select" label="Unit" bind:value={unit} clear={clearFlag} options={units}/>
+	<div class="flex-two-col">
+		<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
+		<ValidatedInput type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
 	</div>
-	<ValidatedInput label="Name" bind:value={name} clear={clearFlag}/>
-	<ValidatedInput type="textarea" label="Description" bind:value={description} clear={clearFlag}/>
+	<ValidatedInput label="Namespace" bind:value={namespace} {clearFlag}/>
+	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
 </CardForm>
+
+<style>
+	.flex-two-col {
+		display: flex;
+		/* flex-basis: 50%; */
+		flex-wrap: wrap;
+	}
+</style>
