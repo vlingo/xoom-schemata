@@ -4,8 +4,8 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
-	import { orgStringReturner, selectStringsFrom } from '../utils';
-import errors from '../errors';
+	import { initSelected, orgStringReturner, selectStringsFrom } from '../utils';
+	import errors from '../errors';
 
 	let id;
 	let name;
@@ -16,8 +16,8 @@ import errors from '../errors';
 	// 	return ($organizationsStore).find(o => o.name == orgId);
 	// }
 
-	let org = $organizationStore? orgStringReturner(($organizationStore)) : ""; //initial value
-	$: orgId = org.split(" ")[org.split(" ").length-1]; //last index should always be the id!
+	let selectedOrg = initSelected($organizationStore, orgStringReturner); //initial value
+	$: orgId = selectedOrg.split(" ")[selectedOrg.split(" ").length-1]; //last index should always be the id!
 	$: if(orgId || !orgId) $organizationStore = ($organizationsStore).find(o => o.organizationId == orgId);
 
 	const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
@@ -27,6 +27,7 @@ import errors from '../errors';
 		id = "";
 		name = "";
 		description = "";
+		selectedOrg = initSelected($organizationStore, orgStringReturner);
 
 		clearFlag = !clearFlag;
 	}
@@ -44,21 +45,11 @@ import errors from '../errors';
 				clear();
 			})
 	}
-
-	// logic if I were to abstract id
-	// let id;
-	// obj.organizationId? id=obj.organizationId :
-	// obj.unitId? id=obj.unitId :
-	// obj.contextId? id=obj.contextId :
-	// obj.schemaId? id=obj.schemaId :
-	// obj.schemaVersionId? id=obj.schemaVersionId :
-	// id=null;
-	$: console.log(org, orgId);
 </script>
 
 <CardForm title="Unit" next="CONTEXT" on:clear={clear} on:update on:create={create}>
 	<ValidatedInput label="UnitID" bind:value={id} disabled/>
-	<ValidatedInput type="select" label="Organization" bind:value={org} {clearFlag} options={orgSelect}/>
+	<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
 	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
 </CardForm>

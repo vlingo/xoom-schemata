@@ -1,67 +1,14 @@
 <script>
-	import { Card, CardBody, Form, FormGroup, FormText, Input, Label, CustomInput, Button } from 'sveltestrap/src';
-	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
 	import CardForm from '../components/CardForm.svelte';
 	import ValidatedInput from '../components/ValidatedInput.svelte';
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationStore, organizationsStore } from '../stores'
-import errors from '../errors';
+	import errors from '../errors';
 
 	let id;
 	let name;
 	let description;
-	// let nameValid = false;
-	// let nameInvalid = false;
-	// let descriptionValid = false;
-	// let descriptionInvalid = false;
-
-	// const nameCheck = () => {
-	// 	if(name) {
-	// 		nameValid = true;
-	// 		nameInvalid = false;
-	// 	} else {
-	// 		nameValid = false;
-	// 		nameInvalid = true;
-	// 	}
-	// }
-
-	// const descriptionCheck = () => {
-	// 	if(description) {
-	// 		descriptionValid = true;
-	// 		descriptionInvalid = false;
-	// 	} else {
-	// 		descriptionValid = false;
-	// 		descriptionInvalid = true;
-	// 	}
-	// }
-
-	// function valueChanged(value, valueValid, valueInvalid) {
-	// 	console.log(value, valueValid, valueInvalid);
-	// 	if(value) {
-	// 		valueValid = true;
-	// 		valueInvalid = false;
-	// 	} else {
-	// 		valueValid = false;
-	// 		valueInvalid = true;
-	// 	}
-	// 	console.log(name, nameValid, nameInvalid);
-	// }
-
-	// function valueChanged(object, e) {
-	// 	console.log("before change", object);
-	// 	object.value = e.target.value;
-	// 	console.log("value changed", object);
-	// 	if(object.value) {
-	// 		object.valid = true;
-	// 		object.invalid = false;
-	// 	} else {
-	// 		object.valid = false;
-	// 		object.invalid = true;
-	// 	}
-	// 	console.log("valid changed", object);
-	// 	console.log(name, nameValid, nameInvalid);
-	// }
 
 	const create = async () => {
 		// could also be implemented by firing validation on the inputs (via flag or exposing valueValid/Invalid)
@@ -78,7 +25,6 @@ import errors from '../errors';
 			})
 	}
 	
-
 	let clearFlag = false;
 	const clear = () => {
 		id = "";
@@ -87,11 +33,7 @@ import errors from '../errors';
 
 		clearFlag = !clearFlag;
 	}
-
 </script>
-
-
-
 
 
 <CardForm title="Organization" next="UNIT" on:clear={clear} on:update on:create={create}>

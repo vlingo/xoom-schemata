@@ -1,44 +1,51 @@
 <script>
-import SchemataRepository from '../api/SchemataRepository';
-
 	import CardForm from '../components/CardForm.svelte';
 	import ValidatedInput from '../components/ValidatedInput.svelte';
-import { contextsStore, contextStore, organizationStore, schemasStore, schemaStore, unitStore } from '../stores';
+
+	import SchemataRepository from '../api/SchemataRepository';
+	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
+	import { contextStringReturner, getCompatible, getId, initSelected, isCompatibleToOrg, isCompatibleToUnit, orgStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
 
 	let id;
 	let name;
 	let description;
-	let categories = ["Command", "Data", "Document", "Envelope", "Event", "Unknown"];
+	let categorySelect = ["Command", "Data", "Document", "Envelope", "Event", "Unknown"];
 	let category;
-	let scopes = ["Private", "Public"];
+	let scopeSelect = ["Private", "Public"];
 	let scope;
 
 	let compatibleUnits;
+	let compatibleContexts;
 
-	// let selectedOrg = $organizationStore? orgStringReturner(($organizationStore)) : ""; //initial value
-	// $: organizationId = getId(selectedOrg); //last index should always be the id!
-	// $: if(organizationId || !organizationId) {
-	// 	$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
-	// 	compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg);
-	// }
+	let selectedOrg = initSelected($organizationStore, orgStringReturner);
+	$: organizationId = getId(selectedOrg);
+	$: if(organizationId || !organizationId) {
+		$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
+		compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg);
+		// clearing is necessary for grandchild
+		compatibleContexts = [];
 
-	// let selectedUnit = $unitStore? unitStringReturner(($unitStore)) : ""; //initial, should always be compatible, because you need to choose org first.
-	// $: unitId = getId(selectedUnit);
-	// $: if(unitId) $unitStore = ($unitsStore).find(u => (u.unitId == unitId) && (u.organizationId == organizationId));
+		console.log("in orgId");
+	}
+
+	let selectedUnit = initSelected($unitStore, unitStringReturner);
+	$: unitId = getId(selectedUnit);
+	$: if(unitId || !unitId) {
+		if(organizationId) {
+			$unitStore = ($unitsStore).find(u => isCompatibleToOrg(u));
+			compatibleContexts = getCompatible($contextsStore, isCompatibleToUnit, selectedUnit);
+		}
+		console.log("in unitId");
+	}
+
+	let selectedContext = initSelected($contextStore, contextStringReturner);
+	$: contextId = getId(selectedContext);
+	$: if(contextId) $contextStore = ($contextsStore).find(c => isCompatibleToUnit(c));
 
 
-	// //strings which are shown to the user, unitSelect changes if compatibleUnits change
-	// const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
-	// $: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner);
-
-	let organizations = ["1", "2", "3"];
-	let organization;
-
-	let units = ["1", "2", "3"];
-	let unit;
-
-	let contexts = ["1", "2", "3"];
-	let context;
+	const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
+	$: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner);
+	$: contextSelect = selectStringsFrom(compatibleContexts, contextStringReturner);
 
 	let clearFlag = false;
 	const clear = () => {
@@ -47,12 +54,15 @@ import { contextsStore, contextStore, organizationStore, schemasStore, schemaSto
 		description = "";
 		category = "";
 		scope = "";
+		selectedOrg = initSelected($organizationStore, orgStringReturner);
+		selectedUnit = initSelected($unitStore, unitStringReturner);
+		selectedContext = initSelected($contextStore, contextStringReturner);
 
 		clearFlag = !clearFlag;
 	}
 
 	const create = () => {
-		if(!namespace || !description || !$organizationStore || !$unitStore) {
+		if(!name || !description || !$organizationStore || !$unitStore || !$contextStore || scope || category) {
 			console.log(errors.SUBMIT);
 			return;
 		}
@@ -67,16 +77,16 @@ import { contextsStore, contextStore, organizationStore, schemasStore, schemaSto
 
 </script>
 
-<CardForm title="Schema" next="SCHEMA VERSION" on:clear={clear} on:update on:create>
+<CardForm title="Schema" next="SCHEMA VERSION" on:clear={clear} on:update on:create={create}>
 	<ValidatedInput label="SchemaID" bind:value={id} disabled/>
 	<span class="flex-two-col">
-		<ValidatedInput type="select" label="Organization" bind:value={organization} {clearFlag} options={organizations}/>
-		<ValidatedInput type="select" label="Unit" bind:value={unit} {clearFlag} options={units}/>
+		<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
+		<ValidatedInput type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
 	</span>
-	<ValidatedInput type="select" label="Context" bind:value={context} {clearFlag} options={contexts}/>
+	<ValidatedInput type="select" label="Context" bind:value={selectedContext} {clearFlag} options={contextSelect}/>
 	<span class="flex-two-col">
-		<ValidatedInput type="select" label="Category" bind:value={category} {clearFlag} options={categories}/>
-		<ValidatedInput type="select" label="Scope" bind:value={scope} {clearFlag} options={scopes}/>
+		<ValidatedInput type="select" label="Category" bind:value={category} {clearFlag} options={categorySelect}/>
+		<ValidatedInput type="select" label="Scope" bind:value={scope} {clearFlag} options={scopeSelect}/>
 	</span>
 	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>

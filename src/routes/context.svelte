@@ -4,7 +4,7 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, unitsStore, unitStore } from '../stores';
-	import { isCompatibleToOrg, getCompatible, getId, orgStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
+	import { isCompatibleToOrg, getCompatible, getId, orgStringReturner, selectStringsFrom, unitStringReturner, initSelected } from '../utils';
 	import errors from "../errors";
 
 	let id;
@@ -13,16 +13,16 @@
 
 	let compatibleUnits;
 
-	let selectedOrg = $organizationStore? orgStringReturner(($organizationStore)) : ""; //initial value
+	let selectedOrg = initSelected($organizationStore, orgStringReturner);
 	$: organizationId = getId(selectedOrg); //last index should always be the id!
 	$: if(organizationId || !organizationId) {
 		$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
 		compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg);
 	}
 
-	let selectedUnit = $unitStore? unitStringReturner(($unitStore)) : ""; //initial, should always be compatible, because you need to choose org first.
+	let selectedUnit = initSelected($unitStore, unitStringReturner); //initial, should always be compatible, because you need to choose org first.
 	$: unitId = getId(selectedUnit);
-	$: if(unitId) $unitStore = ($unitsStore).find(u => (u.unitId == unitId) && (u.organizationId == organizationId));
+	$: if(unitId) $unitStore = ($unitsStore).find(u => isCompatibleToOrg(u));
 
 
 	//strings which are shown to the user, unitSelect changes if compatibleUnits change
@@ -35,6 +35,8 @@
 		id = "";
 		namespace = "";
 		description = "";
+		selectedOrg = initSelected($organizationStore, orgStringReturner);
+		selectedUnit = initSelected($unitStore, unitStringReturner);
 
 		clearFlag = !clearFlag;
 	}
