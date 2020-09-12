@@ -1,74 +1,4 @@
 
-<script context="module">
-	export async function preload(page, session) {
-		// `this.fetch` is a wrapper around `fetch` that allows you to make credentialled requests on both server and client
-		var _this = this;
-
-		let tree = [];
-
-		async function fetchOrgsInto(tree) {
-			const res = await _this.fetch('http://localhost:9019/organizations');
-			const orgs = await res.json();
-			for(const org of orgs) {
-				tree.push(
-					{
-						type: 'organization',
-						name: org.name,
-						id: org.organizationId,
-					}
-				)
-			}
-		};
-		await fetchOrgsInto(tree);
-		// console.log("after orgs:", {tree});
-
-		async function fetchUnitsInto(tree) {
-			for(const org of tree) {
-				const res = await _this.fetch(`http://localhost:9019/organizations/${org.id}/units`);
-				const units = await res.json();
-				for(const unit of units) {
-					if(!org.files) org.files = [];
-					org.files.push(
-						{
-							type: 'unit',
-							name: unit.name,
-							id: unit.unitId,
-						}
-					)
-				}
-			}
-		};
-		await fetchUnitsInto(tree);
-		// console.log("after units:", {tree}, tree[0].files);
-
-		async function fetchContextsInto(tree) {
-			for(const org of tree) {
-				if(org.files) {
-					for(const unit of org.files) {
-						const res = await _this.fetch(`http://localhost:9019/organizations/${org.id}/units/${unit.id}/contexts`);
-						const contexts = await res.json();
-
-						for(const context of contexts) {
-							if(!unit.files) unit.files = [];
-							unit.files.push(
-								{
-									type: 'context',
-									name: context.namespace,
-									id: context.contextId,
-								}
-							)
-						}
-					}
-				}
-			}
-		};
-		await fetchContextsInto(tree);
-		// console.log("after contexts:", {tree}, tree[0].files, tree[0].files[0].files);
-
-
-		return { tree };
-	}
-</script>
 
 <!-- <script context="module">
 	export async function preload(page, session) {
@@ -85,6 +15,23 @@
 
 
 <script>
+	import StrapButton from 'sveltestrap/src/Button.svelte';
+	import Card from 'sveltestrap/src/Card.svelte';
+	import CardBody from 'sveltestrap/src/CardBody.svelte';
+	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
+	import Input from 'sveltestrap/src/Input.svelte';
+	import Label from 'sveltestrap/src/Label.svelte';
+	import ListGroup from 'sveltestrap/src/ListGroup.svelte';
+	import ListGroupItem from 'sveltestrap/src/ListGroupItem.svelte';
+	import Folder from '../components/Folder.svelte';
+	import marked from 'marked';
+	import ValidatedInput from '../components/ValidatedInput.svelte';
+	import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull} from '@mdi/js'
+	import Icon from '../components/Icon.svelte';
+	import ButtonBar from '../components/ButtonBar.svelte';
+	import Button from '../components/Button.svelte';
+
+	import { organizationsStore } from '../stores';
 	import SchemataRepository from '../api/SchemataRepository';
 	import { onMount } from 'svelte';
 	// let MyComponent;
@@ -94,10 +41,10 @@
 
 		const orgs = await SchemataRepository.getOrganizations();
 		console.log({orgs});
-		const newOrg = await SchemataRepository.createOrganization("test2", "test2desc");
-		console.log({newOrg});
-		const orgs2 = await SchemataRepository.getOrganizations();
-		console.log({orgs2});
+		// const newOrg = await SchemataRepository.createOrganization("test2", "test2desc");
+		// console.log({newOrg});
+		// const orgs2 = await SchemataRepository.getOrganizations();
+		// console.log({orgs2});
 
 	// 	const module = await import('my-non-ssr-component');
 	// 	MyComponent = module.default;
@@ -119,24 +66,6 @@
 	// 	})
 	// })
 	// .catch(err => { })
-
-	export let tree;
-
-	import StrapButton from 'sveltestrap/src/Button.svelte';
-	import Card from 'sveltestrap/src/Card.svelte';
-	import CardBody from 'sveltestrap/src/CardBody.svelte';
-	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
-	import Input from 'sveltestrap/src/Input.svelte';
-	import Label from 'sveltestrap/src/Label.svelte';
-	import ListGroup from 'sveltestrap/src/ListGroup.svelte';
-	import ListGroupItem from 'sveltestrap/src/ListGroupItem.svelte';
-	import Folder from '../components/Folder.svelte';
-	import marked from 'marked';
-	import ValidatedInput from '../components/ValidatedInput.svelte';
-	import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull} from '@mdi/js'
-	import Icon from '../components/Icon.svelte';
-import ButtonBar from '../components/ButtonBar.svelte';
-import Button from '../components/Button.svelte';
 
 	let root = [
 		{
@@ -199,7 +128,7 @@ import Button from '../components/Button.svelte';
 		},
 	];
 
-	root = tree;
+	root = $organizationsStore;
 
 	let activeSpec = true;
 	let activeDesc = false;
@@ -225,7 +154,7 @@ import Button from '../components/Button.svelte';
 	</CardBody>
 </Card>
 
-<!-- <Card> -->
+
 <div class="bottom-container">
 	<div class="bottom-left">
 		<Card>
@@ -239,7 +168,6 @@ import Button from '../components/Button.svelte';
 	<div class="spacer"></div>
 
 	<div class="bottom-right">
-
 	<Card>
 		<ListGroup class="d-flex flex-row p-1">
 			<ListGroupItem active={activeSpec} tag="button" action on:click={() => {activeSpec = true; activeDesc = false;}}>Specification</ListGroupItem>
@@ -264,10 +192,9 @@ import Button from '../components/Button.svelte';
 			</ButtonBar>
 		{/if}
 	</Card>
-
 	</div>
 </div>
-<!-- </Card> -->
+
 
 <style>
 	.bottom-container {

@@ -16,6 +16,47 @@
 	}
 </script>
 
+
+{#if first}
+	<ul>
+		{#each files as file}
+			<li>
+				{#if file.files != undefined}
+					<!-- {@debug file} -->
+					<svelte:self {...file}/>
+				{:else}
+					<span>{file.name}</span> <!--  style="background-image: url(tutorial/icons/{type}.svg) -->
+				{/if}
+			</li>
+		{/each}
+	</ul>
+{:else}
+
+	<span class="tooltip-css" class:expanded on:click={toggle}>
+		{#if expanded}▾{:else}▸{/if}{name}
+		<div class="tooltiptext-css">{type}</div>
+	</span>
+
+	{#if expanded}
+		<ul>
+			<!-- {@debug files} -->
+			{#each files as file}
+				<li>
+					{#if file.files != undefined}
+					<!-- {@debug file} -->
+						<svelte:self {...file}/>
+					{:else}
+						<!-- <span>{file.name}</span>   style="background-image: url(tutorial/icons/{type}.svg) -->
+						<span class="tooltip-css">{file.name}
+							<div class="tooltiptext-css">{file.type}</div>
+						</span>
+					{/if}
+				</li>
+			{/each}
+		</ul>
+	{/if}
+{/if}
+
 <style>
 	span {
 		/* padding: 0 0 0 1.5em; */
@@ -62,7 +103,7 @@
 	  padding: 5px 0;
 	  border-radius: 6px;
 	  
-	  /* Position the tooltip text - see examples below! */
+	  /* Position the tooltip text */
 	  position: absolute;
 	  z-index: 1;
 	  /* make unmarkable */
@@ -78,46 +119,3 @@
 		right: 105%;
 	}
 </style>
-
-
-
-
-{#if first}
-	<ul>
-		{#each files as file}
-			<li>
-				{#if file.files != undefined}
-					<!-- {@debug file} -->
-					<svelte:self {...file}/>
-				{:else}
-					<span>{file.name}</span> <!--  style="background-image: url(tutorial/icons/{type}.svg) -->
-				{/if}
-			</li>
-		{/each}
-	</ul>
-{:else}
-
-	<span class="tooltip-css" class:expanded on:click={toggle}>
-		{#if expanded}▾{:else}▸{/if}{name}
-		<div class="tooltiptext-css">{type}</div>
-	</span>
-
-	{#if expanded}
-		<ul>
-			<!-- {@debug files} -->
-			{#each files as file}
-				<li>
-					{#if file.files != undefined}
-					<!-- {@debug file} -->
-						<svelte:self {...file}/>
-					{:else}
-						<!-- <span>{file.name}</span>   style="background-image: url(tutorial/icons/{type}.svg) -->
-						<span class="tooltip-css">{file.name}
-							<div class="tooltiptext-css">{file.type}</div>
-						</span>
-					{/if}
-				</li>
-			{/each}
-		</ul>
-	{/if}
-{/if}

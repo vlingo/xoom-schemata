@@ -10,13 +10,6 @@
 
 	const dispatch = createEventDispatcher();
 
-	let id;
-	let name;
-	let description;
-	let nameValid = false;
-	let nameInvalid = false;
-	let descriptionValid = false;
-	let descriptionInvalid = false;
 </script>
 
 <Card>
@@ -30,9 +23,9 @@
 		<ButtonBar>
 			<slot name="buttons">
 				<Button color="info" text="NEW" on:click={() => dispatch("clear")}/> <!-- clear? -->
-				<Button color="primary" text="SAVE" on:click={dispatch("update")}/> <!-- update? -->
-				<Button color="primary" text="CREATE" on:click={dispatch("create")}/>
-				<Button color="primary" outline text="CREATE {next}" href="{next}"/>
+				<Button color="primary" text="SAVE" on:click={() => dispatch("update")}/> <!-- update? -->
+				<Button color="primary" text="CREATE" on:click={() => dispatch("create")}/>
+				<Button color="primary" outline text="CREATE {next}" href="{next.toLowerCase()}"/>
 			</slot>
 		</ButtonBar>
 	</CardBody>

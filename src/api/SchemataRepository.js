@@ -35,10 +35,10 @@ function ensureCreated(response) {
   return ensure(response, 201);
 }
 
-function repoGet(path) {
+async function repoGet(path) {
   return Repository.get(path)
   .then(ensureOk)
-  .then(res => res.json())
+  .then(res => res.json());
 }
 
 export default {
@@ -82,16 +82,16 @@ export default {
     return repoGet(resources.version(organization, unit, context, schema, version))
   },
 
-  createOrganization(name, description) {
-    return Repository.post(resources.organizations(),
+  async createOrganization(name, description) {
+    const response = await Repository.post(resources.organizations(),
       {
         organizationId: '',
         name: name,
         description: description
       }
-      )
-      .then(ensureCreated)
-      .then(response => response.data)
+    );
+    const res = await ensureCreated(response);
+    return res.json();
   },
   updateOrganization(id, name, description) {
     return Repository.put(resources.organization(id), {
@@ -102,16 +102,16 @@ export default {
       .then(ensureOk)
       .then(response => response.data)
   },
-  createUnit(organization, name, description) {
-    return Repository.post(resources.units(organization),
+  async createUnit(organization, name, description) {
+    const response = await Repository.post(resources.units(organization),
       {
         unitId: '',
         name: name,
         description: description
       }
-      )
-      .then(ensureCreated)
-      .then(response => response.data)
+    );
+    const res = await ensureCreated(response);
+    return res.json();
   },
   updateUnit(organization, id, name, description) {
     return Repository.put(resources.unit(organization, id), {
@@ -123,15 +123,15 @@ export default {
       .then(response => response.data)
   },
 
-  createContext(organization, unit, namespace, description) {
-    return Repository.post(resources.contexts(organization, unit),
+  async createContext(organization, unit, namespace, description) {
+    const response = await Repository.post(resources.contexts(organization, unit),
       {
         contextId: '',
         namespace: namespace,
         description: description
-      })
-      .then(ensureCreated)
-      .then(response => response.data)
+      });
+    const res = await ensureCreated(response);
+    return res.json();
   },
   updateContext(organizationId, unitId, id, namespace, description) {
     return Repository.put(resources.context(organizationId, unitId, id), {
@@ -143,17 +143,17 @@ export default {
       .then(response => response.data)
   },
 
-  createSchema(organization, unit, context, name, scope, category, description) {
-    return Repository.post(resources.schemata(organization, unit, context),
+  async createSchema(organization, unit, context, name, scope, category, description) {
+    const response = await Repository.post(resources.schemata(organization, unit, context),
       {
         schemaId: '',
         name: name,
         scope: scope,
         category: category,
         description: description
-      })
-      .then(ensureCreated)
-      .then(response => response.data)
+      });
+    const res = await ensureCreated(response);
+    return res.json();
   },
   updateSchema(organizationId, unitId, contextId, id, name, category, scope, description) {
     return Repository.put(resources.schema(organizationId, unitId, contextId, id), {
@@ -166,10 +166,10 @@ export default {
       .then(ensureOk)
       .then(response => response.data)
   },
-  createSchemaVersion(
+  async createSchemaVersion(
     organization, unit, context, schema,
     specification, description, previousVersion, currentVersion) {
-    return Repository.post(resources.versions(organization, unit, context, schema),
+    const response = await Repository.post(resources.versions(organization, unit, context, schema),
       {
         schemaVersionId: '',
         specification: specification,
@@ -177,9 +177,9 @@ export default {
         currentVersion: currentVersion,
         description: description
       }
-      )
-      .then(ensureCreated)
-      .then(response => response.data)
+    );
+    const response_1 = await ensureCreated(response);
+    return response_1.data;
   },
   saveSchemaVersionSpecification(
     organization, unit, context, schema, version, specification) {
