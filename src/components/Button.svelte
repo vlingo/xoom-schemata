@@ -12,7 +12,7 @@
 
 
 
-<StrapButton class="mx-1" {outline} {color} {href}>
+<StrapButton on:click class="mx-1" {outline} {color} {href}>
 	<span>
 		{#if icon}
 			<Icon {icon}/>
