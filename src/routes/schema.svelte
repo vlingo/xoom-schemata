@@ -5,6 +5,7 @@
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
 	import { contextStringReturner, getCompatible, getId, initSelected, isCompatibleToOrg, isCompatibleToUnit, orgStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
+import errors from '../errors';
 
 	let id;
 	let name;
@@ -62,7 +63,7 @@
 	}
 
 	const create = () => {
-		if(!name || !description || !$organizationStore || !$unitStore || !$contextStore || scope || category) {
+		if(!name || !description || !$organizationStore || !$unitStore || !$contextStore || !scope || !category) {
 			console.log(errors.SUBMIT);
 			return;
 		}
@@ -77,7 +78,7 @@
 
 </script>
 
-<CardForm title="Schema" next="SCHEMA VERSION" on:clear={clear} on:update on:create={create}>
+<CardForm title="Schema" linkToNext="SCHEMA VERSION" href="schemaVersion" on:clear={clear} on:update on:create={create}>
 	<ValidatedInput label="SchemaID" bind:value={id} disabled/>
 	<span class="flex-two-col">
 		<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>

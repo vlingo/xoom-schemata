@@ -6,7 +6,8 @@
 	import ButtonBar from './ButtonBar.svelte';
 
 	export let title = "";
-	export let next = "NEXT";
+	export let linkToNext = "NEXT";
+	export let href = linkToNext.split(" ")[1].toLowerCase(); //"CREATE UNIT" = unit
 
 	const dispatch = createEventDispatcher();
 
@@ -25,7 +26,7 @@
 				<Button color="info" text="NEW" on:click={() => dispatch("clear")}/> <!-- clear? -->
 				<Button color="primary" text="SAVE" on:click={() => dispatch("update")}/> <!-- update? -->
 				<Button color="primary" text="CREATE" on:click={() => dispatch("create")}/>
-				<Button color="primary" outline text="CREATE {next}" href="{next.toLowerCase()}"/>
+				<Button color="primary" outline text={linkToNext} {href}/>
 			</slot>
 		</ButtonBar>
 	</CardBody>

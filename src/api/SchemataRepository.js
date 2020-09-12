@@ -166,9 +166,7 @@ export default {
       .then(ensureOk)
       .then(response => response.data)
   },
-  async createSchemaVersion(
-    organization, unit, context, schema,
-    specification, description, previousVersion, currentVersion) {
+  async createSchemaVersion(organization, unit, context, schema, specification, description, previousVersion, currentVersion) {
     const response = await Repository.post(resources.versions(organization, unit, context, schema),
       {
         schemaVersionId: '',
@@ -178,8 +176,8 @@ export default {
         description: description
       }
     );
-    const response_1 = await ensureCreated(response);
-    return response_1.data;
+    const res = await ensureCreated(response);
+    return res.json();
   },
   saveSchemaVersionSpecification(
     organization, unit, context, schema, version, specification) {

@@ -47,7 +47,7 @@
 	}
 </script>
 
-<CardForm title="Unit" next="CONTEXT" on:clear={clear} on:update on:create={create}>
+<CardForm title="Unit" linkToNext="CREATE CONTEXT" on:clear={clear} on:update on:create={create}>
 	<ValidatedInput label="UnitID" bind:value={id} disabled/>
 	<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
 	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>

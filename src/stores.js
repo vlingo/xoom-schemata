@@ -34,3 +34,10 @@ export const schemaStore = writable(
     }
 );
 export const schemasStore = writable([]);
+
+export const schemaVersionStore = writable(
+    {
+       
+    }
+);
+export const schemaVersionsStore = writable([]);

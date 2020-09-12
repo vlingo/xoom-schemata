@@ -57,7 +57,7 @@
 
 </script>
 
-<CardForm title="Context" next="SCHEMA" on:clear={clear} on:update on:create={create}>
+<CardForm title="Context" linkToNext="CREATE SCHEMA" on:clear={clear} on:update on:create={create}>
 	<ValidatedInput label="ContextID" bind:value={id} disabled/>
 	<div class="flex-two-col">
 		<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>

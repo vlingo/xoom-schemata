@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { organizationStore, unitStore } from './stores';
+import { contextStore, organizationStore, unitStore } from './stores';
 
 export function selectStringsFrom(arr, stringReturner) {
 	return arr.map(obj => {
@@ -34,11 +34,10 @@ export function getId(str) {
 }
 
 
-// export function getCompatibleUnits(o) {
-// 	return ($unitsStore).filter(u => u.organizationId == o.organizationId);
-// }
-
-
+export function getCompatible(fromElements, predicate, fieldValue) {
+	if(!fieldValue) return [];
+	return (fromElements).filter(obj => predicate(obj));
+}
 
 export function isCompatibleToOrg(obj) {
 	return obj.organizationId == get(organizationStore).organizationId;
@@ -49,10 +48,8 @@ export function isCompatibleToOrg(obj) {
 export function isCompatibleToUnit(obj) {
 	return obj.unitId == get(unitStore).unitId;
 }
-
-export function getCompatible(fromElements, predicate, fieldValue) {
-	if(!fieldValue) return [];
-	return (fromElements).filter(obj => predicate(obj));
+export function isCompatibleToContext(obj) {
+	return obj.contextId == get(contextStore).contextId;
 }
 
 	// logic if I were to abstract id

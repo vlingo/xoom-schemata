@@ -36,7 +36,7 @@
 </script>
 
 
-<CardForm title="Organization" next="UNIT" on:clear={clear} on:update on:create={create}>
+<CardForm title="Organization" linkToNext="CREATE UNIT" on:clear={clear} on:update on:create={create}>
 	<ValidatedInput label="OrganizationID" bind:value={id} disabled/>
 	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
