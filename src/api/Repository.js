@@ -15,7 +15,16 @@ export async function post(path, body) {
 	return res;
 }
 
-let client = { get, post }
+export async function put(path, body) {
+	const res = await fetch(root + path, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json'},
+		body: JSON.stringify(body)
+	});
+	return res;
+}
+
+let client = { get, post, put }
 
 export default client;
   

@@ -1,86 +1,78 @@
 <script context="module">
+	import SchemataRepository from '../api/SchemataRepository';
+
 	export async function preload(page, session) {
-		// `this.fetch` is a wrapper around `fetch` that allows you to make credentialled requests on both server and client
-		var _this = this;
 
-		let tree = [];
+		if(process.browser) {
+		const orgs = await SchemataRepository.getOrganizations();
 
-		async function fetchOrgsInto(tree) {
-			const res = await _this.fetch('http://localhost:9019/organizations');
-			const orgs = await res.json();
-			for(const org of orgs) {
-				tree.push(
-					{
-						type: 'organization',
-						name: org.name,
-						id: org.organizationId,
-					}
-				)
-			}
-		};
-		await fetchOrgsInto(tree);
-		// console.log("after orgs:", {tree});
+		let units = [];
 
-		async function fetchUnitsInto(tree) {
-			for(const org of tree) {
-				const res = await _this.fetch(`http://localhost:9019/organizations/${org.id}/units`);
-				const units = await res.json();
+		let contexts = [];
+
+		let schemas = [];
+		
+		for(const org of orgs) {
+			const orgUnits = await SchemataRepository.getUnits(org.organizationId);
+			if(orgUnits) {
+				console.log({orgUnits});
+				units.push(...orgUnits);
 				for(const unit of units) {
-					if(!org.files) org.files = [];
-					org.files.push(
-						{
-							type: 'unit',
-							name: unit.name,
-							id: unit.unitId,
-						}
-					)
-				}
-			}
-		};
-		await fetchUnitsInto(tree);
-		// console.log("after units:", {tree}, tree[0].files);
-
-		async function fetchContextsInto(tree) {
-			for(const org of tree) {
-				if(org.files) {
-					for(const unit of org.files) {
-						const res = await _this.fetch(`http://localhost:9019/organizations/${org.id}/units/${unit.id}/contexts`);
-						const contexts = await res.json();
-
+					const unitContexts = await SchemataRepository.getContexts(org.organizationId, unit.unitId);
+					if(unitContexts) {
+						contexts.push(...unitContexts);
 						for(const context of contexts) {
-							if(!unit.files) unit.files = [];
-							unit.files.push(
-								{
-									type: 'context',
-									name: context.namespace,
-									id: context.contextId,
-								}
-							)
+							const contextSchemas = await SchemataRepository.getSchemata(org.organizationId, unit.unitId, context.contextId);
+							if(contextSchemas) {
+								schemas.push(...contextSchemas);
+							}
 						}
 					}
 				}
 			}
-		};
-		await fetchContextsInto(tree);
-		// console.log("after contexts:", {tree}, tree[0].files, tree[0].files[0].files);
+		}
 
-
-		return { tree };
+		return { orgs, units, contexts, schemas };
+		}
 	}
 </script>
+
 <script>
 	import Nav from '../components/Nav.svelte';
-	import { firstPage, organizationsStore } from '../stores';
+	import { contextsStore, contextStore, firstPage, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
 
-	// export let tree;
+	export let orgs;
+	export let units;
+	export let contexts;
+	export let schemas;
 	
-	
-	// if($firstPage) {
-	// 	console.log({$firstPage}, "BEFORE");
-	// 	$organizationsStore.push(...tree);
-	// 	$firstPage = false;
-	// 	console.log({$firstPage}, "AFTER");
-	// }
+	if($firstPage) {
+		console.log({$firstPage}, "BEFORE");
+		console.log(orgs, units, contexts, schemas);
+
+		// maybe need to check if empty
+		// array[0] will be undefined if none exist
+		if(orgs) {
+			$organizationsStore.push(...orgs);
+			$organizationStore = orgs[0];
+		}
+		if(units) {
+			$unitsStore.push(...units);
+			$unitStore = units[0];
+		}
+		if(contexts) {
+			$contextsStore.push(...contexts);
+			$contextStore = contexts[0];
+		}
+		if(schemas) {
+			$schemasStore.push(...schemas);
+			$schemaStore = schemas[0];
+		}
+
+		$firstPage = false;
+
+		console.log({$firstPage}, "AFTER");
+	}
 
 </script>
 

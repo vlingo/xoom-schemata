@@ -4,19 +4,14 @@ export const firstPage = writable(true);
 
 export const organizationStore = writable(
 	{
-        organizationId: '',
-        name: '',
-        description: ''
+
     }
 );
 export const organizationsStore = writable([]);
 
 export const unitStore = writable(
 	{
-        organizationId: '',
-        unitId: '',
-        name: '',
-        description: ''
+        
     }
 );
 export const unitsStore = writable([]);

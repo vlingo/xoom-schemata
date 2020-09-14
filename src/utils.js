@@ -27,7 +27,7 @@ export function schemaStringReturner(s) {
 	return `${s.name} - ${s.schemaId}`
 }
 
-
+ //last index should always be the id!
 export function getId(str) {
 	const words = str.split(" ");
 	return words[words.length-1];

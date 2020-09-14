@@ -5,13 +5,25 @@
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationStore, organizationsStore } from '../stores'
 	import errors from '../errors';
+	import { getId, initSelected, orgStringReturner, selectStringsFrom } from '../utils';
 
 	let id;
 	let name;
 	let description;
 
+	//better would be to have the user shoose "create-mode", "update-mode" etc. e.g. start with create mode, after creation show update mode
+	// if store has an org, let user decide (CardHead: Organization ___whitespace___ Create Update (Delete?))
+
+	let orgSelectDisabled = ($organizationsStore).length < 1;
+
+	let selectedOrg = initSelected($organizationStore, orgStringReturner);
+	$: orgId = getId(selectedOrg);
+	$: if(orgId || !orgId) $organizationStore = ($organizationsStore).find(o => o.organizationId == orgId);
+
+	let orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
+
 	const create = async () => {
-		// could also be implemented by firing validation on the inputs (via flag or exposing valueValid/Invalid)
+		// could also be implemented by firing validation on the inputs (via flag or exposing valueValid/Invalid) <-no, just disable buttons again, and this is an extra
 		if(!name || !description) {
 			console.log(errors.SUBMIT);
 			return;
@@ -22,6 +34,26 @@
 				$organizationStore = created;
 				$organizationsStore.push(created);
 				clear();
+				orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
+				selectedOrg = initSelected($organizationStore, orgStringReturner);
+				orgSelectDisabled = false;
+			})
+	}
+
+	const update = async () => {
+		if(!orgId || !name || !description) {
+			console.log(errors.SUBMIT);
+			return;
+		}
+		SchemataRepository.updateOrganization(orgId, name, description)
+			.then(updated => {
+				console.log({updated});
+				$organizationStore = updated;
+				$organizationsStore = ($organizationsStore).filter(org => org.organizationId != orgId);
+				$organizationsStore.push(updated);
+				clear();
+				orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
+				selectedOrg = initSelected($organizationStore, orgStringReturner);
 			})
 	}
 	
@@ -36,8 +68,10 @@
 </script>
 
 
-<CardForm title="Organization" linkToNext="CREATE UNIT" on:clear={clear} on:update on:create={create}>
-	<ValidatedInput label="OrganizationID" bind:value={id} disabled/>
+<CardForm title="Organization" linkToNext="CREATE UNIT" on:clear={clear} on:update={update} on:create={create}>
+	<!-- extra-component only shown in update mode ? -->
+		<ValidatedInput disabled={orgSelectDisabled} type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
+	<!-- / -->
 	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
 </CardForm>

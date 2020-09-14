@@ -254,8 +254,8 @@
 			},
 		]
 	};
-	root = showcase;
-	// root = tree;
+	// root = showcase;
+	root = tree;
 	console.log(root);
 
 	let activeSpec = true;

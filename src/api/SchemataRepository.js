@@ -100,7 +100,7 @@ export default {
         description: description
       })
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
   async createUnit(organization, name, description) {
     const response = await Repository.post(resources.units(organization),

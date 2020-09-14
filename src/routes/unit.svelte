@@ -4,7 +4,7 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
-	import { initSelected, orgStringReturner, selectStringsFrom } from '../utils';
+	import { getId, initSelected, orgStringReturner, selectStringsFrom } from '../utils';
 	import errors from '../errors';
 
 	let id;
@@ -17,7 +17,7 @@
 	// }
 
 	let selectedOrg = initSelected($organizationStore, orgStringReturner); //initial value
-	$: orgId = selectedOrg.split(" ")[selectedOrg.split(" ").length-1]; //last index should always be the id!
+	$: orgId = getId(selectedOrg); //last index should always be the id!
 	$: if(orgId || !orgId) $organizationStore = ($organizationsStore).find(o => o.organizationId == orgId);
 
 	const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
