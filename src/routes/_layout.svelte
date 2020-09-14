@@ -72,7 +72,7 @@
 	import Nav from '../components/Nav.svelte';
 	import { firstPage, organizationsStore } from '../stores';
 
-	export let tree;
+	// export let tree;
 	
 	
 	// if($firstPage) {
