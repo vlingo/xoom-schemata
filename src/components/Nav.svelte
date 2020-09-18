@@ -21,7 +21,7 @@ import {
   }
 </script>
 
-<Navbar color="light" light expand="md">
+<Navbar style="flex-flow: column wrap;" color="light" light expand="md">
 	<NavbarBrand href="/"><span>VLINGO</span>/SCHEMATA</NavbarBrand>
 	<NavbarToggler on:click={() => (isOpen = !isOpen)} />
 	<Collapse {isOpen} navbar expand="md" on:update={handleUpdate}>

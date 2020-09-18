@@ -1,4 +1,5 @@
 <script>
+	import { getFileString } from "../utils";
 	import Tooltip from "./Tooltip.svelte";
 
 	export let first = false;
@@ -10,8 +11,6 @@
 	function toggle() {
 		expanded = !expanded;
 	}
-
-	const toolTipStringReturner = obj => Object.keys(obj).filter(attrib => attrib!=="type" && attrib!=="files").map(key => obj[key]).join(" - ");
 </script>
 
 
@@ -19,7 +18,7 @@
 <span class:expanded>
 	<Tooltip tooltipText={file.type} on:click={toggle}>
 		{#if expanded}▾{:else}▸{/if}
-		{toolTipStringReturner(file)}
+		{getFileString(file)}
 	</Tooltip>
 </span>
 {/if}
@@ -35,7 +34,7 @@
 					<!-- this is the leaf-element, we could style it differently-->
 					<span>
 						<Tooltip tooltipText={file.type}>
-							{toolTipStringReturner(file)}
+							{getFileString(file)}
 						</Tooltip>
 					</span>
 				{/if}

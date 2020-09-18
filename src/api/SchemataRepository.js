@@ -120,7 +120,7 @@ export default {
         description: description
       })
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
 
   async createContext(organization, unit, namespace, description) {
@@ -140,7 +140,7 @@ export default {
         description: description
       })
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
 
   async createSchema(organization, unit, context, name, scope, category, description) {
@@ -164,7 +164,7 @@ export default {
         description: description
       })
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
   async createSchemaVersion(organization, unit, context, schema, specification, description, previousVersion, currentVersion) {
     const response = await Repository.post(resources.versions(organization, unit, context, schema),
@@ -193,23 +193,16 @@ export default {
       config
       )
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
   saveSchemaVersionDescription(
     organization, unit, context, schema, version, description) {
-    let config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      responseType: 'text'
-    };
     return Repository.patch(
       resources.schemaDescription(organization, unit, context, schema, version),
-      description,
-      config
+      description
       )
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
   setSchemaVersionStatus(
     organization, unit, context, schema, version, status) {

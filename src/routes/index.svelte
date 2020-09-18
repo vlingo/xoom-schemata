@@ -1,19 +1,3 @@
-
-
-<!-- <script context="module">
-	export async function preload(page, session) {
-		const { slug } = page.params;
-
-		const res = await this.fetch(`blog/${slug}.json`);
-		const article = await res.json();
-
-		return { article };
-	}
-</script> -->
-
-
-
-
 <script>
 	import StrapButton from 'sveltestrap/src/Button.svelte';
 	import Card from 'sveltestrap/src/Card.svelte';
@@ -31,8 +15,11 @@
 	import ButtonBar from '../components/ButtonBar.svelte';
 	import Button from '../components/Button.svelte';
 
-	import { contextsStore, organizationsStore, schemasStore, schemaVersionsStore, unitsStore } from '../stores';
 	import { onMount } from 'svelte';
+
+	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
+	import SchemataRepository from '../api/SchemataRepository';
+	import errors from '../errors';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
@@ -139,10 +126,10 @@
 							if(context.files) {
 								for(const schema of context.files) {
 									const compatibleSchemaVersions = ($schemaVersionsStore).filter(sv => sv.schemaId == schema.id);
-									if(compatibleSchemaVersions.length>0) context.files = [];
+									if(compatibleSchemaVersions.length>0) schema.files = [];
 									
 									for(const schemaVersion of compatibleSchemaVersions) {
-										context.files.push(
+										schema.files.push(
 											{
 												type: 'schemaVersion',
 												specification: schemaVersion.specification,
@@ -161,37 +148,10 @@
 			}
 		}
 
-		// console.log(document.querySelector(".navbar-brand"));
-		// console.log("index");
-
-		// const orgs = await SchemataRepository.getOrganizations();
-		// console.log({orgs});
-		// const newOrg = await SchemataRepository.createOrganization("test2", "test2desc");
-		// console.log({newOrg});
-		// const orgs2 = await SchemataRepository.getOrganizations();
-		// console.log({orgs2});
-
-	// 	const module = await import('my-non-ssr-component');
-	// 	MyComponent = module.default;
+		// console.log(document);
 	}
-	// if (process.browser) {}
-
-	// fetch(url, {
-	// 	method: 'POST',
-	// 	body: JSON.stringify(data),
-	// 	headers: {
-	// 		'Content-Type': 'application/json'
-	// 	}
-	// })
-	// .then(r => {
-	// 	r.json()
-	// 	.then(function(result) {
-	// 		// The data is posted: do something with the result...
-	// 		console.log(result);
-	// 	})
-	// })
-	// .catch(err => { })
-	let root;
+	
+	let root = [];
 	let showcase = {
 		files: [
 			{
@@ -266,6 +226,44 @@
 	let specification = "";
 	let description = "";
 
+// stores suboptimal, you would need to be able to select them (e.g. in Folder structure)
+	const updateDescription = () => {
+		if(!$schemaVersionStore || !description || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore) {
+			console.log(errors.SUBMIT);
+			return;
+		}
+		SchemataRepository.saveSchemaVersionDescription(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, description)
+			.then(updated => {
+				console.log({updated});
+				$schemaVersionStore = updated;
+				$schemaVersionsStore = ($schemaVersionsStore).filter(schemaVersion => schemaVersion.schemaVersionId != ($schemaVersionStore).schemaVersionId);
+				$schemaVersionsStore.push(updated);
+
+				// I know, this is bad, could at least be recursive or the tree could be a map: tree[orgId][unitId]...
+				// or reload the page, but that takes longer
+				// or abuse Folder.svelte to change leaf element if it is "type=schemaVersion" and "{#if} string:newDescription" or something like that
+				const oidx = root.files.findIndex(org => org.id == updated.organizationId);
+				const uidx = root.files[oidx].files.findIndex(unit => unit.id == updated.unitId);
+				const cidx = root.files[oidx].files[uidx].files.findIndex(context => context.id == updated.contextId)
+				const sidx = root.files[oidx].files[uidx].files[cidx].files.findIndex(schema => schema.id == updated.schemaId)
+				const svidx = root.files[oidx].files[uidx].files[cidx].files[sidx].files.findIndex(schemaVersion => schemaVersion.id == updated.schemaVersionId)
+				root.files[oidx].files[uidx].files[cidx].files[sidx].files[svidx] = 
+				{
+					type: 'schemaVersion',
+					specification: updated.specification,
+					description: updated.description,
+					previous: updated.previous,
+					current: updated.current,
+					id: updated.schemaVersionId
+				};
+			})
+	}
+	const updateSpecification = () => {
+		
+	}
+	const updateStatus = (status) => {
+		
+	}
 </script>
 
 <Card>
@@ -305,24 +303,23 @@
 		{#if activeSpec}
 			<ValidatedInput type="textarea" bind:value={specification}/>
 			<ButtonBar>
-				<Button outline color="primary" icon={mdiLabel} text="PUBLISH"/>
-				<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE"/>
-				<Button outline color="danger" icon={mdiDelete} text="REMOVE"/>
-				<Button outline color="info" icon={mdiSourcePull} text="INFO"/>
-				<Button color="info" text="SAVE SPECIFICATION"/>
+				<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={updateStatus("Publish")}/>
+				<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={updateStatus("Deprecate")}/>
+				<Button outline color="danger" icon={mdiDelete} text="REMOVE" on:click={updateStatus("Remove")}/>
+				<Button outline color="info" icon={mdiSourcePull} text="INFO" on:click={updateStatus("Info")}/>
+				<Button color="info" text="SAVE SPECIFICATION" on:click={updateSpecification}/>
 			</ButtonBar>
 		{:else}
 			<ValidatedInput type="textarea" bind:value={description}/>
 			<ButtonBar>
 				<Button color="success" text="PREVIEW"/>
 				<Button color="warning" text="REVERT"/>
-				<Button color="info" text="SAVE DESCRIPTION"/>
+				<Button color="info" text="SAVE DESCRIPTION" on:click={updateDescription}/>
 			</ButtonBar>
 		{/if}
 	</Card>
 	</div>
 </div>
-
 
 <style>
 	.bottom-container {

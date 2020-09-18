@@ -24,7 +24,16 @@ export async function put(path, body) {
 	return res;
 }
 
-let client = { get, post, put }
+export async function patch(path, body) {
+	const res = await fetch(root + path, {
+		method: 'PATCH',
+		headers: { 'Content-Type': 'application/json'},
+		body: body,
+	});
+	return res;
+}
+
+let client = { get, post, put, patch }
 
 export default client;
   

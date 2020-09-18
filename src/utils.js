@@ -27,12 +27,60 @@ export function schemaStringReturner(s) {
 	return `${s.name} - ${s.schemaId}`
 }
 
+export function schemaVersionStringReturner(sv) {
+	return `${sv.currentVersion} - ${sv.status} - ${sv.schemaVersionId}`
+}
+
  //last index should always be the id!
 export function getId(str) {
 	const words = str.split(" ");
 	return words[words.length-1];
 }
 
+//more can be removed
+export function getFileString(file) {
+	switch(file.type) {
+		case "organization": return getOrganizationDetails(file);
+			break;
+		case "unit": return getUnitDetails(file);
+			break;
+		case "context": return getContextDetails(file);
+			break;
+		case "schema": return getSchemaDetails(file);
+			break;
+		case "schemaVersion": return getSchemaVersionDetails(file);
+			break;
+		default: console.log("type is non-existent.");
+	}
+	
+}
+
+function filterSchemaAttributes(attributes) {
+	return attributes.filter(attrib => attrib !== "previous" && attrib !== "specification");
+}
+function filterCommonFrom(file) {
+	return Object.keys(file).filter(attrib => attrib !== "type" && attrib !== "files" && attrib !== "description");
+}
+function makeFileString(file, attributes) {
+	// return attributes.map(key => `${key}: ${file[key]}`).join(" - ");
+	return attributes.map(key => file[key]).join(" - ");
+}
+function getOrganizationDetails(file) {
+	return makeFileString(file, filterCommonFrom(file));
+}
+
+function getUnitDetails(file) {
+	return makeFileString(file, filterCommonFrom(file));
+}
+function getContextDetails(file) {
+	return makeFileString(file, filterCommonFrom(file));
+}
+function getSchemaDetails(file) {
+	return makeFileString(file, filterCommonFrom(file));
+}
+function getSchemaVersionDetails(file) {
+	return makeFileString(file, filterSchemaAttributes(filterCommonFrom(file)));
+}
 
 export function getCompatible(fromElements, predicate, fieldValue) {
 	if(!fieldValue) return [];
