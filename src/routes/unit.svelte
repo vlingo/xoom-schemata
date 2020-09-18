@@ -4,27 +4,50 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
-	import { getId, initSelected, orgStringReturner, selectStringsFrom } from '../utils';
+	import { getCompatible, getId, initSelected, isCompatibleToOrg, orgStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
 	import errors from '../errors';
 
-	let id;
 	let name;
 	let description;
 
+
+	let unitSelectDisabled = ($unitsStore).length < 1;
+
+
+	// could change to that, but more to write
 	// $: $organizationStore = changedOrg(orgId);
 	// function changedOrg(orgId) {
 	// 	return ($organizationsStore).find(o => o.name == orgId);
 	// }
 
-	let selectedOrg = initSelected($organizationStore, orgStringReturner); //initial value
-	$: orgId = getId(selectedOrg); //last index should always be the id!
-	$: if(orgId || !orgId) $organizationStore = ($organizationsStore).find(o => o.organizationId == orgId);
+	let compatibleUnits;
 
+	let selectedOrg = initSelected($organizationStore, orgStringReturner);
+	$: organizationId = getId(selectedOrg); //last index should always be the id!
+	$: if(organizationId || !organizationId) {
+		$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
+		compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg);
+	}
+
+	let selectedUnit = initSelected($unitStore, unitStringReturner); //initial, should always be compatible, because you need to choose org first.
+	$: unitId = getId(selectedUnit);
+	$: if(unitId) $unitStore = ($unitsStore).find(u => isCompatibleToOrg(u));
+
+
+	//strings which are shown to the user, unitSelect changes if compatibleUnits change
 	const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
+	$: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner);
+
+
+
+	// let selectedOrg = initSelected($organizationStore, orgStringReturner); //initial value
+	// $: orgId = getId(selectedOrg); //last index should always be the id!
+	// $: if(orgId || !orgId) $organizationStore = ($organizationsStore).find(o => o.organizationId == orgId);
+
+	// const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
 	
 	let clearFlag = false;
 	const clear = () => {
-		id = "";
 		name = "";
 		description = "";
 		selectedOrg = initSelected($organizationStore, orgStringReturner);
@@ -43,12 +66,56 @@
 				$unitStore = created;
 				$unitsStore.push(created);
 				clear();
+				unitSelect = selectStringsFrom($unitsStore, unitStringReturner);
+				selectedUnit = initSelected($unitStore, unitStringReturner);
+				unitSelectDisabled = false;
 			})
+	}
+
+	// maybe the unitId should also come from the store (if we validate the value before pushing it to the store, for example.)
+	// can just be changed here and work the same
+	const update = async () => {
+		if(!unitId || !name || !description || !$organizationStore) {
+			console.log(errors.SUBMIT);
+			return;
+		}
+		SchemataRepository.updateUnit(($organizationStore).organizationId, unitId, name, description)
+			.then(updated => {
+				console.log({updated});
+				$unitStore = updated;
+				$unitsStore = ($unitsStore).filter(unit => unit.unitId != unitId);
+				$unitsStore.push(updated);
+				clear();
+				unitSelect = selectStringsFrom($unitsStore, unitStringReturner);
+				selectedUnit = initSelected($unitStore, unitStringReturner);
+			})
+	}
+
+	let isCreateDisabled = true;
+	let isNextDisabled = true;
+	let isUpdateDisabled = true;
+
+	$: if(name && description && organizationId) { //&& !unitId
+		isCreateDisabled = false;
+	} else {
+		isCreateDisabled = true;
+	}
+
+	$: if(unitId) {
+		isNextDisabled = false;
+	}
+
+	$: if(unitId && organizationId && name && description) {
+		isUpdateDisabled = false;
+	} else {
+		isUpdateDisabled = true;
 	}
 </script>
 
-<CardForm title="Unit" linkToNext="CREATE CONTEXT" on:clear={clear} on:update on:create={create}>
-	<ValidatedInput label="UnitID" bind:value={id} disabled/>
+<CardForm title="Unit" linkToNext="CREATE CONTEXT" on:clear={clear} on:update={update} on:create={create} {isCreateDisabled} {isNextDisabled} {isUpdateDisabled}>
+	<!-- extra-component only shown in update mode ? -->
+		<ValidatedInput disabled={unitSelectDisabled} type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
+	<!-- /<ValidatedInput label="UnitID" bind:value={id} disabled/> -->
 	<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
 	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>

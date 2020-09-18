@@ -7,12 +7,13 @@
 	export let outline = false;
 	export let icon = "";
 	export let href = "";
+	export let disabled;
 
 </script>
 
 
 
-<StrapButton on:click class="mx-1" {outline} {color} {href}>
+<StrapButton disabled={disabled} on:click class="mx-1" {outline} {color} {href}>
 	<span>
 		{#if icon}
 			<Icon {icon}/>

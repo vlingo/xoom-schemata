@@ -7,18 +7,19 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
-	import { contextStringReturner, getCompatible, getId, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, orgStringReturner, schemaStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
+	import { contextStringReturner, getCompatible, getId, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, orgStringReturner, schemaStringReturner, schemaVersionStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
 	import errors from '../errors';
+	import ButtonBar from '../components/ButtonBar.svelte';
 	
 	const validator = (v) => {
 		return /^\d+\.\d+\.\d+$/.test(v)
 	}
 
-	let id;
 	let description;
-	let previous;
-	let current;
+	let previous = "0.0.0"; //previousVersion();
+	let current = "0.0.1"; //= previous "+1"
 	let specification;
+	
 
 	let compatibleUnits;
 	let compatibleContexts;
@@ -69,7 +70,6 @@
 
 	let clearFlag = false;
 	const clear = () => {
-		id = "";
 		description = "";
 		previous = "";
 		current = "";
@@ -100,10 +100,23 @@
 				clear();
 			})
 	}
+
+	let isCreateDisabled = true;
+	let isNextDisabled = true;
+
+	$: if(validator(previous) && validator(current) && description && specification && organizationId && unitId && contextId && schemaId) {
+		isCreateDisabled = false;
+	} else {
+		isCreateDisabled = true;
+	}
+
+	$: if($schemaVersionStore) {
+		isNextDisabled = false;
+	}
+
 </script>
 
-<CardForm title="Schema Version" linkToNext="Home" href="/" on:clear{clear} on:update on:create={create}>
-	<ValidatedInput label="SchemaID" bind:value={id} disabled/>
+<CardForm title="Schema Version" linkToNext="Home" href="/" on:clear{clear} on:create={create}>
 	<div class="flex-two-col">
 		<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
 		<ValidatedInput type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
@@ -119,9 +132,17 @@
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
 	<ValidatedInput type="textarea" label="Specification" bind:value={specification} {clearFlag}/>
 
-	<!-- <div slot="buttons">
-		<Button color="primary" text="CREATE" on:click={() => {}}/>
-	</div> -->
+	<div slot="buttons">
+		<ButtonBar>
+			<div class="mr-auto">
+				<Button color="info" text="NEW" on:click={clear}/>
+			</div>
+			<Button color="primary" text="CREATE" on:click={create} disabled={isCreateDisabled}/>
+			{#if !isNextDisabled}
+				<Button color="primary" outline text={"Home"} href={"/"} disabled={isNextDisabled}/>
+			{/if}
+		</ButtonBar>
+	</div>
 </CardForm>
 
 {#if description}

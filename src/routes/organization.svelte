@@ -7,7 +7,6 @@
 	import errors from '../errors';
 	import { getId, initSelected, orgStringReturner, selectStringsFrom } from '../utils';
 
-	let id;
 	let name;
 	let description;
 
@@ -38,6 +37,7 @@
 				selectedOrg = initSelected($organizationStore, orgStringReturner);
 				orgSelectDisabled = false;
 			})
+		isNextDisabled = false;
 	}
 
 	const update = async () => {
@@ -57,18 +57,39 @@
 			})
 	}
 	
+	// maybe look into this, I just don't know enough stuff - document.getElementById("myForm").reset();
 	let clearFlag = false;
 	const clear = () => {
-		id = "";
+		orgId = ""; //?
 		name = "";
 		description = "";
 
 		clearFlag = !clearFlag;
 	}
+
+	let isCreateDisabled = true;
+	let isNextDisabled = true;
+	let isUpdateDisabled = true;
+
+	$: if(name && description) { //&& !orgId
+		isCreateDisabled = false;
+	} else {
+		isCreateDisabled = true;
+	}
+
+	$: if(orgId) {
+		isNextDisabled = false;
+	}
+	
+	$: if(orgId && name && description) {
+		isUpdateDisabled = false;
+	} else {
+		isUpdateDisabled = true;
+	}
 </script>
 
 
-<CardForm title="Organization" linkToNext="CREATE UNIT" on:clear={clear} on:update={update} on:create={create}>
+<CardForm title="Organization" linkToNext="CREATE UNIT" on:clear={clear} on:update={update} on:create={create} {isCreateDisabled} {isNextDisabled} {isUpdateDisabled}>
 	<!-- extra-component only shown in update mode ? -->
 		<ValidatedInput disabled={orgSelectDisabled} type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
 	<!-- / -->
