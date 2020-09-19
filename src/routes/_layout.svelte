@@ -47,6 +47,7 @@
 <script>
 	import Nav from '../components/Nav.svelte';
 	import { contextsStore, contextStore, firstPage, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
+	import { initContextStores, initOrgStores, initSchemaStores, initSchemaVersionStores, initUnitStores } from '../utils';
 
 	export let orgs;
 	export let units;
@@ -58,39 +59,21 @@
 		console.log({$firstPage}, "BEFORE");
 		console.log(orgs, units, contexts, schemas, schemaVersions);
 		console.log($contextsStore, $contextStore, $organizationsStore, $organizationStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore, $unitsStore, $unitStore );
-		// maybe need to check if empty
-		// array reset is maybe not needed
-		// array[0] will be undefined if none exist
-		if(orgs) {
-			$organizationsStore = [];
-			$organizationsStore.push(...orgs);
-			$organizationStore = orgs[0];
-		}
-		if(units) {
-			$unitsStore = [];
-			$unitsStore.push(...units);
-			$unitStore = units[0];
-		}
-		if(contexts) {
-			$contextsStore = [];
-			$contextsStore.push(...contexts);
-			$contextStore = contexts[0];
-		}
-		if(schemas) {
-			$schemasStore = [];
-			$schemasStore.push(...schemas);
-			$schemaStore = schemas[0];
-		}
-		if(schemaVersions) {
-			$schemaVersionsStore = [];
-			$schemaVersionsStore.push(...schemaVersions);
-			$schemaVersionStore = schemaVersions[0];
-		}
+		
+		setAllStores();
 
 		$firstPage = false;
 
 		console.log({$firstPage}, "AFTER");
 		console.log($contextsStore, $contextStore, $organizationsStore, $organizationStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore, $unitsStore, $unitStore );
+	}
+	
+	function setAllStores() {
+		initOrgStores(orgs);
+		initUnitStores(units);
+		initContextStores(contexts);
+		initSchemaStores(schemas);
+		initSchemaVersionStores(schemaVersions);
 	}
 
 </script>

@@ -7,7 +7,7 @@
 	export let outline = false;
 	export let icon = "";
 	export let href = "";
-	export let disabled;
+	export let disabled = false;
 
 </script>
 

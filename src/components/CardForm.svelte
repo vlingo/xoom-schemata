@@ -11,9 +11,9 @@
 
 	const dispatch = createEventDispatcher();
 
-	export let isCreateDisabled;
-	export let isUpdateDisabled;
-	export let isNextDisabled;
+	export let isCreateDisabled = false;
+	export let isUpdateDisabled = false;
+	export let isNextDisabled = false;
 
 </script>
 

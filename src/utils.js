@@ -1,5 +1,5 @@
 import { get } from 'svelte/store';
-import { contextStore, organizationStore, unitStore } from './stores';
+import { contextStore, organizationStore, unitStore, schemaStore, organizationsStore, unitsStore, contextsStore, schemasStore, schemaVersionStore, schemaVersionsStore } from './stores';
 
 export function selectStringsFrom(arr, stringReturner) {
 	return arr.map(obj => {
@@ -98,6 +98,40 @@ export function isCompatibleToUnit(obj) {
 }
 export function isCompatibleToContext(obj) {
 	return obj.contextId == get(contextStore).contextId;
+}
+export function isCompatibleToSchema(obj) {
+	return obj.schemaId == get(schemaStore).schemaId;
+}
+
+
+export function initOrgStores(array) {
+	initStores(array, organizationStore, organizationsStore);
+}
+export function initUnitStores(array) {
+	initStores(array, unitStore, unitsStore, isCompatibleToOrg);
+}
+export function initContextStores(array) {
+	initStores(array, contextStore, contextsStore, isCompatibleToUnit);
+}
+export function initSchemaStores(array) {
+	initStores(array, schemaStore, schemasStore, isCompatibleToContext);
+}
+export function initSchemaVersionStores(array) {
+	initStores(array, schemaVersionStore, schemaVersionsStore, isCompatibleToSchema);
+}
+
+// array reset is maybe not needed
+// array[0] will be undefined if none exist
+function initStores(array, storeOfOne, storeOfAll, predicate) {
+	if(array) {
+		storeOfAll.set([]);
+		storeOfAll.update(arr => arr.concat(...array));
+		if(predicate) {
+			storeOfOne = array.filter(obj => predicate(obj));
+		} else {
+			storeOfOne.set(array[0]);
+		}
+	}
 }
 
 	// logic if I were to abstract id
