@@ -60,7 +60,6 @@
 	// maybe look into this, I just don't know enough stuff - document.getElementById("myForm").reset();
 	let clearFlag = false;
 	const clear = () => {
-		orgId = ""; //?
 		name = "";
 		description = "";
 

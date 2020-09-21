@@ -58,14 +58,13 @@
 	if($firstPage) {
 		console.log({$firstPage}, "BEFORE");
 		console.log(orgs, units, contexts, schemas, schemaVersions);
-		console.log($contextsStore, $contextStore, $organizationsStore, $organizationStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore, $unitsStore, $unitStore );
-		
+		console.log($organizationsStore, $organizationStore, $unitsStore, $unitStore, $contextsStore, $contextStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore);		
 		setAllStores();
 
 		$firstPage = false;
 
 		console.log({$firstPage}, "AFTER");
-		console.log($contextsStore, $contextStore, $organizationsStore, $organizationStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore, $unitsStore, $unitStore );
+		console.log($organizationsStore, $organizationStore, $unitsStore, $unitStore, $contextsStore, $contextStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore);
 	}
 	
 	function setAllStores() {

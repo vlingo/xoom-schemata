@@ -56,7 +56,7 @@ export function getFileString(file) {
 }
 
 function filterSchemaAttributes(attributes) {
-	return attributes.filter(attrib => attrib !== "previous" && attrib !== "specification");
+	return attributes.filter(attrib => attrib !== "previous" && attrib !== "specification" && attrib !== "status");
 }
 function filterCommonFrom(file) {
 	return Object.keys(file).filter(attrib => attrib !== "type" && attrib !== "files" && attrib !== "description");
@@ -127,7 +127,7 @@ function initStores(array, storeOfOne, storeOfAll, predicate) {
 		storeOfAll.set([]);
 		storeOfAll.update(arr => arr.concat(...array));
 		if(predicate) {
-			storeOfOne = array.filter(obj => predicate(obj));
+			storeOfOne.set(array.filter(obj => predicate(obj))[0]);
 		} else {
 			storeOfOne.set(array[0]);
 		}
