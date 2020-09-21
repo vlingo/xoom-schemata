@@ -132,6 +132,7 @@
 										schema.files.push(
 											{
 												type: 'schemaVersion',
+												status: schemaVersion.status,
 												specification: schemaVersion.specification,
 												description: schemaVersion.description,
 												previous: schemaVersion.previous,
@@ -226,9 +227,29 @@
 	let specification = "";
 	let description = "";
 
-// stores suboptimal, you would need to be able to select them (e.g. in Folder structure)
+	function updateTreeWith(updated) {
+		// I know, this is bad, could at least be recursive or the tree could be a map: tree[orgId][unitId]...
+		// or reload the page, but that takes longer
+		// or abuse Folder.svelte to change leaf element if it is "type=schemaVersion" and "{#if} string:newDescription" or something like that
+		const oidx = root.files.findIndex(org => org.id == updated.organizationId);
+		const uidx = root.files[oidx].files.findIndex(unit => unit.id == updated.unitId);
+		const cidx = root.files[oidx].files[uidx].files.findIndex(context => context.id == updated.contextId)
+		const sidx = root.files[oidx].files[uidx].files[cidx].files.findIndex(schema => schema.id == updated.schemaId)
+		const svidx = root.files[oidx].files[uidx].files[cidx].files[sidx].files.findIndex(schemaVersion => schemaVersion.id == updated.schemaVersionId)
+		root.files[oidx].files[uidx].files[cidx].files[sidx].files[svidx] = 
+		{
+			type: 'schemaVersion',
+			status: updated.status,
+			specification: updated.specification,
+			description: updated.description,
+			previous: updated.previous,
+			current: updated.current,
+			id: updated.schemaVersionId
+		};
+	}
+	// stores suboptimal, you would need to be able to select them (e.g. in Folder structure)
 	const updateDescription = () => {
-		if(!$schemaVersionStore || !description || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore) {
+		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !description) {
 			console.log(errors.SUBMIT);
 			return;
 		}
@@ -238,31 +259,38 @@
 				$schemaVersionStore = updated;
 				$schemaVersionsStore = ($schemaVersionsStore).filter(schemaVersion => schemaVersion.schemaVersionId != ($schemaVersionStore).schemaVersionId);
 				$schemaVersionsStore.push(updated);
-
-				// I know, this is bad, could at least be recursive or the tree could be a map: tree[orgId][unitId]...
-				// or reload the page, but that takes longer
-				// or abuse Folder.svelte to change leaf element if it is "type=schemaVersion" and "{#if} string:newDescription" or something like that
-				const oidx = root.files.findIndex(org => org.id == updated.organizationId);
-				const uidx = root.files[oidx].files.findIndex(unit => unit.id == updated.unitId);
-				const cidx = root.files[oidx].files[uidx].files.findIndex(context => context.id == updated.contextId)
-				const sidx = root.files[oidx].files[uidx].files[cidx].files.findIndex(schema => schema.id == updated.schemaId)
-				const svidx = root.files[oidx].files[uidx].files[cidx].files[sidx].files.findIndex(schemaVersion => schemaVersion.id == updated.schemaVersionId)
-				root.files[oidx].files[uidx].files[cidx].files[sidx].files[svidx] = 
-				{
-					type: 'schemaVersion',
-					specification: updated.specification,
-					description: updated.description,
-					previous: updated.previous,
-					current: updated.current,
-					id: updated.schemaVersionId
-				};
+				updateTreeWith(updated);
 			})
 	}
+
 	const updateSpecification = () => {
-		
+		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !specification) {
+			console.log(errors.SUBMIT);
+			return;
+		}
+		SchemataRepository.saveSchemaVersionSpecification(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, specification)
+			.then(updated => {
+				console.log({updated});
+				$schemaVersionStore = updated;
+				$schemaVersionsStore = ($schemaVersionsStore).filter(schemaVersion => schemaVersion.schemaVersionId != ($schemaVersionStore).schemaVersionId);
+				$schemaVersionsStore.push(updated);
+				updateTreeWith(updated);
+			})
 	}
+
 	const updateStatus = (status) => {
-		
+		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !status) {
+			console.log(errors.SUBMIT);
+			return;
+		}
+		SchemataRepository.setSchemaVersionStatus(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, status)
+			.then(updated => {
+				console.log({updated});
+				$schemaVersionStore = updated;
+				$schemaVersionsStore = ($schemaVersionsStore).filter(schemaVersion => schemaVersion.schemaVersionId != ($schemaVersionStore).schemaVersionId);
+				$schemaVersionsStore.push(updated);
+				updateTreeWith(updated);
+			})
 	}
 </script>
 
@@ -303,10 +331,10 @@
 		{#if activeSpec}
 			<ValidatedInput type="textarea" bind:value={specification}/>
 			<ButtonBar>
-				<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={updateStatus("Publish")}/>
-				<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={updateStatus("Deprecate")}/>
-				<Button outline color="danger" icon={mdiDelete} text="REMOVE" on:click={updateStatus("Remove")}/>
-				<Button outline color="info" icon={mdiSourcePull} text="INFO" on:click={updateStatus("Info")}/>
+				<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
+				<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
+				<Button outline color="danger" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
+				<Button outline color="info" icon={mdiSourcePull} text="INFO"/>
 				<Button color="info" text="SAVE SPECIFICATION" on:click={updateSpecification}/>
 			</ButtonBar>
 		{:else}

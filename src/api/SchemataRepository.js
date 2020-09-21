@@ -181,16 +181,9 @@ export default {
   },
   saveSchemaVersionSpecification(
     organization, unit, context, schema, version, specification) {
-    let config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      responseType: 'text'
-    };
     return Repository.patch(
       resources.schemaSpecification(organization, unit, context, schema, version),
-      specification,
-      config
+      specification
       )
       .then(ensureOk)
       .then(response => response.json())
@@ -206,20 +199,12 @@ export default {
   },
   setSchemaVersionStatus(
     organization, unit, context, schema, version, status) {
-
-    let config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      responseType: 'text'
-    };
     return Repository.patch(
       resources.versionStatus(organization, unit, context, schema, version),
-      status,
-      config
+      status
       )
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
   loadSources(
     organization, unit, context, schema, version, language) {

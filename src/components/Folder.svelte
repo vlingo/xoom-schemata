@@ -1,6 +1,9 @@
 <script>
+	import {mdiDelete, mdiLabel, mdiLabelOff, mdiPlaylistPlay} from '@mdi/js'
+
 	import { getFileString } from "../utils";
 	import Tooltip from "./Tooltip.svelte";
+	import Icon from "./Icon.svelte";
 
 	export let first = false;
 
@@ -34,6 +37,17 @@
 					<!-- this is the leaf-element, we could style it differently-->
 					<span>
 						<Tooltip tooltipText={file.type}>
+							<!-- this can also be done via the initial array in index.svelte -->
+							<!-- {#if file.icon} <Icon icon={file.icon}/> {/if}-->
+							{#if file.status == "Draft"}
+								<Icon icon={mdiPlaylistPlay} />
+							{:else if file.status == "Published"}
+								<Icon icon={mdiLabel} />
+							{:else if file.status == "Deprecated"}
+								<Icon icon={mdiLabelOff} />
+							{:else if file.status == "Removed"}
+								<Icon icon={mdiDelete} />
+							{/if}
 							{getFileString(file)}
 						</Tooltip>
 					</span>
