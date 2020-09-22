@@ -1,27 +1,42 @@
 <script>
 	import {mdiDelete, mdiLabel, mdiLabelOff, mdiPlaylistPlay} from '@mdi/js'
 
-	import { getFileString } from "../utils";
+	import { getFileString, isObjectInAStore } from "../utils";
 	import Tooltip from "./Tooltip.svelte";
 	import Icon from "./Icon.svelte";
-
+	import Clickable from './Clickable.svelte';
+	import { contextStore, organizationStore, schemaStore, schemaVersionStore, unitStore } from '../stores';
 	export let first = false;
 
 	export let file;
 
-	let expanded = false;
+	let expanded = isObjectInAStore(file);
 
-	function toggle() {
-		expanded = !expanded;
+	$: if((
+		file.id == $organizationStore.organizationId ||
+		file.id == $unitStore.unitId ||
+		file.id == $contextStore.contextId ||
+		file.id == $schemaStore.schemaId ||
+		file.id == $schemaVersionStore.schemaVersionId
+		) && (isObjectInAStore(file))) {
+			expanded = true;
+	} else {
+		expanded = false;
 	}
+
+	// function toggle() {
+	// 	expanded = !expanded;
+	// }
 </script>
 
 
 {#if !first}
 <span class:expanded>
-	<Tooltip tooltipText={file.type} on:click={toggle}>
-		{#if expanded}▾{:else}▸{/if}
-		{getFileString(file)}
+	<Tooltip tooltipText={file.type}> <!-- on:click={toggle} -->
+		<Clickable {file}>
+			{#if expanded}▾{:else}▸{/if}
+			{getFileString(file)}
+		</Clickable>
 	</Tooltip>
 </span>
 {/if}
@@ -37,18 +52,20 @@
 					<!-- this is the leaf-element, we could style it differently-->
 					<span>
 						<Tooltip tooltipText={file.type}>
-							<!-- this can also be done via the initial array in index.svelte -->
-							<!-- {#if file.icon} <Icon icon={file.icon}/> {/if}-->
-							{#if file.status == "Draft"}
-								<Icon icon={mdiPlaylistPlay} />
-							{:else if file.status == "Published"}
-								<Icon icon={mdiLabel} />
-							{:else if file.status == "Deprecated"}
-								<Icon icon={mdiLabelOff} />
-							{:else if file.status == "Removed"}
-								<Icon icon={mdiDelete} />
-							{/if}
-							{getFileString(file)}
+							<Clickable {file}>
+								<!-- this can also be done via the initial array in index.svelte -->
+								<!-- {#if file.icon} <Icon icon={file.icon}/> {/if}-->
+								{#if file.status == "Draft"}
+									<Icon icon={mdiPlaylistPlay} />
+								{:else if file.status == "Published"}
+									<Icon icon={mdiLabel} />
+								{:else if file.status == "Deprecated"}
+									<Icon icon={mdiLabelOff} />
+								{:else if file.status == "Removed"}
+									<Icon icon={mdiDelete} />
+								{/if}
+								{getFileString(file)}
+							</Clickable>
 						</Tooltip>
 					</span>
 				{/if}

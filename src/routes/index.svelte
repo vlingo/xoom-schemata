@@ -10,16 +10,14 @@
 	import Folder from '../components/Folder.svelte';
 	import marked from 'marked';
 	import ValidatedInput from '../components/ValidatedInput.svelte';
-	import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull} from '@mdi/js'
-	import Icon from '../components/Icon.svelte';
+	import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull, mdiFileFind, mdiFileUndo, mdiContentSave} from '@mdi/js'
 	import ButtonBar from '../components/ButtonBar.svelte';
 	import Button from '../components/Button.svelte';
-
-	import { onMount } from 'svelte';
 
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
 	import SchemataRepository from '../api/SchemataRepository';
 	import errors from '../errors';
+	import ClickableListItem from '../components/ClickableListItem.svelte';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
@@ -221,11 +219,11 @@
 
 	let activeSpec = true;
 	let activeDesc = false;
-	let activeOne = true;
-	let activeTwo = false;
 
 	let specification = "";
 	let description = "";
+
+	let schemaVersions = $schemaVersionsStore;
 
 	function updateTreeWith(updated) {
 		// I know, this is bad, could at least be recursive or the tree could be a map: tree[orgId][unitId]...
@@ -313,8 +311,11 @@
 	<div class="bottom-left">
 		<Card>
 			<ListGroup class="py-1">
-				<ListGroupItem active={activeOne} tag="button" action on:click={() => {activeOne = true; activeTwo = false;}}>0.0.1</ListGroupItem>
-				<ListGroupItem active={activeTwo} tag="button" action on:click={() => {activeTwo = true; activeOne = false;}}>1.0.0</ListGroupItem>
+				{#each schemaVersions as schemaVersion}
+					<ClickableListItem>
+						{schemaVersion.currentVersion}
+					</ClickableListItem>
+				{/each}
 			</ListGroup>
 		</Card>
 	</div>
@@ -322,30 +323,30 @@
 	<div class="spacer"></div>
 
 	<div class="bottom-right">
-	<Card>
-		<ListGroup class="d-flex flex-row p-1">
-			<ListGroupItem active={activeSpec} tag="button" action on:click={() => {activeSpec = true; activeDesc = false;}}>Specification</ListGroupItem>
-			<ListGroupItem active={activeDesc} tag="button" action on:click={() => {activeDesc = true; activeSpec = false;}}>Description</ListGroupItem>
-		</ListGroup>
+		<Card>
+			<ListGroup class="d-flex flex-row p-1">
+				<ListGroupItem active={activeSpec} tag="button" action on:click={() => {activeSpec = true; activeDesc = false;}}>Specification</ListGroupItem>
+				<ListGroupItem active={activeDesc} tag="button" action on:click={() => {activeDesc = true; activeSpec = false;}}>Description</ListGroupItem>
+			</ListGroup>
 
-		{#if activeSpec}
-			<ValidatedInput type="textarea" bind:value={specification}/>
-			<ButtonBar>
-				<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
-				<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
-				<Button outline color="danger" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
-				<Button outline color="info" icon={mdiSourcePull} text="INFO"/>
-				<Button color="info" text="SAVE SPECIFICATION" on:click={updateSpecification}/>
-			</ButtonBar>
-		{:else}
-			<ValidatedInput type="textarea" bind:value={description}/>
-			<ButtonBar>
-				<Button color="success" text="PREVIEW"/>
-				<Button color="warning" text="REVERT"/>
-				<Button color="info" text="SAVE DESCRIPTION" on:click={updateDescription}/>
-			</ButtonBar>
-		{/if}
-	</Card>
+			{#if activeSpec}
+				<ValidatedInput type="textarea" bind:value={specification}/>
+				<ButtonBar>
+					<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
+					<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
+					<Button outline color="danger" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
+					<Button outline color="info" icon={mdiSourcePull} text="INFO"/>
+					<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
+				</ButtonBar>
+			{:else}
+				<ValidatedInput type="textarea" bind:value={description}/>
+				<ButtonBar>
+					<Button color="success" icon={mdiFileFind} text="PREVIEW"/>
+					<Button color="warning" icon={mdiFileUndo} text="REVERT"/>
+					<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateDescription}/>
+				</ButtonBar>
+			{/if}
+		</Card>
 	</div>
 </div>
 
@@ -357,12 +358,17 @@
 		flex-direction: column;
 	}
 	.spacer {
-		width: 10rem;
+		width: 5rem;
+		height: 2rem;
 		display: block;
 	}
 
 	.bottom-left {
-		width: 10rem;
+		flex: 0 1 auto;
+	}
+
+	.bottom-right {
+		flex: 1 1 auto;
 	}
 
 	@media (min-width: 820px) {

@@ -13,7 +13,7 @@
 
 
 
-<StrapButton disabled={disabled} on:click class="mx-1" {outline} {color} {href}>
+<StrapButton disabled={disabled} on:click class="m-1" {outline} {color} {href}>
 	<span>
 		{#if icon}
 			<Icon {icon}/>

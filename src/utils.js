@@ -134,6 +134,163 @@ function initStores(array, storeOfOne, storeOfAll, predicate) {
 	}
 }
 
+export function getRightStore(type) {
+	switch(type) {
+		case "organization": return {store: organizationStore, stores: organizationsStore};
+			break;
+		case "unit": return {store: unitStore, stores: unitsStore};
+			break;
+		case "context": return {store: contextStore, stores: contextsStore};
+			break;
+		case "schema": return {store: schemaStore, stores: schemasStore};
+			break;
+		case "schemaVersion": return {store: schemaVersionStore, stores: schemaVersionsStore};
+			break;
+		default: console.log("type is non-existent.");
+	}
+}
+
+//order matters
+export function returnId(obj) {
+	if(obj.schemaVersionId) return obj.schemaVersionId;
+	if(obj.schemaId) return obj.schemaId;
+	if(obj.contextId) return obj.contextId;
+	if(obj.unitId) return obj.unitId;
+	if(obj.organizationId) return obj.organizationId;
+}
+
+export function isObjectInAStore(file) {
+	switch(file.type) {
+		case "organization":
+			return get(organizationStore).organizationId == file.id;
+			break;
+		case "unit":
+			return get(unitStore).unitId == file.id;
+			break;
+		case "context":
+			return get(contextStore).contextId == file.id;
+			break;
+		case "schema":
+			return get(schemaStore).schemaId == file.id;
+			break;
+		case "schemaVersion":
+			return get(schemaVersionStore).schemaVersionId == file.id;
+			break;
+		default: console.log("type root");
+	}
+}
+
+
+
+export function adjustStoresTo(file) {
+	switch(file.type) {
+		case "organization":
+			updateOrganizationStoreTo(file);
+			break;
+		case "unit":
+			updateUnitStoreTo(file);
+			break;
+		case "context":
+			updateContextStoreTo(file);
+			break;
+		case "schema":
+			updateSchemaStoreTo(file);
+			break;
+		case "schemaVersion":
+			updateSchemaVersionStoreTo(file);
+			break;
+		default: console.log("type is non-existent.");
+	}
+	console.log(get(organizationsStore), get(organizationStore), get(unitsStore), get(unitStore), get(contextsStore), get(contextStore), get(schemasStore), get(schemaStore), get(schemaVersionsStore), get(schemaVersionStore));
+}
+
+export function deAdjustStoresTo(file) {
+	switch(file.type) {
+		case "organization":
+			resetStores(organizationStore, unitStore, contextStore, schemaStore, schemaVersionStore);
+			break;
+		case "unit":
+			resetStores(unitStore, contextStore, schemaStore, schemaVersionStore);
+			break;
+		case "context":
+			resetStores(contextStore, schemaStore, schemaVersionStore);
+			break;
+		case "schema":
+			resetStores(schemaStore, schemaVersionStore);
+			break;
+		case "schemaVersion":
+			resetStores(schemaVersionStore);
+			break;
+		default: console.log("type is non-existent.");
+	}
+	console.log(get(organizationsStore), get(organizationStore), get(unitsStore), get(unitStore), get(contextsStore), get(contextStore), get(schemasStore), get(schemaStore), get(schemaVersionsStore), get(schemaVersionStore));
+}
+
+function resetStores(...stores) {
+	stores.forEach(store => store.set({}));
+}
+
+function updateOrganizationStoreTo(organizationObj) {
+	setOrganizationStoreToOrganizationWithId(organizationObj.id);
+
+	resetStores(unitStore, contextStore, schemaStore, schemaVersionStore);
+}
+function updateUnitStoreTo(unitObj) {
+	setUnitStoreToUnitWithId(unitObj.id);
+	setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
+
+	resetStores(contextStore, schemaStore, schemaVersionStore);
+}
+function updateContextStoreTo(contextObj) {
+	setContextStoreToContextWithId(contextObj.id);
+	setUnitStoreToUnitWithId(get(contextStore).unitId);
+	setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
+
+	resetStores(schemaStore, schemaVersionStore);
+}
+function updateSchemaStoreTo(schemaObj) {
+	setSchemaStoreToSchemaWithId(schemaObj.id);
+	setContextStoreToContextWithId(get(schemaStore).contextId);
+	setUnitStoreToUnitWithId(get(contextStore).unitId);
+	setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
+
+	resetStores(schemaVersionStore);
+}
+
+function updateSchemaVersionStoreTo(schemaVersionObj) {
+	setSchemaVersionToSchemaVersionWithId(schemaVersionObj.id)
+	setSchemaStoreToSchemaWithId(get(schemaVersionStore).schemaId);
+	setContextStoreToContextWithId(get(schemaStore).contextId);
+	setUnitStoreToUnitWithId(get(contextStore).unitId);
+	setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
+}
+
+function setSchemaVersionToSchemaVersionWithId(id) {
+	schemaVersionStore.set(
+		get(schemaVersionsStore).filter(obj => obj.schemaVersionId == id)[0]
+	);
+}
+function setSchemaStoreToSchemaWithId(id) {
+	schemaStore.set(
+		get(schemasStore).filter(obj => obj.schemaId == id)[0]
+	);
+}
+function setContextStoreToContextWithId(id) {
+	contextStore.set(
+		get(contextsStore).filter(obj => obj.contextId == id)[0]
+	);
+}
+function setUnitStoreToUnitWithId(id) {
+	unitStore.set(
+		get(unitsStore).filter(obj => obj.unitId == id)[0]
+	);
+}
+function setOrganizationStoreToOrganizationWithId(id) {
+	organizationStore.set(
+		get(organizationsStore).filter(obj => obj.organizationId == id)[0]
+	);
+}
+
 	// logic if I were to abstract id
 	// let id;
 	// obj.organizationId? id=obj.organizationId :
