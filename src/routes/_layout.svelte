@@ -4,8 +4,9 @@
 	export async function preload(page, session) {
 
 		if(process.browser) {
-		const orgs = await SchemataRepository.getOrganizations();
 
+		let orgs = [];
+		
 		let units = [];
 
 		let contexts = [];
@@ -14,6 +15,10 @@
 
 		let schemaVersions = [];
 		
+		try {
+
+		orgs.push(...await SchemataRepository.getOrganizations());
+
 		for(const org of orgs) {
 			const orgUnits = await SchemataRepository.getUnits(org.organizationId);
 			if(orgUnits) {
@@ -38,6 +43,10 @@
 				}
 			}
 		}
+
+	} catch (e) {
+		console.error(`${e}: API is unreachable.`);
+	}
 
 		return { orgs, units, contexts, schemas, schemaVersions };
 		}
@@ -75,6 +84,8 @@
 		initSchemaVersionStores(schemaVersions);
 	}
 
+	//debug
+	// $: console.log($organizationsStore, $organizationStore, $unitsStore, $unitStore, $contextsStore, $contextStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore);
 </script>
 
 <style>
