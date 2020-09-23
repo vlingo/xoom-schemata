@@ -4,19 +4,18 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
-	import { contextStringReturner, getCompatible, getId, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, orgStringReturner, schemaStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
+	import { contextStringReturner, getCompatible, getId, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, isStoreEmpty, orgStringReturner, schemaStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
 import errors from '../errors';
 
 	let id;
 	let name;
 	let description;
 	let categorySelect = ["Command", "Data", "Document", "Envelope", "Event", "Unknown"];
-	let category = "Command";
+	let category = "Event";
 	let scopeSelect = ["Private", "Public"];
-	let scope = "Private";
+	let scope = "Public";
 
 
-	let schemaSelectDisabled = ($schemasStore).length < 1;
 	let compatibleUnits;
 	let compatibleContexts;
 	let compatibleSchemas;
@@ -97,22 +96,24 @@ import errors from '../errors';
 	// const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
 	// $: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner);
 	// $: contextSelect = selectStringsFrom(compatibleContexts, contextStringReturner);
-
+	
+	let defineMode = isStoreEmpty(($schemasStore));
 	let clearFlag = false;
-	const clear = () => {
+	const newSchema = () => {
 		id = "";
 		name = "";
 		description = "";
-		category = "Command";
-		scope = "Private";
+		category = "Event";
+		scope = "Public";
 		selectedOrg = initSelected($organizationStore, orgStringReturner);
 		selectedUnit = initSelected($unitStore, unitStringReturner);
 		selectedContext = initSelected($contextStore, contextStringReturner);
 
+		defineMode = true;
 		clearFlag = !clearFlag;
 	}
 
-	const create = () => {
+	const define = () => {
 		if(!name || !description || !$organizationStore || !$unitStore || !$contextStore || !scope || !category) {
 			console.log(errors.SUBMIT);
 			return;
@@ -122,14 +123,14 @@ import errors from '../errors';
 				console.log({created});
 				$schemaStore = created;
 				$schemasStore.push(created);
-				clear();
+				
 				schemaSelect = selectStringsFrom($schemasStore, schemaStringReturner);
 				selectedSchema = initSelected($schemaStore, schemaStringReturner);
-				schemaSelectDisabled = false;
 			})
+		defineMode = false;
 	}
 
-	const update = async () => {
+	const save = async () => {
 		if(!schemaId || !name || !description || !scope || !category || !$organizationStore || !$unitStore || !$contextStore) {
 			console.log(errors.SUBMIT);
 			return;
@@ -140,20 +141,20 @@ import errors from '../errors';
 				$schemaStore = updated;
 				$schemasStore = ($schemasStore).filter(schema => schema.schemaId != schemaId);
 				$schemasStore.push(updated);
-				clear();
+				
 				schemaSelect = selectStringsFrom($schemasStore, schemaStringReturner);
 				selectedSchema = initSelected($schemaStore, schemaStringReturner);
 			})
 	}
 
-	let isCreateDisabled = true;
+	let isDefineDisabled = true;
 	let isNextDisabled = true;
-	let isUpdateDisabled = true;
+	let isSaveDisabled = true;
 
-	$: if(name && description && category && scope && organizationId && unitId && contextId) { //&& !schemaId
-		isCreateDisabled = false;
+	$: if(name && description && category && scope && organizationId && unitId && contextId && defineMode) { //&& !schemaId
+		isDefineDisabled = false;
 	} else {
-		isCreateDisabled = true;
+		isDefineDisabled = true;
 	}
 
 	$: if(schemaId) {
@@ -161,21 +162,21 @@ import errors from '../errors';
 	}
 
 	$: if(name && description && category && scope && organizationId && unitId && contextId && schemaId) {
-		isUpdateDisabled = false;
+		isSaveDisabled = false;
 	} else {
-		isUpdateDisabled = true;
+		isSaveDisabled = true;
 	}
 </script>
 
-<CardForm title="Schema" linkToNext="SCHEMA VERSION" href="schemaVersion" on:clear={clear} on:update={update} on:create={create} {isCreateDisabled} {isNextDisabled} {isUpdateDisabled}>
-	<!-- extra-component only shown in update mode ? -->
-		<ValidatedInput disabled={schemaSelectDisabled} type="select" label="Schema" bind:value={selectedSchema} {clearFlag} options={schemaSelect}/>
-	<!-- /<ValidatedInput label="SchemaID" bind:value={id} disabled/> -->
-	<span class="flex-two-col">
-		<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
-		<ValidatedInput type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
-	</span>
-	<ValidatedInput type="select" label="Context" bind:value={selectedContext} {clearFlag} options={contextSelect}/>
+<CardForm title="Schema" linkToNext="New Schema Version" href="schemaVersion" on:new={newSchema} on:save={save} on:define={define} {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode}>
+	<!-- <span class="flex-two-col"> -->
+		<ValidatedInput inline containerClasses="" type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
+		<ValidatedInput inline containerClasses="folder-inset1" type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
+	<!-- </span> -->
+	<ValidatedInput inline containerClasses="folder-inset2" type="select" label="Context" bind:value={selectedContext} {clearFlag} options={contextSelect}/>
+	{#if !defineMode}
+		<ValidatedInput inline containerClasses="folder-inset3" disabled={defineMode} type="select" label="Schema" bind:value={selectedSchema} {clearFlag} options={schemaSelect}/>
+	{/if}
 	<span class="flex-two-col">
 		<ValidatedInput type="select" label="Category" bind:value={category} {clearFlag} options={categorySelect}/>
 		<ValidatedInput type="select" label="Scope" bind:value={scope} {clearFlag} options={scopeSelect}/>

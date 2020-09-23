@@ -9,6 +9,13 @@
 	export let options = [];
 	//validator function
 	export let validator = null;
+	export let rows = "";
+	export let containerClasses = "flex-child";
+	export let inline = false;
+
+	let formGroupClasses = inline? "form-inline" : "";
+	let labelClasses = inline? "justify-content-start" : "";
+	let inputClasses = inline? "align-self-end" : "";
 
 	let valueValid = false;
 	let valueInvalid = false;
@@ -55,12 +62,14 @@
 	}
 </script>
 
-<div class="flex-child">
-<FormGroup>
-	<Label for={id}>{label}</Label>
+<div class={containerClasses}>
+<FormGroup class={formGroupClasses}>
+	<div class:label-container={inline}>
+		<Label class={labelClasses} for={id}>{label}</Label>
+	</div>
 	<!-- keyup: instant check on input, blur: checks on doing nothing, change: checks on selects -->
-	<Input type={type} name={id} id={id} placeholder={label} bind:value={value} disabled={disabled}
-	valid={valueValid} invalid={valueInvalid} on:blur={valueCheck} on:keyup={valueCheck} on:change={valueCheck} on:input={valueCheck}>
+	<Input class={inputClasses} type={type} name={id} id={id} placeholder={label} bind:value={value} disabled={disabled}
+	valid={valueValid} invalid={valueInvalid} on:blur={valueCheck} on:keyup={valueCheck} on:change={valueCheck} on:input={valueCheck} {rows}>
 		{#if options}
 		<option/>
 		{#each options as option}
@@ -78,6 +87,10 @@
 </div>
 
 <style>
+	.label-container {
+		width: 10rem;
+		padding: 0 12px;
+	}
 	.flex-child {
 		flex: 0 0 50%;
 		padding: 12px;

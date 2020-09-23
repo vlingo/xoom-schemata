@@ -5,7 +5,7 @@
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationStore, organizationsStore } from '../stores'
 	import errors from '../errors';
-	import { getId, initSelected, orgStringReturner, selectStringsFrom } from '../utils';
+	import { getId, initSelected, isStoreEmpty, orgStringReturner, selectStringsFrom } from '../utils';
 
 	let name;
 	let description;
@@ -13,15 +13,13 @@
 	//better would be to have the user shoose "create-mode", "update-mode" etc. e.g. start with create mode, after creation show update mode
 	// if store has an org, let user decide (CardHead: Organization ___whitespace___ Create Update (Delete?))
 
-	let orgSelectDisabled = ($organizationsStore).length < 1;
-
 	let selectedOrg = initSelected($organizationStore, orgStringReturner);
 	$: orgId = getId(selectedOrg);
 	$: if(orgId || !orgId) $organizationStore = ($organizationsStore).find(o => o.organizationId == orgId);
 
 	let orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
 
-	const create = async () => {
+	const define = async () => {
 		// could also be implemented by firing validation on the inputs (via flag or exposing valueValid/Invalid) <-no, just disable buttons again, and this is an extra
 		if(!name || !description) {
 			console.log(errors.SUBMIT);
@@ -32,15 +30,15 @@
 				console.log({created});
 				$organizationStore = created;
 				$organizationsStore.push(created);
-				clear();
+
 				orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
 				selectedOrg = initSelected($organizationStore, orgStringReturner);
-				orgSelectDisabled = false;
 			})
 		isNextDisabled = false;
+		defineMode = false;
 	}
 
-	const update = async () => {
+	const save = async () => {
 		if(!orgId || !name || !description) {
 			console.log(errors.SUBMIT);
 			return;
@@ -51,29 +49,31 @@
 				$organizationStore = updated;
 				$organizationsStore = ($organizationsStore).filter(org => org.organizationId != orgId);
 				$organizationsStore.push(updated);
-				clear();
+				
 				orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
 				selectedOrg = initSelected($organizationStore, orgStringReturner);
 			})
 	}
 	
+	let defineMode = isStoreEmpty(($organizationsStore));
 	// maybe look into this, I just don't know enough stuff - document.getElementById("myForm").reset();
 	let clearFlag = false;
-	const clear = () => {
+	const newOrg = () => {
 		name = "";
 		description = "";
-
+		
+		defineMode = true;
 		clearFlag = !clearFlag;
 	}
 
-	let isCreateDisabled = true;
+	let isDefineDisabled = true;
 	let isNextDisabled = true;
-	let isUpdateDisabled = true;
+	let isSaveDisabled = true;
 
-	$: if(name && description) { //&& !orgId
-		isCreateDisabled = false;
+	$: if(name && description && defineMode) { //&& !orgId
+		isDefineDisabled = false;
 	} else {
-		isCreateDisabled = true;
+		isDefineDisabled = true;
 	}
 
 	$: if(orgId) {
@@ -81,17 +81,17 @@
 	}
 	
 	$: if(orgId && name && description) {
-		isUpdateDisabled = false;
+		isSaveDisabled = false;
 	} else {
-		isUpdateDisabled = true;
+		isSaveDisabled = true;
 	}
 </script>
 
 
-<CardForm title="Organization" linkToNext="CREATE UNIT" on:clear={clear} on:update={update} on:create={create} {isCreateDisabled} {isNextDisabled} {isUpdateDisabled}>
-	<!-- extra-component only shown in update mode ? -->
-		<ValidatedInput disabled={orgSelectDisabled} type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
-	<!-- / -->
+<CardForm title="Organization" linkToNext="New Unit" on:new={newOrg} on:save={save} on:define={define} {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode}>
+	{#if !defineMode}
+		<ValidatedInput inline containerClasses="" disabled={defineMode} type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
+	{/if}
 	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
 </CardForm>

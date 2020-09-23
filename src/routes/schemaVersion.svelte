@@ -7,7 +7,7 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
-	import { contextStringReturner, getCompatible, getId, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, orgStringReturner, schemaStringReturner, schemaVersionStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
+	import { contextStringReturner, getCompatible, getId, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, isStoreEmpty, orgStringReturner, schemaStringReturner, schemaVersionStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
 	import errors from '../errors';
 	import ButtonBar from '../components/ButtonBar.svelte';
 	
@@ -68,8 +68,9 @@
 	$: contextSelect = selectStringsFrom(compatibleContexts, contextStringReturner);
 	$: schemaSelect = selectStringsFrom(compatibleSchemas, schemaStringReturner);
 
+	let defineMode = isStoreEmpty(($schemaVersionsStore));
 	let clearFlag = false;
-	const clear = () => {
+	const newVersion = () => {
 		description = "";
 		previous = "";
 		current = "";
@@ -82,7 +83,7 @@
 		clearFlag = !clearFlag;
 	}
 
-	const create = () => {
+	const define = () => {
 		if(!$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !description || !specification) {
 			console.log(errors.SUBMIT);
 			return;
@@ -97,14 +98,14 @@
 				console.log({created});
 				$schemaVersionStore = created;
 				$schemaVersionsStore.push(created);
-				clear();
 			})
+		defineMode = false;
 	}
 
 	let isCreateDisabled = true;
 	let isNextDisabled = true;
 
-	$: if(validator(previous) && validator(current) && description && specification && organizationId && unitId && contextId && schemaId) {
+	$: if(validator(previous) && validator(current) && description && specification && organizationId && unitId && contextId && schemaId && defineMode) {
 		isCreateDisabled = false;
 	} else {
 		isCreateDisabled = true;
@@ -116,28 +117,30 @@
 
 </script>
 
-<CardForm title="Schema Version" linkToNext="Home" href="/" on:clear{clear} on:create={create}>
-	<div class="flex-two-col">
-		<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
-		<ValidatedInput type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
-	</div>
-	<div class="flex-two-col">
-		<ValidatedInput type="select" label="Context" bind:value={selectedContext} {clearFlag} options={contextSelect}/>
-		<ValidatedInput type="select" label="Schema" bind:value={selectedSchema} {clearFlag} options={schemaSelect}/>
-	</div>
+<CardForm title="Schema Version" linkToNext="Home" href="/" on:new={newVersion} on:define={define} {defineMode}>
+	<!-- <div class="flex-two-col"> -->
+		<ValidatedInput inline containerClasses="" type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
+		<ValidatedInput inline containerClasses="folder-inset1" type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
+	<!-- </div> -->
+	<!-- <div class="flex-two-col"> -->
+		<ValidatedInput inline containerClasses="folder-inset2" type="select" label="Context" bind:value={selectedContext} {clearFlag} options={contextSelect}/>
+		<ValidatedInput inline containerClasses="folder-inset3" type="select" label="Schema" bind:value={selectedSchema} {clearFlag} options={schemaSelect}/>
+	<!-- </div> -->
 	<div class="flex-two-col">
 		<ValidatedInput label="Previous Version" bind:value={previous} {clearFlag} validator={validator}/>
 		<ValidatedInput label="Current Version" bind:value={current} {clearFlag} validator={validator}/>
 	</div>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
-	<ValidatedInput type="textarea" label="Specification" bind:value={specification} {clearFlag}/>
+	<ValidatedInput type="textarea" label="Specification" bind:value={specification} {clearFlag} rows="6"/>
 
 	<div slot="buttons">
 		<ButtonBar>
 			<div class="mr-auto">
-				<Button color="info" text="NEW" on:click={clear}/>
+				<Button color="info" text="New" on:click={newVersion}/>
 			</div>
-			<Button color="primary" text="CREATE" on:click={create} disabled={isCreateDisabled}/>
+			{#if defineMode}
+				<Button color="primary" text="Define" on:click={define} disabled={isCreateDisabled}/>
+			{/if}
 			{#if !isNextDisabled}
 				<Button color="primary" outline text={"Home"} href={"/"} disabled={isNextDisabled}/>
 			{/if}

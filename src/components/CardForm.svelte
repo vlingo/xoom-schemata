@@ -1,6 +1,7 @@
 <script>
+	import { mdiChevronRight } from '@mdi/js';
 	import { createEventDispatcher } from 'svelte';
-	import { Card, CardBody, Form, FormGroup, FormText, Input, Label, CustomInput, Button as StrapButton } from 'sveltestrap/src';
+	import { Card, CardBody, Form} from 'sveltestrap/src';
 	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
 	import Button from './Button.svelte';
 	import ButtonBar from './ButtonBar.svelte';
@@ -11,9 +12,11 @@
 
 	const dispatch = createEventDispatcher();
 
-	export let isCreateDisabled = false;
-	export let isUpdateDisabled = false;
+	export let isDefineDisabled = false;
+	export let isSaveDisabled = false;
 	export let isNextDisabled = false;
+
+	export let defineMode = true;
 
 </script>
 
@@ -29,13 +32,16 @@
 			<slot name="buttons">
 				<ButtonBar>
 					<div class="mr-auto">
-						<Button color="info" text="NEW" on:click={() => dispatch("clear")}/> <!-- clear? -->
+						<Button color="info" text="New" on:click={() => dispatch("new")}/>
 					</div>
-					<Button color="primary" text="SAVE" on:click={() => dispatch("update")} disabled={isUpdateDisabled}/> <!-- update? -->
-					<Button color="primary" text="CREATE" on:click={() => dispatch("create")} disabled={isCreateDisabled}/>
+					{#if !defineMode}
+						<Button color="primary" text="Save" on:click={() => dispatch("save")} disabled={isSaveDisabled}/>
+					{:else}
+						<Button color="primary" text="Define" on:click={() => dispatch("define")} disabled={isDefineDisabled}/>
+					{/if}
 					<!-- disabled doesn't work on a-href, so just don't show the button when not needed: -->
 					{#if !isNextDisabled}
-						<Button color="primary" outline text={linkToNext} {href} disabled={isNextDisabled}/>
+						<Button color="primary" icon={mdiChevronRight} outline text={linkToNext} {href} disabled={isNextDisabled}/>
 					{/if}
 				</ButtonBar>
 			</slot>

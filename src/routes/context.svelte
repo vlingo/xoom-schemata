@@ -4,14 +4,13 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, unitsStore, unitStore } from '../stores';
-	import { isCompatibleToOrg, getCompatible, getId, orgStringReturner, selectStringsFrom, unitStringReturner, initSelected, contextStringReturner, isCompatibleToUnit } from '../utils';
+	import { isCompatibleToOrg, getCompatible, getId, orgStringReturner, selectStringsFrom, unitStringReturner, initSelected, contextStringReturner, isCompatibleToUnit, isStoreEmpty } from '../utils';
 	import errors from "../errors";
 
 	let namespace;
 	let description;
 
 
-	let contextSelectDisabled = ($contextsStore).length < 1;
 	let compatibleUnits;
 	let compatibleContexts;
 
@@ -65,18 +64,19 @@
 	// const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
 	// $: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner);
 
-	
+	let defineMode = isStoreEmpty(($contextsStore));
 	let clearFlag = false;
-	const clear = () => {
+	const newContext = () => {
 		namespace = "";
 		description = "";
 		selectedOrg = initSelected($organizationStore, orgStringReturner);
 		selectedUnit = initSelected($unitStore, unitStringReturner);
 
+		defineMode = true;
 		clearFlag = !clearFlag;
 	}
 
-	const create = async () => {
+	const define = async () => {
 		if(!namespace || !description || !$organizationStore || !$unitStore) {
 			console.log(errors.SUBMIT);
 			return;
@@ -86,14 +86,14 @@
 				console.log({created});
 				$contextStore = created;
 				$contextsStore.push(created);
-				clear();
+				
 				contextSelect = selectStringsFrom($contextsStore, contextStringReturner);
 				selectedContext = initSelected($contextStore, contextStringReturner);
-				contextSelectDisabled = false;
 			})
+		defineMode = false;
 	}
 
-	const update = async () => {
+	const save = async () => {
 		if(!contextId || !namespace || !description || !$organizationStore || !$unitStore) {
 			console.log(errors.SUBMIT);
 			return;
@@ -104,20 +104,20 @@
 				$contextStore = updated;
 				$contextsStore = ($contextsStore).filter(context => context.contextId != contextId);
 				$contextsStore.push(updated);
-				clear();
+				
 				contextSelect = selectStringsFrom($contextsStore, contextStringReturner);
 				selectedContext = initSelected($contextStore, contextStringReturner);
 			})
 	}
 
-	let isCreateDisabled = true;
+	let isDefineDisabled = true;
 	let isNextDisabled = true;
-	let isUpdateDisabled = true;
+	let isSaveDisabled = true;
 
-	$: if(namespace && description && organizationId && unitId) { //&& !contextId
-		isCreateDisabled = false;
+	$: if(namespace && description && organizationId && unitId && defineMode) { //&& !contextId
+		isDefineDisabled = false;
 	} else {
-		isCreateDisabled = true;
+		isDefineDisabled = true;
 	}
 
 	$: if(contextId) {
@@ -125,20 +125,20 @@
 	}
 
 	$: if(namespace && description && organizationId && unitId && contextId) {
-		isUpdateDisabled = false;
+		isSaveDisabled = false;
 	} else {
-		isUpdateDisabled = true;
+		isSaveDisabled = true;
 	}
 </script>
 
-<CardForm title="Context" linkToNext="CREATE SCHEMA" on:clear={clear} on:update={update} on:create={create} {isCreateDisabled} {isNextDisabled} {isUpdateDisabled}>
-	<!-- extra-component only shown in update mode ? -->
-		<ValidatedInput disabled={contextSelectDisabled} type="select" label="Context" bind:value={selectedContext} {clearFlag} options={contextSelect}/>
-	<!-- /<ValidatedInput label="ContextID" bind:value={id} disabled/> -->
-	<div class="flex-two-col">
-		<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
-		<ValidatedInput type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
-	</div>
+<CardForm title="Context" linkToNext="New Schema" on:new={newContext} on:save={save} on:define={define} {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode}>
+	<!-- <div class="flex-two-col"> -->
+		<ValidatedInput inline containerClasses="" type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
+		<ValidatedInput inline containerClasses="folder-inset1" type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
+	<!-- </div> -->
+	{#if !defineMode}
+		<ValidatedInput inline containerClasses="folder-inset2" disabled={defineMode} type="select" label="Context" bind:value={selectedContext} {clearFlag} options={contextSelect}/>
+	{/if}
 	<ValidatedInput label="Namespace" bind:value={namespace} {clearFlag}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
 </CardForm>

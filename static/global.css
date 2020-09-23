@@ -34,3 +34,13 @@ code {
 		font-size: 16px;
 	}
 }
+
+.folder-inset1 {
+	margin-left: 3rem;
+}
+.folder-inset2 {
+	margin-left: 6rem;
+}
+.folder-inset3 {
+	margin-left: 9rem;
+}

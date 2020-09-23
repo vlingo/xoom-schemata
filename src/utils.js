@@ -162,19 +162,19 @@ export function returnId(obj) {
 export function isObjectInAStore(file) {
 	switch(file.type) {
 		case "organization":
-			return get(organizationStore).organizationId == file.id;
+			return get(organizationStore) ? get(organizationStore).organizationId == file.id : false;
 			break;
 		case "unit":
-			return get(unitStore).unitId == file.id;
+			return get(unitStore).unitId ? get(unitStore).unitId == file.id : false;
 			break;
 		case "context":
-			return get(contextStore).contextId == file.id;
+			return get(contextStore).contextId ? get(contextStore).contextId == file.id : false;
 			break;
 		case "schema":
-			return get(schemaStore).schemaId == file.id;
+			return get(schemaStore).schemaId ? get(schemaStore).schemaId == file.id : false;
 			break;
 		case "schemaVersion":
-			return get(schemaVersionStore).schemaVersionId == file.id;
+			return get(schemaVersionStore) ? get(schemaVersionStore).schemaVersionId == file.id : false;
 			break;
 		default: console.log("type root");
 	}
@@ -291,6 +291,10 @@ function setOrganizationStoreToOrganizationWithId(id) {
 	);
 }
 
+export function isStoreEmpty(store) {
+	for(var _ in store) return false;
+	return true;
+}
 	// logic if I were to abstract id
 	// let id;
 	// obj.organizationId? id=obj.organizationId :

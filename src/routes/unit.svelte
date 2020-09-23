@@ -4,14 +4,11 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
-	import { getCompatible, getId, initSelected, isCompatibleToOrg, orgStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
+	import { getCompatible, getId, initSelected, isCompatibleToOrg, isStoreEmpty, orgStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
 	import errors from '../errors';
 
 	let name;
 	let description;
-
-
-	let unitSelectDisabled = ($unitsStore).length < 1;
 
 
 	// could change to that, but more to write
@@ -45,17 +42,18 @@
 	// $: if(orgId || !orgId) $organizationStore = ($organizationsStore).find(o => o.organizationId == orgId);
 
 	// const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
-	
+	let defineMode = isStoreEmpty(($unitsStore));
 	let clearFlag = false;
-	const clear = () => {
+	const newUnit = () => {
 		name = "";
 		description = "";
 		selectedOrg = initSelected($organizationStore, orgStringReturner);
 
+		defineMode = true;
 		clearFlag = !clearFlag;
 	}
 
-	const create = async () => {
+	const define = async () => {
 		if(!name || !description || !$organizationStore) {
 			console.log(errors.SUBMIT);
 			return;
@@ -65,16 +63,16 @@
 				console.log({created});
 				$unitStore = created;
 				$unitsStore.push(created);
-				clear();
+				
 				unitSelect = selectStringsFrom($unitsStore, unitStringReturner);
 				selectedUnit = initSelected($unitStore, unitStringReturner);
-				unitSelectDisabled = false;
 			})
+		defineMode = false;
 	}
 
 	// maybe the unitId should also come from the store (if we validate the value before pushing it to the store, for example.)
 	// can just be changed here and work the same
-	const update = async () => {
+	const save = async () => {
 		if(!unitId || !name || !description || !$organizationStore) {
 			console.log(errors.SUBMIT);
 			return;
@@ -85,20 +83,20 @@
 				$unitStore = updated;
 				$unitsStore = ($unitsStore).filter(unit => unit.unitId != unitId);
 				$unitsStore.push(updated);
-				clear();
+				
 				unitSelect = selectStringsFrom($unitsStore, unitStringReturner);
 				selectedUnit = initSelected($unitStore, unitStringReturner);
 			})
 	}
 
-	let isCreateDisabled = true;
+	let isDefineDisabled = true;
 	let isNextDisabled = true;
-	let isUpdateDisabled = true;
+	let isSaveDisabled = true;
 
-	$: if(name && description && organizationId) { //&& !unitId
-		isCreateDisabled = false;
+	$: if(name && description && organizationId && defineMode) { //&& !unitId
+		isDefineDisabled = false;
 	} else {
-		isCreateDisabled = true;
+		isDefineDisabled = true;
 	}
 
 	$: if(unitId) {
@@ -106,17 +104,17 @@
 	}
 
 	$: if(unitId && organizationId && name && description) {
-		isUpdateDisabled = false;
+		isSaveDisabled = false;
 	} else {
-		isUpdateDisabled = true;
+		isSaveDisabled = true;
 	}
 </script>
 
-<CardForm title="Unit" linkToNext="CREATE CONTEXT" on:clear={clear} on:update={update} on:create={create} {isCreateDisabled} {isNextDisabled} {isUpdateDisabled}>
-	<!-- extra-component only shown in update mode ? -->
-		<ValidatedInput disabled={unitSelectDisabled} type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
-	<!-- /<ValidatedInput label="UnitID" bind:value={id} disabled/> -->
-	<ValidatedInput type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
+<CardForm title="Unit" linkToNext="New Context" on:new={newUnit} on:save={save} on:define={define} {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode}>
+	<ValidatedInput inline containerClasses="" type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
+	{#if !defineMode}
+		<ValidatedInput inline containerClasses="folder-inset1" disabled={defineMode} type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
+	{/if}
 	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
 </CardForm>
