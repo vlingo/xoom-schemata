@@ -5,7 +5,7 @@
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationStore, organizationsStore } from '../stores'
 	import errors from '../errors';
-	import { getId, initSelected, isStoreEmpty, orgStringReturner, selectStringsFrom } from '../utils';
+	import { getFullyQualifiedName, getId, initSelected, isStoreEmpty, orgStringReturner, selectStringsFrom } from '../utils';
 
 	let name;
 	let description;
@@ -14,8 +14,12 @@
 	// if store has an org, let user decide (CardHead: Organization ___whitespace___ Create Update (Delete?))
 
 	let selectedOrg = initSelected($organizationStore, orgStringReturner);
-	$: orgId = getId(selectedOrg);
-	$: if(orgId || !orgId) $organizationStore = ($organizationsStore).find(o => o.organizationId == orgId);
+	$: organizationId = getId(selectedOrg);
+	$: if(organizationId || !organizationId) {
+		$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
+
+		fullyQualified = getFullyQualifiedName("unit", $organizationStore);
+	} 
 
 	let orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
 
@@ -39,15 +43,15 @@
 	}
 
 	const save = async () => {
-		if(!orgId || !name || !description) {
+		if(!organizationId || !name || !description) {
 			console.log(errors.SUBMIT);
 			return;
 		}
-		SchemataRepository.updateOrganization(orgId, name, description)
+		SchemataRepository.updateOrganization(organizationId, name, description)
 			.then(updated => {
 				console.log({updated});
 				$organizationStore = updated;
-				$organizationsStore = ($organizationsStore).filter(org => org.organizationId != orgId);
+				$organizationsStore = ($organizationsStore).filter(org => org.organizationId != organizationId);
 				$organizationsStore.push(updated);
 				
 				orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
@@ -55,7 +59,7 @@
 			})
 	}
 	
-	let defineMode = isStoreEmpty(($organizationsStore));
+	let defineMode = isStoreEmpty(($organizationsStore)); //maybe this doesn't work anymore, maybe .length,...
 	// maybe look into this, I just don't know enough stuff - document.getElementById("myForm").reset();
 	let clearFlag = false;
 	const newOrg = () => {
@@ -76,19 +80,22 @@
 		isDefineDisabled = true;
 	}
 
-	$: if(orgId) {
+	$: if(organizationId) {
 		isNextDisabled = false;
 	}
 	
-	$: if(orgId && name && description) {
+	$: if(organizationId && name && description) {
 		isSaveDisabled = false;
 	} else {
 		isSaveDisabled = true;
 	}
+
+	let fullyQualified;
 </script>
 
 
-<CardForm title="Organization" linkToNext="New Unit" on:new={newOrg} on:save={save} on:define={define} {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode}>
+<CardForm title="Organization" linkToNext="New Unit" on:new={newOrg} on:save={save} on:define={define} 
+{isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
 	{#if !defineMode}
 		<ValidatedInput inline containerClasses="" disabled={defineMode} type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
 	{/if}

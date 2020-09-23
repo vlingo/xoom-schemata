@@ -378,7 +378,7 @@ import Alert from 'sveltestrap/src/Alert.svelte';
 					<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
 					<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
 					<Button outline color="danger" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
-					<Button outline color="info" icon={mdiSourcePull} text="INFO" on:click={toggleSourceModal}/>
+					<Button outline color="info" icon={mdiSourcePull} text="CODE" on:click={toggleSourceModal}/>
 					<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
 				</ButtonBar>
 			{:else}

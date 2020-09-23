@@ -7,7 +7,7 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
-	import { contextStringReturner, getCompatible, getId, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, isStoreEmpty, orgStringReturner, schemaStringReturner, schemaVersionStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
+	import { contextStringReturner, getCompatible, getFullyQualifiedName, getId, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, isStoreEmpty, orgStringReturner, schemaStringReturner, schemaVersionStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
 	import errors from '../errors';
 	import ButtonBar from '../components/ButtonBar.svelte';
 	
@@ -114,10 +114,10 @@
 	$: if($schemaVersionStore) {
 		isNextDisabled = false;
 	}
-
+	$: fullyQualified = getFullyQualifiedName("schemaVersion", $schemaVersionStore);
 </script>
 
-<CardForm title="Schema Version" linkToNext="Home" href="/" on:new={newVersion} on:define={define} {defineMode}>
+<CardForm title="Schema Version" linkToNext="Home" href="/" on:new={newVersion} on:define={define} {defineMode} {fullyQualified}>
 	<!-- <div class="flex-two-col"> -->
 		<ValidatedInput inline containerClasses="" type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
 		<ValidatedInput inline containerClasses="folder-inset1" type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
@@ -136,7 +136,7 @@
 	<div slot="buttons">
 		<ButtonBar>
 			<div class="mr-auto">
-				<Button color="info" text="New" on:click={newVersion}/>
+				<Button color="info" text="New Schema Version" on:click={newVersion}/>
 			</div>
 			{#if defineMode}
 				<Button color="primary" text="Define" on:click={define} disabled={isCreateDisabled}/>

@@ -4,7 +4,7 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
-	import { getCompatible, getId, initSelected, isCompatibleToOrg, isStoreEmpty, orgStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
+	import { getCompatible, getFullyQualifiedName, getId, initSelected, isCompatibleToOrg, isStoreEmpty, orgStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
 	import errors from '../errors';
 
 	let name;
@@ -24,11 +24,17 @@
 	$: if(organizationId || !organizationId) {
 		$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
 		compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg);
+
+		fullyQualified = getFullyQualifiedName("organization", $organizationStore);
 	}
 
 	let selectedUnit = initSelected($unitStore, unitStringReturner); //initial, should always be compatible, because you need to choose org first.
 	$: unitId = getId(selectedUnit);
-	$: if(unitId) $unitStore = ($unitsStore).find(u => isCompatibleToOrg(u));
+	$: if(unitId) {
+		$unitStore = ($unitsStore).find(u => u.unitId == unitId);
+
+		fullyQualified = getFullyQualifiedName("unit", $unitStore);
+	}
 
 
 	//strings which are shown to the user, unitSelect changes if compatibleUnits change
@@ -108,9 +114,12 @@
 	} else {
 		isSaveDisabled = true;
 	}
+
+	let fullyQualified;
 </script>
 
-<CardForm title="Unit" linkToNext="New Context" on:new={newUnit} on:save={save} on:define={define} {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode}>
+<CardForm title="Unit" linkToNext="New Context" on:new={newUnit} on:save={save} on:define={define} 
+{isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
 	<ValidatedInput inline containerClasses="" type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
 	{#if !defineMode}
 		<ValidatedInput inline containerClasses="folder-inset1" disabled={defineMode} type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>

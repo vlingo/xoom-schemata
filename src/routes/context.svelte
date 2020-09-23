@@ -4,7 +4,7 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, unitsStore, unitStore } from '../stores';
-	import { isCompatibleToOrg, getCompatible, getId, orgStringReturner, selectStringsFrom, unitStringReturner, initSelected, contextStringReturner, isCompatibleToUnit, isStoreEmpty } from '../utils';
+	import { isCompatibleToOrg, getCompatible, getId, orgStringReturner, selectStringsFrom, unitStringReturner, initSelected, contextStringReturner, isCompatibleToUnit, isStoreEmpty, getFullyQualifiedName } from '../utils';
 	import errors from "../errors";
 
 	let namespace;
@@ -22,6 +22,8 @@
 		// clearing is necessary for grandchild
 		compatibleContexts = [];
 
+		fullyQualified = getFullyQualifiedName("organization", $organizationStore);
+		
 		console.log("in orgId");
 	}
 
@@ -29,15 +31,21 @@
 	$: unitId = getId(selectedUnit);
 	$: if(unitId || !unitId) {
 		if(organizationId) {
-			$unitStore = ($unitsStore).find(u => isCompatibleToOrg(u));
+			$unitStore = ($unitsStore).find(u => u.unitId == unitId);
 			compatibleContexts = getCompatible($contextsStore, isCompatibleToUnit, selectedUnit);
+
+			fullyQualified = getFullyQualifiedName("unit", $unitStore);
 		}
 		console.log("in unitId");
 	}
 
 	let selectedContext = initSelected($contextStore, contextStringReturner);
 	$: contextId = getId(selectedContext);
-	$: if(contextId) $contextStore = ($contextsStore).find(c => isCompatibleToUnit(c));
+	$: if(contextId) {
+		$contextStore = ($contextsStore).find(c => c.contextId == contextId);
+
+		fullyQualified = getFullyQualifiedName("context", $contextStore);
+	}
 
 
 	const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
@@ -129,9 +137,12 @@
 	} else {
 		isSaveDisabled = true;
 	}
+
+	let fullyQualified;
 </script>
 
-<CardForm title="Context" linkToNext="New Schema" on:new={newContext} on:save={save} on:define={define} {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode}>
+<CardForm title="Context" linkToNext="New Schema" on:new={newContext} on:save={save} on:define={define} 
+{isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
 	<!-- <div class="flex-two-col"> -->
 		<ValidatedInput inline containerClasses="" type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
 		<ValidatedInput inline containerClasses="folder-inset1" type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>

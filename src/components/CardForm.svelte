@@ -18,10 +18,18 @@
 
 	export let defineMode = true;
 
+	export let fullyQualified = "";
+
 </script>
 
 <Card>
-	<CardHeader tag="h3">{title}</CardHeader>
+	<CardHeader tag="h3">
+		<span>{title}
+			{#if fullyQualified}
+				<code>{fullyQualified}</code>
+			{/if}
+		</span>
+	</CardHeader>
 	<CardBody>
 		<Form>
 			<slot>
@@ -32,7 +40,7 @@
 			<slot name="buttons">
 				<ButtonBar>
 					<div class="mr-auto">
-						<Button color="info" text="New" on:click={() => dispatch("new")}/>
+						<Button color="info" text="New {title}" on:click={() => dispatch("new")}/>
 					</div>
 					{#if !defineMode}
 						<Button color="primary" text="Save" on:click={() => dispatch("save")} disabled={isSaveDisabled}/>
@@ -48,3 +56,9 @@
 		
 	</CardBody>
 </Card>
+
+<style>
+	code {
+		margin-left: 5rem;
+	}
+</style>

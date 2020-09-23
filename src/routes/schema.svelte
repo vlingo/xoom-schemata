@@ -4,7 +4,7 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
-	import { contextStringReturner, getCompatible, getId, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, isStoreEmpty, orgStringReturner, schemaStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
+	import { contextStringReturner, getCompatible, getFullyQualifiedName, getId, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, isStoreEmpty, orgStringReturner, schemaStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
 import errors from '../errors';
 
 	let id;
@@ -28,6 +28,8 @@ import errors from '../errors';
 		compatibleContexts = [];
 		compatibleSchemas = [];
 
+		fullyQualified = getFullyQualifiedName("organization", $organizationStore);
+		
 		console.log("in orgId");
 	}
 
@@ -35,9 +37,11 @@ import errors from '../errors';
 	$: unitId = getId(selectedUnit);
 	$: if(unitId || !unitId) {
 		if(organizationId) {
-			$unitStore = ($unitsStore).find(u => isCompatibleToOrg(u));
+			$unitStore = ($unitsStore).find(u => u.unitId == unitId);
 			compatibleContexts = getCompatible($contextsStore, isCompatibleToUnit, selectedUnit);
 			compatibleSchemas = [];
+
+			fullyQualified = getFullyQualifiedName("unit", $unitStore);
 		}
 		console.log("in unitId");
 	}
@@ -46,8 +50,10 @@ import errors from '../errors';
 	$: contextId = getId(selectedContext);
 	$: if(contextId || !contextId) {
 		if(organizationId && unitId) {
-			$contextStore = ($contextsStore).find(c => isCompatibleToUnit(c));
+			$contextStore = ($contextsStore).find(c => c.contextId == contextId);
 			compatibleSchemas = getCompatible($schemasStore, isCompatibleToContext, selectedContext);
+
+			fullyQualified = getFullyQualifiedName("context", $contextStore);
 		}
 		console.log("in contextId");
 	}
@@ -55,47 +61,18 @@ import errors from '../errors';
 
 	let selectedSchema = initSelected($schemaStore, schemaStringReturner);
 	$: schemaId = getId(selectedSchema);
-	$: if(schemaId) $schemaStore = ($schemasStore).find(s => isCompatibleToContext(s));
+	$: if(schemaId) {
+		$schemaStore = ($schemasStore).find(s => s.schemaId == schemaId); //maybe even only find...
+		console.log({$schemaStore});
+		fullyQualified = getFullyQualifiedName("schema", $schemaStore)
+	}
 
 
 	const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
 	$: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner);
 	$: contextSelect = selectStringsFrom(compatibleContexts, contextStringReturner);
 	$: schemaSelect = selectStringsFrom(compatibleSchemas, schemaStringReturner);
-
-
-	// let compatibleUnits;
-	// let compatibleContexts;
-
-	// let selectedOrg = initSelected($organizationStore, orgStringReturner);
-	// $: organizationId = getId(selectedOrg);
-	// $: if(organizationId || !organizationId) {
-	// 	$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
-	// 	compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg);
-	// 	// clearing is necessary for grandchild
-	// 	compatibleContexts = [];
-
-	// 	console.log("in orgId");
-	// }
-
-	// let selectedUnit = initSelected($unitStore, unitStringReturner);
-	// $: unitId = getId(selectedUnit);
-	// $: if(unitId || !unitId) {
-	// 	if(organizationId) {
-	// 		$unitStore = ($unitsStore).find(u => isCompatibleToOrg(u));
-	// 		compatibleContexts = getCompatible($contextsStore, isCompatibleToUnit, selectedUnit);
-	// 	}
-	// 	console.log("in unitId");
-	// }
-
-	// let selectedContext = initSelected($contextStore, contextStringReturner);
-	// $: contextId = getId(selectedContext);
-	// $: if(contextId) $contextStore = ($contextsStore).find(c => isCompatibleToUnit(c));
-
-
-	// const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
-	// $: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner);
-	// $: contextSelect = selectStringsFrom(compatibleContexts, contextStringReturner);
+	
 	
 	let defineMode = isStoreEmpty(($schemasStore));
 	let clearFlag = false;
@@ -166,9 +143,11 @@ import errors from '../errors';
 	} else {
 		isSaveDisabled = true;
 	}
+	let fullyQualified;
 </script>
 
-<CardForm title="Schema" linkToNext="New Schema Version" href="schemaVersion" on:new={newSchema} on:save={save} on:define={define} {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode}>
+<CardForm title="Schema" linkToNext="New Schema Version" href="schemaVersion" on:new={newSchema} on:save={save} on:define={define} 
+{isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
 	<!-- <span class="flex-two-col"> -->
 		<ValidatedInput inline containerClasses="" type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
 		<ValidatedInput inline containerClasses="folder-inset1" type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>

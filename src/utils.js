@@ -295,6 +295,21 @@ export function isStoreEmpty(store) {
 	for(var _ in store) return false;
 	return true;
 }
+
+export function getFullyQualifiedName(type, _) {
+	return;
+	let fullyQualifiedName = "";
+	switch(type) {
+		case "schemaVersion": fullyQualifiedName = get(schemaVersionStore).currentVersion + fullyQualifiedName;
+		case "schema": fullyQualifiedName = get(schemaStore).name + ":" + fullyQualifiedName;
+		case "context": fullyQualifiedName = get(contextStore).namespace + ":" + fullyQualifiedName;
+		case "unit": fullyQualifiedName = get(unitStore).name + ":" + fullyQualifiedName;
+		case "organization": fullyQualifiedName = get(organizationStore).name + ":" + fullyQualifiedName;
+		default: return fullyQualifiedName;
+	}
+}
+
+
 	// logic if I were to abstract id
 	// let id;
 	// obj.organizationId? id=obj.organizationId :
