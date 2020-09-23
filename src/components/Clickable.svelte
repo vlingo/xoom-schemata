@@ -14,14 +14,8 @@
 	let selected = false;
 	let item;
 
-	$: if((
-		file.id == $organizationStore.organizationId ||
-		file.id == $unitStore.unitId ||
-		file.id == $contextStore.contextId ||
-		file.id == $schemaStore.schemaId ||
-		file.id == $schemaVersionStore.schemaVersionId
-		) && (isObjectInAStore(file))) {
-			selected = true;
+	$: if(($organizationStore || $unitStore || $contextStore || $schemaStore || $schemaVersionStore) && (isObjectInAStore(file))) {
+		selected = true;
 	} else {
 		selected = false;
 	}
@@ -42,7 +36,7 @@
 	// $: active = (item == $current);
 </script>
 
-<div bind:this={item} class:selected={selected} on:click={chooseThis}>
+<div class:selected={selected} on:click={chooseThis}>
 	<slot/>
 </div>
 

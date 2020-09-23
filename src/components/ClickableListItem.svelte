@@ -1,21 +1,17 @@
-<script context="module">
-	import { writable } from 'svelte/store';
-	let current = writable({});
-</script>
-
 <script>
 	import ListGroupItem from "sveltestrap/src/ListGroupItem.svelte";
+	import { schemaVersionStore } from '../stores';
 
-	let item;
+	export let version;
 
 	function chooseThis() {
-		$current = item;
+		$schemaVersionStore = version;
 	}
-	
-	$: active = (item == $current);
+
+	$: active = ($schemaVersionStore.schemaVersionId == version.schemaVersionId);
 </script>
 
 
-<ListGroupItem bind:this={item} active={active} tag="button" action on:click={chooseThis}>
+<ListGroupItem active={active} tag="button" action on:click={chooseThis}>
 	<slot/>
 </ListGroupItem>

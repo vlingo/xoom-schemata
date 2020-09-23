@@ -206,31 +206,36 @@ export default {
       .then(ensureOk)
       .then(response => response.json())
   },
-  loadSources(
-    organization, unit, context, schema, version, language) {
-    let config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      responseType: 'text'
-    };
-    return Promise.all([
-      this.getOrganization(organization),
-      this.getUnit(organization, unit),
-      this.getContext(organization, unit, context),
-      this.getSchema(organization, unit, context, schema),
-      this.getVersion(organization, unit, context, schema, version),
-    ]).then(([org, unit, context, schema, version]) => {
-        return repoGet(
-          resources.sources(
-            org.name,
-            unit.name,
-            context.namespace,
-            schema.name,
-            version.currentVersion,
-            language), config)
-      })
+  loadSources(organization, unit, context, schema, version, language) {
+    return Repository.get(resources.sources(organization, unit, context, schema, version, language))
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
+  // loadSources(
+  //   organization, unit, context, schema, version, language) {
+  //   let config = {
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     responseType: 'text'
+  //   };
+  //   return Promise.all([
+  //     this.getOrganization(organization),
+  //     this.getUnit(organization, unit),
+  //     this.getContext(organization, unit, context),
+  //     this.getSchema(organization, unit, context, schema),
+  //     this.getVersion(organization, unit, context, schema, version),
+  //   ]).then(([org, unit, context, schema, version]) => {
+  //       return repoGet(
+  //         resources.sources(
+  //           org.name,
+  //           unit.name,
+  //           context.namespace,
+  //           schema.name,
+  //           version.currentVersion,
+  //           language), config)
+  //     })
+  //     .then(ensureOk)
+  //     .then(response => response.data)
+  // },
 }

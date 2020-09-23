@@ -1,5 +1,4 @@
 <script>
-	import StrapButton from 'sveltestrap/src/Button.svelte';
 	import Card from 'sveltestrap/src/Card.svelte';
 	import CardBody from 'sveltestrap/src/CardBody.svelte';
 	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
@@ -18,6 +17,11 @@
 	import SchemataRepository from '../api/SchemataRepository';
 	import errors from '../errors';
 	import ClickableListItem from '../components/ClickableListItem.svelte';
+	import Modal from 'sveltestrap/src/Modal.svelte';
+import ModalHeader from 'sveltestrap/src/ModalHeader.svelte';
+import ModalBody from 'sveltestrap/src/ModalBody.svelte';
+import ModalFooter from 'sveltestrap/src/ModalFooter.svelte';
+import Alert from 'sveltestrap/src/Alert.svelte';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
@@ -217,13 +221,13 @@
 	root = tree;
 	console.log(root);
 
-	let activeSpec = true;
-	let activeDesc = false;
+	let active = "spec";
 
 	let specification = "";
 	let description = "";
 
-	let schemaVersions = $schemaVersionsStore;
+	// let schemaVersions = $schemaVersionsStore; 
+	$: schemaVersions = $schemaVersionsStore.filter(ver => ver.schemaId == $schemaStore.schemaId);
 
 	function updateTreeWith(updated) {
 		// I know, this is bad, could at least be recursive or the tree could be a map: tree[orgId][unitId]...
@@ -290,52 +294,91 @@
 				updateTreeWith(updated);
 			})
 	}
+	let showModal = false;
+	const toggleSourceModal = () => {
+		showModal = !showModal;
+		if(showModal) {
+			SchemataRepository.loadSources(($organizationStore).name, ($unitStore).name, ($contextStore).namespace, ($schemaStore).name, ($schemaVersionStore).currentVersion, "java")
+				// ($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, "java")
+				.then(code => {
+					console.log({code});
+				})
+		}
+	} 
 </script>
+
+
+	<Modal isOpen={showModal} toggle={toggleSourceModal}>
+    	<ModalHeader toggle={toggleSourceModal}>Modal title</ModalHeader>
+    	<ModalBody>
+			<!-- {#await SchemataRepository.loadSources(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, "java") then test}
+				{test}
+			{/await} -->
+    	</ModalBody>
+    	<ModalFooter>
+      		<Button color="primary" on:click={toggleSourceModal} text={"Do Something"}/>
+      		<Button color="secondary" on:click={toggleSourceModal} text={"Cancel"}/>
+    	</ModalFooter>
+  	</Modal>
+	<Modal>
+		<!-- marked -->
+	</Modal>
 
 <Card>
 	<CardHeader tag="h3">
-		<!-- <FormGroup> -->
-			<Label for="search">Search</Label>
-			<Input type="search" name="search" id="search" placeholder="search..." />
-		<!-- </FormGroup> -->
-
-		<!-- reload button (if needed) -->
+		Home
 	</CardHeader>
+
+	{#if root.files.length > 0}
+		<!-- <FormGroup> -->
+			<Input type="search" name="search" id="search" placeholder="Search..." />
+		<!-- </FormGroup> -->
+		<!-- reload button (if needed) -->
 	<CardBody>
 		<Folder file={root} first={true}/>
 	</CardBody>
+	{:else}
+		<Alert color="info">
+		<h4 class="alert-heading text-capitalize">Tree-View Placeholder</h4>
+    	<p>When you have defined something, it will be shown inside a Tree-View right here.</p>
+		<p>
+			Start by defining an <a href="/organization" class="alert-link">Organization</a>.
+		</p>
+		</Alert>
+		
+	{/if}
 </Card>
 
-
+{#if schemaVersions.length > 0}
 <div class="bottom-container">
-	<div class="bottom-left">
-		<Card>
-			<ListGroup class="py-1">
-				{#each schemaVersions as schemaVersion}
-					<ClickableListItem>
-						{schemaVersion.currentVersion}
-					</ClickableListItem>
-				{/each}
-			</ListGroup>
-		</Card>
-	</div>
+		<div class="bottom-left">
+			<Card>
+				<ListGroup class="py-1">
+					{#each schemaVersions as schemaVersion}
+						<ClickableListItem version={schemaVersion}>
+							{schemaVersion.currentVersion}
+						</ClickableListItem>
+					{/each}
+				</ListGroup>
+			</Card>
+		</div>
 
 	<div class="spacer"></div>
 
 	<div class="bottom-right">
 		<Card>
 			<ListGroup class="d-flex flex-row p-1">
-				<ListGroupItem active={activeSpec} tag="button" action on:click={() => {activeSpec = true; activeDesc = false;}}>Specification</ListGroupItem>
-				<ListGroupItem active={activeDesc} tag="button" action on:click={() => {activeDesc = true; activeSpec = false;}}>Description</ListGroupItem>
+				<ListGroupItem active={active=="spec"} tag="button" action on:click={() => active = "spec"}>Specification</ListGroupItem>
+				<ListGroupItem active={active=="desc"} tag="button" action on:click={() => active = "desc"}>Description</ListGroupItem>
 			</ListGroup>
 
-			{#if activeSpec}
+			{#if active=="spec"}
 				<ValidatedInput type="textarea" bind:value={specification}/>
 				<ButtonBar>
 					<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
 					<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
 					<Button outline color="danger" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
-					<Button outline color="info" icon={mdiSourcePull} text="INFO"/>
+					<Button outline color="info" icon={mdiSourcePull} text="INFO" on:click={toggleSourceModal}/>
 					<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
 				</ButtonBar>
 			{:else}
@@ -349,6 +392,16 @@
 		</Card>
 	</div>
 </div>
+{:else}
+	<Alert color="info">
+		<h4 class="alert-heading text-capitalize">Schema Version Edit Placeholder</h4>
+    	<p>When you have defined Schema Versions, you can edit them right here.</p>
+		<p>
+			Define a <a href="/schemaVersion" class="alert-link">Schema Version</a>,
+			or, if you have already, choose one of the Schemas in the Tree-View.
+		</p>
+	</Alert>
+{/if}
 
 <style>
 	.bottom-container {

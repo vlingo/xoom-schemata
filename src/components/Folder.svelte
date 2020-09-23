@@ -11,15 +11,9 @@
 	export let file;
 
 	let expanded = isObjectInAStore(file);
-
-	$: if((
-		file.id == $organizationStore.organizationId ||
-		file.id == $unitStore.unitId ||
-		file.id == $contextStore.contextId ||
-		file.id == $schemaStore.schemaId ||
-		file.id == $schemaVersionStore.schemaVersionId
-		) && (isObjectInAStore(file))) {
-			expanded = true;
+	
+	$: if(($organizationStore || $unitStore || $contextStore || $schemaStore || $schemaVersionStore) && (isObjectInAStore(file))) {
+		expanded = true;
 	} else {
 		expanded = false;
 	}
