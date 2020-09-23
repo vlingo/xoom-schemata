@@ -1,3 +1,17 @@
+:root {
+	--vlingo-color1: #00a55249;
+	/* 
+	primary: "#00753B",
+    secondary: "#acd164",
+    accent: "#B78BC0",
+    error: "#e64325",
+    warning: "#ffa336",
+    info: "#22bee6",
+    success: "#009D4B"
+	*/
+}
+
+
 body {
 	margin: 0;
 	font-family: Roboto, -apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;

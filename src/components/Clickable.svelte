@@ -12,6 +12,7 @@
 	// $: selected = isObjectInAStore(file) && active;
 
 	let selected = false;
+	$: unSelected = !selected;
 	let item;
 
 	$: if(($organizationStore || $unitStore || $contextStore || $schemaStore || $schemaVersionStore) && (isObjectInAStore(file))) {
@@ -36,13 +37,17 @@
 	// $: active = (item == $current);
 </script>
 
-<div class:selected={selected} on:click={chooseThis}>
+<div class:selected={selected} class:unSelected={unSelected} on:click={chooseThis}>
 	<slot/>
 </div>
 
 
 <style>
 	.selected {
-		background-color: aquamarine;
+		font-weight: bold;
+		/* background-color: var(--vlingo-color1);  only do this on the schemaVersion*/
+	}
+	.unSelected {
+		font-weight: lighter;
 	}
 </style>

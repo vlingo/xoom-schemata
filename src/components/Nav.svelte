@@ -1,4 +1,6 @@
 <script>
+import { mdiEllipseOutline, mdiFactory, mdiFileDocument, mdiHome, mdiStore, mdiTag } from '@mdi/js';
+
 
 import {
     Collapse,
@@ -13,6 +15,13 @@ import {
     DropdownMenu,
     DropdownItem
   } from 'sveltestrap/src';
+import Icon from './Icon.svelte';
+
+
+	import { stores } from '@sapper/app';
+import { contextsStore, organizationsStore, schemasStore, unitsStore } from '../stores';
+	const { page } = stores();
+	$: ({ path } = $page);
 
   let isOpen = false;
 
@@ -26,24 +35,38 @@ import {
 	<NavbarToggler on:click={() => (isOpen = !isOpen)} />
 	<Collapse {isOpen} navbar expand="md" on:update={handleUpdate}>
 	  <Nav class="ml-auto" navbar>
-		<NavItem>
+		<NavItem active={path === "/" || ""} class="d-flex align-items-center mx-3">
+			<Icon icon={mdiHome}/>
 			<NavLink href="">Home</NavLink>
 		</NavItem>
-		<NavItem>
-		  <NavLink href="organization">Organization</NavLink>
+		<NavItem active={path === "/organization"} class="d-flex align-items-center mx-3">
+			<Icon icon={mdiFactory}/>
+			<NavLink href="organization">Organization</NavLink>
 		</NavItem>
-		<NavItem>
+		{#if $organizationsStore.length > 0}
+		<NavItem active={path === "/unit"} class="d-flex align-items-center mx-3">
+			<Icon icon={mdiStore}/>
 			<NavLink href="unit">Unit</NavLink>
 		</NavItem>
-		<NavItem>
+		{#if $unitsStore.length > 0}
+		<NavItem active={path === "/context"} class="d-flex align-items-center mx-3">
+			<Icon icon={mdiEllipseOutline}/>
 			<NavLink href="context">Context</NavLink>
 		</NavItem>
-		<NavItem>
+		{#if $contextsStore.length > 0}
+		<NavItem active={path === "/schema"} class="d-flex align-items-center mx-3">
+			<Icon icon={mdiFileDocument}/>
 			<NavLink href="schema">Schema</NavLink>
 		</NavItem>
-		<NavItem>
+		{#if $schemasStore.length > 0}
+		<NavItem active={path === "/schemaVersion"} class="d-flex align-items-center mx-3">
+			<Icon icon={mdiTag}/>
 			<NavLink href="schemaVersion">Schema Version</NavLink>
 		</NavItem>
+		{/if}
+		{/if}
+		{/if}
+		{/if}
 		<!-- <UncontrolledDropdown nav inNavbar>
 		  <DropdownToggle nav caret>Options</DropdownToggle>
 		  <DropdownMenu right>
@@ -56,3 +79,12 @@ import {
 	  </Nav>
 	</Collapse>
   </Navbar>
+
+
+  <style>
+	  span {
+		  display: flex;
+		  align-items: center;
+		  margin: 0 1rem 0 1rem;
+	  }
+  </style>
