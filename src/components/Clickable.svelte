@@ -1,19 +1,19 @@
+<script context="module">
+	import { writable } from 'svelte/store';
+	let current = writable({});
+</script>
+
 <script>
 	import { adjustStoresTo, deAdjustStoresTo, isObjectInAStore} from "../utils";
 	import { contextStore, organizationStore, schemaStore, schemaVersionStore, unitStore } from '../stores';
 
 	export let file;
 
-	// $: if((item == $currentOrg) || (item == $currentUnit) || (item == $currentContext) || (item == $currentSchema) || (item == $currentVersion)) setCurrent();
+	export let expanded = true;
 
-
-	// $: active = (item == $currentOrg) || (item == $currentUnit) || (item == $currentContext) || (item == $currentSchema) || (item == $currentVersion);
-	// maybe active needs to have influence on the stores, so maybe $: if(selected) {adjustStoresTo(file) setCurrent()} else {deAdjustStoresTo(file)} 
-	// $: selected = isObjectInAStore(file) && active;
+	let item;
 
 	let selected = false;
-	$: unSelected = !selected;
-	let item;
 
 	$: if(($organizationStore || $unitStore || $contextStore || $schemaStore || $schemaVersionStore) && (isObjectInAStore(file))) {
 		selected = true;
@@ -22,6 +22,7 @@
 	}
 
 	function chooseThis() {
+		$current = item;
 		if(!selected) {
 			adjustStoresTo(file);
 			// selected = true;
@@ -31,23 +32,22 @@
 			// selected = false;
 
 		}
-		// store.set(get(stores).filter(obj => returnId(obj) == file.id)[0]);
 	}
 
-	// $: active = (item == $current);
+	$: active = (item == $current) //&& expanded; ->could use this
 </script>
 
-<div class:selected={selected} class:unSelected={unSelected} on:click={chooseThis}>
+<div bind:this={item} class:active={active} class:notActive={!active} on:click={chooseThis}>
 	<slot/>
 </div>
 
 
 <style>
-	.selected {
+	.active {
 		font-weight: bold;
 		/* background-color: var(--vlingo-color1);  only do this on the schemaVersion*/
 	}
-	.unSelected {
+	.notActive {
 		font-weight: lighter;
 	}
 </style>
