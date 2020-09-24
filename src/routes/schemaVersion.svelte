@@ -72,14 +72,15 @@
 	let clearFlag = false;
 	const newVersion = () => {
 		description = "";
-		previous = "";
-		current = "";
+		previous = "0.0.0";
+		current = "0.0.1";
 		specification = "";
 		selectedOrg = initSelected($organizationStore, orgStringReturner);
 		selectedUnit = initSelected($unitStore, unitStringReturner);
 		selectedContext = initSelected($contextStore, contextStringReturner);
 		selectedSchema = initSelected($schemaStore, schemaStringReturner);
 
+		defineMode = true;
 		clearFlag = !clearFlag;
 	}
 

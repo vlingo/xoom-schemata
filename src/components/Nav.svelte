@@ -19,7 +19,7 @@
 	<NavbarToggler on:click={() => (isOpen = !isOpen)} />
 	<Collapse {isOpen} navbar expand="md" on:update={handleUpdate}>
 		<Nav class="ml-auto" navbar>
-			<NavItem active={path === "/" || ""} class="d-flex align-items-center mx-3">
+			<NavItem active={path === "/" || ""} class="d-flex align-items-center mx-3 border-right border-primary pr-4">
 				<Icon icon={mdiHome}/>
 				<NavLink href="">Home</NavLink>
 			</NavItem>
