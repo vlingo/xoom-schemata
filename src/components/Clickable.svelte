@@ -9,8 +9,6 @@
 
 	export let file;
 
-	export let expanded = true;
-
 	let item;
 
 	let selected = false;
@@ -21,20 +19,23 @@
 		selected = false;
 	}
 
+	$: if(file.id == $schemaVersionStore.schemaVersionId) $current = item;
+
 	function chooseThis() {
-		$current = item;
 		if(!selected) {
 			adjustStoresTo(file);
+			$current = item;
 			// selected = true;
 			// setCurrent();
 		} else {
 			deAdjustStoresTo(file);
 			// selected = false;
+			$current = {};
 
 		}
 	}
 
-	$: active = (item == $current) //&& expanded; ->could use this
+	$: active = (item == $current)
 </script>
 
 <div bind:this={item} class:active={active} class:notActive={!active} on:click={chooseThis}>

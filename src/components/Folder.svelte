@@ -27,7 +27,7 @@
 {#if !first}
 <span class:expanded>
 	<Tooltip tooltipText={file.type}> <!-- on:click={toggle} -->
-		<Clickable {file} {expanded}>
+		<Clickable {file}>
 			{#if expanded}▾{:else}▸{/if}
 			{getFileString(file)}
 		</Clickable>
