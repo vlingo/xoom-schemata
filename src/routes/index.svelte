@@ -21,7 +21,12 @@
 import ModalHeader from 'sveltestrap/src/ModalHeader.svelte';
 import ModalBody from 'sveltestrap/src/ModalBody.svelte';
 import ModalFooter from 'sveltestrap/src/ModalFooter.svelte';
-import Alert from 'sveltestrap/src/Alert.svelte';
+import OrganizationAlert from '../components/OrganizationAlert.svelte';
+import UnitAlert from '../components/UnitAlert.svelte';
+import ContextAlert from '../components/ContextAlert.svelte';
+import SchemaAlert from '../components/SchemaAlert.svelte';
+import VersionAlert from '../components/VersionAlert.svelte';
+import { isStoreEmpty } from '../utils';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
@@ -329,28 +334,49 @@ import Alert from 'sveltestrap/src/Alert.svelte';
 		Home
 	</CardHeader>
 
-	{#if root.files.length > 0}
+	{#if root.files.length < 1}
+		<OrganizationAlert/>
+	{:else}
 		<!-- <FormGroup> -->
-			<Input type="search" name="search" id="search" placeholder="Search..." />
+		<Input type="search" name="search" id="search" placeholder="Search..." />
 		<!-- </FormGroup> -->
 		<!-- reload button (if needed) -->
-	<CardBody>
-		<Folder file={root} first={true}/>
-	</CardBody>
-	{:else}
-		<Alert color="info">
-		<h4 class="alert-heading text-capitalize">Tree-View Placeholder</h4>
-    	<p>When you have defined something, it will be shown inside a Tree-View right here.</p>
-		<p>
-			Start by defining an <a href="/organization" class="alert-link">Organization</a>.
-		</p>
-		</Alert>
+		<CardBody>
+			<Folder file={root} first={true}/>
+		</CardBody>
 		
+		{#if $unitsStore.length < 1}
+			<UnitAlert/>
+		{:else}
+			{#if $contextsStore.length < 1}
+				<ContextAlert/>
+			{:else}
+				{#if $schemasStore.length < 1}
+					<SchemaAlert/>
+				{:else}
+					{#if $schemaVersionsStore.length < 1}
+						<VersionAlert/>
+					{/if}
+				{/if}
+			{/if}
+		{/if}
 	{/if}
 </Card>
 
+{#if isStoreEmpty($organizationStore)}
+	<OrganizationAlert notChosenAlert/>
+{:else if isStoreEmpty($unitStore)}
+	<UnitAlert notChosenAlert/>
+{:else if isStoreEmpty($contextStore)}
+	<ContextAlert notChosenAlert/>
+{:else if isStoreEmpty($schemaStore)}
+	<SchemaAlert notChosenAlert/>
+{:else if isStoreEmpty($schemaVersionStore)}
+	<VersionAlert notChosenAlert/>
+{/if}
+<!-- maybe else this, and change the version alert back.. -->
 {#if schemaVersions.length > 0}
-<div class="bottom-container">
+	<div class="bottom-container">
 		<div class="bottom-left">
 			<Card>
 				<ListGroup class="py-1">
@@ -363,9 +389,10 @@ import Alert from 'sveltestrap/src/Alert.svelte';
 			</Card>
 		</div>
 
-	<div class="spacer"></div>
+		<div class="spacer"></div>
 
-	<div class="bottom-right">
+		{#if !isStoreEmpty($schemaVersionStore)}
+		<div class="bottom-right">
 		<Card>
 			<ListGroup class="d-flex flex-row p-1">
 				<ListGroupItem active={active=="spec"} tag="button" action on:click={() => active = "spec"}>Specification</ListGroupItem>
@@ -390,17 +417,9 @@ import Alert from 'sveltestrap/src/Alert.svelte';
 				</ButtonBar>
 			{/if}
 		</Card>
+		</div>
+		{/if}
 	</div>
-</div>
-{:else}
-	<Alert color="info">
-		<h4 class="alert-heading text-capitalize">Schema Version Edit Placeholder</h4>
-    	<p>When you have defined Schema Versions, you can edit them right here.</p>
-		<p>
-			Define a <a href="/schemaVersion" class="alert-link">Schema Version</a>,
-			or, if you have already, choose one of the Schemas in the Tree-View.
-		</p>
-	</Alert>
 {/if}
 
 <style>

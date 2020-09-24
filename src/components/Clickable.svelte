@@ -13,13 +13,14 @@
 
 	let selected = false;
 
+	// stores trigger the reactive statement
 	$: if(($organizationStore || $unitStore || $contextStore || $schemaStore || $schemaVersionStore) && (isObjectInAStore(file))) {
 		selected = true;
 	} else {
 		selected = false;
 	}
 
-	$: if(file.id == $schemaVersionStore.schemaVersionId) $current = item;
+	$: if(isObjectInAStore(file)) $current = item;
 
 	function chooseThis() {
 		if(!selected) {
