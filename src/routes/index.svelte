@@ -27,6 +27,9 @@ import ContextAlert from '../components/ContextAlert.svelte';
 import SchemaAlert from '../components/SchemaAlert.svelte';
 import VersionAlert from '../components/VersionAlert.svelte';
 import { isStoreEmpty } from '../utils';
+import CustomInput from 'sveltestrap/src/CustomInput.svelte';
+import FormGroup from 'sveltestrap/src/FormGroup.svelte';
+import Form from 'sveltestrap/src/Form.svelte';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
@@ -142,8 +145,8 @@ import { isStoreEmpty } from '../utils';
 												status: schemaVersion.status,
 												specification: schemaVersion.specification,
 												description: schemaVersion.description,
-												previous: schemaVersion.previous,
-												current: schemaVersion.current,
+												previous: schemaVersion.previousVersion,
+												current: schemaVersion.currentVersion,
 												id: schemaVersion.schemaVersionId
 											}
 										)
@@ -228,7 +231,7 @@ import { isStoreEmpty } from '../utils';
 
 	let active = "spec";
 
-	let specification = "";
+	let specification = $schemaVersionStore ? $schemaVersionStore.specification : "";
 	let description = "";
 
 	// let schemaVersions = $schemaVersionsStore; 
@@ -299,30 +302,52 @@ import { isStoreEmpty } from '../utils';
 				updateTreeWith(updated);
 			})
 	}
+
 	let showModal = false;
-	const toggleSourceModal = () => {
-		showModal = !showModal;
-		if(showModal) {
-			SchemataRepository.loadSources(($organizationStore).name, ($unitStore).name, ($contextStore).namespace, ($schemaStore).name, ($schemaVersionStore).currentVersion, "java")
-				// ($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, "java")
-				.then(code => {
-					console.log({code});
-				})
-		}
-	} 
+	const toggleSourceModal = () => showModal = !showModal;
+
+	// ($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, "java")
+	const sourceCodeFor = (lang) => {
+		if(lang != "java") return;
+		SchemataRepository.loadSources(($organizationStore).name, ($unitStore).name, ($contextStore).namespace, ($schemaStore).name, ($schemaVersionStore).currentVersion, lang)
+			.then(code => {
+				console.log({code});
+				sourceCode = code;
+			})
+	};
+	let lang = 'Java';
+	let langs = [
+		'Java',
+		'C#',
+	]
+	$: console.log('Changed selected:', lang)
+	$: if(lang && showModal) sourceCodeFor(lang.toLowerCase());
+
+	let sourceCode = "";
+
+	let detailed = false;
 </script>
 
 
-	<Modal isOpen={showModal} toggle={toggleSourceModal}>
-    	<ModalHeader toggle={toggleSourceModal}>Modal title</ModalHeader>
+	<Modal isOpen={showModal} toggle={toggleSourceModal} size="lg">
+    	<ModalHeader toggle={toggleSourceModal}> <h3> Choose language to generate: </h3></ModalHeader>
     	<ModalBody>
-			<!-- {#await SchemataRepository.loadSources(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, "java") then test}
-				{test}
-			{/await} -->
+			<div>
+				<!-- <CustomInput type="radio" id="radioJava" name="languageRadio" label="Java"/>
+				<CustomInput type="radio" id="radioCSharp" name="languageRadio" label="C#"/> -->
+				{#each langs as value}
+					<label class="mx-3"><input type="radio" {value} bind:group={lang}> {value}</label>
+				{/each}
+			</div>
+
+			<pre><code>
+				{sourceCode}
+			</code></pre>
+
     	</ModalBody>
     	<ModalFooter>
-      		<Button color="primary" on:click={toggleSourceModal} text={"Do Something"}/>
-      		<Button color="secondary" on:click={toggleSourceModal} text={"Cancel"}/>
+      		<!-- <Button color="primary" on:click={toggleSourceModal} text={"Do Something"}/>
+      		<Button color="secondary" on:click={toggleSourceModal} text={"Cancel"}/> -->
     	</ModalFooter>
   	</Modal>
 	<Modal>
@@ -332,6 +357,9 @@ import { isStoreEmpty } from '../utils';
 <Card>
 	<CardHeader tag="h3">
 		Home
+		{#if root.files.length > 0}
+			<Button on:click={() => detailed = !detailed} style="float: right" text={"Show Details"}/>
+		{/if}
 	</CardHeader>
 
 	{#if root.files.length < 1}
@@ -342,7 +370,7 @@ import { isStoreEmpty } from '../utils';
 		<!-- </FormGroup> -->
 		<!-- reload button (if needed) -->
 		<CardBody>
-			<Folder file={root} first={true}/>
+			<Folder detailed={detailed} file={root} first={true}/>
 		</CardBody>
 		
 		{#if $unitsStore.length < 1}
@@ -356,6 +384,18 @@ import { isStoreEmpty } from '../utils';
 				{:else}
 					{#if $schemaVersionsStore.length < 1}
 						<VersionAlert/>
+					{:else}
+						{#if isStoreEmpty($organizationStore)}
+							<OrganizationAlert notChosenAlert/>
+						{:else if isStoreEmpty($unitStore)}
+							<UnitAlert notChosenAlert/>
+						{:else if isStoreEmpty($contextStore)}
+							<ContextAlert notChosenAlert/>
+						{:else if isStoreEmpty($schemaStore)}
+							<SchemaAlert notChosenAlert/>
+						{:else if isStoreEmpty($schemaVersionStore)}
+							<VersionAlert notChosenAlert/>
+						{/if}
 					{/if}
 				{/if}
 			{/if}
@@ -363,21 +403,9 @@ import { isStoreEmpty } from '../utils';
 	{/if}
 </Card>
 
-{#if isStoreEmpty($organizationStore)}
-	<OrganizationAlert notChosenAlert/>
-{:else if isStoreEmpty($unitStore)}
-	<UnitAlert notChosenAlert/>
-{:else if isStoreEmpty($contextStore)}
-	<ContextAlert notChosenAlert/>
-{:else if isStoreEmpty($schemaStore)}
-	<SchemaAlert notChosenAlert/>
-{:else if isStoreEmpty($schemaVersionStore)}
-	<VersionAlert notChosenAlert/>
-{/if}
-<!-- maybe else this, and change the version alert back.. -->
 {#if schemaVersions.length > 0}
 	<div class="bottom-container">
-		<div class="bottom-left">
+		<!-- <div class="bottom-left">
 			<Card>
 				<ListGroup class="py-1">
 					{#each schemaVersions as schemaVersion}
@@ -387,9 +415,9 @@ import { isStoreEmpty } from '../utils';
 					{/each}
 				</ListGroup>
 			</Card>
-		</div>
+		</div> -->
 
-		<div class="spacer"></div>
+		<!-- <div class="spacer"></div> -->
 
 		{#if !isStoreEmpty($schemaVersionStore)}
 		<div class="bottom-right">
@@ -400,7 +428,7 @@ import { isStoreEmpty } from '../utils';
 			</ListGroup>
 
 			{#if active=="spec"}
-				<ValidatedInput type="textarea" bind:value={specification}/>
+				<ValidatedInput rows="10" type="textarea" bind:value={specification}/>
 				<ButtonBar>
 					<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
 					<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
@@ -409,7 +437,7 @@ import { isStoreEmpty } from '../utils';
 					<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
 				</ButtonBar>
 			{:else}
-				<ValidatedInput type="textarea" bind:value={description}/>
+				<ValidatedInput rows="10" type="textarea" bind:value={description}/>
 				<ButtonBar>
 					<Button color="success" icon={mdiFileFind} text="PREVIEW"/>
 					<Button color="warning" icon={mdiFileUndo} text="REVERT"/>
@@ -429,7 +457,7 @@ import { isStoreEmpty } from '../utils';
 		display: flex;
 		flex-direction: column;
 	}
-	.spacer {
+	/* .spacer {
 		width: 5rem;
 		height: 2rem;
 		display: block;
@@ -437,7 +465,7 @@ import { isStoreEmpty } from '../utils';
 
 	.bottom-left {
 		flex: 0 1 auto;
-	}
+	} */
 
 	.bottom-right {
 		flex: 1 1 auto;

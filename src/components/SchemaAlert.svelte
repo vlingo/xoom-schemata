@@ -6,13 +6,13 @@
 
 {#if notChosenAlert}
 	<Alert color="info">
-		<h4 class="alert-heading text-capitalize">Choose a Schema</h4>
-		<p>Choose one of the Schemas inside the Tree-View.</p>
+		<h4 class="alert-heading">Choose a Schema</h4>
+		<p>Choose a Schema in the tree.</p>
 	</Alert>
 {:else}
 	<Alert color="info">
-		<h4 class="alert-heading text-capitalize">Define a Schema</h4>
-		<p>When you have defined a schema, it will be shown inside the Tree-View.</p>
+		<h4 class="alert-heading">Define a Schema</h4>
+		<p>When you have defined a schema, it will be shown inside the tree.</p>
 		<p>
 			<a href="/schema" class="alert-link">Click here to define a Schema</a>.
 		</p>

@@ -15,7 +15,8 @@
 
 	let formGroupClasses = inline? "form-inline" : "";
 	let labelClasses = inline? "justify-content-start" : "";
-	let inputClasses = inline? "align-self-end" : "";
+	let inputContainerClasses = inline? "align-self-end w-75" : "";
+	let inputClasses = inline? "w-75" : "";
 
 	let valueValid = false;
 	let valueInvalid = false;
@@ -38,7 +39,7 @@
 	// }
 	
 	const valueCheck = (e) => {
-		value = e.target.value;
+		// value = e.target.value;
 
 		if(value) {
 			valueValid = true;
@@ -68,21 +69,27 @@
 		<Label class={labelClasses} for={id}>{label}</Label>
 	</div>
 	<!-- keyup: instant check on input, blur: checks on doing nothing, change: checks on selects -->
-	<Input class={inputClasses} type={type} name={id} id={id} placeholder={label} bind:value={value} disabled={disabled}
-	valid={valueValid} invalid={valueInvalid} on:blur={valueCheck} on:keyup={valueCheck} on:change={valueCheck} on:input={valueCheck} {rows}>
-		{#if options}
-		<option/>
-		{#each options as option}
-			<option>{option}</option> <!--careful, everything inside counts as the value, newlines/whitespace etc-->
-		{/each}
-		{/if}
-	</Input>
+	<div class={inputContainerClasses}>
+		<Input class={inputClasses} type={type} name={id} id={id} placeholder={label} bind:value={value} disabled={disabled}
+		valid={valueValid} invalid={valueInvalid} on:blur={valueCheck} on:keyup={valueCheck} on:change={valueCheck} on:input={valueCheck} {rows}>
+			{#if options}
+				<!-- <option/> -->
+				{#each options as option}
+					{#if option.text}
+						<option value={option}>{option.text}</option> <!--careful, everything inside counts as the value, newlines/whitespace etc-->
+					{:else}
+						<option>{option}</option>
+					{/if}
+				{/each}
+			{/if}
+		</Input>
 
-	{#if validationMessage}
-		<div class="invalid-feedback">
-        	{validationMessage}
-    	</div>
+		{#if validationMessage}
+			<div class="invalid-feedback">
+        		{validationMessage}
+    		</div>
 	{/if}
+	</div>
 </FormGroup>
 </div>
 

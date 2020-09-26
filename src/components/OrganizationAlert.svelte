@@ -5,13 +5,13 @@
 
 {#if notChosenAlert}
 	<Alert color="info">
-		<h4 class="alert-heading text-capitalize">Choose an Organization</h4>
-		<p>Choose one of the Organizations inside the Tree-View.</p>
+		<h4 class="alert-heading">Choose an Organization</h4>
+		<p>Choose an Organization in the tree.</p>
 	</Alert>
 {:else}
 	<Alert color="info">
-		<h4 class="alert-heading text-capitalize">Define an Organization</h4>
-		<p>When you have defined an organization, it will be shown inside a Tree-View right here.</p>
+		<h4 class="alert-heading">Define an Organization</h4>
+		<p>When you have defined an organization, it will be shown inside a tree right here.</p>
 		<p>
 			<a href="/organization" class="alert-link">Click here to start by defining an Organization</a>.
 		</p>

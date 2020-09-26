@@ -1,14 +1,11 @@
 <script>
-	import {mdiDelete, mdiLabel, mdiLabelOff, mdiPlaylistPlay} from '@mdi/js'
-
-	import { getFileString, isObjectInAStore } from "../utils";
-	import Tooltip from "./Tooltip.svelte";
-	import Icon from "./Icon.svelte";
-	import Clickable from './Clickable.svelte';
+	import { isObjectInAStore } from "../utils";
 	import { contextStore, organizationStore, schemaStore, schemaVersionStore, unitStore } from '../stores';
+	import FolderInternals from './FolderInternals.svelte';
 	export let first = false;
 
 	export let file;
+	export let detailed = false;
 
 	let expanded = isObjectInAStore(file);
 	
@@ -17,21 +14,12 @@
 	} else {
 		expanded = false;
 	}
-
-	// function toggle() {
-	// 	expanded = !expanded;
-	// }
 </script>
 
 
 {#if !first}
 <span class:expanded>
-	<Tooltip tooltipText={file.type}> <!-- on:click={toggle} -->
-		<Clickable {file}>
-			{#if expanded}▾{:else}▸{/if}
-			{getFileString(file)}
-		</Clickable>
-	</Tooltip>
+	<FolderInternals {file} expandable={true} expanded={expanded} detailed={detailed}/>
 </span>
 {/if}
 
@@ -40,27 +28,12 @@
 		{#each file.files as file}
 			<li>
 				{#if file.files != undefined}
-					<svelte:self {file}/>
+					<svelte:self {file} detailed={detailed}/>
 				{:else}
 					<!-- original: <span>{file.name}</span>   style="background-image: url(tutorial/icons/{type}.svg) -->
 					<!-- this is the leaf-element, we could style it differently-->
 					<span>
-						<Tooltip tooltipText={file.type}>
-							<Clickable {file}>
-								<!-- this can also be done via the initial array in index.svelte -->
-								<!-- {#if file.icon} <Icon icon={file.icon}/> {/if}-->
-								{#if file.status == "Draft"}
-									<Icon icon={mdiPlaylistPlay} />
-								{:else if file.status == "Published"}
-									<Icon icon={mdiLabel} />
-								{:else if file.status == "Deprecated"}
-									<Icon icon={mdiLabelOff} />
-								{:else if file.status == "Removed"}
-									<Icon icon={mdiDelete} />
-								{/if}
-								{getFileString(file)}
-							</Clickable>
-						</Tooltip>
+						<FolderInternals {file} expandable={false} detailed={detailed}/>
 					</span>
 				{/if}
 			</li>

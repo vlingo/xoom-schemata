@@ -3,6 +3,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { Card, CardBody, Form} from 'sveltestrap/src';
 	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
+	import { detailed } from '../stores';
 	import Button from './Button.svelte';
 	import ButtonBar from './ButtonBar.svelte';
 
@@ -29,6 +30,7 @@
 				<code>{fullyQualified}</code>
 			{/if}
 		</span>
+		<Button on:click={() => $detailed = !($detailed)} style="float: right" text={"Show Details"}/>
 	</CardHeader>
 	<CardBody>
 		<Form>

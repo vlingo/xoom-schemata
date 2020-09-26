@@ -2,6 +2,8 @@ import { writable } from 'svelte/store';
 
 export const firstPage = writable(true);
 
+export const detailed = writable(false);
+
 export const organizationStore = writable(
 	{
 

@@ -207,9 +207,10 @@ export default {
       .then(response => response.json())
   },
   loadSources(organization, unit, context, schema, version, language) {
+    console.log(version);
     return Repository.get(resources.sources(organization, unit, context, schema, version, language))
       .then(ensureOk)
-      .then(response => response.json())
+      .then(response => response.text())
   },
   // loadSources(
   //   organization, unit, context, schema, version, language) {

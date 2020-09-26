@@ -1,85 +1,103 @@
 import { get } from 'svelte/store';
 import { contextStore, organizationStore, unitStore, schemaStore, organizationsStore, unitsStore, contextsStore, schemasStore, schemaVersionStore, schemaVersionsStore } from './stores';
 
-export function selectStringsFrom(arr, stringReturner) {
+export function selectStringsFrom(arr, stringReturner, idReturner, detailed) {
 	return arr.map(obj => {
-		return stringReturner(obj);
+		return initSelected(obj, stringReturner, idReturner, detailed);
 	})
 }
 
-export function initSelected(store, stringReturner) {
-	return store? stringReturner((store)) : "";
+export function orgIdReturner(o) { return o.organizationId }
+export function unitIdReturner(u) { return u.unitId }
+export function contextIdReturner(c) { return c.contextId }
+export function schemaIdReturner(s) { return s.schemaId }
+export function versionIdReturner(v) { return v.schemaVersionId }
+
+
+export function initSelected(obj, stringReturner, idReturner, detailed) {
+	if(obj) {
+		return {
+			id: idReturner(obj),
+			text: stringReturner(obj, detailed)
+		};
+	}
+	return {};
 }
 
-export function orgStringReturner(o) {
-	return `${o.name} - ${o.organizationId}`
+export function orgStringReturner(o, detailed) {
+	return getOrganizationDetails(o, detailed);
 }
 
-export function unitStringReturner(u) {
-	return `${u.name} - ${u.unitId}`
+export function unitStringReturner(u, detailed) {
+	return getUnitDetails(u, detailed);
 }
 
-export function contextStringReturner(c) {
-	return `${c.namespace} - ${c.contextId}`
+export function contextStringReturner(c, detailed) {
+	return getContextDetails(c, detailed);
 }
 
-export function schemaStringReturner(s) {
-	return `${s.name} - ${s.schemaId}`
+export function schemaStringReturner(s, detailed) {
+	return getSchemaDetails(s, detailed);
 }
 
-export function schemaVersionStringReturner(sv) {
-	return `${sv.currentVersion} - ${sv.status} - ${sv.schemaVersionId}`
+export function schemaVersionStringReturner(sv, detailed) {
+	return getSchemaVersionDetails(sv, detailed);
 }
 
  //last index should always be the id!
 export function getId(str) {
+	console.log(str);
 	const words = str.split(" ");
 	return words[words.length-1];
 }
 
 //more can be removed
-export function getFileString(file) {
+export function getFileString(file, detailed) {
 	switch(file.type) {
-		case "organization": return getOrganizationDetails(file);
+		case "organization": return getOrganizationDetails(file, detailed);
 			break;
-		case "unit": return getUnitDetails(file);
+		case "unit": return getUnitDetails(file, detailed);
 			break;
-		case "context": return getContextDetails(file);
+		case "context": return getContextDetails(file, detailed);
 			break;
-		case "schema": return getSchemaDetails(file);
+		case "schema": return getSchemaDetails(file, detailed);
 			break;
-		case "schemaVersion": return getSchemaVersionDetails(file);
+		case "schemaVersion": return getSchemaVersionDetails(file, detailed);
 			break;
 		default: console.log("type is non-existent.");
 	}
 	
 }
-
 function filterSchemaAttributes(attributes) {
+	return attributes.filter(attrib => attrib !== "category" && attrib !== "scope");
+}
+function filterSchemaVersionAttributes(attributes) {
 	return attributes.filter(attrib => attrib !== "previous" && attrib !== "specification" && attrib !== "status");
 }
-function filterCommonFrom(file) {
-	return Object.keys(file).filter(attrib => attrib !== "type" && attrib !== "files" && attrib !== "description");
+function filterCommonFrom(element, detailed) {
+	if(detailed) return Object.keys(element).filter(attrib => attrib !== "type" && attrib !== "files" && attrib !== "description");
+	return Object.keys(element).filter(attrib => attrib !== "type" && attrib !== "files" && attrib !== "description" && attrib !== "id"
+			&& attrib !== "organizationId" && attrib !== "unitId" && attrib !== "contextId" && attrib !== "schemaId" && attrib !== "schemaVersionId");
 }
-function makeFileString(file, attributes) {
-	// return attributes.map(key => `${key}: ${file[key]}`).join(" - ");
+function makeStringFrom(file, attributes, detailed) {
+	if(detailed) return attributes.map(key => `${key}: ${file[key]}`).join(" - ");
 	return attributes.map(key => file[key]).join(" - ");
 }
-function getOrganizationDetails(file) {
-	return makeFileString(file, filterCommonFrom(file));
+function getOrganizationDetails(org, detailed) {
+	return makeStringFrom(org, filterCommonFrom(org, detailed), detailed);
 }
 
-function getUnitDetails(file) {
-	return makeFileString(file, filterCommonFrom(file));
+function getUnitDetails(file, detailed) {
+	return makeStringFrom(file, filterCommonFrom(file, detailed), detailed);
 }
-function getContextDetails(file) {
-	return makeFileString(file, filterCommonFrom(file));
+function getContextDetails(file, detailed) {
+	return makeStringFrom(file, filterCommonFrom(file, detailed), detailed);
 }
-function getSchemaDetails(file) {
-	return makeFileString(file, filterCommonFrom(file));
+function getSchemaDetails(file, detailed) {
+	return makeStringFrom(file, filterSchemaAttributes(filterCommonFrom(file, detailed)), detailed);
 }
-function getSchemaVersionDetails(file) {
-	return makeFileString(file, filterSchemaAttributes(filterCommonFrom(file)));
+function getSchemaVersionDetails(file, detailed) {
+	return makeStringFrom(file, filterSchemaVersionAttributes(filterCommonFrom(file, detailed)), detailed);
 }
 
 export function getCompatible(fromElements, predicate, fieldValue) {
@@ -90,9 +108,6 @@ export function getCompatible(fromElements, predicate, fieldValue) {
 export function isCompatibleToOrg(obj) {
 	return obj.organizationId == get(organizationStore).organizationId;
 }
-// I think this is already enough, organization is compatible if unit is compatible - it's a tree
-// WARNING: If organization1, unit1 can have id "foo" and organization2, unit2 can have id "foo", this needs to be changed!
-// e.g. return isCompatibleToOrg(obj) && ...
 export function isCompatibleToUnit(obj) {
 	return obj.unitId == get(unitStore).unitId;
 }
@@ -134,22 +149,6 @@ function initStores(array, storeOfOne, storeOfAll, predicate) {
 	}
 }
 
-export function getRightStore(type) {
-	switch(type) {
-		case "organization": return {store: organizationStore, stores: organizationsStore};
-			break;
-		case "unit": return {store: unitStore, stores: unitsStore};
-			break;
-		case "context": return {store: contextStore, stores: contextsStore};
-			break;
-		case "schema": return {store: schemaStore, stores: schemasStore};
-			break;
-		case "schemaVersion": return {store: schemaVersionStore, stores: schemaVersionsStore};
-			break;
-		default: console.log("type is non-existent.");
-	}
-}
-
 //order matters
 export function returnId(obj) {
 	if(obj.schemaVersionId) return obj.schemaVersionId;
@@ -180,91 +179,74 @@ export function isObjectInAStore(file) {
 	}
 }
 
-
-
 export function adjustStoresTo(file) {
 	switch(file.type) {
 		case "organization":
-			updateOrganizationStoreTo(file);
+			setOrganizationStoreToOrganizationWithId(file.id);
 			break;
 		case "unit":
-			updateUnitStoreTo(file);
+			setUnitStoreToUnitWithId(file.id);
+			setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
 			break;
 		case "context":
-			updateContextStoreTo(file);
+			setContextStoreToContextWithId(file.id);
+			setUnitStoreToUnitWithId(get(contextStore).unitId);
+			setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
 			break;
 		case "schema":
-			updateSchemaStoreTo(file);
+			setSchemaStoreToSchemaWithId(file.id);
+			setContextStoreToContextWithId(get(schemaStore).contextId);
+			setUnitStoreToUnitWithId(get(contextStore).unitId);
+			setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
 			break;
 		case "schemaVersion":
-			updateSchemaVersionStoreTo(file);
+			setSchemaVersionToSchemaVersionWithId(file.id)
+			setSchemaStoreToSchemaWithId(get(schemaVersionStore).schemaId);
+			setContextStoreToContextWithId(get(schemaStore).contextId);
+			setUnitStoreToUnitWithId(get(contextStore).unitId);
+			setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
 			break;
 		default: console.log("type is non-existent.");
 	}
-	console.log(get(organizationsStore), get(organizationStore), get(unitsStore), get(unitStore), get(contextsStore), get(contextStore), get(schemasStore), get(schemaStore), get(schemaVersionsStore), get(schemaVersionStore));
+	switch(file.type) {
+		case "organization":
+			resetStores(unitStore);
+		case "unit":
+			resetStores(contextStore);
+		case "context":
+			resetStores(schemaStore);
+		case "schema":
+			resetStores(schemaVersionStore);
+		case "schemaVersion":
+			break;
+		default: console.log("type is non-existent.");
+	}
 }
 
+// console.log(get(organizationsStore), get(organizationStore), get(unitsStore), get(unitStore), get(contextsStore), get(contextStore), get(schemasStore), get(schemaStore), get(schemaVersionsStore), get(schemaVersionStore));
+
+// yes, the fall-through is meant to be
 export function deAdjustStoresTo(file) {
 	switch(file.type) {
 		case "organization":
-			resetStores(organizationStore, unitStore, contextStore, schemaStore, schemaVersionStore);
-			break;
+			resetStores(organizationStore);
 		case "unit":
-			resetStores(unitStore, contextStore, schemaStore, schemaVersionStore);
-			break;
+			resetStores(unitStore);
 		case "context":
-			resetStores(contextStore, schemaStore, schemaVersionStore);
-			break;
+			resetStores(contextStore);
 		case "schema":
-			resetStores(schemaStore, schemaVersionStore);
-			break;
+			resetStores(schemaStore);
 		case "schemaVersion":
 			resetStores(schemaVersionStore);
 			break;
 		default: console.log("type is non-existent.");
 	}
-	console.log(get(organizationsStore), get(organizationStore), get(unitsStore), get(unitStore), get(contextsStore), get(contextStore), get(schemasStore), get(schemaStore), get(schemaVersionsStore), get(schemaVersionStore));
 }
 
 function resetStores(...stores) {
 	stores.forEach(store => store.set({}));
 }
-
-function updateOrganizationStoreTo(organizationObj) {
-	setOrganizationStoreToOrganizationWithId(organizationObj.id);
-
-	resetStores(unitStore, contextStore, schemaStore, schemaVersionStore);
-}
-function updateUnitStoreTo(unitObj) {
-	setUnitStoreToUnitWithId(unitObj.id);
-	setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
-
-	resetStores(contextStore, schemaStore, schemaVersionStore);
-}
-function updateContextStoreTo(contextObj) {
-	setContextStoreToContextWithId(contextObj.id);
-	setUnitStoreToUnitWithId(get(contextStore).unitId);
-	setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
-
-	resetStores(schemaStore, schemaVersionStore);
-}
-function updateSchemaStoreTo(schemaObj) {
-	setSchemaStoreToSchemaWithId(schemaObj.id);
-	setContextStoreToContextWithId(get(schemaStore).contextId);
-	setUnitStoreToUnitWithId(get(contextStore).unitId);
-	setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
-
-	resetStores(schemaVersionStore);
-}
-
-function updateSchemaVersionStoreTo(schemaVersionObj) {
-	setSchemaVersionToSchemaVersionWithId(schemaVersionObj.id)
-	setSchemaStoreToSchemaWithId(get(schemaVersionStore).schemaId);
-	setContextStoreToContextWithId(get(schemaStore).contextId);
-	setUnitStoreToUnitWithId(get(contextStore).unitId);
-	setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
-}
-
+// ummm just use find..
 function setSchemaVersionToSchemaVersionWithId(id) {
 	schemaVersionStore.set(
 		get(schemaVersionsStore).filter(obj => obj.schemaVersionId == id)[0]
@@ -296,6 +278,7 @@ export function isStoreEmpty(store) {
 	return true;
 }
 
+// yes, the fall-through is meant to be
 export function getFullyQualifiedName(type, _) {
 	return;
 	let fullyQualifiedName = "";

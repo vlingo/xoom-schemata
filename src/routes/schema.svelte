@@ -3,11 +3,10 @@
 	import ValidatedInput from '../components/ValidatedInput.svelte';
 
 	import SchemataRepository from '../api/SchemataRepository';
-	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
-	import { contextStringReturner, getCompatible, getFullyQualifiedName, getId, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, isStoreEmpty, orgStringReturner, schemaStringReturner, selectStringsFrom, unitStringReturner } from '../utils';
-import errors from '../errors';
+	import { contextsStore, contextStore, detailed, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
+	import { contextIdReturner, contextStringReturner, getCompatible, getFullyQualifiedName, initSelected, isCompatibleToContext, isCompatibleToOrg, isCompatibleToUnit, isStoreEmpty, orgIdReturner, orgStringReturner, schemaIdReturner, schemaStringReturner, selectStringsFrom, unitIdReturner, unitStringReturner } from '../utils';
+	import errors from '../errors';
 
-	let id;
 	let name;
 	let description;
 	let categorySelect = ["Command", "Data", "Document", "Envelope", "Event", "Unknown"];
@@ -20,108 +19,104 @@ import errors from '../errors';
 	let compatibleContexts;
 	let compatibleSchemas;
 
-	let selectedOrg = initSelected($organizationStore, orgStringReturner);
-	$: organizationId = getId(selectedOrg);
+	let selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
+	$: organizationId = selectedOrg.id
 	$: if(organizationId || !organizationId) {
 		$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
-		compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg);
+		compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg.text);
 		compatibleContexts = [];
 		compatibleSchemas = [];
 
 		fullyQualified = getFullyQualifiedName("organization", $organizationStore);
-		
-		console.log("in orgId");
 	}
 
-	let selectedUnit = initSelected($unitStore, unitStringReturner);
-	$: unitId = getId(selectedUnit);
+	let selectedUnit = initSelected($unitStore, unitStringReturner, unitIdReturner, $detailed);
+	$: unitId = selectedUnit.id;
 	$: if(unitId || !unitId) {
 		if(organizationId) {
 			$unitStore = ($unitsStore).find(u => u.unitId == unitId);
-			compatibleContexts = getCompatible($contextsStore, isCompatibleToUnit, selectedUnit);
+			compatibleContexts = getCompatible($contextsStore, isCompatibleToUnit, selectedUnit.text);
 			compatibleSchemas = [];
 
 			fullyQualified = getFullyQualifiedName("unit", $unitStore);
 		}
-		console.log("in unitId");
 	}
 
-	let selectedContext = initSelected($contextStore, contextStringReturner);
-	$: contextId = getId(selectedContext);
+	let selectedContext = initSelected($contextStore, contextStringReturner, contextIdReturner, $detailed);
+	$: contextId = selectedContext.id;
 	$: if(contextId || !contextId) {
 		if(organizationId && unitId) {
 			$contextStore = ($contextsStore).find(c => c.contextId == contextId);
-			compatibleSchemas = getCompatible($schemasStore, isCompatibleToContext, selectedContext);
+			compatibleSchemas = getCompatible($schemasStore, isCompatibleToContext, selectedContext.text);
 
 			fullyQualified = getFullyQualifiedName("context", $contextStore);
 		}
-		console.log("in contextId");
 	}
 
 
-	let selectedSchema = initSelected($schemaStore, schemaStringReturner);
-	$: schemaId = getId(selectedSchema);
+	let selectedSchema = initSelected($schemaStore, schemaStringReturner, schemaIdReturner, $detailed);
+	$: schemaId = selectedSchema.id;
 	$: if(schemaId) {
-		$schemaStore = ($schemasStore).find(s => s.schemaId == schemaId); //maybe even only find...
-		console.log({$schemaStore});
-		fullyQualified = getFullyQualifiedName("schema", $schemaStore)
+		$schemaStore = ($schemasStore).find(s => s.schemaId == schemaId);
+		
+		fullyQualified = getFullyQualifiedName("schema", $schemaStore);
 	}
 
 
-	const orgSelect = selectStringsFrom($organizationsStore, orgStringReturner);
-	$: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner);
-	$: contextSelect = selectStringsFrom(compatibleContexts, contextStringReturner);
-	$: schemaSelect = selectStringsFrom(compatibleSchemas, schemaStringReturner);
+	$: orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner, $detailed);
+	$: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner, unitIdReturner, $detailed);
+	$: contextSelect = selectStringsFrom(compatibleContexts, contextStringReturner, contextIdReturner, $detailed);
+	$: schemaSelect = selectStringsFrom(compatibleSchemas, schemaStringReturner, schemaIdReturner, $detailed);
 	
 	
 	let defineMode = isStoreEmpty(($schemasStore));
 	let clearFlag = false;
 	const newSchema = () => {
-		id = "";
 		name = "";
 		description = "";
 		category = "Event";
 		scope = "Public";
-		selectedOrg = initSelected($organizationStore, orgStringReturner);
-		selectedUnit = initSelected($unitStore, unitStringReturner);
-		selectedContext = initSelected($contextStore, contextStringReturner);
+		selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
+		selectedUnit = initSelected($unitStore, unitStringReturner, unitIdReturner, $detailed);
+		selectedContext = initSelected($contextStore, contextStringReturner, contextIdReturner, $detailed);
 
 		defineMode = true;
 		clearFlag = !clearFlag;
 	}
 
+	const definable = () => (name && description && $organizationStore && $unitStore && $contextStore && scope && category);
+	const updatable = () => (name && description && $organizationStore && $unitStore && $contextStore && scope && category && schemaId);
+
 	const define = () => {
-		if(!name || !description || !$organizationStore || !$unitStore || !$contextStore || !scope || !category) {
-			console.log(errors.SUBMIT);
-			return;
-		}
+		if(!definable()) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.createSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, name, scope, category, description)
 			.then(created => {
-				console.log({created});
-				$schemaStore = created;
-				$schemasStore.push(created);
-				
-				schemaSelect = selectStringsFrom($schemasStore, schemaStringReturner);
-				selectedSchema = initSelected($schemaStore, schemaStringReturner);
+				updateStores(created);
+				updateSelects();
+				defineMode = false;
 			})
-		defineMode = false;
 	}
 
 	const save = async () => {
-		if(!schemaId || !name || !description || !scope || !category || !$organizationStore || !$unitStore || !$contextStore) {
-			console.log(errors.SUBMIT);
-			return;
-		}
+		if(!updatable()) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.updateSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, schemaId, name, category, scope, description)
 			.then(updated => {
-				console.log({updated});
-				$schemaStore = updated;
-				$schemasStore = ($schemasStore).filter(schema => schema.schemaId != schemaId);
-				$schemasStore.push(updated);
-				
-				schemaSelect = selectStringsFrom($schemasStore, schemaStringReturner);
-				selectedSchema = initSelected($schemaStore, schemaStringReturner);
+				updateStores(updated, true);
+				updateSelects();
 			})
+	}
+
+	function updateStores(obj, reset = false) {
+		console.log({obj});
+		$schemaStore = obj;
+		if(reset) $schemasStore = ($schemasStore).filter(schema => schema.schemaId != schemaId);
+		$schemasStore.push(obj);
+	}
+	function updateSelects() {
+		// maybe also other compatibles..
+		compatibleSchemas = getCompatible($schemasStore, isCompatibleToContext, selectedContext.text);
+		schemaSelect = selectStringsFrom(compatibleSchemas, schemaStringReturner, schemaIdReturner, $detailed);
+		selectedSchema = initSelected($schemaStore, schemaStringReturner, schemaIdReturner, $detailed);
 	}
 
 	let isDefineDisabled = true;
@@ -134,15 +129,14 @@ import errors from '../errors';
 		isDefineDisabled = true;
 	}
 
-	$: if(schemaId) {
-		isNextDisabled = false;
-	}
+	$: if(schemaId) { isNextDisabled = false; }
 
 	$: if(name && description && category && scope && organizationId && unitId && contextId && schemaId) {
 		isSaveDisabled = false;
 	} else {
 		isSaveDisabled = true;
 	}
+	
 	let fullyQualified;
 </script>
 

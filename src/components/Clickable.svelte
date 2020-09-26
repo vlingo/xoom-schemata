@@ -4,7 +4,7 @@
 </script>
 
 <script>
-	import { adjustStoresTo, deAdjustStoresTo, isObjectInAStore} from "../utils";
+	import { adjustStoresTo, deAdjustStoresTo, isObjectInAStore, isStoreEmpty} from "../utils";
 	import { contextStore, organizationStore, schemaStore, schemaVersionStore, unitStore } from '../stores';
 
 	export let file;
@@ -20,7 +20,7 @@
 		selected = false;
 	}
 
-	$: if(isObjectInAStore(file)) $current = item;
+	$: if(isObjectInAStore(file) || !isStoreEmpty($schemaVersionStore) && $schemaVersionStore.schemaVersionId == file.id) $current = item;
 
 	function chooseThis() {
 		if(!selected) {
