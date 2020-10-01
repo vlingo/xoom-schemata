@@ -18,18 +18,18 @@
 	import errors from '../errors';
 	import ClickableListItem from '../components/ClickableListItem.svelte';
 	import Modal from 'sveltestrap/src/Modal.svelte';
-import ModalHeader from 'sveltestrap/src/ModalHeader.svelte';
-import ModalBody from 'sveltestrap/src/ModalBody.svelte';
-import ModalFooter from 'sveltestrap/src/ModalFooter.svelte';
-import OrganizationAlert from '../components/OrganizationAlert.svelte';
-import UnitAlert from '../components/UnitAlert.svelte';
-import ContextAlert from '../components/ContextAlert.svelte';
-import SchemaAlert from '../components/SchemaAlert.svelte';
-import VersionAlert from '../components/VersionAlert.svelte';
-import { isStoreEmpty } from '../utils';
-import CustomInput from 'sveltestrap/src/CustomInput.svelte';
-import FormGroup from 'sveltestrap/src/FormGroup.svelte';
-import Form from 'sveltestrap/src/Form.svelte';
+	import ModalHeader from 'sveltestrap/src/ModalHeader.svelte';
+	import ModalBody from 'sveltestrap/src/ModalBody.svelte';
+	import ModalFooter from 'sveltestrap/src/ModalFooter.svelte';
+	import OrganizationAlert from '../components/alerts/OrganizationAlert.svelte';
+	import UnitAlert from '../components/alerts/UnitAlert.svelte';
+	import ContextAlert from '../components/alerts/ContextAlert.svelte';
+	import SchemaAlert from '../components/alerts/SchemaAlert.svelte';
+	import VersionAlert from '../components/alerts/VersionAlert.svelte';
+	import { isStoreEmpty } from '../utils';
+	import CustomInput from 'sveltestrap/src/CustomInput.svelte';
+	import FormGroup from 'sveltestrap/src/FormGroup.svelte';
+	import Form from 'sveltestrap/src/Form.svelte';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
@@ -232,10 +232,9 @@ import Form from 'sveltestrap/src/Form.svelte';
 	let active = "spec";
 
 	let specification = $schemaVersionStore ? $schemaVersionStore.specification : "";
-	let description = "";
+	let description = $schemaVersionStore ? $schemaVersionStore.description : "";
 
-	// let schemaVersions = $schemaVersionsStore; 
-	$: schemaVersions = $schemaVersionsStore.filter(ver => ver.schemaId == $schemaStore.schemaId);
+	// $: schemaVersions = $schemaVersionsStore.filter(ver => ver.schemaId == $schemaStore.schemaId);
 
 	function updateTreeWith(updated) {
 		// I know, this is bad, could at least be recursive or the tree could be a map: tree[orgId][unitId]...
@@ -403,7 +402,7 @@ import Form from 'sveltestrap/src/Form.svelte';
 	{/if}
 </Card>
 
-{#if schemaVersions.length > 0}
+<!-- {#if schemaVersions.length > 0} -->
 	<div class="bottom-container">
 		<!-- <div class="bottom-left">
 			<Card>
@@ -448,7 +447,7 @@ import Form from 'sveltestrap/src/Form.svelte';
 		</div>
 		{/if}
 	</div>
-{/if}
+<!-- {/if} -->
 
 <style>
 	.bottom-container {
