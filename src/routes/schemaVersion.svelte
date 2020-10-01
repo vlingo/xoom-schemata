@@ -56,7 +56,13 @@
 
 	let selectedSchema = initSelected($schemaStore, schemaStringReturner, schemaIdReturner, $detailed);
 	$: schemaId = selectedSchema.id;
-	$: if(schemaId) $schemaStore = ($schemasStore).find(s => s.schemaId == schemaId);
+	$: if(schemaId) {
+		$schemaStore = ($schemasStore).find(s => s.schemaId == schemaId);
+		if(defineMode) {
+			specification = `${$schemaStore.category.toLowerCase()} ${$schemaStore.name} {\n\t\n}`
+			// specification = $schemaStore.category.toLowerCase() + " " + $schemaStore.name + " {\n\t\n}"
+		}
+	}
 
 
 	$: orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner, $detailed);
@@ -68,10 +74,9 @@
 	let defineMode = isStoreEmpty(($schemaVersionsStore));
 	let clearFlag = false;
 	const newVersion = () => {
-		// description = "";
+
 		previous = "0.0.0";
 		current = "0.0.1";
-		// specification = "";
 		selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
 		selectedUnit = initSelected($unitStore, unitStringReturner, unitIdReturner, $detailed);
 		selectedContext = initSelected($contextStore, contextStringReturner, contextIdReturner, $detailed);
