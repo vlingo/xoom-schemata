@@ -3,7 +3,7 @@
 	import ValidatedInput from '../components/ValidatedInput.svelte';
 
 	import SchemataRepository from '../api/SchemataRepository';
-	import { organizationStore, organizationsStore } from '../stores'
+	import { organizationStore, organizationsStore, detailed } from '../stores'
 	import errors from '../errors';
 	import { getFullyQualifiedName, initSelected, isStoreEmpty, orgIdReturner, orgStringReturner, selectStringsFrom } from '../utils';
 
@@ -18,42 +18,38 @@
 		fullyQualified = getFullyQualifiedName("unit", $organizationStore);
 	} 
 
-	let orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner);
+	$: orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner, $detailed);
+
+	const definable = () => (name && description );
+	const updatable = () => (name && description && organizationId);
 
 	const define = async () => {
-		// could also be implemented by firing validation on the inputs (via flag or exposing valueValid/Invalid) <-no, just disable buttons again, and this is an extra
-		if(!name || !description) {
-			console.log(errors.SUBMIT);
-			return;
-		}
+		if(!definable()) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.createOrganization(name, description)
 			.then(created => {
-				console.log({created});
-				$organizationStore = created;
-				$organizationsStore.push(created);
-
-				orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner);
-				selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner);
+				updateStores(created);
+				updateSelects();
+				defineMode = false;
 			})
-		isNextDisabled = false;
-		defineMode = false;
 	}
 
 	const save = async () => {
-		if(!organizationId || !name || !description) {
-			console.log(errors.SUBMIT);
-			return;
-		}
+		if(!updatable()) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.updateOrganization(organizationId, name, description)
 			.then(updated => {
-				console.log({updated});
-				$organizationStore = updated;
-				$organizationsStore = ($organizationsStore).filter(org => org.organizationId != organizationId);
-				$organizationsStore.push(updated);
-				
-				orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner);
-				selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner);
+				updateStores(updated, true);
+				updateSelects();
 			})
+	}
+	function updateStores(obj, reset = false) {
+		console.log({obj});
+		$organizationStore = obj;
+		if(reset) $organizationsStore = ($organizationsStore).filter(org => org.organizationId != organizationId);
+		$organizationsStore.push(obj);
+	}
+	function updateSelects() {
+		orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner, $detailed);
+		selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
 	}
 	
 	let defineMode = isStoreEmpty(($organizationsStore)); //maybe this doesn't work anymore, maybe .length,...
@@ -77,9 +73,7 @@
 		isDefineDisabled = true;
 	}
 
-	$: if(organizationId) {
-		isNextDisabled = false;
-	}
+	$: if(organizationId) { isNextDisabled = false; }
 	
 	$: if(organizationId && name && description) {
 		isSaveDisabled = false;
