@@ -1,19 +1,39 @@
-import axios from 'axios'
-import store from '@/store';
 
+const root = "http://localhost:9019"
 
-let client = axios.create({
-  baseURL: '/',
-})
+export async function get(path) {
+	const res = await fetch(root + path);
+	return res;
+}
 
-client.interceptors.request.use(function (config) {
-  store.commit('startLoading');
-  return config
-})
+export async function post(path, body) {
+	const res = await fetch(root + path, {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json'},
+		body: JSON.stringify(body)
+	});
+	return res;
+}
 
-client.interceptors.response.use(function (response) {
-  store.commit('finishLoading');
-  return response
-})
+export async function put(path, body) {
+	const res = await fetch(root + path, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json'},
+		body: JSON.stringify(body)
+	});
+	return res;
+}
 
-export default client
+export async function patch(path, body) {
+	const res = await fetch(root + path, {
+		method: 'PATCH',
+		headers: { 'Content-Type': 'application/json'},
+		body: body,
+	});
+	return res;
+}
+
+let client = { get, post, put, patch }
+
+export default client;
+  
