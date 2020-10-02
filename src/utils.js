@@ -321,13 +321,14 @@ export function getFullyQualifiedName(type, _) {
 	}
 }
 
+//order matters, all elements have two ids + version has ALL ids
 export function idReturner(obj) {
 	let id;
-	obj.organizationId? id = obj.organizationId :
-	obj.unitId? id = obj.unitId :
-	obj.contextId? id = obj.contextId :
-	obj.schemaId? id = obj.schemaId :
 	obj.schemaVersionId? id = obj.schemaVersionId :
+	obj.schemaId? id = obj.schemaId :
+	obj.contextId? id = obj.contextId :
+	obj.unitId? id = obj.unitId :
+	obj.organizationId? id = obj.organizationId :
 	id = "";
 	return id;
 }

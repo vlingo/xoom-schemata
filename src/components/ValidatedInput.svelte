@@ -9,6 +9,7 @@
 	export let options = "";
 	//validator function
 	export let validator = null;
+	export let invalidString;
 	export let rows = "";
 	export let containerClasses = "flex-child";
 	export let inline = false;
@@ -64,7 +65,7 @@
 			} else {
 				valueValid = false;
 				valueInvalid = true;
-				validationMessage = errors.VERSION;
+				validationMessage = invalidString;
 			}
 		}
 	}

@@ -13,6 +13,7 @@
 
 	$: {changedSelected(selected)};
 	function changedSelected(selected) {
+		console.log(selected);
 		if(selected) $storeOne = ($storeAll).find(obj => idReturner(obj) == selected.id);
 	}
 

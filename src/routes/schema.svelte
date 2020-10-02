@@ -7,6 +7,9 @@
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
 	import { isStoreEmpty } from '../utils';
 	import errors from '../errors';
+	const validName = (name) => {
+		return /^[a-zA-Z_$][a-zA-Z\d_$]*/.test(name);
+	}
 
 	let name;
 	let description;
@@ -83,7 +86,7 @@
 	let isNextDisabled = true;
 	let isSaveDisabled = true;
 
-	$: if(name && description && category && scope && $organizationStore && $unitStore && $contextStore && defineMode) {
+	$: if(validName(name) && name && description && category && scope && $organizationStore && $unitStore && $contextStore && defineMode) {
 		isDefineDisabled = false;
 	} else {
 		isDefineDisabled = true;
@@ -91,7 +94,7 @@
 
 	$: if($schemaStore) { isNextDisabled = false; }
 
-	$: if(name && description && category && scope && $organizationStore && $unitStore && $contextStore && $schemaStore) {
+	$: if(validName(name) && name && description && category && scope && $organizationStore && $unitStore && $contextStore && $schemaStore) {
 		isSaveDisabled = false;
 	} else {
 		isSaveDisabled = true;
@@ -108,14 +111,12 @@
 	{#if !defineMode}
 		<Select label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
 	{/if}
-	<!-- 
- disabled={defineMode}/>
-	 -->
+	
 	<span class="flex-two-col">
 		<ValidatedInput type="select" label="Category" bind:value={category} {clearFlag} options={categorySelect}/>
 		<ValidatedInput type="select" label="Scope" bind:value={scope} {clearFlag} options={scopeSelect}/>
 	</span>
-	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
+	<ValidatedInput label="Name" bind:value={name} {clearFlag} validator={validName} invalidString={errors.CLASSNAME}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
 </CardForm>
 
