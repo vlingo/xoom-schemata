@@ -29,7 +29,7 @@
 			// selected = true;
 			// setCurrent();
 		} else {
-			deAdjustStoresTo(file);
+			deAdjustStoresTo(file.type);
 			// selected = false;
 			$current = {};
 

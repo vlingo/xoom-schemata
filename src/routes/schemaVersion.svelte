@@ -56,12 +56,15 @@
 
 	let selectedSchema = initSelected($schemaStore, schemaStringReturner, schemaIdReturner, $detailed);
 	$: schemaId = selectedSchema.id;
-	$: if(schemaId) {
+	$: {changedSchema(schemaId)};
+	function changedSchema(schemaId) {
+		if (schemaId) {
+			console.log("test");
 		$schemaStore = ($schemasStore).find(s => s.schemaId == schemaId);
 		if(defineMode) {
 			specification = `${$schemaStore.category.toLowerCase()} ${$schemaStore.name} {\n\t\n}`
-			// specification = $schemaStore.category.toLowerCase() + " " + $schemaStore.name + " {\n\t\n}"
-		}
+			console.log(specification);
+		}}
 	}
 
 

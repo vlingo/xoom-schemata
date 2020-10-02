@@ -30,7 +30,10 @@
 				<code>{fullyQualified}</code>
 			{/if}
 		</span>
-		<Button on:click={() => $detailed = !($detailed)} style="float: right" text={"Show Details"}/>
+		{#if !(title==="Organization" && defineMode)}
+			<Button on:click={() => $detailed = !($detailed)} style="float: right" text={"Toggle Details"}/>
+				<!-- replace button with toggle -->
+		{/if}
 	</CardHeader>
 	<CardBody>
 		<Form>

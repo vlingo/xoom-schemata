@@ -231,8 +231,14 @@
 
 	let active = "spec";
 
-	let specification = $schemaVersionStore ? $schemaVersionStore.specification : "";
-	let description = $schemaVersionStore ? $schemaVersionStore.description : "";
+	let specification;
+	let description;
+
+	$: {changedVersionStore($schemaVersionStore)};
+	function changedVersionStore($schemaVersionStore) {
+		specification = $schemaVersionStore ? $schemaVersionStore.specification : "";
+		description = $schemaVersionStore ? $schemaVersionStore.description : "";
+	}
 
 	// $: schemaVersions = $schemaVersionsStore.filter(ver => ver.schemaId == $schemaStore.schemaId);
 
@@ -251,8 +257,8 @@
 			status: updated.status,
 			specification: updated.specification,
 			description: updated.description,
-			previous: updated.previous,
-			current: updated.current,
+			previous: updated.previousVersion,
+			current: updated.currentVersion,
 			id: updated.schemaVersionId
 		};
 	}

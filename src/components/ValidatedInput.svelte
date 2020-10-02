@@ -6,7 +6,7 @@
 	export let id = label.toLowerCase();
 	export let value = "";
 	export let disabled = false;
-	export let options = [];
+	export let options = "";
 	//validator function
 	export let validator = null;
 	export let rows = "";
@@ -27,20 +27,27 @@
 		valueValid = false;
 		valueInvalid = false;
 	}
-
-	// ^^^ this is shorter and easier
-	// vvv this works if you `bind:clearFlag` and use `clearFlag = false;` in the parent component
-	// $: console.log(clearFlag)
-	// $: clearFlag = clearValids(clearFlag); //if clearFlag changes, call
-	// function clearValids(_) {
-	// 	valueValid = false;
-	// 	valueInvalid = false;
-	// 	return false;
-	// }
+	// $: if(value || value) { valueCheck } ?
+	
+	$: if(options || !options) {
+		// console.log("test", label);
+	}
 	
 	const valueCheck = (e) => {
-		// value = e.target.value;
-
+		//if select
+		if(options && e.type !== "input") {
+			// console.log(e.type, e.target.selectedOptions[0].__value);
+			value = e.target.selectedOptions[0].__value;
+			if(value.id) {
+				valueValid = true;
+				valueInvalid = false;
+			} else {
+				valueValid = false;
+				valueInvalid = true;
+				validationMessage = errors.EMPTY;
+			return;
+		}
+		}
 		if(value) {
 			valueValid = true;
 			valueInvalid = false;
@@ -76,11 +83,17 @@
 				<!-- <option/> -->
 				{#each options as option}
 					{#if option.text}
-						<option value={option}>{option.text}</option> <!--careful, everything inside counts as the value, newlines/whitespace etc-->
+						<option selected={option.id === value.id} value={option}>{option.text}</option> <!--careful, everything inside counts as the value, newlines/whitespace etc-->
 					{:else}
 						<option>{option}</option>
 					{/if}
 				{/each}
+				<!-- {#if options}
+						<option/>
+						{#each options as option}
+							<option>{option}</option> 
+						{/each}
+					{/if} -->
 			{/if}
 		</Input>
 

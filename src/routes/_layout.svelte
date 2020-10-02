@@ -56,13 +56,13 @@
 <script>
 	import Nav from '../components/Nav.svelte';
 	import { contextsStore, contextStore, firstPage, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
-	import { initContextStores, initOrgStores, initSchemaStores, initSchemaVersionStores, initUnitStores } from '../utils';
+	import { initContextStores, initOrgStores, initSchemaStores, initSchemaVersionStores, initStoresOfOne, initUnitStores } from '../utils';
 
-	export let orgs;
-	export let units;
-	export let contexts;
-	export let schemas;
-	export let schemaVersions;
+	export let orgs = [];
+	export let units = [];
+	export let contexts = [];
+	export let schemas = [];
+	export let schemaVersions = [];
 	
 	if($firstPage) {
 		console.log({$firstPage}, "BEFORE");
@@ -82,6 +82,7 @@
 		initContextStores(contexts);
 		initSchemaStores(schemas);
 		initSchemaVersionStores(schemaVersions);
+		initStoresOfOne();
 	}
 
 	//debug

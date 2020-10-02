@@ -2,9 +2,12 @@ import { get } from 'svelte/store';
 import { contextStore, organizationStore, unitStore, schemaStore, organizationsStore, unitsStore, contextsStore, schemasStore, schemaVersionStore, schemaVersionsStore } from './stores';
 
 export function selectStringsFrom(arr, stringReturner, idReturner, detailed) {
-	return arr.map(obj => {
+	return [{
+		id: "",
+		text: " "
+	}].concat(arr.map(obj => {
 		return initSelected(obj, stringReturner, idReturner, detailed);
-	})
+	}))
 }
 
 export function orgIdReturner(o) { return o.organizationId }
@@ -101,7 +104,7 @@ function getSchemaVersionDetails(file, detailed) {
 }
 
 export function getCompatible(fromElements, predicate, fieldValue) {
-	if(!fieldValue) return [];
+	if(!fieldValue || fieldValue === " ") return [];
 	return (fromElements).filter(obj => predicate(obj));
 }
 
@@ -120,32 +123,58 @@ export function isCompatibleToSchema(obj) {
 
 
 export function initOrgStores(array) {
-	initStores(array, organizationStore, organizationsStore);
+	initStoresOfAll(array, organizationStore, organizationsStore);
 }
 export function initUnitStores(array) {
-	initStores(array, unitStore, unitsStore, isCompatibleToOrg);
+	initStoresOfAll(array, unitStore, unitsStore, isCompatibleToOrg);
 }
 export function initContextStores(array) {
-	initStores(array, contextStore, contextsStore, isCompatibleToUnit);
+	initStoresOfAll(array, contextStore, contextsStore, isCompatibleToUnit);
 }
 export function initSchemaStores(array) {
-	initStores(array, schemaStore, schemasStore, isCompatibleToContext);
+	initStoresOfAll(array, schemaStore, schemasStore, isCompatibleToContext);
 }
 export function initSchemaVersionStores(array) {
-	initStores(array, schemaVersionStore, schemaVersionsStore, isCompatibleToSchema);
+	initStoresOfAll(array, schemaVersionStore, schemaVersionsStore, isCompatibleToSchema);
 }
 
-// array reset is maybe not needed
-// array[0] will be undefined if none exist
-function initStores(array, storeOfOne, storeOfAll, predicate) {
-	if(array) {
+
+function initStoresOfAll(array, storeOfOne, storeOfAll, predicate) {
+	if(array.length > 0) {
 		storeOfAll.set([]);
 		storeOfAll.update(arr => arr.concat(...array));
-		if(predicate) {
-			storeOfOne.set(array.filter(obj => predicate(obj))[0]);
-		} else {
-			storeOfOne.set(array[0]);
-		}
+	}
+}
+
+//the deepest path needs be set inside the single stores
+export function initStoresOfOne() {
+	const deepestLeaf = get(schemaVersionsStore).length > 0 ? { type: "schemaVersion"} : 
+						get(schemasStore).length > 0 ? { type: "schema"} : 
+						get(contextsStore).length > 0 ? { type: "context"} : 
+						get(unitsStore).length > 0 ? { type: "unit"} : 
+						get(organizationsStore).length > 0 ? { type: "organization"} : "";
+	
+	switch(deepestLeaf.type) {
+		case "organization": organizationStore.set(get(organizationsStore)[0]);
+			break;
+		case "unit": unitStore.set(get(unitsStore)[0]);
+			break;
+		case "context": contextStore.set(get(contextsStore)[0]);
+			break;
+		case "schema": schemaStore.set(get(schemasStore)[0]);
+			break;
+		case "schemaVersion": schemaVersionStore.set(get(schemaVersionsStore)[0]);
+			break;
+		default: console.log("type is non-existent.");
+	}
+	switch(deepestLeaf.type) {
+		case "schemaVersion": schemaStore.set(get(schemasStore).find(s => s.schemaId == get(schemaVersionStore).schemaId));
+		case "schema": contextStore.set(get(contextsStore).find(c => c.contextId == get(schemaStore).contextId));
+		case "context": unitStore.set(get(unitsStore).find(u => u.unitId == get(contextStore).unitId));
+		case "unit": organizationStore.set(get(organizationsStore).find(o => o.organizationId == get(unitStore).organizationId));
+		case "organization": //do nothing
+		break;
+		default: console.log("type is non-existent.");
 	}
 }
 
@@ -226,8 +255,8 @@ export function adjustStoresTo(file) {
 // console.log(get(organizationsStore), get(organizationStore), get(unitsStore), get(unitStore), get(contextsStore), get(contextStore), get(schemasStore), get(schemaStore), get(schemaVersionsStore), get(schemaVersionStore));
 
 // yes, the fall-through is meant to be
-export function deAdjustStoresTo(file) {
-	switch(file.type) {
+export function deAdjustStoresTo(type) {
+	switch(type) {
 		case "organization":
 			resetStores(organizationStore);
 		case "unit":
@@ -292,12 +321,20 @@ export function getFullyQualifiedName(type, _) {
 	}
 }
 
+export function idReturner(obj) {
+	let id;
+	obj.organizationId? id = obj.organizationId :
+	obj.unitId? id = obj.unitId :
+	obj.contextId? id = obj.contextId :
+	obj.schemaId? id = obj.schemaId :
+	obj.schemaVersionId? id = obj.schemaVersionId :
+	id = "";
+	return id;
+}
+export function stringReturner(obj, detailed) {
+	return makeStringFrom(obj, filterCommonFrom(obj, detailed), detailed);
+}
 
-	// logic if I were to abstract id
-	// let id;
-	// obj.organizationId? id=obj.organizationId :
-	// obj.unitId? id=obj.unitId :
-	// obj.contextId? id=obj.contextId :
-	// obj.schemaId? id=obj.schemaId :
-	// obj.schemaVersionId? id=obj.schemaVersionId :
-	// id=null;
+export function changedSelect(array, detailed) {
+	return selectStringsFrom(array, stringReturner, idReturner, detailed);
+}
