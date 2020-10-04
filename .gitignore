@@ -9,7 +9,7 @@ target/
 *.doc#
 *.log
 build/
-
+.factorypath
 
 # Intellij
 .idea/

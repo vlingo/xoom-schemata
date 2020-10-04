@@ -87,17 +87,17 @@ public class UnitsProjection extends StateStoreProjectionActor<UnitsView> {
                     break;
                 case UnitDefined:
                     final UnitDefined defined = typed(event);
-                    mergedData = mergedData.add(UnitItem.of(defined.unitId, defined.name));
+                    mergedData = mergedData.add(UnitItem.of(defined.unitId, defined.name, defined.organizationId));
                     break;
                 case UnitDescribed:
                     break;
                 case UnitRedefined:
                     final UnitRedefined redefined = typed(event);
-                    mergedData = mergedData.replace(UnitItem.of(redefined.unitId, redefined.name));
+                    mergedData = mergedData.replace(UnitItem.of(redefined.unitId, redefined.name, redefined.organizationId));
                     break;
                 case UnitRenamed:
                     final UnitRenamed renamed = typed(event);
-                    mergedData = mergedData.replace(UnitItem.of(renamed.unitId, renamed.name));
+                    mergedData = mergedData.replace(UnitItem.of(renamed.unitId, renamed.name, renamed.organizationId));
                     break;
                 case Unmatched:
                     logger().warn("Event of type " + event.typeName() + " was not matched.");

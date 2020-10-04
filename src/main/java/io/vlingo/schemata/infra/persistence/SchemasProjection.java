@@ -78,7 +78,7 @@ public class SchemasProjection extends StateStoreProjectionActor<SchemasView> {
                     break;
                 case SchemaDefined:
                     final Events.SchemaDefined defined = typed(event);
-                    mergedData = mergedData.add(SchemaItem.of(defined.schemaId, defined.name));
+                    mergedData = mergedData.add(SchemaItem.of(defined.schemaId, defined.name, defined.contextId, defined.category));
                     break;
                 case SchemaCategorized:
                     break;
@@ -86,13 +86,13 @@ public class SchemasProjection extends StateStoreProjectionActor<SchemasView> {
                     break;
                 case SchemaRenamed:
                     final Events.SchemaRenamed renamed = typed(event);
-                    mergedData = mergedData.replace(SchemaItem.of(renamed.schemaId, renamed.name));
+                    mergedData = mergedData.replace(SchemaItem.of(renamed.schemaId, renamed.name, renamed.contextId));
                     break;
                 case SchemaDescribed:
                     break;
                 case SchemaRedefined:
                     final Events.SchemaRedefined redefined = typed(event);
-                    mergedData = mergedData.replace(SchemaItem.of(redefined.schemaId, redefined.name));
+                    mergedData = mergedData.replace(SchemaItem.of(redefined.schemaId, redefined.name, redefined.contextId, redefined.category));
                     break;
                 case Unmatched:
                     logger().warn("Event of type " + event.typeName() + " was not matched.");
