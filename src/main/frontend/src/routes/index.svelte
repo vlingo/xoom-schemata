@@ -16,7 +16,6 @@
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
 	import SchemataRepository from '../api/SchemataRepository';
 	import errors from '../errors';
-	import ClickableListItem from '../components/ClickableListItem.svelte';
 	import Modal from 'sveltestrap/src/Modal.svelte';
 	import ModalHeader from 'sveltestrap/src/ModalHeader.svelte';
 	import ModalBody from 'sveltestrap/src/ModalBody.svelte';
@@ -403,52 +402,37 @@
 	{/if}
 </Card>
 
-<!-- {#if schemaVersions.length > 0} -->
-	<div class="bottom-container">
-		<!-- <div class="bottom-left">
-			<Card>
-				<ListGroup class="py-1">
-					{#each schemaVersions as schemaVersion}
-						<ClickableListItem version={schemaVersion}>
-							{schemaVersion.currentVersion}
-						</ClickableListItem>
-					{/each}
-				</ListGroup>
-			</Card>
-		</div> -->
 
-		<!-- <div class="spacer"></div> -->
-
-		{#if !isStoreEmpty($schemaVersionStore)}
-		<div class="bottom-right">
-		<Card>
-			<ListGroup class="d-flex flex-row p-1">
-				<ListGroupItem active={active=="spec"} tag="button" action on:click={() => active = "spec"}>Specification</ListGroupItem>
-				<ListGroupItem active={active=="desc"} tag="button" action on:click={() => active = "desc"}>Description</ListGroupItem>
-			</ListGroup>
-
-			{#if active=="spec"}
-				<ValidatedInput rows="10" type="textarea" bind:value={specification}/>
-				<ButtonBar>
-					<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
-					<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
-					<Button outline color="danger" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
-					<Button outline color="info" icon={mdiSourcePull} text="CODE" on:click={toggleSourceModal}/>
-					<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
-				</ButtonBar>
-			{:else}
-				<ValidatedInput rows="10" type="textarea" bind:value={description}/>
-				<ButtonBar>
-					<Button color="success" icon={mdiFileFind} text="PREVIEW"/>
-					<Button color="warning" icon={mdiFileUndo} text="REVERT"/>
-					<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateDescription}/>
-				</ButtonBar>
-			{/if}
-		</Card>
-		</div>
+<div class="bottom-container">
+	{#if !isStoreEmpty($schemaVersionStore)}
+	<div class="bottom-right">
+	<Card>
+		<ListGroup class="d-flex flex-row p-1">
+			<ListGroupItem active={active=="spec"} tag="button" action on:click={() => active = "spec"}>Specification</ListGroupItem>
+			<ListGroupItem active={active=="desc"} tag="button" action on:click={() => active = "desc"}>Description</ListGroupItem>
+		</ListGroup>
+		{#if active=="spec"}
+			<ValidatedInput rows="10" type="textarea" bind:value={specification}/>
+			<ButtonBar>
+				<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
+				<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
+				<Button outline color="danger" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
+				<Button outline color="info" icon={mdiSourcePull} text="CODE" on:click={toggleSourceModal}/>
+				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
+			</ButtonBar>
+		{:else}
+			<ValidatedInput rows="10" type="textarea" bind:value={description}/>
+			<ButtonBar>
+				<Button color="success" icon={mdiFileFind} text="PREVIEW"/>
+				<Button color="warning" icon={mdiFileUndo} text="REVERT"/>
+				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateDescription}/>
+			</ButtonBar>
 		{/if}
+	</Card>
 	</div>
-<!-- {/if} -->
+	{/if}
+</div>
+
 
 <style>
 	.bottom-container {

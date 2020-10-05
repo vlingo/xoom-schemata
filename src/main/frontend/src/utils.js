@@ -273,7 +273,7 @@ export function deAdjustStoresTo(type) {
 }
 
 function resetStores(...stores) {
-	stores.forEach(store => store.set({}));
+	stores.forEach(store => store.set(undefined));
 }
 // ummm just use find..
 function setSchemaVersionToSchemaVersionWithId(id) {

@@ -20,7 +20,7 @@
 	$: {changedSelectables(arrayOfSelectables, $detailed)};
 	function changedSelectables(arrayOfSelectables, detailed) {
 		select = changedSelect(arrayOfSelectables, detailed);
-		selected = select[1] ? select[1] : select[0];
+		selected = select[select.length - 1];
 		clearFlag = !clearFlag;
 	}
 	
@@ -30,7 +30,7 @@
 	//init selected
 	let first = true;
 	$: if(first && select) {
-		selected = select[1] ? select[1] : select[0];
+		selected = select[select.length - 1];
 		first = false;
 	}
 

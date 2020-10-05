@@ -49,20 +49,28 @@
 	let defineMode = isStoreEmpty(($schemaVersionsStore));
 	let clearFlag = false;
 	const newVersion = () => {
-		previous = "0.0.0"; //previousVersion();
-		current = "0.0.1"; //= previous "+1"
+		previous = $schemaVersionStore ? $schemaVersionStore.currentVersion : "0.0.0";
+		current = $schemaVersionStore ? newCurrent() : "0.0.1";
+		function newCurrent() { //we could also say that only the latest version currently defined shoud be shown on this page, then we just increment previousVers[2].
+			let allCurrentVers = compatibleVersions.map(sv => sv.currentVersion).map(cv => cv.split(".")[2]);
+			let highestPatchVer = Math.max(...allCurrentVers);
 
-		$schemaVersionStore = undefined; //?
-
+			let previousVers = $schemaVersionStore.currentVersion.split(".");
+			previousVers[2] = Number(highestPatchVer)+1;
+			return previousVers.join(".");
+		}
+		
 		defineMode = true;
 		clearFlag = !clearFlag;
 	}
 
 	const definable = () => (specification && description && $organizationStore && $unitStore && $contextStore && $schemaStore);
+	const versionAlreadyExists = (current) => !!compatibleVersions.find(sv => sv.currentVersion === current);
 
 	const define = () => {
 		if(!definable()) { console.log(errors.SUBMIT); return; }
 		if(!validator(previous) || !validator(current)) { console.log(errors.SUBMITVER); return; }
+		if(versionAlreadyExists(current)) { console.log(errors.SUBMITVEREXISTS); return; }
 		SchemataRepository.createSchemaVersion(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId,
 												($schemaStore).schemaId, specification, description, previous, current)
 			.then(created => {
