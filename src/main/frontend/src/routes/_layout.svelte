@@ -56,7 +56,7 @@
 <script>
 	import Nav from '../components/Nav.svelte';
 	import { contextsStore, contextStore, firstPage, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
-	import { initContextStores, initOrgStores, initSchemaStores, initSchemaVersionStores, initStoresOfOne, initUnitStores } from '../utils';
+	import { initStoresOfOne } from '../utils';
 
 	export let segment;
 
@@ -79,11 +79,18 @@
 	}
 	
 	function setAllStores() {
-		initOrgStores(orgs);
-		initUnitStores(units);
-		initContextStores(contexts);
-		initSchemaStores(schemas);
-		initSchemaVersionStores(schemaVersions);
+		// test if it still works without all arrays defined
+		// function initStoreOfAll(array, storeOfAll) {
+		// 	if(array) {
+		// 		storeOfAll.update(arr => arr.concat(...array));
+		// 	}
+		// }
+		
+		$organizationsStore = orgs;
+		$unitsStore = units;
+		$contextsStore = contexts;
+		$schemasStore = schemas;
+		$schemaVersionsStore = schemaVersions;
 		initStoresOfOne();
 	}
 

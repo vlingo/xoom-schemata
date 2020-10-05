@@ -17,29 +17,6 @@
 		store ? $unitStore = $unitsStore.find(u => u.organizationId == store.organizationId) : $unitStore = undefined;
 		return store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 	}
-
-	// let compatibleUnits = [];
-
-	// let selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
-	// $: organizationId = selectedOrg.id;
-	// $: if(organizationId) {
-	// 	$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
-	// 	compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg.text);
-
-	// 	fullyQualified = getFullyQualifiedName("organization", $organizationStore);
-	// }
-
-	// let selectedUnit = initSelected($unitStore, unitStringReturner, unitIdReturner, $detailed);
-	// $: unitId = selectedUnit.id;
-	// $: if(unitId) {
-	// 	$unitStore = ($unitsStore).find(u => u.unitId == unitId);
-
-	// 	fullyQualified = getFullyQualifiedName("unit", $unitStore);
-	// }
-
-
-	// $: orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner, $detailed);
-	// $: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner, unitIdReturner, $detailed);
 	
 
 	let defineMode = isStoreEmpty(($unitsStore));

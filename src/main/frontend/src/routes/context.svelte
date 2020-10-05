@@ -26,44 +26,6 @@
 		return store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
 	}
 
-	// let compatibleUnits;
-	// let compatibleContexts;
-
-	// let selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
-	// $: organizationId = selectedOrg.id;
-	// $: if(organizationId || !organizationId) {
-	// 	$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
-	// 	compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg.text);
-	// 	// clearing is necessary for grandchild
-	// 	compatibleContexts = [];
-
-	// 	fullyQualified = getFullyQualifiedName("organization", $organizationStore);
-	// }
-
-	// let selectedUnit = initSelected($unitStore, unitStringReturner, unitIdReturner, $detailed);
-	// $: unitId = selectedUnit.id;
-	// $: if(unitId || !unitId) {
-	// 	if(organizationId) {
-	// 		$unitStore = ($unitsStore).find(u => u.unitId == unitId);
-	// 		compatibleContexts = getCompatible($contextsStore, isCompatibleToUnit, selectedUnit.text);
-
-	// 		fullyQualified = getFullyQualifiedName("unit", $unitStore);
-	// 	}
-	// }
-
-	// let selectedContext = initSelected($contextStore, contextStringReturner, contextIdReturner, $detailed);
-	// $: contextId = selectedContext.id;
-	// $: if(contextId) {
-	// 	$contextStore = ($contextsStore).find(c => c.contextId == contextId);
-
-	// 	fullyQualified = getFullyQualifiedName("context", $contextStore);
-	// }
-
-
-	// $: orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner, $detailed);
-	// $: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner, unitIdReturner, $detailed);
-	// $: contextSelect = selectStringsFrom(compatibleContexts, contextStringReturner, contextIdReturner, $detailed);
-
 
 	let defineMode = isStoreEmpty(($contextsStore));
 	let clearFlag = false;

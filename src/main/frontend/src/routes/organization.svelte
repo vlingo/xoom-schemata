@@ -11,15 +11,6 @@
 	let name = $organizationStore? $organizationStore.name : "";
 	let description = $organizationStore? $organizationStore.description : "";
 
-	// let selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner);
-	// $: organizationId = selectedOrg.id;
-	// $: if(organizationId || !organizationId) {
-	// 	$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
-
-	// 	fullyQualified = getFullyQualifiedName("unit", $organizationStore);
-	// } 
-
-	// $: orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner, $detailed);
 
 	const definable = () => (name && description );
 	const updatable = () => (name && description && $organizationStore);

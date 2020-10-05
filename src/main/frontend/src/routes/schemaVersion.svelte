@@ -50,7 +50,7 @@
 	let defineMode = isStoreEmpty(($schemaVersionsStore));
 	let clearFlag = false;
 	const newVersion = () => {
-		previous = $schemaVersionStore ? $schemaVersionStore.currentVersion : "0.0.0";
+		previous = $schemaVersionStore ? $schemaVersionStore.currentVersion : "0.0.0"; //see comment below + would be best to have a "tip-version" from backend or here as a method
 		current = $schemaVersionStore ? newCurrent() : "0.0.1";
 		function newCurrent() { //we could also say that only the latest version currently defined shoud be shown on this page, then we just increment previousVers[2].
 			let allCurrentVers = compatibleVersions.map(sv => sv.currentVersion).map(cv => cv.split(".")[2]);

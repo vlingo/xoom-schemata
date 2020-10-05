@@ -1,72 +1,14 @@
 import { get } from 'svelte/store';
 import { contextStore, organizationStore, unitStore, schemaStore, organizationsStore, unitsStore, contextsStore, schemasStore, schemaVersionStore, schemaVersionsStore } from './stores';
 
-export function selectStringsFrom(arr, stringReturner, idReturner, detailed) {
-	return [{
-		id: "",
-		text: " "
-	}].concat(arr.map(obj => {
-		return initSelected(obj, stringReturner, idReturner, detailed);
-	}))
-}
 
-export function orgIdReturner(o) { return o.organizationId }
-export function unitIdReturner(u) { return u.unitId }
-export function contextIdReturner(c) { return c.contextId }
-export function schemaIdReturner(s) { return s.schemaId }
-export function versionIdReturner(v) { return v.schemaVersionId }
-
-
-export function initSelected(obj, stringReturner, idReturner, detailed) {
-	if(obj) {
-		return {
-			id: idReturner(obj),
-			text: stringReturner(obj, detailed)
-		};
-	}
-	return {};
-}
-
-export function orgStringReturner(o, detailed) {
-	return getOrganizationDetails(o, detailed);
-}
-
-export function unitStringReturner(u, detailed) {
-	return getUnitDetails(u, detailed);
-}
-
-export function contextStringReturner(c, detailed) {
-	return getContextDetails(c, detailed);
-}
-
-export function schemaStringReturner(s, detailed) {
-	return getSchemaDetails(s, detailed);
-}
-
-export function schemaVersionStringReturner(sv, detailed) {
-	return getSchemaVersionDetails(sv, detailed);
-}
-
- //last index should always be the id!
-export function getId(str) {
-	console.log(str);
-	const words = str.split(" ");
-	return words[words.length-1];
-}
-
-//more can be removed
 export function getFileString(file, detailed) {
 	switch(file.type) {
-		case "organization": return getOrganizationDetails(file, detailed);
-			break;
-		case "unit": return getUnitDetails(file, detailed);
-			break;
-		case "context": return getContextDetails(file, detailed);
-			break;
-		case "schema": return getSchemaDetails(file, detailed);
-			break;
-		case "schemaVersion": return getSchemaVersionDetails(file, detailed);
-			break;
+		case "organization": return makeStringFrom(file, filterCommonFrom(file, detailed), detailed);
+		case "unit": return makeStringFrom(file, filterCommonFrom(file, detailed), detailed);
+		case "context": return makeStringFrom(file, filterCommonFrom(file, detailed), detailed);
+		case "schema": return makeStringFrom(file, filterSchemaAttributes(filterCommonFrom(file, detailed)), detailed);
+		case "schemaVersion": return makeStringFrom(file, filterSchemaVersionAttributes(filterCommonFrom(file, detailed)), detailed);
 		default: console.log("type is non-existent.");
 	}
 	
@@ -83,67 +25,29 @@ function filterCommonFrom(element, detailed) {
 			&& attrib !== "organizationId" && attrib !== "unitId" && attrib !== "contextId" && attrib !== "schemaId" && attrib !== "schemaVersionId");
 }
 function makeStringFrom(file, attributes, detailed) {
-	if(detailed) return attributes.map(key => `${key}: ${file[key]}`).join(" - ");
-	return attributes.map(key => file[key]).join(" - ");
-}
-function getOrganizationDetails(org, detailed) {
-	return makeStringFrom(org, filterCommonFrom(org, detailed), detailed);
-}
+	console.log(attributes);
+	let attributesSorted = [];
+	attributes.forEach(attr => {
+		if(attr === "name" || attr === "namespace") {
+			attributesSorted.unshift(attr);
+		} else if(attr === "category") {
+			attributesSorted.splice(1, 0, attr);
+		} else {
+			attributesSorted.push(attr); //works, could also splice every id seperately
+		}
+	})
+	console.log(attributesSorted);
+	if(detailed) return attributesSorted.map(key => {
+		if(file[key]){
+			return `${key}: ${file[key]}`;
+		}
+	}).join(" - ");
 
-function getUnitDetails(file, detailed) {
-	return makeStringFrom(file, filterCommonFrom(file, detailed), detailed);
-}
-function getContextDetails(file, detailed) {
-	return makeStringFrom(file, filterCommonFrom(file, detailed), detailed);
-}
-function getSchemaDetails(file, detailed) {
-	return makeStringFrom(file, filterSchemaAttributes(filterCommonFrom(file, detailed)), detailed);
-}
-function getSchemaVersionDetails(file, detailed) {
-	return makeStringFrom(file, filterSchemaVersionAttributes(filterCommonFrom(file, detailed)), detailed);
-}
-
-export function getCompatible(fromElements, predicate, fieldValue) {
-	if(!fieldValue || fieldValue === " ") return [];
-	return (fromElements).filter(obj => predicate(obj));
-}
-
-export function isCompatibleToOrg(obj) {
-	return obj.organizationId == get(organizationStore).organizationId;
-}
-export function isCompatibleToUnit(obj) {
-	return obj.unitId == get(unitStore).unitId;
-}
-export function isCompatibleToContext(obj) {
-	return obj.contextId == get(contextStore).contextId;
-}
-export function isCompatibleToSchema(obj) {
-	return obj.schemaId == get(schemaStore).schemaId;
-}
-
-
-export function initOrgStores(array) {
-	initStoresOfAll(array, organizationStore, organizationsStore);
-}
-export function initUnitStores(array) {
-	initStoresOfAll(array, unitStore, unitsStore, isCompatibleToOrg);
-}
-export function initContextStores(array) {
-	initStoresOfAll(array, contextStore, contextsStore, isCompatibleToUnit);
-}
-export function initSchemaStores(array) {
-	initStoresOfAll(array, schemaStore, schemasStore, isCompatibleToContext);
-}
-export function initSchemaVersionStores(array) {
-	initStoresOfAll(array, schemaVersionStore, schemaVersionsStore, isCompatibleToSchema);
-}
-
-
-function initStoresOfAll(array, storeOfOne, storeOfAll, predicate) {
-	if(array.length > 0) {
-		storeOfAll.set([]);
-		storeOfAll.update(arr => arr.concat(...array));
-	}
+	return attributesSorted.map(key => {
+		if(file[key]){
+			return file[key];
+		}
+	}).join(" - ");
 }
 
 //the deepest path needs be set inside the single stores
@@ -178,14 +82,6 @@ export function initStoresOfOne() {
 	}
 }
 
-//order matters
-export function returnId(obj) {
-	if(obj.schemaVersionId) return obj.schemaVersionId;
-	if(obj.schemaId) return obj.schemaId;
-	if(obj.contextId) return obj.contextId;
-	if(obj.unitId) return obj.unitId;
-	if(obj.organizationId) return obj.organizationId;
-}
 
 export function isObjectInAStore(file) {
 	switch(file.type) {
@@ -252,8 +148,6 @@ export function adjustStoresTo(file) {
 	}
 }
 
-// console.log(get(organizationsStore), get(organizationStore), get(unitsStore), get(unitStore), get(contextsStore), get(contextStore), get(schemasStore), get(schemaStore), get(schemaVersionsStore), get(schemaVersionStore));
-
 // yes, the fall-through is meant to be
 export function deAdjustStoresTo(type) {
 	switch(type) {
@@ -275,30 +169,30 @@ export function deAdjustStoresTo(type) {
 function resetStores(...stores) {
 	stores.forEach(store => store.set(undefined));
 }
-// ummm just use find..
+
 function setSchemaVersionToSchemaVersionWithId(id) {
 	schemaVersionStore.set(
-		get(schemaVersionsStore).filter(obj => obj.schemaVersionId == id)[0]
+		get(schemaVersionsStore).find(obj => obj.schemaVersionId == id)
 	);
 }
 function setSchemaStoreToSchemaWithId(id) {
 	schemaStore.set(
-		get(schemasStore).filter(obj => obj.schemaId == id)[0]
+		get(schemasStore).find(obj => obj.schemaId == id)
 	);
 }
 function setContextStoreToContextWithId(id) {
 	contextStore.set(
-		get(contextsStore).filter(obj => obj.contextId == id)[0]
+		get(contextsStore).find(obj => obj.contextId == id)
 	);
 }
 function setUnitStoreToUnitWithId(id) {
 	unitStore.set(
-		get(unitsStore).filter(obj => obj.unitId == id)[0]
+		get(unitsStore).find(obj => obj.unitId == id)
 	);
 }
 function setOrganizationStoreToOrganizationWithId(id) {
 	organizationStore.set(
-		get(organizationsStore).filter(obj => obj.organizationId == id)[0]
+		get(organizationsStore).find(obj => obj.organizationId == id)
 	);
 }
 
@@ -321,7 +215,7 @@ export function getFullyQualifiedName(type, _) {
 	}
 }
 
-//order matters, all elements have two ids + version has ALL ids
+//order matters (all elements have two ids + version has ALL ids)
 export function idReturner(obj) {
 	let id;
 	obj.schemaVersionId? id = obj.schemaVersionId :
@@ -337,5 +231,22 @@ export function stringReturner(obj, detailed) {
 }
 
 export function changedSelect(array, detailed) {
-	return selectStringsFrom(array, stringReturner, idReturner, detailed);
+	return [{
+		id: "",
+		text: " "
+	}].concat(array.map(obj => {
+		return initSelected(obj, stringReturner, idReturner, detailed);
+	}))
 }
+
+function initSelected(obj, stringReturner, idReturner, detailed) {
+	if(obj) {
+		return {
+			id: idReturner(obj),
+			text: stringReturner(obj, detailed)
+		};
+	}
+	return {};
+}
+
+// console.log(get(organizationsStore), get(organizationStore), get(unitsStore), get(unitStore), get(contextsStore), get(contextStore), get(schemasStore), get(schemaStore), get(schemaVersionsStore), get(schemaVersionStore));
