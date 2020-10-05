@@ -15,10 +15,10 @@
 		return /^\d+\.\d+\.\d+$/.test(v)
 	}
 
-	let description;
-	let previous = "0.0.0"; //previousVersion();
-	let current = "0.0.1"; //= previous "+1"
-	let specification;
+	let description = $schemaVersionStore? $schemaVersionStore.description : "";
+	let previous = $schemaVersionStore? $schemaVersionStore.previousVersion : "0.0.0";
+	let current = $schemaVersionStore? $schemaVersionStore.currentVersion : "0.0.1";
+	let specification = $schemaVersionStore? $schemaVersionStore.specification : "";
 
 	$: compatibleUnits = changedUnits($organizationStore)
 	function changedUnits(store) {
@@ -49,10 +49,10 @@
 	let defineMode = isStoreEmpty(($schemaVersionsStore));
 	let clearFlag = false;
 	const newVersion = () => {
-		previous = "0.0.0";
-		current = "0.0.1";
+		previous = "0.0.0"; //previousVersion();
+		current = "0.0.1"; //= previous "+1"
 
-		$schemaVersionStore = ""; //?
+		$schemaVersionStore = undefined; //?
 
 		defineMode = true;
 		clearFlag = !clearFlag;

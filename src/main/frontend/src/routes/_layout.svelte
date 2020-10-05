@@ -58,6 +58,8 @@
 	import { contextsStore, contextStore, firstPage, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
 	import { initContextStores, initOrgStores, initSchemaStores, initSchemaVersionStores, initStoresOfOne, initUnitStores } from '../utils';
 
+	export let segment;
+
 	export let orgs = [];
 	export let units = [];
 	export let contexts = [];
@@ -86,8 +88,16 @@
 	}
 
 	//debug
-	// $: console.log($organizationsStore, $organizationStore, $unitsStore, $unitStore, $contextsStore, $contextStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore);
+	// $: console.log({$organizationsStore}, {$organizationStore}, {$unitsStore}, {$unitStore}, {$contextsStore}, {$contextStore}, {$schemasStore}, {$schemaStore}, {$schemaVersionsStore}, {$schemaVersionStore});
 </script>
+
+
+<Nav {segment}/>
+
+<main>
+	<slot></slot>
+</main>
+
 
 <style>
 	main {
@@ -100,9 +110,3 @@
 		box-sizing: border-box;
 	}
 </style>
-
-<Nav/>
-
-<main>
-	<slot></slot>
-</main>

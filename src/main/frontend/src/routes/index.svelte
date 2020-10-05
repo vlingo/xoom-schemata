@@ -320,14 +320,11 @@
 				sourceCode = code;
 			})
 	};
-	let lang = 'Java';
+	
 	let langs = [
 		'Java',
 		'C#',
 	]
-	$: console.log('Changed selected:', lang)
-	$: if(lang && showModal) sourceCodeFor(lang.toLowerCase());
-
 	let sourceCode = "";
 
 	let detailed = false;
@@ -337,18 +334,16 @@
 	<Modal isOpen={showModal} toggle={toggleSourceModal} size="lg">
     	<ModalHeader toggle={toggleSourceModal}> <h3> Choose language to generate: </h3></ModalHeader>
     	<ModalBody>
-			<div>
-				<!-- <CustomInput type="radio" id="radioJava" name="languageRadio" label="Java"/>
-				<CustomInput type="radio" id="radioCSharp" name="languageRadio" label="C#"/> -->
-				{#each langs as value}
-					<label class="mx-3"><input type="radio" {value} bind:group={lang}> {value}</label>
+			<div class="mx-3">
+				{#each langs as lang}
+					<CustomInput type="radio" id={"radio"+lang} name="languageRadio" label={lang} on:change={() => sourceCodeFor(lang.toLowerCase())} />
 				{/each}
+			
+
+				<pre class="mt-3"><code>
+					{sourceCode}
+				</code></pre>
 			</div>
-
-			<pre><code>
-				{sourceCode}
-			</code></pre>
-
     	</ModalBody>
     	<ModalFooter>
       		<!-- <Button color="primary" on:click={toggleSourceModal} text={"Do Something"}/>

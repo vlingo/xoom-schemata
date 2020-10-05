@@ -1,53 +1,68 @@
 <script>
 	import CardForm from '../components/CardForm.svelte';
 	import ValidatedInput from '../components/ValidatedInput.svelte';
+	import Select from '../components/Select.svelte';
 
 	import SchemataRepository from '../api/SchemataRepository';
-	import { contextsStore, contextStore, detailed, organizationsStore, organizationStore, unitsStore, unitStore } from '../stores';
-	import { isCompatibleToOrg, getCompatible, orgStringReturner, selectStringsFrom, unitStringReturner, initSelected, contextStringReturner, isCompatibleToUnit, isStoreEmpty, getFullyQualifiedName, contextIdReturner, unitIdReturner, orgIdReturner } from '../utils';
+	import { contextsStore, contextStore, organizationsStore, organizationStore, unitsStore, unitStore } from '../stores';
+	import { isStoreEmpty } from '../utils';
 	import errors from "../errors";
-
-	let namespace;
-	let description;
-
-
-	let compatibleUnits;
-	let compatibleContexts;
-
-	let selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
-	$: organizationId = selectedOrg.id;
-	$: if(organizationId || !organizationId) {
-		$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
-		compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg.text);
-		// clearing is necessary for grandchild
-		compatibleContexts = [];
-
-		fullyQualified = getFullyQualifiedName("organization", $organizationStore);
+	const validName = (name) => {
+		return /^([a-z_]\d*(\.[a-z_])?)+$/i.test(name); //underscore should also be possible! see https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
 	}
 
-	let selectedUnit = initSelected($unitStore, unitStringReturner, unitIdReturner, $detailed);
-	$: unitId = selectedUnit.id;
-	$: if(unitId || !unitId) {
-		if(organizationId) {
-			$unitStore = ($unitsStore).find(u => u.unitId == unitId);
-			compatibleContexts = getCompatible($contextsStore, isCompatibleToUnit, selectedUnit.text);
+	let namespace = $contextStore? $contextStore.namespace : "";
+	let description = $contextStore? $contextStore.description : "";
 
-			fullyQualified = getFullyQualifiedName("unit", $unitStore);
-		}
+
+	$: compatibleUnits = changedUnits($organizationStore)
+	function changedUnits(store) {
+		store ? $unitStore = $unitsStore.find(u => u.organizationId == store.organizationId) : $unitStore = undefined;
+		return store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
+	}
+	$: compatibleContexts = changedContexts($unitStore)
+	function changedContexts(store) {
+		store ? $contextStore = $contextsStore.find(c => c.unitId == store.unitId) : $contextStore = undefined;
+		return store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
 	}
 
-	let selectedContext = initSelected($contextStore, contextStringReturner, contextIdReturner, $detailed);
-	$: contextId = selectedContext.id;
-	$: if(contextId) {
-		$contextStore = ($contextsStore).find(c => c.contextId == contextId);
+	// let compatibleUnits;
+	// let compatibleContexts;
 
-		fullyQualified = getFullyQualifiedName("context", $contextStore);
-	}
+	// let selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
+	// $: organizationId = selectedOrg.id;
+	// $: if(organizationId || !organizationId) {
+	// 	$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
+	// 	compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg.text);
+	// 	// clearing is necessary for grandchild
+	// 	compatibleContexts = [];
+
+	// 	fullyQualified = getFullyQualifiedName("organization", $organizationStore);
+	// }
+
+	// let selectedUnit = initSelected($unitStore, unitStringReturner, unitIdReturner, $detailed);
+	// $: unitId = selectedUnit.id;
+	// $: if(unitId || !unitId) {
+	// 	if(organizationId) {
+	// 		$unitStore = ($unitsStore).find(u => u.unitId == unitId);
+	// 		compatibleContexts = getCompatible($contextsStore, isCompatibleToUnit, selectedUnit.text);
+
+	// 		fullyQualified = getFullyQualifiedName("unit", $unitStore);
+	// 	}
+	// }
+
+	// let selectedContext = initSelected($contextStore, contextStringReturner, contextIdReturner, $detailed);
+	// $: contextId = selectedContext.id;
+	// $: if(contextId) {
+	// 	$contextStore = ($contextsStore).find(c => c.contextId == contextId);
+
+	// 	fullyQualified = getFullyQualifiedName("context", $contextStore);
+	// }
 
 
-	$: orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner, $detailed);
-	$: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner, unitIdReturner, $detailed);
-	$: contextSelect = selectStringsFrom(compatibleContexts, contextStringReturner, contextIdReturner, $detailed);
+	// $: orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner, $detailed);
+	// $: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner, unitIdReturner, $detailed);
+	// $: contextSelect = selectStringsFrom(compatibleContexts, contextStringReturner, contextIdReturner, $detailed);
 
 
 	let defineMode = isStoreEmpty(($contextsStore));
@@ -55,15 +70,13 @@
 	const newContext = () => {
 		namespace = "";
 		description = "";
-		selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
-		selectedUnit = initSelected($unitStore, unitStringReturner, unitIdReturner, $detailed);
 
 		defineMode = true;
 		clearFlag = !clearFlag;
 	}
 
 	const definable = () => (namespace && description && $organizationStore && $unitStore);
-	const updatable = () => (namespace && description && $organizationStore && $unitStore && contextId);
+	const updatable = () => (namespace && description && $organizationStore && $unitStore && $contextStore);
 
 	const define = async () => {
 		if(!definable()) { console.log(errors.SUBMIT); return; }
@@ -76,7 +89,7 @@
 	}
 	const save = async () => {
 		if(!updatable()) { console.log(errors.SUBMIT); return; }
-		SchemataRepository.updateContext(($organizationStore).organizationId, ($unitStore).unitId, contextId, namespace, description)
+		SchemataRepository.updateContext(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, namespace, description)
 			.then(updated => {
 				updateStores(updated, true);
 				updateSelects();
@@ -86,29 +99,27 @@
 	function updateStores(obj, reset = false) {
 		console.log({obj});
 		$contextStore = obj;
-		if(reset) $contextsStore = ($contextsStore).filter(context => context.contextId != contextId);
+		if(reset) $contextsStore = ($contextsStore).filter(context => context.contextId != ($contextStore).contextId);
 		$contextsStore.push(obj);
 	}
 	function updateSelects() {
 		// maybe also units..
-		compatibleContexts = getCompatible($contextsStore, isCompatibleToUnit, selectedUnit.text);
-		contextSelect = selectStringsFrom(compatibleContexts, contextStringReturner, contextIdReturner, $detailed);
-		selectedContext = initSelected($contextStore, contextStringReturner, contextIdReturner, $detailed);
+		compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
 	}
 
 	let isDefineDisabled = true;
 	let isNextDisabled = true;
 	let isSaveDisabled = true;
 
-	$: if(namespace && description && organizationId && unitId && defineMode) { //&& !contextId
+	$: if(validName(namespace) && description && $organizationStore && $unitStore && defineMode) {
 		isDefineDisabled = false;
 	} else {
 		isDefineDisabled = true;
 	}
 
-	$: if(contextId) { isNextDisabled = false; }
+	$: if($contextStore) { isNextDisabled = false; }
 
-	$: if(namespace && description && organizationId && unitId && contextId) {
+	$: if(validName(namespace) && namespace && description && $organizationStore && $unitStore && $contextStore) {
 		isSaveDisabled = false;
 	} else {
 		isSaveDisabled = true;
@@ -119,13 +130,12 @@
 
 <CardForm title="Context" linkToNext="New Schema" on:new={newContext} on:save={save} on:define={define} 
 {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
-	<!-- <div class="flex-two-col"> -->
-		<ValidatedInput inline containerClasses="" type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
-		<ValidatedInput inline containerClasses="folder-inset1" type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
-	<!-- </div> -->
+	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore}/>
+	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	{#if !defineMode}
-		<ValidatedInput inline containerClasses="folder-inset2" disabled={defineMode} type="select" label="Context" bind:value={selectedContext} {clearFlag} options={contextSelect}/>
+		<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	{/if}
-	<ValidatedInput label="Namespace" bind:value={namespace} {clearFlag}/>
+
+	<ValidatedInput label="Namespace" placeholder="your.namespace.here" bind:value={namespace} {clearFlag} validator={validName} invalidString={errors.NAMESPACE}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
 </CardForm>

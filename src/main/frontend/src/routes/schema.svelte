@@ -8,15 +8,15 @@
 	import { isStoreEmpty } from '../utils';
 	import errors from '../errors';
 	const validName = (name) => {
-		return /^[a-zA-Z_$][a-zA-Z\d_$]*/.test(name);
+		return /^[A-Z][a-zA-Z\d]*$/.test(name);
 	}
 
-	let name;
-	let description;
+	let name = $schemaStore? $schemaStore.name : "";
+	let description = $schemaStore? $schemaStore.description : "";
 	let categorySelect = ["Command", "Data", "Document", "Envelope", "Event", "Unknown"];
-	let category = "Event";
+	let category = $schemaStore? $schemaStore.category : "Event";
 	let scopeSelect = ["Private", "Public"];
-	let scope = "Public";
+	let scope = $schemaStore? $schemaStore.scope : "Public";
 
 
 	$: compatibleUnits = changedUnits($organizationStore)

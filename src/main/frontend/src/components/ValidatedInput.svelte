@@ -2,6 +2,7 @@
 	import { Card, CardBody, Form, FormGroup, FormText, Input, Label, CustomInput, Button } from 'sveltestrap/src';
 	import errors from "../errors";
 	export let label = "";
+	export let placeholder = label;
 	export let type = "text";
 	export let id = label.toLowerCase();
 	export let value = "";
@@ -9,7 +10,7 @@
 	export let options = "";
 	//validator function
 	export let validator = null;
-	export let invalidString;
+	export let invalidString = "";
 	export let rows = "";
 	export let containerClasses = "flex-child";
 	export let inline = false;
@@ -28,7 +29,7 @@
 		valueValid = false;
 		valueInvalid = false;
 	}
-	// $: if(value || value) { valueCheck } ?
+	// $: if(value || !value) { valueCheck } ?
 	
 	$: if(options || !options) {
 		// console.log("test", label);
@@ -78,7 +79,7 @@
 	</div>
 	<!-- keyup: instant check on input, blur: checks on doing nothing, change: checks on selects -->
 	<div class={inputContainerClasses}>
-		<Input class={inputClasses} type={type} name={id} id={id} placeholder={label} bind:value={value} disabled={disabled}
+		<Input class={inputClasses} type={type} name={id} id={id} placeholder={placeholder} bind:value={value} disabled={disabled}
 		valid={valueValid} invalid={valueInvalid} on:blur={valueCheck} on:keyup={valueCheck} on:change={valueCheck} on:input={valueCheck} {rows}>
 			{#if options}
 				<!-- <option/> -->

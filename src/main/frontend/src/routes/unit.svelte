@@ -1,37 +1,45 @@
 <script>
 	import CardForm from '../components/CardForm.svelte';
 	import ValidatedInput from '../components/ValidatedInput.svelte';
+	import Select from '../components/Select.svelte';
 
 	import SchemataRepository from '../api/SchemataRepository';
-	import { organizationsStore, organizationStore, unitStore, unitsStore, detailed } from '../stores';
-	import { getCompatible, getFullyQualifiedName, initSelected, isCompatibleToOrg, isStoreEmpty, orgIdReturner, orgStringReturner, selectStringsFrom, unitIdReturner, unitStringReturner } from '../utils';
+	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
+	import { isStoreEmpty } from '../utils';
 	import errors from '../errors';
 
-	let name;
-	let description;
+	let name = $unitStore? $unitStore.name : "";
+	let description = $unitStore? $unitStore.description : "";
 
-	let compatibleUnits = [];
 
-	let selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
-	$: organizationId = selectedOrg.id;
-	$: if(organizationId) {
-		$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
-		compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg.text);
-
-		fullyQualified = getFullyQualifiedName("organization", $organizationStore);
+	$: compatibleUnits = changedUnits($organizationStore)
+	function changedUnits(store) {
+		store ? $unitStore = $unitsStore.find(u => u.organizationId == store.organizationId) : $unitStore = undefined;
+		return store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 	}
 
-	let selectedUnit = initSelected($unitStore, unitStringReturner, unitIdReturner, $detailed);
-	$: unitId = selectedUnit.id;
-	$: if(unitId) {
-		$unitStore = ($unitsStore).find(u => u.unitId == unitId);
+	// let compatibleUnits = [];
 
-		fullyQualified = getFullyQualifiedName("unit", $unitStore);
-	}
+	// let selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
+	// $: organizationId = selectedOrg.id;
+	// $: if(organizationId) {
+	// 	$organizationStore = ($organizationsStore).find(o => o.organizationId == organizationId);
+	// 	compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg.text);
+
+	// 	fullyQualified = getFullyQualifiedName("organization", $organizationStore);
+	// }
+
+	// let selectedUnit = initSelected($unitStore, unitStringReturner, unitIdReturner, $detailed);
+	// $: unitId = selectedUnit.id;
+	// $: if(unitId) {
+	// 	$unitStore = ($unitsStore).find(u => u.unitId == unitId);
+
+	// 	fullyQualified = getFullyQualifiedName("unit", $unitStore);
+	// }
 
 
-	$: orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner, $detailed);
-	$: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner, unitIdReturner, $detailed);
+	// $: orgSelect = selectStringsFrom($organizationsStore, orgStringReturner, orgIdReturner, $detailed);
+	// $: unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner, unitIdReturner, $detailed);
 	
 
 	let defineMode = isStoreEmpty(($unitsStore));
@@ -39,17 +47,14 @@
 	const newUnit = () => {
 		name = "";
 		description = "";
-		selectedOrg = initSelected($organizationStore, orgStringReturner, orgIdReturner, $detailed);
 
 		defineMode = true;
 		clearFlag = !clearFlag;
 	}
 
-	// maybe the unitId should also come from the store (if we validate the value before pushing it to the store, for example.)
-	// can just be changed here and work the same
-	// ++organizationStore is always an object, right? so it always returns true.. so check emptyness instead, probably
+	// ++organizationStore is always an object, right? so it always returns true.. so check emptyness instead, probably - or have it be undefined instead of empty object
 	const definable = () => (name && description && $organizationStore);
-	const updatable = () => (name && description && $organizationStore && unitId);
+	const updatable = () => (name && description && $organizationStore && $unitStore);
 
 	const define = async () => {
 		if(!definable()) { console.log(errors.SUBMIT); return; }
@@ -62,7 +67,7 @@
 	}
 	const save = async () => {
 		if(!updatable) { console.log(errors.SUBMIT); return; }
-		SchemataRepository.updateUnit(($organizationStore).organizationId, unitId, name, description)
+		SchemataRepository.updateUnit(($organizationStore).organizationId, ($unitStore).unitId, name, description)
 			.then(updated => {
 				updateStores(updated, true);
 				updateSelects();
@@ -71,28 +76,26 @@
 	function updateStores(obj, reset = false) {
 		console.log({obj});
 		$unitStore = obj;
-		if(reset) $unitsStore = ($unitsStore).filter(unit => unit.unitId != unitId);
+		if(reset) $unitsStore = ($unitsStore).filter(unit => unit.unitId != ($unitStore).unitId);
 		$unitsStore.push(obj);
 	}
 	function updateSelects() {
-		compatibleUnits = getCompatible($unitsStore, isCompatibleToOrg, selectedOrg.text);
-		unitSelect = selectStringsFrom(compatibleUnits, unitStringReturner, unitIdReturner, $detailed);
-		selectedUnit = initSelected($unitStore, unitStringReturner, unitIdReturner, $detailed);
+		compatibleUnits = $organizationStore ? $unitsStore.filter(u => u.organizationId == $organizationStore.organizationId) : [];
 	}
 
 	let isDefineDisabled = true;
 	let isNextDisabled = true;
 	let isSaveDisabled = true;
 
-	$: if(name && description && organizationId && defineMode) { //&& !unitId
+	$: if(name && description && $organizationStore && defineMode) {
 		isDefineDisabled = false;
 	} else {
 		isDefineDisabled = true;
 	}
 
-	$: if(unitId) { isNextDisabled = false; }
+	$: if($unitStore) { isNextDisabled = false; }
 
-	$: if(unitId && organizationId && name && description) {
+	$: if(name && description && $organizationStore && $unitStore) {
 		isSaveDisabled = false;
 	} else {
 		isSaveDisabled = true;
@@ -103,9 +106,9 @@
 
 <CardForm title="Unit" linkToNext="New Context" on:new={newUnit} on:save={save} on:define={define} 
 {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
-	<ValidatedInput inline containerClasses="" type="select" label="Organization" bind:value={selectedOrg} {clearFlag} options={orgSelect}/>
+	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore}/>
 	{#if !defineMode}
-		<ValidatedInput inline containerClasses="folder-inset1" disabled={defineMode} type="select" label="Unit" bind:value={selectedUnit} {clearFlag} options={unitSelect}/>
+		<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	{/if}
 	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
