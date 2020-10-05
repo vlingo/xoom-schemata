@@ -40,6 +40,7 @@
 		store ? $schemaVersionStore = $schemaVersionsStore.find(v => v.schemaId == store.schemaId) : $schemaVersionStore = undefined;
 		store ? specification = `${store.category.toLowerCase()} ${store.name} {\n\t\n}` : "";
 		if($schemaVersionStore) {
+			description = $schemaVersionStore.description;
 			specification = $schemaVersionStore.specification;
 		}
 		return store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
@@ -106,11 +107,11 @@
 	<Select label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
 
 	<div class="flex-two-col">
-		<ValidatedInput label="Previous Version" bind:value={previous} {clearFlag} validator={validator} invalidString={errors.VERSION}/>
-		<ValidatedInput label="Current Version" bind:value={current} {clearFlag} validator={validator} invalidString={errors.VERSION}/>
+		<ValidatedInput label="Previous Version" bind:value={previous} {clearFlag} validator={validator} invalidString={errors.VERSION} disabled={!defineMode}/>
+		<ValidatedInput label="Current Version" bind:value={current} {clearFlag} validator={validator} invalidString={errors.VERSION} disabled={!defineMode}/>
 	</div>
-	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
-	<ValidatedInput type="textarea" label="Specification" bind:value={specification} {clearFlag} rows="6"/>
+	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag} rows="4" disabled={!defineMode}/>
+	<ValidatedInput type="textarea" label="Specification" bind:value={specification} {clearFlag} rows="6" disabled={!defineMode}/>
 
 	<div slot="buttons">
 		<ButtonBar>

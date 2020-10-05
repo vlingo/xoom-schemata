@@ -3,7 +3,6 @@
 	import CardBody from 'sveltestrap/src/CardBody.svelte';
 	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
 	import Input from 'sveltestrap/src/Input.svelte';
-	import Label from 'sveltestrap/src/Label.svelte';
 	import ListGroup from 'sveltestrap/src/ListGroup.svelte';
 	import ListGroupItem from 'sveltestrap/src/ListGroupItem.svelte';
 	import Folder from '../components/Folder.svelte';
@@ -27,8 +26,7 @@
 	import VersionAlert from '../components/alerts/VersionAlert.svelte';
 	import { isStoreEmpty } from '../utils';
 	import CustomInput from 'sveltestrap/src/CustomInput.svelte';
-	import FormGroup from 'sveltestrap/src/FormGroup.svelte';
-	import Form from 'sveltestrap/src/Form.svelte';
+	import Badge from 'sveltestrap/src/Badge.svelte';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
@@ -233,13 +231,23 @@
 	let specification;
 	let description;
 
+	let status;
+
 	$: {changedVersionStore($schemaVersionStore)};
 	function changedVersionStore($schemaVersionStore) {
 		specification = $schemaVersionStore ? $schemaVersionStore.specification : "";
 		description = $schemaVersionStore ? $schemaVersionStore.description : "";
+		status = $schemaVersionStore ? getStatusString($schemaVersionStore.status) : "";
 	}
-
-	// $: schemaVersions = $schemaVersionsStore.filter(ver => ver.schemaId == $schemaStore.schemaId);
+	function getStatusString(status) {
+		if(!$schemaVersionStore) return;
+		switch(status) {
+			case "Draft": return { text: `${status}. Don't use in production builds.`, color: "warning"}
+			case "Published": return { text: `${status}. Can be used in production builds.`, color: "success"}
+			case "Deprecated": return { text: `${status}. Shouldn't be used in production builds.`, color: "warning"}
+			case "Removed": return { text: `${status}. Don't use in production builds.`, color: "danger"}
+		}
+	}
 
 	function updateTreeWith(updated) {
 		// I know, this is bad, could at least be recursive or the tree could be a map: tree[orgId][unitId]...
@@ -261,7 +269,7 @@
 			id: updated.schemaVersionId
 		};
 	}
-	// stores suboptimal, you would need to be able to select them (e.g. in Folder structure)
+	
 	const updateDescription = () => {
 		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !description) {
 			console.log(errors.SUBMIT);
@@ -269,10 +277,7 @@
 		}
 		SchemataRepository.saveSchemaVersionDescription(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, description)
 			.then(updated => {
-				console.log({updated});
-				$schemaVersionStore = updated;
-				$schemaVersionsStore = ($schemaVersionsStore).filter(schemaVersion => schemaVersion.schemaVersionId != ($schemaVersionStore).schemaVersionId);
-				$schemaVersionsStore.push(updated);
+				updateStores(updated, true);
 				updateTreeWith(updated);
 			})
 	}
@@ -284,10 +289,7 @@
 		}
 		SchemataRepository.saveSchemaVersionSpecification(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, specification)
 			.then(updated => {
-				console.log({updated});
-				$schemaVersionStore = updated;
-				$schemaVersionsStore = ($schemaVersionsStore).filter(schemaVersion => schemaVersion.schemaVersionId != ($schemaVersionStore).schemaVersionId);
-				$schemaVersionsStore.push(updated);
+				updateStores(updated, true);
 				updateTreeWith(updated);
 			})
 	}
@@ -299,16 +301,19 @@
 		}
 		SchemataRepository.setSchemaVersionStatus(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, status)
 			.then(updated => {
-				console.log({updated});
-				$schemaVersionStore = updated;
-				$schemaVersionsStore = ($schemaVersionsStore).filter(schemaVersion => schemaVersion.schemaVersionId != ($schemaVersionStore).schemaVersionId);
-				$schemaVersionsStore.push(updated);
+				updateStores(updated, true);
 				updateTreeWith(updated);
 			})
 	}
+	function updateStores(obj, reset = false) {
+		console.log({obj});
+		$schemaVersionStore = obj;
+		if(reset) $schemaVersionsStore = ($schemaVersionsStore).filter(schemaVersion => schemaVersion.schemaVersionId != ($schemaVersionStore).schemaVersionId);
+		$schemaVersionsStore.push(obj);
+	}
 
-	let showModal = false;
-	const toggleSourceModal = () => showModal = !showModal;
+	let showCodeModal = false;
+	const toggleCodeModal = () => showCodeModal = !showCodeModal;
 
 	// ($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, "java")
 	const sourceCodeFor = (lang) => {
@@ -326,31 +331,38 @@
 	]
 	let sourceCode = "";
 
-	let detailed = false;
+	let showPreviewModal = false;
+	const togglePreviewModal = () => showPreviewModal = !showPreviewModal;
+
+	let detailed = false; //TODO:
 </script>
 
 
-	<Modal isOpen={showModal} toggle={toggleSourceModal} size="lg">
-    	<ModalHeader toggle={toggleSourceModal}> <h3> Choose language to generate: </h3></ModalHeader>
+	<Modal isOpen={showCodeModal} toggle={toggleCodeModal} size="lg">
+    	<ModalHeader toggle={toggleCodeModal}> <h3> Choose language to generate: </h3></ModalHeader>
     	<ModalBody>
 			<div class="mx-3">
 				{#each langs as lang}
 					<CustomInput type="radio" id={"radio"+lang} name="languageRadio" label={lang} on:change={() => sourceCodeFor(lang.toLowerCase())} />
 				{/each}
-			
-
 				<pre class="mt-3"><code>
 					{sourceCode}
 				</code></pre>
 			</div>
     	</ModalBody>
     	<ModalFooter>
-      		<!-- <Button color="primary" on:click={toggleSourceModal} text={"Do Something"}/>
-      		<Button color="secondary" on:click={toggleSourceModal} text={"Cancel"}/> -->
+      		<!-- <Button color="primary" on:click={toggleCodeModal} text={"Do Something"}/>
+      		<Button color="secondary" on:click={toggleCodeModal} text={"Cancel"}/> -->
     	</ModalFooter>
-  	</Modal>
-	<Modal>
-		<!-- marked -->
+	</Modal>
+	
+	<Modal isOpen={showPreviewModal} toggle={togglePreviewModal} size="lg">
+		<ModalHeader toggle={togglePreviewModal}> <h3> Markup: </h3></ModalHeader>
+    	<ModalBody>
+			<div class="mx-3">
+				{@html marked(description)}
+			</div>
+    	</ModalBody>
 	</Modal>
 
 <Card>
@@ -407,24 +419,27 @@
 	{#if !isStoreEmpty($schemaVersionStore)}
 	<div class="bottom-right">
 	<Card>
-		<ListGroup class="d-flex flex-row p-1">
-			<ListGroupItem active={active=="spec"} tag="button" action on:click={() => active = "spec"}>Specification</ListGroupItem>
-			<ListGroupItem active={active=="desc"} tag="button" action on:click={() => active = "desc"}>Description</ListGroupItem>
+		<ListGroup class="d-flex flex-row p-3">
+			<ListGroupItem color="primary" class="rounded" active={active==="spec"} tag="button" action on:click={() => active="spec"}>Specification</ListGroupItem>
+			<ListGroupItem color="primary" class="rounded" active={active==="desc"} tag="button" action on:click={() => active="desc"}>Description</ListGroupItem>
+			{#if status}
+				<Badge class="ml-4 p-2 align-self-center" color={status.color}>{status.text}</Badge>
+			{/if}
 		</ListGroup>
 		{#if active=="spec"}
-			<ValidatedInput rows="10" type="textarea" bind:value={specification}/>
+			<ValidatedInput rows="10" type="textarea" bind:value={specification} disabled={$schemaVersionStore.status === "Removed"}/>
 			<ButtonBar>
 				<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
 				<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
 				<Button outline color="danger" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
-				<Button outline color="info" icon={mdiSourcePull} text="CODE" on:click={toggleSourceModal}/>
+				<Button outline color="info" icon={mdiSourcePull} text="CODE" on:click={toggleCodeModal}/>
 				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
 			</ButtonBar>
 		{:else}
-			<ValidatedInput rows="10" type="textarea" bind:value={description}/>
+			<ValidatedInput rows="10" type="textarea" bind:value={description} disabled={$schemaVersionStore.status === "Removed"}/>
 			<ButtonBar>
-				<Button color="success" icon={mdiFileFind} text="PREVIEW"/>
-				<Button color="warning" icon={mdiFileUndo} text="REVERT"/>
+				<Button color="success" icon={mdiFileFind} text="PREVIEW" on:click={togglePreviewModal}/>
+				<Button color="warning" icon={mdiFileUndo} text="REVERT" on:click={() => description = $schemaVersionStore.description}/>
 				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateDescription}/>
 			</ButtonBar>
 		{/if}
