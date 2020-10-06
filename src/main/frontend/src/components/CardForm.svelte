@@ -21,6 +21,8 @@
 
 	export let fullyQualified = "";
 
+	export let preventDefault = false;
+
 </script>
 
 <Card>
@@ -36,11 +38,18 @@
 		{/if}
 	</CardHeader>
 	<CardBody>
+		<!-- would ultimately be better to handle this on the buttons, but works -->
+		{#if !preventDefault} 
 		<Form>
 			<slot>
 
 			</slot>
 		</Form>
+		{:else}
+			<slot>
+
+			</slot>
+		{/if}
 		
 			<slot name="buttons">
 				<ButtonBar>

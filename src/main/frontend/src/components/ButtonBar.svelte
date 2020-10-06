@@ -1,6 +1,8 @@
+<script>
+	export let center = false;
+</script>
 
-
-<div class="button-bar">
+<div class="button-bar {center? "align-self-center mt-3" : ""}">
 	<slot/>
 </div>
 

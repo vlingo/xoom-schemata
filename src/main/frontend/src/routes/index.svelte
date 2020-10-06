@@ -242,32 +242,42 @@
 	function getStatusString(status) {
 		if(!$schemaVersionStore) return;
 		switch(status) {
-			case "Draft": return { text: `${status}. Don't use in production builds.`, color: "warning"}
-			case "Published": return { text: `${status}. Can be used in production builds.`, color: "success"}
-			case "Deprecated": return { text: `${status}. Shouldn't be used in production builds.`, color: "warning"}
-			case "Removed": return { text: `${status}. Don't use in production builds.`, color: "danger"}
+			case "Draft": return { text: `${status}: May change.`, color: "warning"}
+			case "Published": return { text: `${status}: Production ready.`, color: "success"}
+			case "Deprecated": return { text: `${status}: Consumers should replace.`, color: "warning"}
+			case "Removed": return { text: `${status}: Don't use.`, color: "danger"}
 		}
 	}
 
 	function updateTreeWith(updated) {
-		// I know, this is bad, could at least be recursive or the tree could be a map: tree[orgId][unitId]...
-		// or reload the page, but that takes longer
-		// or abuse Folder.svelte to change leaf element if it is "type=schemaVersion" and "{#if} string:newDescription" or something like that
-		const oidx = root.files.findIndex(org => org.id == updated.organizationId);
-		const uidx = root.files[oidx].files.findIndex(unit => unit.id == updated.unitId);
-		const cidx = root.files[oidx].files[uidx].files.findIndex(context => context.id == updated.contextId)
-		const sidx = root.files[oidx].files[uidx].files[cidx].files.findIndex(schema => schema.id == updated.schemaId)
-		const svidx = root.files[oidx].files[uidx].files[cidx].files[sidx].files.findIndex(schemaVersion => schemaVersion.id == updated.schemaVersionId)
-		root.files[oidx].files[uidx].files[cidx].files[sidx].files[svidx] = 
-		{
-			type: 'schemaVersion',
-			status: updated.status,
-			specification: updated.specification,
-			description: updated.description,
-			previous: updated.previousVersion,
-			current: updated.currentVersion,
-			id: updated.schemaVersionId
-		};
+		// the tree could also just be a map: root[orgId][unitId]...
+		function replaceInTree(rootfiles, updated) {
+			let idsFromOrgToVersion = [updated.organizationId, updated.unitId, updated.contextId, updated.schemaId, updated.schemaVersionId];
+
+			function recursiveSearch(array, iteration) {
+				const idx = array.findIndex(el => el.id == idsFromOrgToVersion[iteration]);
+				//end
+				if(iteration >= idsFromOrgToVersion.length-1) {
+					console.log(array, idx);
+					array[idx] =
+					{
+						type: 'schemaVersion',
+						status: updated.status,
+						specification: updated.specification,
+						description: updated.description,
+						previous: updated.previousVersion,
+						current: updated.currentVersion,
+						id: updated.schemaVersionId
+					};
+					return
+				}
+				recursiveSearch(array[idx].files, ++iteration);
+			}
+			//start
+			recursiveSearch(rootfiles, 0);
+		}
+		replaceInTree(root.files, updated);
+		root = root;
 	}
 	
 	const updateDescription = () => {

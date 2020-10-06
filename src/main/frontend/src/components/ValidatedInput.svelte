@@ -7,6 +7,7 @@
 	export let id = label.toLowerCase();
 	export let value = "";
 	export let disabled = false;
+	export let readonly = false;
 	export let options = "";
 	//validator function
 	export let validator = null;
@@ -80,7 +81,7 @@
 	<!-- keyup: instant check on input, blur: checks on doing nothing, change: checks on selects -->
 	<div class={inputContainerClasses}>
 		<Input class={inputClasses} type={type} name={id} id={id} placeholder={placeholder} bind:value={value} disabled={disabled}
-		valid={valueValid} invalid={valueInvalid} on:blur={valueCheck} on:keyup={valueCheck} on:change={valueCheck} on:input={valueCheck} {rows}>
+		valid={valueValid} invalid={valueInvalid} on:blur={valueCheck} on:keyup={valueCheck} on:change={valueCheck} on:input={valueCheck} {rows} {readonly}>
 			{#if options}
 				<!-- <option/> -->
 				{#each options as option}
