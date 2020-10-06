@@ -14,7 +14,7 @@
 </script>
 
 <Tooltip tooltipText={file.type}>
-	<Clickable {file}>
+	<Clickable {file} bind:selected={expanded}>
 		{#if expandable}
 			{#if expanded}▾{:else}▸{/if}
 		{/if}

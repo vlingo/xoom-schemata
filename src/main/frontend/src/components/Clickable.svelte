@@ -5,34 +5,24 @@
 
 <script>
 	import { adjustStoresTo, deAdjustStoresTo, isObjectInAStore, isStoreEmpty} from "../utils";
-	import { contextStore, organizationStore, schemaStore, schemaVersionStore, unitStore } from '../stores';
+	import { schemaVersionStore } from '../stores';
 
 	export let file;
-
+	export let selected = false;
 	let item;
 
-	let selected = false;
-
-	// stores trigger the reactive statement
-	$: if(($organizationStore || $unitStore || $contextStore || $schemaStore || $schemaVersionStore) && (isObjectInAStore(file))) {
-		selected = true;
-	} else {
-		selected = false;
-	}
-
+	//maybe "!isStoreEmpty($schemaVersionStore)" needs to be just $schemaVersionStore
 	$: if(isObjectInAStore(file) || !isStoreEmpty($schemaVersionStore) && $schemaVersionStore.schemaVersionId == file.id) $current = item;
 
 	function chooseThis() {
 		if(!selected) {
 			adjustStoresTo(file);
 			$current = item;
-			// selected = true;
-			// setCurrent();
+			selected = true;
 		} else {
 			deAdjustStoresTo(file.type);
-			// selected = false;
 			$current = {};
-
+			selected = false;
 		}
 	}
 

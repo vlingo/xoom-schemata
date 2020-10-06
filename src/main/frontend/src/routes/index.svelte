@@ -12,7 +12,7 @@
 	import ButtonBar from '../components/ButtonBar.svelte';
 	import Button from '../components/Button.svelte';
 
-	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
+	import { contextsStore, contextStore, detailed, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
 	import SchemataRepository from '../api/SchemataRepository';
 	import errors from '../errors';
 	import Modal from 'sveltestrap/src/Modal.svelte';
@@ -343,8 +343,6 @@
 
 	let showPreviewModal = false;
 	const togglePreviewModal = () => showPreviewModal = !showPreviewModal;
-
-	let detailed = false; //TODO:
 </script>
 
 
@@ -379,7 +377,7 @@
 	<CardHeader tag="h3">
 		Home
 		{#if root.files.length > 0}
-			<Button on:click={() => detailed = !detailed} style="float: right" text={"Show Details"}/>
+			<Button on:click={() => $detailed = !($detailed)} style="float: right" text={"Show Details"}/>
 		{/if}
 	</CardHeader>
 
@@ -391,7 +389,7 @@
 		<!-- </FormGroup> -->
 		<!-- reload button (if needed) -->
 		<CardBody>
-			<Folder detailed={detailed} file={root} first={true}/>
+			<Folder detailed={$detailed} file={root} first={true}/>
 		</CardBody>
 		
 		{#if $unitsStore.length < 1}
@@ -406,15 +404,15 @@
 					{#if $schemaVersionsStore.length < 1}
 						<VersionAlert/>
 					{:else}
-						{#if isStoreEmpty($organizationStore)}
+						{#if !$organizationStore}
 							<OrganizationAlert notChosenAlert/>
-						{:else if isStoreEmpty($unitStore)}
+						{:else if !$unitStore}
 							<UnitAlert notChosenAlert/>
-						{:else if isStoreEmpty($contextStore)}
+						{:else if !$contextStore}
 							<ContextAlert notChosenAlert/>
-						{:else if isStoreEmpty($schemaStore)}
+						{:else if !$schemaStore}
 							<SchemaAlert notChosenAlert/>
-						{:else if isStoreEmpty($schemaVersionStore)}
+						{:else if !$schemaVersionStore}
 							<VersionAlert notChosenAlert/>
 						{/if}
 					{/if}

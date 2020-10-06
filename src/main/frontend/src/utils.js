@@ -25,7 +25,7 @@ function filterCommonFrom(element, detailed) {
 			&& attrib !== "organizationId" && attrib !== "unitId" && attrib !== "contextId" && attrib !== "schemaId" && attrib !== "schemaVersionId");
 }
 function makeStringFrom(file, attributes, detailed) {
-	console.log(attributes);
+	// console.log(attributes);
 	let attributesSorted = [];
 	attributes.forEach(attr => {
 		if(attr === "name" || attr === "namespace") {
@@ -36,7 +36,7 @@ function makeStringFrom(file, attributes, detailed) {
 			attributesSorted.push(attr); //works, could also splice every id seperately
 		}
 	})
-	console.log(attributesSorted);
+	// console.log(attributesSorted);
 	if(detailed) return attributesSorted.map(key => {
 		if(file[key]){
 			return `${key}: ${file[key]}`;
@@ -89,13 +89,13 @@ export function isObjectInAStore(file) {
 			return get(organizationStore) ? get(organizationStore).organizationId == file.id : false;
 			break;
 		case "unit":
-			return get(unitStore).unitId ? get(unitStore).unitId == file.id : false;
+			return get(unitStore) ? get(unitStore).unitId == file.id : false;
 			break;
 		case "context":
-			return get(contextStore).contextId ? get(contextStore).contextId == file.id : false;
+			return get(contextStore) ? get(contextStore).contextId == file.id : false;
 			break;
 		case "schema":
-			return get(schemaStore).schemaId ? get(schemaStore).schemaId == file.id : false;
+			return get(schemaStore) ? get(schemaStore).schemaId == file.id : false;
 			break;
 		case "schemaVersion":
 			return get(schemaVersionStore) ? get(schemaVersionStore).schemaVersionId == file.id : false;
