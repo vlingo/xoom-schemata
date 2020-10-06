@@ -37,19 +37,22 @@
 	}
 	
 	const valueCheck = (e) => {
+		// console.log(value, e.type);
 		//if select
 		if(options && e.type !== "input") {
 			// console.log(e.type, e.target.selectedOptions[0].__value);
 			value = e.target.selectedOptions[0].__value;
-			if(value.id) {
-				valueValid = true;
-				valueInvalid = false;
-			} else {
-				valueValid = false;
-				valueInvalid = true;
-				validationMessage = errors.EMPTY;
-			return;
-		}
+			if(value.text) {
+				if(value.id) {
+					valueValid = true;
+					valueInvalid = false;
+				} else {
+					valueValid = false;
+					valueInvalid = true;
+					validationMessage = errors.EMPTY;
+				}
+				return;
+			}
 		}
 		if(value) {
 			valueValid = true;
