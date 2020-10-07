@@ -20,30 +20,35 @@
 	let current = $schemaVersionStore? $schemaVersionStore.currentVersion : "0.0.1";
 	let specification = $schemaVersionStore? $schemaVersionStore.specification : "";
 
-	$: compatibleUnits = changedUnits($organizationStore)
+	let compatibleUnits = [];
+	let compatibleContexts = [];
+	let compatibleSchemas = [];
+	let compatibleVersions = [];
+	$: changedUnits($organizationStore)
 	function changedUnits(store) {
-		store ? $unitStore = $unitsStore.find(u => u.organizationId == store.organizationId) : $unitStore = undefined;
-		return store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
+		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
+		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	$: compatibleContexts = changedContexts($unitStore)
+	$: changedContexts($unitStore)
 	function changedContexts(store) {
-		store ? $contextStore = $contextsStore.find(c => c.unitId == store.unitId) : $contextStore = undefined;
-		return store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
+		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
+		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
-	$: compatibleSchemas = changedSchemas($contextStore);
+	$: changedSchemas($contextStore);
 	function changedSchemas(store) {
-		store ? $schemaStore = $schemasStore.find(s => s.contextId == store.contextId) : $schemaStore = undefined;
-		return store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
+		compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
+		$schemaStore = compatibleSchemas.length > 0 ? compatibleSchemas[compatibleSchemas.length-1] : undefined;
 	}
-	$: compatibleVersions = changedVersions($schemaStore);
+	$: changedVersions($schemaStore);
 	function changedVersions(store) {
-		store ? $schemaVersionStore = $schemaVersionsStore.find(v => v.schemaId == store.schemaId) : $schemaVersionStore = undefined;
+		compatibleVersions =  store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
+		$schemaVersionStore = store ? $schemaVersionsStore.find(v => v.schemaId == store.schemaId) : undefined;
+
 		store ? specification = `${store.category.toLowerCase()} ${store.name} {\n\t\n}` : "";
 		if($schemaVersionStore) {
 			description = $schemaVersionStore.description;
 			specification = $schemaVersionStore.specification;
 		}
-		return store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
 	}
 	
 
@@ -52,7 +57,7 @@
 	const newVersion = () => {
 		previous = $schemaVersionStore ? $schemaVersionStore.currentVersion : "0.0.0"; //see comment below + would be best to have a "tip-version" from backend or here as a method
 		current = $schemaVersionStore ? newCurrent() : "0.0.1";
-		function newCurrent() { //we could also say that only the latest version currently defined shoud be shown on this page, then we just increment previousVers[2].
+		function newCurrent() { //rework with semver
 			let allCurrentVers = compatibleVersions.map(sv => sv.currentVersion).map(cv => cv.split(".")[2]);
 			let highestPatchVer = Math.max(...allCurrentVers);
 
@@ -100,15 +105,20 @@
 	let fullyQualified;
 </script>
 
-<CardForm title="Schema Version" linkToNext="Home" href="/" on:new={newVersion} on:define={define} {defineMode} {fullyQualified}>
+<CardForm preventDefault title="Schema Version" linkToNext="Home" href="/" on:new={newVersion} on:define={define} {defineMode} {fullyQualified}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore}/>
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	<Select label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
 
 	<div class="flex-two-col">
-		<ValidatedInput label="Previous Version" bind:value={previous} {clearFlag} validator={validator} invalidString={errors.VERSION} disabled={!defineMode}/>
-		<ValidatedInput label="Current Version" bind:value={current} {clearFlag} validator={validator} invalidString={errors.VERSION} disabled={!defineMode}/>
+		<!-- <ValidatedInput label="Previous Version" bind:value={previous} {clearFlag} validator={validator} invalidString={errors.VERSION} readonly/> -->
+		<ValidatedInput label="Current Version (previous was {previous})" placeholder="0.0.0" bind:value={current} {clearFlag} validator={validator} invalidString={errors.VERSION} disabled={!defineMode}/>
+		<ButtonBar center>
+			<Button color="primary" text="New Patch" on:click={() => { if(defineMode) current = "0.0.2"}}/>
+			<Button color="warning" text="New Minor" on:click={() => { if(defineMode) current = "0.2.0"}}/>
+			<Button color="danger" text="New Major" on:click={() => { if(defineMode) current = "2.0.0"}}/>
+		</ButtonBar>
 	</div>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag} rows="4" disabled={!defineMode}/>
 	<ValidatedInput type="textarea" label="Specification" bind:value={specification} {clearFlag} rows="6" disabled={!defineMode}/>
@@ -122,7 +132,7 @@
 				<Button color="primary" text="Define" on:click={define} disabled={isCreateDisabled}/>
 			{/if}
 			{#if !isNextDisabled}
-				<Button color="primary" outline text={"Home"} href={"/"} disabled={isNextDisabled}/>
+				<Button color="primary" outline text={"Home"} href={"."} disabled={isNextDisabled}/>
 			{/if}
 		</ButtonBar>
 	</div>

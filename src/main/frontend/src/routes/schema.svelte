@@ -18,21 +18,26 @@
 	let scopeSelect = ["Private", "Public"];
 	let scope = $schemaStore? $schemaStore.scope : "Public";
 
-
-	$: compatibleUnits = changedUnits($organizationStore)
+	let compatibleUnits = [];
+	let compatibleContexts = [];
+	let compatibleSchemas = [];
+	$: changedUnits($organizationStore);
 	function changedUnits(store) {
-		store ? $unitStore = $unitsStore.find(u => u.organizationId == store.organizationId) : $unitStore = undefined;
-		return store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
+		console.log({store});
+		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
+		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	$: compatibleContexts = changedContexts($unitStore)
+	$: changedContexts($unitStore);
 	function changedContexts(store) {
-		store ? $contextStore = $contextsStore.find(c => c.unitId == store.unitId) : $contextStore = undefined;
-		return store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
+		console.log({store});
+		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
+		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
-	$: compatibleSchemas = changedSchemas($contextStore);
+	$: changedSchemas($contextStore);
 	function changedSchemas(store) {
-		store ? $schemaStore = $schemasStore.find(s => s.contextId == store.contextId) : $schemaStore = undefined;
-		return store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
+		console.log({store});
+		compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
+		$schemaStore = compatibleSchemas.length > 0 ? compatibleSchemas[compatibleSchemas.length-1] : undefined;
 	}
 
 	// 	fullyQualified = getFullyQualifiedName("organization", $organizationStore);

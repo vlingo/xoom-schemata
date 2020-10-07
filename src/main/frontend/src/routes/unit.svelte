@@ -11,13 +11,13 @@
 	let name = $unitStore? $unitStore.name : "";
 	let description = $unitStore? $unitStore.description : "";
 
+	let compatibleUnits = [];
 
-	$: compatibleUnits = changedUnits($organizationStore)
+	$: changedUnits($organizationStore)
 	function changedUnits(store) {
-		store ? $unitStore = $unitsStore.find(u => u.organizationId == store.organizationId) : $unitStore = undefined;
-		return store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
+		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
+		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	
 
 	let defineMode = isStoreEmpty(($unitsStore));
 	let clearFlag = false;

@@ -14,7 +14,7 @@
 	$: {changedSelected(selected)};
 	function changedSelected(selected) {
 		console.log(selected);
-		if(selected) $storeOne = ($storeAll).find(obj => idReturner(obj) == selected.id);
+		$storeOne = selected ? ($storeAll).find(obj => idReturner(obj) == selected.id) : undefined;
 	}
 
 	$: {changedSelectables(arrayOfSelectables, $detailed)};

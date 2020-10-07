@@ -14,16 +14,18 @@
 	let namespace = $contextStore? $contextStore.namespace : "";
 	let description = $contextStore? $contextStore.description : "";
 
+	let compatibleUnits = [];
+	let compatibleContexts = [];
 
-	$: compatibleUnits = changedUnits($organizationStore)
+	$: changedUnits($organizationStore)
 	function changedUnits(store) {
-		store ? $unitStore = $unitsStore.find(u => u.organizationId == store.organizationId) : $unitStore = undefined;
-		return store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
+		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
+		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	$: compatibleContexts = changedContexts($unitStore)
+	$: changedContexts($unitStore)
 	function changedContexts(store) {
-		store ? $contextStore = $contextsStore.find(c => c.unitId == store.unitId) : $contextStore = undefined;
-		return store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
+		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
+		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
 
 
