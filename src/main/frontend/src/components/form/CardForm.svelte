@@ -1,8 +1,9 @@
 <script>
 	import { mdiChevronRight } from '@mdi/js';
 	import { createEventDispatcher } from 'svelte';
-	import { Card, CardBody, Form} from 'sveltestrap/src';
-	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
+	import { Card } from 'svelte-materialify/src';
+	import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
+	import CardTitle from 'svelte-materialify/src/components/Card/CardTitle.svelte';
 	import { detailed } from '../../stores';
 	import Button from './Button.svelte';
 	import ButtonBar from './ButtonBar.svelte';
@@ -26,25 +27,25 @@
 </script>
 
 <Card>
-	<CardHeader tag="h3">
+	<CardTitle>
 		<span>{title}
 			{#if fullyQualified}
 				<code>{fullyQualified}</code>
 			{/if}
 		</span>
 		{#if !(title==="Organization" && defineMode)}
-			<Button on:click={() => $detailed = !($detailed)} style="float: right" text={"Toggle Details"}/>
+			<Button on:click={() => $detailed = !($detailed)} style="margin-left: auto" text={"Toggle Details"}/>
 				<!-- replace button with toggle -->
 		{/if}
-	</CardHeader>
-	<CardBody>
+	</CardTitle>
+	<CardText>
 		<!-- would ultimately be better to handle this on the buttons, but works -->
-		{#if !preventDefault} 
-		<Form>
+		{#if !preventDefault}
+		
 			<slot>
 
 			</slot>
-		</Form>
+		
 		{:else}
 			<slot>
 
@@ -68,7 +69,7 @@
 				</ButtonBar>
 			</slot>
 		
-	</CardBody>
+	</CardText>
 </Card>
 
 <style>

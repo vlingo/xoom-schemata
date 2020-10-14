@@ -1,8 +1,6 @@
 <script>
 	import { Icon } from 'svelte-materialify/src';
 	import MatButton from 'svelte-materialify/src/components/Button';
-	// import StrapButton from "sveltestrap/src/Button.svelte";
-	// import Icon from "./Icon.svelte";
 
 	export let text = "";
 	export let color = "primary";

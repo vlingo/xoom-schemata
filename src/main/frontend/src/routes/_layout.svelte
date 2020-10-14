@@ -55,16 +55,13 @@
 
 <script>
 	import { Button, Icon, MaterialApp } from "svelte-materialify/src";
-	// import Nav from '../components/Nav.svelte';
 	import { contextsStore, contextStore, firstPage, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, theme, unitsStore, unitStore } from '../stores';
 	import { initStoresOfOne } from '../utils';
 	import AppBar from 'svelte-materialify/src/components/AppBar';
-	// import Button from 'sveltestrap/src/Button.svelte';
-	// import Icon from '../components/Icon.svelte';
 	import { mdiMenu, mdiWeatherNight, mdiWeatherSunny } from '@mdi/js';
 	import { onMount } from 'svelte';
 	import SiteNavigation from '../components/SiteNavigation.svelte';
-import Container from 'svelte-materialify/src/components/Grid/Container.svelte';
+	import Container from 'svelte-materialify/src/components/Grid/Container.svelte';
 
 	export let segment;
 

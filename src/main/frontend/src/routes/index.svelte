@@ -1,13 +1,6 @@
 <script>
-	import Card from 'sveltestrap/src/Card.svelte';
-	import CardBody from 'sveltestrap/src/CardBody.svelte';
-	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
 	import Folder from '../components/Folder.svelte';
-	
 	import Button from '../components/form/Button.svelte';
-
-	import { contextsStore, contextStore, detailed, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
-	
 	import OrganizationAlert from '../components/alerts/OrganizationAlert.svelte';
 	import UnitAlert from '../components/alerts/UnitAlert.svelte';
 	import ContextAlert from '../components/alerts/ContextAlert.svelte';
@@ -15,6 +8,10 @@
 	import VersionAlert from '../components/alerts/VersionAlert.svelte';
 	import VersionContainer from '../components/VersionContainer.svelte';
 	import ValidatedInput from '../components/form/ValidatedInput.svelte';
+	import { contextsStore, contextStore, detailed, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
+import Card from 'svelte-materialify/src/components/Card';
+import CardTitle from 'svelte-materialify/src/components/Card/CardTitle.svelte';
+import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
@@ -188,21 +185,21 @@
 </svelte:head>
 
 <Card>
-	<CardHeader tag="h3">
+	<CardTitle>
 		Home
 		{#if root.files.length > 0}
-			<Button on:click={() => $detailed = !($detailed)} style="float: right" text={"Show Details"}/>
+			<Button on:click={() => $detailed = !($detailed)} style="margin-left: auto" text={"Show Details"}/>
 		{/if}
-	</CardHeader>
+	</CardTitle>
 
 	{#if root.files.length < 1}
 		<OrganizationAlert/>
 	{:else}
 		<ValidatedInput type="search" name="search" id="search" placeholder="Search..."/>
 
-		<CardBody>
+		<CardText>
 			<Folder detailed={$detailed} file={root} first={true}/>
-		</CardBody>
+		</CardText>
 		
 		{#if $unitsStore.length < 1}
 			<UnitAlert/>

@@ -6,25 +6,15 @@
 	import ValidatedInput from '../components/form/ValidatedInput.svelte';
 	import ButtonBar from '../components/form/ButtonBar.svelte';
 	import Button from '../components/form/Button.svelte';
-	import Modal from 'sveltestrap/src/Modal.svelte';
-	import ModalHeader from 'sveltestrap/src/ModalHeader.svelte';
-	import ModalBody from 'sveltestrap/src/ModalBody.svelte';
-	import ModalFooter from 'sveltestrap/src/ModalFooter.svelte';
-	import CustomInput from 'sveltestrap/src/CustomInput.svelte';
 	import errors from '../errors';
 	import marked from 'marked';
 	import Card from 'svelte-materialify/src/components/Card';
 	import ButtonGroup from 'svelte-materialify/src/components/ButtonGroup';
 	import ButtonGroupItem from 'svelte-materialify/src/components/ButtonGroup/ButtonGroupItem.svelte';
 	import { createEventDispatcher } from 'svelte';
-import Badge from 'svelte-materialify/src/components/Badge';
-import Chip from 'svelte-materialify/src/components/Chip';
-import {
-	  Dialog,
-	  CardTitle,
-	  CardText,
-	  CardActions,
-	} from 'svelte-materialify/src';
+	import Chip from 'svelte-materialify/src/components/Chip';
+	import { Dialog, CardTitle, CardText } from 'svelte-materialify/src';
+import Radio from 'svelte-materialify/src/components/Radio';
 	const dispatch = createEventDispatcher();
 
 	let specification;
@@ -103,7 +93,10 @@ import {
 				sourceCode = code;
 			})
 	};
-	
+	let chosenLang;
+	$: if(chosenLang && typeof chosenLang === "string") {
+		sourceCodeFor(chosenLang.toLowerCase());
+	}
 	let langs = [
 		'Java',
 		'C#',
@@ -160,7 +153,7 @@ import {
 		<CardText>
 			<div class="mx-3">
 				{#each langs as lang}
-					<CustomInput type="radio" id={"radio"+lang} name="languageRadio" label={lang} on:change={() => sourceCodeFor(lang.toLowerCase())} />
+					<Radio bind:group={chosenLang} value={lang} color="primary">{lang}</Radio>
 				{/each}
 				{#if sourceCode}
 					<pre class="mt-3"><code>{sourceCode}</code></pre>

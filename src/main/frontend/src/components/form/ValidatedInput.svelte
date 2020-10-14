@@ -1,10 +1,9 @@
 <script>
-	// import { FormGroup, Input, Label } from 'sveltestrap/src';
 	import { Row, Col, TextField, Textarea, Select } from 'svelte-materialify/src';
-import ListItem from 'svelte-materialify/src/components/List/ListItem.svelte';
+	import ListItem from 'svelte-materialify/src/components/List/ListItem.svelte';
 	import errors from "../../errors";
-import { detailed, organizationsStore } from '../../stores';
-import { idReturner, stringReturner } from '../../utils';
+	import { detailed, organizationsStore } from '../../stores';
+	import { idReturner, stringReturner } from '../../utils';
 	export let label = "";
 	export let placeholder = undefined;
 	export let type = "text";

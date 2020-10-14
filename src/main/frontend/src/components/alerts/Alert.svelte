@@ -1,5 +1,4 @@
 <script>
-	// import Alert from "sveltestrap/src/Alert.svelte";
 	import Alert from 'svelte-materialify/src/components/Alert';
 	export let link = "";
 </script>

@@ -1,10 +1,10 @@
 <script>
 	import {mdiDelete, mdiLabel, mdiLabelOff, mdiPlaylistPlay} from '@mdi/js'
-	import Badge from "sveltestrap/src/Badge.svelte";
 	import Clickable from "./Clickable.svelte";
 	import Tooltip from "./Tooltip.svelte";
 	import { getFileString } from "../utils";
 	import Icon from "./Icon.svelte";
+	import Badge from 'svelte-materialify/src/components/Badge';
 
 	export let file;
 	export let expandable = false;
@@ -33,10 +33,10 @@
 		{getFileString(file, detailed)}
 		<!-- <Badge class="{status.color}-color" value={status.text}/> -->
 		{#if file.category}
-			<Badge color="primary">{file.category}</Badge>
+			<Badge class="primary-color" value={file.category} offsetX={0} offsetY={0}/>
 		{/if}
 		{#if file.scope}
-			<Badge color="primary">{file.scope}</Badge>
+			<Badge class="primary-color" value={file.scope} offsetX={0} offsetY={0}/>
 		{/if}
 	</Clickable>
 </Tooltip>

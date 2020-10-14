@@ -13,12 +13,6 @@
 
 	let name = $schemaStore? $schemaStore.name : "";
 	let description = $schemaStore? $schemaStore.description : "";
-	const items = [
-    { name: 'Foo', value: 'foo' },
-    { name: 'Bar', value: 'bar' },
-    { name: 'Fizz', value: 'fizz' },
-    { name: 'Buzz', value: 'buzz' },
-  ];
 	let categorySelect = [
 		{ name: "Command", value: "Command" },
 		{ name: "Data", value: "Data" },
@@ -149,6 +143,5 @@
 <style>
 	.flex-two-col {
 		display: flex;
-		flex-wrap: wrap;
 	}
 </style>
