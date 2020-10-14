@@ -10,7 +10,6 @@
 	export let expandable = false;
 	export let expanded = false;
 	export let detailed = false;
-
 </script>
 
 <Tooltip tooltipText={file.type}>

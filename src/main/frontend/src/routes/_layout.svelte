@@ -55,7 +55,7 @@
 
 <script>
 	import { Button, Icon, MaterialApp } from "svelte-materialify/src";
-	import { contextsStore, contextStore, firstPage, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, theme, unitsStore, unitStore } from '../stores';
+	import { contextsStore, contextStore, firstPage, mobileStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, theme, unitsStore, unitStore } from '../stores';
 	import { initStoresOfOne } from '../utils';
 	import AppBar from 'svelte-materialify/src/components/AppBar';
 	import { mdiMenu, mdiWeatherNight, mdiWeatherSunny } from '@mdi/js';
@@ -102,6 +102,7 @@
 	let sidenav = false;
 	let breakpoints = {};
 	let mobile = false;
+	$: $mobileStore = mobile;
 	function checkMobile() {
 		mobile = window.matchMedia(breakpoints['md-and-down']).matches;
 	}
@@ -111,9 +112,9 @@
 			window.localStorage.setItem('theme', value);
 		});
 		import('svelte-materialify/src/utils/breakpoints').then(({ default: data }) => {
-	    	breakpoints = data;
+			breakpoints = data;
+			checkMobile();
 		});
-		checkMobile();
 		return unsubscribe;
 	});
 
