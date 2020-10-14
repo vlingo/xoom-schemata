@@ -4,6 +4,7 @@
 	import { Card } from 'svelte-materialify/src';
 	import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
 	import CardTitle from 'svelte-materialify/src/components/Card/CardTitle.svelte';
+import Switch from 'svelte-materialify/src/components/Switch';
 	import { detailed } from '../../stores';
 	import Button from './Button.svelte';
 	import ButtonBar from './ButtonBar.svelte';
@@ -22,8 +23,6 @@
 
 	export let fullyQualified = "";
 
-	export let preventDefault = false;
-
 </script>
 
 <Card>
@@ -34,41 +33,27 @@
 			{/if}
 		</span>
 		{#if !(title==="Organization" && defineMode)}
-			<Button on:click={() => $detailed = !($detailed)} style="margin-left: auto" text={"Toggle Details"}/>
-				<!-- replace button with toggle -->
+			<span style="margin-left: auto; font-size: 1rem;"><Switch bind:checked={$detailed}>Details</Switch></span>
 		{/if}
 	</CardTitle>
 	<CardText>
-		<!-- would ultimately be better to handle this on the buttons, but works -->
-		{#if !preventDefault}
-		
-			<slot>
-
-			</slot>
-		
-		{:else}
-			<slot>
-
-			</slot>
-		{/if}
-		
-			<slot name="buttons">
-				<ButtonBar>
-					<div class="mr-auto">
-						<Button color="info" text="New {title}" on:click={() => dispatch("new")}/>
-					</div>
-					{#if !defineMode}
-						<Button color="primary" text="Save" on:click={() => dispatch("save")} disabled={isSaveDisabled}/>
-					{:else}
-						<Button color="primary" text="Define" on:click={() => dispatch("define")} disabled={isDefineDisabled}/>
-					{/if}
-					<!-- disabled doesn't work on a-href, so just don't show the button when not needed: -->
-					{#if !isNextDisabled}
-						<Button color="primary" icon={mdiChevronRight} outline text={linkToNext} {href} disabled={isNextDisabled}/>
-					{/if}
-				</ButtonBar>
-			</slot>
-		
+		<slot/>
+		<slot name="buttons">
+			<ButtonBar>
+				<div class="mr-auto">
+					<Button color="info" text="New {title}" on:click={() => dispatch("new")}/>
+				</div>
+				{#if !defineMode}
+					<Button color="primary" text="Save" on:click={() => dispatch("save")} disabled={isSaveDisabled}/>
+				{:else}
+					<Button color="primary" text="Define" on:click={() => dispatch("define")} disabled={isDefineDisabled}/>
+				{/if}
+				<!-- disabled doesn't work on a-href, so just don't show the button when not needed: -->
+				{#if !isNextDisabled}
+					<Button color="primary" icon={mdiChevronRight} outline text={linkToNext} {href} disabled={isNextDisabled}/>
+				{/if}
+			</ButtonBar>
+		</slot>
 	</CardText>
 </Card>
 

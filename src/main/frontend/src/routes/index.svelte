@@ -1,6 +1,5 @@
 <script>
 	import Folder from '../components/Folder.svelte';
-	import Button from '../components/form/Button.svelte';
 	import OrganizationAlert from '../components/alerts/OrganizationAlert.svelte';
 	import UnitAlert from '../components/alerts/UnitAlert.svelte';
 	import ContextAlert from '../components/alerts/ContextAlert.svelte';
@@ -8,10 +7,11 @@
 	import VersionAlert from '../components/alerts/VersionAlert.svelte';
 	import VersionContainer from '../components/VersionContainer.svelte';
 	import ValidatedInput from '../components/form/ValidatedInput.svelte';
+	import Card from 'svelte-materialify/src/components/Card';
+	import CardTitle from 'svelte-materialify/src/components/Card/CardTitle.svelte';
+	import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
+	import Switch from 'svelte-materialify/src/components/Switch';
 	import { contextsStore, contextStore, detailed, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
-import Card from 'svelte-materialify/src/components/Card';
-import CardTitle from 'svelte-materialify/src/components/Card/CardTitle.svelte';
-import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
@@ -188,7 +188,7 @@ import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
 	<CardTitle>
 		Home
 		{#if root.files.length > 0}
-			<Button on:click={() => $detailed = !($detailed)} style="margin-left: auto" text={"Show Details"}/>
+			<span style="margin-left: auto; font-size: 1rem;"><Switch bind:checked={$detailed}>Details</Switch></span>
 		{/if}
 	</CardTitle>
 
@@ -197,9 +197,9 @@ import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
 	{:else}
 		<ValidatedInput type="search" name="search" id="search" placeholder="Search..."/>
 
-		<CardText>
+		<!-- <CardText> too light-->
 			<Folder detailed={$detailed} file={root} first={true}/>
-		</CardText>
+		<!-- </CardText> -->
 		
 		{#if $unitsStore.length < 1}
 			<UnitAlert/>
