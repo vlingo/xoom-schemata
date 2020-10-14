@@ -4,30 +4,24 @@
 </script>
 
 <script>
-	import { adjustStoresTo, deAdjustStoresTo, isObjectInAStore, isStoreEmpty} from "../utils";
-	import { schemaVersionStore } from '../stores';
+	import { adjustStoresTo, deAdjustStoresTo, isObjectInAStore } from "../utils";
 
 	export let file;
-	export let selected = false;
+	export let selected;
 	let item;
 
-	//maybe "!isStoreEmpty($schemaVersionStore)" needs to be just $schemaVersionStore
-	$: if(isObjectInAStore(file) || !isStoreEmpty($schemaVersionStore) && $schemaVersionStore.schemaVersionId == file.id) $current = item;
 	$: if(!isObjectInAStore(file)) deAdjustStoresTo(file.type);
 	
 	function chooseThis() {
 		if(!selected) {
 			adjustStoresTo(file);
 			$current = item;
-			selected = true;
 		} else {
 			deAdjustStoresTo(file.type);
-			$current = {};
-			selected = false;
 		}
 	}
 
-	$: active = (item == $current)
+	$: active = (item == $current);
 </script>
 
 <div bind:this={item} class:active={active} class:notActive={!active} on:click={chooseThis}>

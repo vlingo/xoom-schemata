@@ -7,14 +7,7 @@
 	export let file;
 	export let detailed = false;
 
-	let expanded = isObjectInAStore(file);
-	
-	//maybe needs to be changed, should bind to FolderInternals-expanded>Clickable-selected
-	// $: if(isObjectInAStore(file)) {
-	// 	expanded = true;
-	// } else {
-	// 	expanded = false;
-	// }
+	$: expanded = isObjectInAStore(file, $contextStore, $organizationStore, $schemaStore, $schemaVersionStore, $unitStore);
 </script>
 
 
@@ -50,7 +43,7 @@
 	span {
 		/* padding: 0 0 0 1.5em; */
 		/* background: url(tutorial/icons/folder.svg) 0 0.1em no-repeat; */
-		background-size: 1em 1em;
+		/* background-size: 1em 1em; */
 		font-weight: bold;
 		cursor: pointer;
 		

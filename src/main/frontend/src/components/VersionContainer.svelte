@@ -93,10 +93,10 @@ import Radio from 'svelte-materialify/src/components/Radio';
 				sourceCode = code;
 			})
 	};
+
 	let chosenLang;
-	$: if(chosenLang && typeof chosenLang === "string") {
-		sourceCodeFor(chosenLang.toLowerCase());
-	}
+	$: if(chosenLang && typeof chosenLang === "string") sourceCodeFor(chosenLang.toLowerCase());
+	$: if(!showCodeModal) {chosenLang = undefined; sourceCode = undefined;}
 	let langs = [
 		'Java',
 		'C#',

@@ -83,7 +83,7 @@ export function initStoresOfOne() {
 }
 
 
-export function isObjectInAStore(file) {
+export function isObjectInAStore(file, ...stores) {
 	switch(file.type) {
 		case "organization":
 			return get(organizationStore) ? get(organizationStore).organizationId == file.id : false;
