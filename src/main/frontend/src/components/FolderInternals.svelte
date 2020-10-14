@@ -31,6 +31,7 @@
 			<Icon icon={mdiDelete} />
 		{/if}
 		{getFileString(file, detailed)}
+		<!-- <Badge class="{status.color}-color" value={status.text}/> -->
 		{#if file.category}
 			<Badge color="primary">{file.category}</Badge>
 		{/if}

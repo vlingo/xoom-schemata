@@ -1,7 +1,9 @@
-:root {
-	--vlingo-color1: #00a55249;
+a {
+	text-decoration: none;
 }
-
+html {
+	scroll-behavior: smooth;
+}
 
 body {
 	margin: 0;
@@ -9,6 +11,14 @@ body {
 	font-size: 14px;
 	line-height: 1.5;
 	color: #333;
+}
+
+.m-1 {
+	margin: 0.5em;
+}
+
+#sapper {
+	height: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {

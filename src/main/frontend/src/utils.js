@@ -231,12 +231,15 @@ export function stringReturner(obj, detailed) {
 }
 
 export function changedSelect(array, detailed) {
-	return [{
-		id: "",
-		text: " "
-	}].concat(array.map(obj => {
+	// return [{
+	// 	value: "",
+	// 	name: " "
+	// }].concat(array.map(obj => {
+	// 	return initSelected(obj, stringReturner, idReturner, detailed);
+	// }))
+	return array.map(obj => {
 		return initSelected(obj, stringReturner, idReturner, detailed);
-	}))
+	})
 }
 
 function initSelected(obj, stringReturner, idReturner, detailed) {

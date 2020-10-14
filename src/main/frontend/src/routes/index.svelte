@@ -2,31 +2,19 @@
 	import Card from 'sveltestrap/src/Card.svelte';
 	import CardBody from 'sveltestrap/src/CardBody.svelte';
 	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
-	import Input from 'sveltestrap/src/Input.svelte';
-	import ListGroup from 'sveltestrap/src/ListGroup.svelte';
-	import ListGroupItem from 'sveltestrap/src/ListGroupItem.svelte';
 	import Folder from '../components/Folder.svelte';
-	import marked from 'marked';
-	import ValidatedInput from '../components/ValidatedInput.svelte';
-	import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull, mdiFileFind, mdiFileUndo, mdiContentSave} from '@mdi/js'
-	import ButtonBar from '../components/ButtonBar.svelte';
-	import Button from '../components/Button.svelte';
+	
+	import Button from '../components/form/Button.svelte';
 
 	import { contextsStore, contextStore, detailed, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
-	import SchemataRepository from '../api/SchemataRepository';
-	import errors from '../errors';
-	import Modal from 'sveltestrap/src/Modal.svelte';
-	import ModalHeader from 'sveltestrap/src/ModalHeader.svelte';
-	import ModalBody from 'sveltestrap/src/ModalBody.svelte';
-	import ModalFooter from 'sveltestrap/src/ModalFooter.svelte';
+	
 	import OrganizationAlert from '../components/alerts/OrganizationAlert.svelte';
 	import UnitAlert from '../components/alerts/UnitAlert.svelte';
 	import ContextAlert from '../components/alerts/ContextAlert.svelte';
 	import SchemaAlert from '../components/alerts/SchemaAlert.svelte';
 	import VersionAlert from '../components/alerts/VersionAlert.svelte';
-	import { isStoreEmpty } from '../utils';
-	import CustomInput from 'sveltestrap/src/CustomInput.svelte';
-	import Badge from 'sveltestrap/src/Badge.svelte';
+	import VersionContainer from '../components/VersionContainer.svelte';
+	import ValidatedInput from '../components/form/ValidatedInput.svelte';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
@@ -160,100 +148,13 @@
 	}
 	
 	let root = [];
-	let showcase = {
-		files: [
-			{
-				type: 'organization',
-				name: 'VLINGO LCC',
-				files: [
-					{
-						type: 'unit',
-						name: 'schemata',
-						files: [
-							{
-								type: 'context',
-								name: 'io.vlingo.schemata',
-								files: [
-									{
-										type: 'schema',
-										name: 'SchemaDefined',
-										// files : [
-										// 	{
-										// 		type: 'schemaVersion',
-										// 		name: '0.0.1'
-										// 	},
-										// 	{
-										// 		type: 'schemaVersion',
-										// 		name: '1.0.0'
-										// 	}
-										// ]
-									},
-								]
-							},
-						]
-					},
-				]
-			},
-			{
-				type: 'organization',
-				name: 'Reactive Foundation',
-				files: [
-					{
-						type: 'unit',
-						name: 'Alibaba',
-					},
-					{
-						type: 'unit',
-						name: 'Lightbend',
-					},
-					{
-						type: 'unit',
-						name: 'Netlify',
-					},
-					{
-						type: 'unit',
-						name: 'Pivotal',
-					},
-					{
-						type: 'unit',
-						name: 'Vlingo',
-					},
-				]
-			},
-		]
-	};
-	// root = showcase;
 	root = tree;
 	console.log(root);
-
-	let active = "spec";
-
-	let specification;
-	let description;
-
-	let status;
-
-	$: {changedVersionStore($schemaVersionStore)};
-	function changedVersionStore($schemaVersionStore) {
-		specification = $schemaVersionStore ? $schemaVersionStore.specification : "";
-		description = $schemaVersionStore ? $schemaVersionStore.description : "";
-		status = $schemaVersionStore ? getStatusString($schemaVersionStore.status) : "";
-	}
-	function getStatusString(status) {
-		if(!$schemaVersionStore) return;
-		switch(status) {
-			case "Draft": return { text: `${status}: May change.`, color: "warning"}
-			case "Published": return { text: `${status}: Production ready.`, color: "success"}
-			case "Deprecated": return { text: `${status}: Consumers should replace.`, color: "warning"}
-			case "Removed": return { text: `${status}: Don't use.`, color: "danger"}
-		}
-	}
 
 	function updateTreeWith(updated) {
 		// the tree could also just be a map: root[orgId][unitId]...
 		function replaceInTree(rootfiles, updated) {
 			let idsFromOrgToVersion = [updated.organizationId, updated.unitId, updated.contextId, updated.schemaId, updated.schemaVersionId];
-
 			function recursiveSearch(array, iteration) {
 				const idx = array.findIndex(el => el.id == idsFromOrgToVersion[iteration]);
 				//end
@@ -279,99 +180,12 @@
 		replaceInTree(root.files, updated);
 		root = root;
 	}
-	
-	const updateDescription = () => {
-		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !description) {
-			console.log(errors.SUBMIT);
-			return;
-		}
-		SchemataRepository.saveSchemaVersionDescription(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, description)
-			.then(updated => {
-				updateStores(updated, true);
-				updateTreeWith(updated);
-			})
-	}
 
-	const updateSpecification = () => {
-		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !specification) {
-			console.log(errors.SUBMIT);
-			return;
-		}
-		SchemataRepository.saveSchemaVersionSpecification(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, specification)
-			.then(updated => {
-				updateStores(updated, true);
-				updateTreeWith(updated);
-			})
-	}
-
-	const updateStatus = (status) => {
-		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !status) {
-			console.log(errors.SUBMIT);
-			return;
-		}
-		SchemataRepository.setSchemaVersionStatus(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, status)
-			.then(updated => {
-				updateStores(updated, true);
-				updateTreeWith(updated);
-			})
-	}
-	function updateStores(obj, reset = false) {
-		console.log({obj});
-		$schemaVersionStore = obj;
-		if(reset) $schemaVersionsStore = ($schemaVersionsStore).filter(schemaVersion => schemaVersion.schemaVersionId != ($schemaVersionStore).schemaVersionId);
-		$schemaVersionsStore.push(obj);
-	}
-
-	let showCodeModal = false;
-	const toggleCodeModal = () => showCodeModal = !showCodeModal;
-
-	// ($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, "java")
-	const sourceCodeFor = (lang) => {
-		if(lang != "java") return;
-		SchemataRepository.loadSources(($organizationStore).name, ($unitStore).name, ($contextStore).namespace, ($schemaStore).name, ($schemaVersionStore).currentVersion, lang)
-			.then(code => {
-				console.log({code});
-				sourceCode = code;
-			})
-	};
-	
-	let langs = [
-		'Java',
-		'C#',
-	]
-	let sourceCode = "";
-
-	let showPreviewModal = false;
-	const togglePreviewModal = () => showPreviewModal = !showPreviewModal;
 </script>
 
-
-	<Modal isOpen={showCodeModal} toggle={toggleCodeModal} size="lg">
-    	<ModalHeader toggle={toggleCodeModal}> <h3> Choose language to generate: </h3></ModalHeader>
-    	<ModalBody>
-			<div class="mx-3">
-				{#each langs as lang}
-					<CustomInput type="radio" id={"radio"+lang} name="languageRadio" label={lang} on:change={() => sourceCodeFor(lang.toLowerCase())} />
-				{/each}
-				<pre class="mt-3"><code>
-					{sourceCode}
-				</code></pre>
-			</div>
-    	</ModalBody>
-    	<ModalFooter>
-      		<!-- <Button color="primary" on:click={toggleCodeModal} text={"Do Something"}/>
-      		<Button color="secondary" on:click={toggleCodeModal} text={"Cancel"}/> -->
-    	</ModalFooter>
-	</Modal>
-	
-	<Modal isOpen={showPreviewModal} toggle={togglePreviewModal} size="lg">
-		<ModalHeader toggle={togglePreviewModal}> <h3> Markup: </h3></ModalHeader>
-    	<ModalBody>
-			<div class="mx-3">
-				{@html marked(description)}
-			</div>
-    	</ModalBody>
-	</Modal>
+<svelte:head>
+	<title>Home</title>
+</svelte:head>
 
 <Card>
 	<CardHeader tag="h3">
@@ -384,10 +198,8 @@
 	{#if root.files.length < 1}
 		<OrganizationAlert/>
 	{:else}
-		<!-- <FormGroup> -->
-		<Input type="search" name="search" id="search" placeholder="Search..." />
-		<!-- </FormGroup> -->
-		<!-- reload button (if needed) -->
+		<ValidatedInput type="search" name="search" id="search" placeholder="Search..."/>
+
 		<CardBody>
 			<Folder detailed={$detailed} file={root} first={true}/>
 		</CardBody>
@@ -422,66 +234,4 @@
 	{/if}
 </Card>
 
-
-<div class="bottom-container">
-	{#if !isStoreEmpty($schemaVersionStore)}
-	<div class="bottom-right">
-	<Card>
-		<ListGroup class="d-flex flex-row p-3">
-			<ListGroupItem color="primary" class="rounded" active={active==="spec"} tag="button" action on:click={() => active="spec"}>Specification</ListGroupItem>
-			<ListGroupItem color="primary" class="rounded" active={active==="desc"} tag="button" action on:click={() => active="desc"}>Description</ListGroupItem>
-			{#if status}
-				<Badge class="ml-4 p-2 align-self-center" color={status.color}>{status.text}</Badge>
-			{/if}
-		</ListGroup>
-		{#if active=="spec"}
-			<ValidatedInput rows="10" type="textarea" bind:value={specification} disabled={$schemaVersionStore.status === "Removed"}/>
-			<ButtonBar>
-				<Button outline color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
-				<Button outline color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
-				<Button outline color="danger" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
-				<Button outline color="info" icon={mdiSourcePull} text="CODE" on:click={toggleCodeModal}/>
-				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
-			</ButtonBar>
-		{:else}
-			<ValidatedInput rows="10" type="textarea" bind:value={description} disabled={$schemaVersionStore.status === "Removed"}/>
-			<ButtonBar>
-				<Button color="success" icon={mdiFileFind} text="PREVIEW" on:click={togglePreviewModal}/>
-				<Button color="warning" icon={mdiFileUndo} text="REVERT" on:click={() => description = $schemaVersionStore.description}/>
-				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateDescription}/>
-			</ButtonBar>
-		{/if}
-	</Card>
-	</div>
-	{/if}
-</div>
-
-
-<style>
-	.bottom-container {
-		margin-top: 1rem;
-
-		display: flex;
-		flex-direction: column;
-	}
-	/* .spacer {
-		width: 5rem;
-		height: 2rem;
-		display: block;
-	}
-
-	.bottom-left {
-		flex: 0 1 auto;
-	} */
-
-	.bottom-right {
-		flex: 1 1 auto;
-	}
-
-	@media (min-width: 820px) {
-		.bottom-container {
-			flex-direction: row;
-		}
-	}
-
-</style>
+<VersionContainer on:versionChanged={(v) => updateTreeWith(v.detail)}/>

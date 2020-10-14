@@ -1,16 +1,21 @@
 <script>
-	import CardForm from '../components/CardForm.svelte';
-	import ValidatedInput from '../components/ValidatedInput.svelte';
-	import Select from '../components/Select.svelte';
+	import CardForm from '../components/form/CardForm.svelte';
+	import ValidatedInput from '../components/form/ValidatedInput.svelte';
+	import Select from '../components/form/Select.svelte';
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationStore, organizationsStore } from '../stores'
 	import { isStoreEmpty } from '../utils';
 	import errors from '../errors';
 
-	let name = $organizationStore? $organizationStore.name : "";
-	let description = $organizationStore? $organizationStore.description : "";
+	let name;
+	let description;
 
+	$: changedOrganization($organizationStore);
+	function changedOrganization(store) {
+		name = store? store.name : "";
+		description = store? store.description : "";
+	}
 
 	const definable = () => (name && description );
 	const updatable = () => (name && description && $organizationStore);
@@ -64,7 +69,7 @@
 		isDefineDisabled = true;
 	}
 
-	$: if($organizationStore) { isNextDisabled = false; }
+	$: if(!defineMode) { isNextDisabled = false; }
 	
 	$: if($organizationStore && name && description) {
 		isSaveDisabled = false;
@@ -75,11 +80,14 @@
 	let fullyQualified;
 </script>
 
+<svelte:head>
+	<title>Organization</title>
+</svelte:head>
 
 <CardForm title="Organization" linkToNext="New Unit" on:new={newOrg} on:save={save} on:define={define} 
 {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
 	{#if !defineMode}
-		<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore}/>
+		<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{/if}
 	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>

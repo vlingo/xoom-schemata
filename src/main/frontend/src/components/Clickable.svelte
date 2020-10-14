@@ -13,7 +13,8 @@
 
 	//maybe "!isStoreEmpty($schemaVersionStore)" needs to be just $schemaVersionStore
 	$: if(isObjectInAStore(file) || !isStoreEmpty($schemaVersionStore) && $schemaVersionStore.schemaVersionId == file.id) $current = item;
-
+	$: if(!isObjectInAStore(file)) deAdjustStoresTo(file.type);
+	
 	function chooseThis() {
 		if(!selected) {
 			adjustStoresTo(file);

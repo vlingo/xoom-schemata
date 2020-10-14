@@ -10,11 +10,11 @@
 	let expanded = isObjectInAStore(file);
 	
 	//maybe needs to be changed, should bind to FolderInternals-expanded>Clickable-selected
-	$: if(($organizationStore || $unitStore || $contextStore || $schemaStore || $schemaVersionStore) && (isObjectInAStore(file))) {
-		expanded = true;
-	} else {
-		expanded = false;
-	}
+	// $: if(isObjectInAStore(file)) {
+	// 	expanded = true;
+	// } else {
+	// 	expanded = false;
+	// }
 </script>
 
 

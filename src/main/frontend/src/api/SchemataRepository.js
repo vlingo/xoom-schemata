@@ -21,8 +21,10 @@ const resources = {
 }
 
 function ensure(response, status) {
-  if (response.status !== status) {
-    throw Error(`HTTP ${response.status}: ${response.statusText} (${response.config.url}).`);
+  if(response.status === 409) {
+    return Promise.reject(response.json());
+  } else if (response.status !== status) {
+    throw Error(`HTTP ${response.status}: ${response.statusText} ().`); //${response.config.url}
   }
   return response;
 }
@@ -166,8 +168,8 @@ export default {
       .then(ensureOk)
       .then(response => response.json())
   },
-  async createSchemaVersion(organization, unit, context, schema, specification, description, previousVersion, currentVersion) {
-    const response = await Repository.post(resources.versions(organization, unit, context, schema),
+  createSchemaVersion(organization, unit, context, schema, specification, description, previousVersion, currentVersion) {
+    return Repository.post(resources.versions(organization, unit, context, schema),
       {
         schemaVersionId: '',
         specification: specification,
@@ -175,9 +177,9 @@ export default {
         currentVersion: currentVersion,
         description: description
       }
-    );
-    const res = await ensureCreated(response);
-    return res.json();
+    )
+   .then(ensureCreated)
+   .then(res => res.json())
   },
   saveSchemaVersionSpecification(
     organization, unit, context, schema, version, specification) {

@@ -1,14 +1,14 @@
 <script>
-	import CardForm from '../components/CardForm.svelte';
-	import ValidatedInput from '../components/ValidatedInput.svelte';
-	import Select from '../components/Select.svelte';
+	import CardForm from '../components/form/CardForm.svelte';
+	import ValidatedInput from '../components/form/ValidatedInput.svelte';
+	import Select from '../components/form/Select.svelte';
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, unitsStore, unitStore } from '../stores';
 	import { isStoreEmpty } from '../utils';
 	import errors from "../errors";
 	const validName = (name) => {
-		return /^([a-z_]\d*(\.[a-z_])?)+$/i.test(name); //underscore should also be possible! see https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
+		return /^([a-z_]\d*(\.[a-z_])?)+$/.test(name) ? undefined : errors.NAMESPACE; //underscore should also be possible! see https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
 	}
 
 	let namespace = $contextStore? $contextStore.namespace : "";
@@ -75,15 +75,15 @@
 	let isNextDisabled = true;
 	let isSaveDisabled = true;
 
-	$: if(validName(namespace) && description && $organizationStore && $unitStore && defineMode) {
+	$: if(!validName(namespace) && description && $organizationStore && $unitStore && defineMode) {
 		isDefineDisabled = false;
 	} else {
 		isDefineDisabled = true;
 	}
 
-	$: if($contextStore) { isNextDisabled = false; }
+	$: if(!defineMode) { isNextDisabled = false; }
 
-	$: if(validName(namespace) && namespace && description && $organizationStore && $unitStore && $contextStore) {
+	$: if(!validName(namespace) && namespace && description && $organizationStore && $unitStore && $contextStore) {
 		isSaveDisabled = false;
 	} else {
 		isSaveDisabled = true;
@@ -92,9 +92,13 @@
 	let fullyQualified;
 </script>
 
+<svelte:head>
+	<title>Context</title>
+</svelte:head>
+
 <CardForm title="Context" linkToNext="New Schema" on:new={newContext} on:save={save} on:define={define} 
 {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
-	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore}/>
+	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	{#if !defineMode}
 		<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>

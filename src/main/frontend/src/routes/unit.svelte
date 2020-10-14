@@ -1,7 +1,7 @@
 <script>
-	import CardForm from '../components/CardForm.svelte';
-	import ValidatedInput from '../components/ValidatedInput.svelte';
-	import Select from '../components/Select.svelte';
+	import CardForm from '../components/form/CardForm.svelte';
+	import ValidatedInput from '../components/form/ValidatedInput.svelte';
+	import Select from '../components/form/Select.svelte';
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
@@ -70,7 +70,7 @@
 		isDefineDisabled = true;
 	}
 
-	$: if($unitStore) { isNextDisabled = false; }
+	$: if(!defineMode) { isNextDisabled = false; }
 
 	$: if(name && description && $organizationStore && $unitStore) {
 		isSaveDisabled = false;
@@ -81,9 +81,13 @@
 	let fullyQualified;
 </script>
 
+<svelte:head>
+	<title>Unit</title>
+</svelte:head>
+
 <CardForm title="Unit" linkToNext="New Context" on:new={newUnit} on:save={save} on:define={define} 
 {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
-	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore}/>
+	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{#if !defineMode}
 		<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	{/if}

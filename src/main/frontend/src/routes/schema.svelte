@@ -1,22 +1,38 @@
 <script>
-	import CardForm from '../components/CardForm.svelte';
-	import ValidatedInput from '../components/ValidatedInput.svelte';
-	import Select from '../components/Select.svelte';
+	import CardForm from '../components/form/CardForm.svelte';
+	import ValidatedInput from '../components/form/ValidatedInput.svelte';
+	import Select from '../components/form/Select.svelte';
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
 	import { isStoreEmpty } from '../utils';
 	import errors from '../errors';
 	const validName = (name) => {
-		return /^[A-Z][a-zA-Z\d]*$/.test(name);
+		return /^[A-Z][a-zA-Z\d]*$/.test(name) ? undefined : errors.CLASSNAME;
 	}
 
 	let name = $schemaStore? $schemaStore.name : "";
 	let description = $schemaStore? $schemaStore.description : "";
-	let categorySelect = ["Command", "Data", "Document", "Envelope", "Event", "Unknown"];
-	let category = $schemaStore? $schemaStore.category : "Event";
-	let scopeSelect = ["Private", "Public"];
-	let scope = $schemaStore? $schemaStore.scope : "Public";
+	const items = [
+    { name: 'Foo', value: 'foo' },
+    { name: 'Bar', value: 'bar' },
+    { name: 'Fizz', value: 'fizz' },
+    { name: 'Buzz', value: 'buzz' },
+  ];
+	let categorySelect = [
+		{ name: "Command", value: "Command" },
+		{ name: "Data", value: "Data" },
+		{ name: "Document", value: "Document" },
+		{ name: "Envelope", value: "Envelope" },
+		{ name: "Event", value: "Event" },
+		{ name: "Unknown", value: "Unknown" },
+	];
+	let category = $schemaStore? [$schemaStore.category] : ["Event"];
+	let scopeSelect = [
+		{ name: "Private", value: "Private" },
+		{ name: "Public", value: "Public" },
+	];
+	let scope = $schemaStore? [$schemaStore.scope] : ["Public"];
 
 	let compatibleUnits = [];
 	let compatibleContexts = [];
@@ -47,8 +63,8 @@
 	const newSchema = () => {
 		name = "";
 		description = "";
-		category = "Event";
-		scope = "Public";
+		category = ["Event"];
+		scope = ["Public"];
 
 		defineMode = true;
 		clearFlag = !clearFlag;
@@ -59,7 +75,7 @@
 
 	const define = () => {
 		if(!definable()) { console.log(errors.SUBMIT); return; }
-		SchemataRepository.createSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, name, scope, category, description)
+		SchemataRepository.createSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, name, scope[0], category[0], description)
 			.then(created => {
 				updateStores(created);
 				updateSelects();
@@ -69,7 +85,7 @@
 
 	const save = async () => {
 		if(!updatable()) { console.log(errors.SUBMIT); return; }
-		SchemataRepository.updateSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, name, category, scope, description)
+		SchemataRepository.updateSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, name, category[0], scope[0], description)
 			.then(updated => {
 				updateStores(updated, true);
 				updateSelects();
@@ -91,15 +107,15 @@
 	let isNextDisabled = true;
 	let isSaveDisabled = true;
 
-	$: if(validName(name) && name && description && category && scope && $organizationStore && $unitStore && $contextStore && defineMode) {
+	$: if(!validName(name) && name && description && category && scope && $organizationStore && $unitStore && $contextStore && defineMode) {
 		isDefineDisabled = false;
 	} else {
 		isDefineDisabled = true;
 	}
 
-	$: if($schemaStore) { isNextDisabled = false; }
+	$: if(!defineMode) { isNextDisabled = false; }
 
-	$: if(validName(name) && name && description && category && scope && $organizationStore && $unitStore && $contextStore && $schemaStore) {
+	$: if(!validName(name) && name && description && category && scope && $organizationStore && $unitStore && $contextStore && $schemaStore) {
 		isSaveDisabled = false;
 	} else {
 		isSaveDisabled = true;
@@ -108,9 +124,13 @@
 	let fullyQualified;
 </script>
 
+<svelte:head>
+	<title>Schema</title>
+</svelte:head>
+
 <CardForm title="Schema" linkToNext="New Schema Version" href="schemaVersion" on:new={newSchema} on:save={save} on:define={define} 
 {isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
-	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore}/>
+	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	{#if !defineMode}

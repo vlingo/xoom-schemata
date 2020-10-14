@@ -1,8 +1,12 @@
 <script>
-	import { Card, CardBody, Form, FormGroup, FormText, Input, Label, CustomInput, Button } from 'sveltestrap/src';
-	import errors from "../errors";
+	// import { FormGroup, Input, Label } from 'sveltestrap/src';
+	import { Row, Col, TextField, Textarea, Select } from 'svelte-materialify/src';
+import ListItem from 'svelte-materialify/src/components/List/ListItem.svelte';
+	import errors from "../../errors";
+import { detailed, organizationsStore } from '../../stores';
+import { idReturner, stringReturner } from '../../utils';
 	export let label = "";
-	export let placeholder = label;
+	export let placeholder = undefined;
 	export let type = "text";
 	export let id = label.toLowerCase();
 	export let value = "";
@@ -15,6 +19,8 @@
 	export let rows = "";
 	export let containerClasses = "flex-child";
 	export let inline = false;
+	export let outlined = false;
+	export let storeAll;
 
 	let formGroupClasses = inline? "form-inline" : "";
 	let labelClasses = inline? "justify-content-start" : "";
@@ -31,10 +37,6 @@
 		valueInvalid = false;
 	}
 	// $: if(value || !value) { valueCheck } ?
-	
-	$: if(options || !options) {
-		// console.log("test", label);
-	}
 	
 	const valueCheck = (e) => {
 		// console.log(value, e.type);
@@ -74,32 +76,50 @@
 			}
 		}
 	}
+	const getTextFromId = (val) => typeof val[0] === 'string' ? stringReturner($storeAll.find(element => idReturner(element) == val[0]), $detailed) : "";
+	const notEmpty = (value) => !!value ? undefined : "may not be empty";
+	const rules = validator ? [notEmpty, validator] : [notEmpty];
 </script>
+<!-- keyup: instant check on input, blur: checks on doing nothing, change: checks on selects -->
+<!--careful, everything inside <option></option> counts as the value, newlines/whitespace etc-->
+{#if type === "text"}
+	<TextField {outlined} {placeholder} bind:value={value} {disabled} {rules} validateOnBlur {readonly}>{label}</TextField>
+{:else if type === "textarea"}
+	<Textarea {outlined} {placeholder} bind:value={value} {disabled} {rules} validateOnBlur {readonly}>{label}</Textarea>
+{:else if type === "select"}
+	{#if $storeAll}
+		<div class={containerClasses}>
+			<Select items={options} bind:value={value} mandatory callback={getTextFromId}>
+				<span let:item slot="item">
+					<ListItem value={item.id}>
+						{item.text}
+					</ListItem>
+				</span>
+				{label}
+			</Select>
+		</div>
+	{:else}
+		<Select items={options} bind:value={value} mandatory>{label}</Select>
+	{/if}
+{/if}
 
-<div class={containerClasses}>
+<!-- <div class={containerClasses}>
 <FormGroup class={formGroupClasses}>
 	<div class:label-container={inline}>
 		<Label class={labelClasses} for={id}>{label}</Label>
 	</div>
-	<!-- keyup: instant check on input, blur: checks on doing nothing, change: checks on selects -->
+	
 	<div class={inputContainerClasses}>
 		<Input class={inputClasses} type={type} name={id} id={id} placeholder={placeholder} bind:value={value} disabled={disabled}
 		valid={valueValid} invalid={valueInvalid} on:blur={valueCheck} on:keyup={valueCheck} on:change={valueCheck} on:input={valueCheck} {rows} {readonly}>
 			{#if options}
-				<!-- <option/> -->
 				{#each options as option}
 					{#if option.text}
-						<option selected={option.id === value.id} value={option}>{option.text}</option> <!--careful, everything inside counts as the value, newlines/whitespace etc-->
+						<option selected={option.id === value.id} value={option}>{option.text}</option>
 					{:else}
 						<option>{option}</option>
 					{/if}
 				{/each}
-				<!-- {#if options}
-						<option/>
-						{#each options as option}
-							<option>{option}</option> 
-						{/each}
-					{/if} -->
 			{/if}
 		</Input>
 
@@ -110,7 +130,7 @@
 	{/if}
 	</div>
 </FormGroup>
-</div>
+</div> -->
 
 <style>
 	.label-container {

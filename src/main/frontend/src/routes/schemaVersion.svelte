@@ -1,9 +1,9 @@
 <script>
-	import CardForm from '../components/CardForm.svelte';
-	import ValidatedInput from '../components/ValidatedInput.svelte';
-	import Button from '../components/Button.svelte';
-	import ButtonBar from '../components/ButtonBar.svelte';
-	import Select from '../components/Select.svelte';
+	import CardForm from '../components/form/CardForm.svelte';
+	import ValidatedInput from '../components/form/ValidatedInput.svelte';
+	import Button from '../components/form/Button.svelte';
+	import ButtonBar from '../components/form/ButtonBar.svelte';
+	import Select from '../components/form/Select.svelte';
 
 	import marked from 'marked';
 
@@ -11,6 +11,7 @@
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
 	import { isStoreEmpty } from '../utils';
 	import errors from '../errors';
+import Diff from '../components/Diff.svelte';
 	const validator = (v) => {
 		return /^\d+\.\d+\.\d+$/.test(v)
 	}
@@ -41,15 +42,22 @@
 	}
 	$: changedVersions($schemaStore);
 	function changedVersions(store) {
-		compatibleVersions =  store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
+		compatibleVersions = store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
 		$schemaVersionStore = store ? $schemaVersionsStore.find(v => v.schemaId == store.schemaId) : undefined;
 
 		store ? specification = `${store.category.toLowerCase()} ${store.name} {\n\t\n}` : "";
 		if($schemaVersionStore) {
 			description = $schemaVersionStore.description;
 			specification = $schemaVersionStore.specification;
+			defineMode = false;
+		} else {
+			defineMode = true;
 		}
 	}
+	// $: changedVersion($schemaVersionStore);
+	// function changedVersion(store) {
+		
+	// }
 	
 
 	let defineMode = isStoreEmpty(($schemaVersionsStore));
@@ -73,16 +81,31 @@
 	const definable = () => (specification && description && $organizationStore && $unitStore && $contextStore && $schemaStore);
 	const versionAlreadyExists = (current) => !!compatibleVersions.find(sv => sv.currentVersion === current);
 
+	let oldSpec;
+	let newSpec;
+	let changes;
 	const define = () => {
 		if(!definable()) { console.log(errors.SUBMIT); return; }
 		if(!validator(previous) || !validator(current)) { console.log(errors.SUBMITVER); return; }
 		if(versionAlreadyExists(current)) { console.log(errors.SUBMITVEREXISTS); return; }
 		SchemataRepository.createSchemaVersion(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId,
-												($schemaStore).schemaId, specification, description, previous, current)
+			($schemaStore).schemaId, specification, description, previous, current)
 			.then(created => {
 				updateStores(created);
 				defineMode = false;
 			})
+			.catch(function (err) {
+				err.then(err => {
+					console.log(err);
+					let result = JSON.parse(err);
+					showDiffDialog = true;
+                    oldSpec = result.oldSpecification;
+                    newSpec = result.newSpecification;
+                    changes = result.changes;
+				})
+                // vm.$store.commit('raiseError', {message: 'Incompatible changes within a compatible version change'}) Alert maybe
+            })
+		
 	}
 
 	function updateStores(obj) {
@@ -100,13 +123,19 @@
 		isCreateDisabled = true;
 	}
 
-	$: if($schemaVersionStore) { isNextDisabled = false; }
+	$: if(!defineMode) { isNextDisabled = false; }
 
 	let fullyQualified;
+
+	let showDiffDialog = false;
 </script>
 
+<svelte:head>
+	<title>Schema Version</title>
+</svelte:head>
+
 <CardForm preventDefault title="Schema Version" linkToNext="Home" href="/" on:new={newVersion} on:define={define} {defineMode} {fullyQualified}>
-	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore}/>
+	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	<Select label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
@@ -114,11 +143,13 @@
 	<div class="flex-two-col">
 		<!-- <ValidatedInput label="Previous Version" bind:value={previous} {clearFlag} validator={validator} invalidString={errors.VERSION} readonly/> -->
 		<ValidatedInput label="Current Version (previous was {previous})" placeholder="0.0.0" bind:value={current} {clearFlag} validator={validator} invalidString={errors.VERSION} disabled={!defineMode}/>
+		{#if defineMode}
 		<ButtonBar center>
-			<Button color="primary" text="New Patch" on:click={() => { if(defineMode) current = "0.0.2"}}/>
-			<Button color="warning" text="New Minor" on:click={() => { if(defineMode) current = "0.2.0"}}/>
-			<Button color="danger" text="New Major" on:click={() => { if(defineMode) current = "2.0.0"}}/>
+			<Button color="primary" text="New Patch" on:click={() => { current = "0.0.2"}}/>
+			<Button color="warning" text="New Minor" on:click={() => { current = "0.2.0"}}/>
+			<Button color="error" text="New Major" on:click={() => { current = "2.0.0"}}/>
 		</ButtonBar>
+		{/if}
 	</div>
 	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag} rows="4" disabled={!defineMode}/>
 	<ValidatedInput type="textarea" label="Specification" bind:value={specification} {clearFlag} rows="6" disabled={!defineMode}/>
@@ -137,6 +168,10 @@
 		</ButtonBar>
 	</div>
 </CardForm>
+
+<Diff {oldSpec} {newSpec} {changes} bind:showDiffDialog>
+	<!-- <Button color="primary" text="Define" on:click={define} disabled={isCreateDisabled}/> -->
+</Diff>
 
 {#if description}
 	{@html marked(description)}

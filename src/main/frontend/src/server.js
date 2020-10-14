@@ -10,7 +10,7 @@ const dev = NODE_ENV === 'development';
 polka() // You can also use Express
 	.use(json())
 	.use(
-		// '/app',
+		'/app',
 		compression({ threshold: 0 }),
 		sirv('static', { dev }),
 		sapper.middleware()

@@ -1,19 +1,17 @@
 <script>
-	import Alert from "sveltestrap/src/Alert.svelte";
+	import Alert from "./Alert.svelte";
 	export let notChosenAlert = false;
 </script>
 
 {#if notChosenAlert}
-	<Alert color="info">
-		<h4 class="alert-heading">Choose a Unit</h4>
-		<p>Choose a Unit in the tree.</p>
+	<Alert>
+		<div slot="heading">Choose a Unit</div>
+		Choose a Unit in the tree.
 	</Alert>
 {:else}
-	<Alert color="info">
-		<h4 class="alert-heading">Define a Unit</h4>
-		<p>When you have defined a unit, it will be shown inside the tree.</p>
-		<p>
-			<a href="unit" class="alert-link">Click here to define a Unit</a>.
-		</p>
+	<Alert link={"unit"}>
+		<div slot="heading">Define a Unit</div>
+		When you have defined a unit, it will be shown inside the tree.
+		<div slot="link-text">Click here to define a Unit.</div>
 	</Alert>
 {/if}

@@ -3,7 +3,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { Card, CardBody, Form} from 'sveltestrap/src';
 	import CardHeader from 'sveltestrap/src/CardHeader.svelte';
-	import { detailed } from '../stores';
+	import { detailed } from '../../stores';
 	import Button from './Button.svelte';
 	import ButtonBar from './ButtonBar.svelte';
 

@@ -1,19 +1,17 @@
 <script>
-	import Alert from "sveltestrap/src/Alert.svelte";
+	import Alert from './Alert.svelte';
 	export let notChosenAlert = false;
 </script>
 
 {#if notChosenAlert}
-	<Alert color="info">
-		<h4 class="alert-heading">Choose an Organization</h4>
-		<p>Choose an Organization in the tree.</p>
+	<Alert>
+		<div slot="heading">Choose an Organization</div>
+		Choose an Organization in the tree.
 	</Alert>
 {:else}
-	<Alert color="info">
-		<h4 class="alert-heading">Define an Organization</h4>
-		<p>When you have defined an organization, it will be shown inside a tree right here.</p>
-		<p>
-			<a href="organization" class="alert-link">Click here to start by defining an Organization</a>.
-		</p>
+	<Alert link={"organization"}>
+		<div slot="heading">Define an Organization</div>
+		When you have defined an organization, it will be shown inside a tree right here.
+		<div slot="link-text">Click here to start by defining an Organization.</div>
 	</Alert>
 {/if}

@@ -12,6 +12,7 @@
 	.tooltip-css {
 	  position: relative;
 	  display: inline-block;
+	  z-index: 5;
 	}
 	
 	/* Tooltip text */
@@ -26,7 +27,7 @@
 	  
 	  /* Position the tooltip text */
 	  position: absolute;
-	  z-index: 1;
+	  
 	  /* make unmarkable */
 	  user-select: none;
 	}

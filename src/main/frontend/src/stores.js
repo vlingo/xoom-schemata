@@ -1,5 +1,7 @@
 import { writable } from 'svelte/store';
 
+export const theme = writable("light");
+
 export const firstPage = writable(true);
 
 export const detailed = writable(false);
