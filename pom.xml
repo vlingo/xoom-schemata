@@ -76,7 +76,7 @@
             <configuration>
               <resources>
                 <resource>
-                  <directory>src/main/frontend/dist</directory>
+                  <directory>src/main/frontend/__sapper__/export</directory>
                   <targetPath>frontend</targetPath>
                 </resource>
               </resources>
@@ -218,12 +218,12 @@
                 </configuration>
               </execution>
               <execution>
-                <id>npm run build</id>
+                <id>npm run export</id>
                 <goals>
                   <goal>npm</goal>
                 </goals>
                 <configuration>
-                  <arguments>run build</arguments>
+                  <arguments>run export</arguments>
                 </configuration>
               </execution>
             </executions>

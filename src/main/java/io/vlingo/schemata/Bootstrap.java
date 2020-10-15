@@ -9,6 +9,7 @@ package io.vlingo.schemata;
 
 import io.vlingo.actors.Stage;
 import io.vlingo.http.resource.Configuration;
+import io.vlingo.http.resource.StaticFilesConfiguration;
 import io.vlingo.http.resource.Configuration.Sizing;
 import io.vlingo.http.resource.Configuration.Timing;
 import io.vlingo.schemata.infra.persistence.ProjectionDispatcherProvider;
@@ -22,6 +23,8 @@ import io.vlingo.xoom.annotation.initializer.ResourceHandlers;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Arrays;
+import java.util.List;
 
 import static io.vlingo.xoom.annotation.initializer.AddressFactory.IdentityGenerator.RANDOM;
 import static io.vlingo.xoom.annotation.initializer.AddressFactory.Type.GRID;
@@ -82,6 +85,12 @@ public class Bootstrap implements XoomInitializationAware {
     } catch (IOException e) {
       return false;
     }
+  }
+
+  @Override
+  public StaticFilesConfiguration staticFilesConfiguration() {
+      final List<String> subPaths = Arrays.asList("/app", "/app/client", "/app/organization", "/app/unit", "/app/context", "/app/schema", "/app/schemaVersion");
+      return StaticFilesConfiguration.defineWith(100, "/frontend", subPaths);
   }
 
 }
