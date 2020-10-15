@@ -136,7 +136,7 @@
     	    </Button>
     	  {/if}
 		</div>
-		<a href="." slot="title" class="text--primary"> VLINGO/SCHEMATA </a>
+		<a href="." slot="title" class="text--primary"><span style="color: black;"> VLINGO/SCHEMATA </span></a>
 		<div style="flex-grow:1" />
     	<!-- <a
     	  href="https://github.com/TheComputerM/svelte-materialify"

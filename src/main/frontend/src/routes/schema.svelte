@@ -53,7 +53,6 @@
 	// 	fullyQualified = getFullyQualifiedName("organization", $organizationStore);
 	
 	let defineMode = isStoreEmpty(($schemasStore));
-	let clearFlag = false;
 	const newSchema = () => {
 		name = "";
 		description = "";
@@ -61,7 +60,6 @@
 		scope = ["Public"];
 
 		defineMode = true;
-		clearFlag = !clearFlag;
 	}
 
 	const definable = () => (name && description && $organizationStore && $unitStore && $contextStore && scope && category);
@@ -132,11 +130,11 @@
 	{/if}
 	
 	<span class="flex-two-col">
-		<ValidatedInput type="select" label="Category" bind:value={category} {clearFlag} options={categorySelect}/>
-		<ValidatedInput type="select" label="Scope" bind:value={scope} {clearFlag} options={scopeSelect}/>
+		<ValidatedInput type="select" label="Category" bind:value={category} options={categorySelect}/>
+		<ValidatedInput type="select" label="Scope" bind:value={scope} options={scopeSelect}/>
 	</span>
-	<ValidatedInput label="Name" bind:value={name} {clearFlag} validator={validName} invalidString={errors.CLASSNAME}/>
-	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
+	<ValidatedInput label="Name" bind:value={name} validator={validName} invalidString={errors.CLASSNAME}/>
+	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
 </CardForm>
 
 

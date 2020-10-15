@@ -3,8 +3,8 @@
 	import Clickable from "./Clickable.svelte";
 	import Tooltip from "./Tooltip.svelte";
 	import { getFileString } from "../utils";
-	import Icon from "./Icon.svelte";
 	import Badge from 'svelte-materialify/src/components/Badge';
+	import Icon from 'svelte-materialify/src/components/Icon';
 
 	export let file;
 	export let expandable = false;
@@ -21,13 +21,13 @@
 		<!-- this can also be done via the initial array in index.svelte -->
 		<!-- {#if file.icon} <Icon icon={file.icon}/> {/if}-->
 		{#if file.status == "Draft"}
-			<Icon icon={mdiPlaylistPlay} />
+			<Icon style="color: inherit" path={mdiPlaylistPlay} />
 		{:else if file.status == "Published"}
-			<Icon icon={mdiLabel} />
+			<Icon style="color: inherit" path={mdiLabel} />
 		{:else if file.status == "Deprecated"}
-			<Icon icon={mdiLabelOff} />
+			<Icon style="color: inherit" path={mdiLabelOff} />
 		{:else if file.status == "Removed"}
-			<Icon icon={mdiDelete} />
+			<Icon style="color: inherit" path={mdiDelete} />
 		{/if}
 		{getFileString(file, detailed)}
 		<!-- <Badge class="{status.color}-color" value={status.text}/> -->

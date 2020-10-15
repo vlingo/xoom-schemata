@@ -9,8 +9,6 @@
 	export let arrayOfSelectables;
 	export let containerClasses = "";
 
-	let clearFlag = false;
-
 	$: {changedSelected(selected)};
 	function changedSelected(selected) {
 		console.log(selected);
@@ -21,7 +19,6 @@
 	function changedSelectables(arrayOfSelectables, detailed) {
 		select = changedSelect(arrayOfSelectables, detailed);
 		selected = [select[select.length - 1]];
-		clearFlag = !clearFlag;
 	}
 	
 	let select;
@@ -36,4 +33,4 @@
 </script>
 
 
-<ValidatedInput {storeAll} inline {containerClasses} type="select" label={label} bind:value={selected} {clearFlag} options={select}/>
+<ValidatedInput {storeAll} {containerClasses} type="select" label={label} bind:value={selected} options={select}/>

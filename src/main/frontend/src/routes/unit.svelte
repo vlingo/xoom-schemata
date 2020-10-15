@@ -20,13 +20,11 @@
 	}
 
 	let defineMode = isStoreEmpty(($unitsStore));
-	let clearFlag = false;
 	const newUnit = () => {
 		name = "";
 		description = "";
 
 		defineMode = true;
-		clearFlag = !clearFlag;
 	}
 
 	// ++organizationStore is always an object, right? so it always returns true.. so check emptyness instead, probably - or have it be undefined instead of empty object
@@ -91,6 +89,6 @@
 	{#if !defineMode}
 		<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	{/if}
-	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
-	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
+	<ValidatedInput label="Name" bind:value={name}/>
+	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
 </CardForm>

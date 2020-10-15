@@ -30,13 +30,11 @@
 
 
 	let defineMode = isStoreEmpty(($contextsStore));
-	let clearFlag = false;
 	const newContext = () => {
 		namespace = "";
 		description = "";
 
 		defineMode = true;
-		clearFlag = !clearFlag;
 	}
 
 	const definable = () => (namespace && description && $organizationStore && $unitStore);
@@ -104,6 +102,6 @@
 		<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	{/if}
 
-	<ValidatedInput label="Namespace" placeholder="your.namespace.here" bind:value={namespace} {clearFlag} validator={validName} invalidString={errors.NAMESPACE}/>
-	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
+	<ValidatedInput label="Namespace" placeholder="your.namespace.here" bind:value={namespace} validator={validName} invalidString={errors.NAMESPACE}/>
+	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
 </CardForm>

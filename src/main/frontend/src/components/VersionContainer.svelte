@@ -1,6 +1,5 @@
 <script>
 	import { contextStore, organizationStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitStore } from '../stores';
-	import { isStoreEmpty } from "../utils";
 	import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull, mdiFileFind, mdiFileUndo, mdiContentSave} from '@mdi/js'
 	import SchemataRepository from '../api/SchemataRepository';
 	import ValidatedInput from '../components/form/ValidatedInput.svelte';
@@ -11,10 +10,10 @@
 	import Card from 'svelte-materialify/src/components/Card';
 	import ButtonGroup from 'svelte-materialify/src/components/ButtonGroup';
 	import ButtonGroupItem from 'svelte-materialify/src/components/ButtonGroup/ButtonGroupItem.svelte';
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import Chip from 'svelte-materialify/src/components/Chip';
 	import { Dialog, CardTitle, CardText } from 'svelte-materialify/src';
-import Radio from 'svelte-materialify/src/components/Radio';
+	import Radio from 'svelte-materialify/src/components/Radio';
 	const dispatch = createEventDispatcher();
 
 	let specification;
@@ -107,12 +106,28 @@ import Radio from 'svelte-materialify/src/components/Radio';
 	const togglePreviewModal = () => showPreviewModal = !showPreviewModal;
 
 	const changeActive = (index) => active = index === 0 ? "spec" : "desc"
+
+	// onMount(async () => {
+	// 	let script = document.createElement('script');
+	// 	script.type = "module";
+   	// 	script.src = "https://cdn.jsdelivr.net/gh/vanillawc/wc-monaco-editor@1/index.js";
+   	// 	document.head.append(script);
+
+   	// 	script.onload = function() {
+	// 		   console.log("test");
+   	// 	};
+	// 	// const { default: WCMonacoEditor } = await import('@vanillawc/wc-monaco-editor');
+	// 	// const { default: EditorWorker } = await import('@vanillawc/wc-monaco-editor/monaco/workers/editor.worker');
+	// });
+		
 </script>
-  
+
+<!-- <svelte:head>
+	<script src="https://cdn.jsdelivr.net/gh/vanillawc/wc-monaco-editor@1/index.js"></script>
+</svelte:head> -->
 
 <div class="bottom-container">
-	{#if !isStoreEmpty($schemaVersionStore)}
-	<div class="bottom-right">
+	<div class="bottom-flex">
 	<Card>
 		<div style="display: flex">
 			<ButtonGroup value={[0]} on:change={(e) => changeActive(e.detail[0])} mandatory class="primary-text d-flex">
@@ -126,7 +141,8 @@ import Radio from 'svelte-materialify/src/components/Radio';
 			{/if}
 		</div>
 		{#if active=="spec"}
-			<ValidatedInput label="Specification" outlined rows="10" type="textarea" bind:value={specification} disabled={$schemaVersionStore.status === "Removed"}/>
+			<!-- <wc-monaco-editor style="width: 800px; height: 800px; display: block;" language="javascript"></wc-monaco-editor> -->
+			<ValidatedInput label="Specification" outlined rows="10" type="textarea" bind:value={specification} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true}/>
 			<ButtonBar>
 				<Button outlined color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
 				<Button outlined color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
@@ -135,7 +151,7 @@ import Radio from 'svelte-materialify/src/components/Radio';
 				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
 			</ButtonBar>
 		{:else if active=="desc"}
-			<ValidatedInput label="Description" outlined rows="10" type="textarea" bind:value={description} disabled={$schemaVersionStore.status === "Removed"}/>
+			<ValidatedInput label="Description" outlined rows="10" type="textarea" bind:value={description} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true}/>
 			<ButtonBar>
 				<Button color="success" icon={mdiFileFind} text="PREVIEW" on:click={togglePreviewModal}/>
 				<Button color="warning" icon={mdiFileUndo} text="REVERT" on:click={() => description = $schemaVersionStore.description}/>
@@ -144,7 +160,6 @@ import Radio from 'svelte-materialify/src/components/Radio';
 		{/if}
 	</Card>
 	</div>
-	{/if}
 </div>
 
 <Dialog bind:active={showCodeModal}>
@@ -181,7 +196,7 @@ import Radio from 'svelte-materialify/src/components/Radio';
 		display: flex;
 		flex-direction: column;
 	}
-	.bottom-right {
+	.bottom-flex {
 		flex: 1 1 auto;
 	}
 

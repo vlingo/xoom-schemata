@@ -12,6 +12,7 @@
 	import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
 	import Switch from 'svelte-materialify/src/components/Switch';
 	import { contextsStore, contextStore, detailed, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
+import { isStoreEmpty } from '../utils';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
@@ -185,50 +186,40 @@
 </svelte:head>
 
 <Card>
+	{#if root.files.length > 0}
 	<CardTitle>
 		Home
-		{#if root.files.length > 0}
-			<span style="margin-left: auto; font-size: 1rem;"><Switch bind:checked={$detailed}>Details</Switch></span>
-		{/if}
+		<span style="margin-left: auto; font-size: 1rem;"><Switch bind:checked={$detailed}>Details</Switch></span>
 	</CardTitle>
+		<!-- <ValidatedInput type="search" placeholder="Search..."/> -->
+		<Folder detailed={$detailed} file={root} first={true}/>
+	{/if}
 
 	{#if root.files.length < 1}
 		<OrganizationAlert/>
+	{:else if $unitsStore.length < 1}
+		<UnitAlert/>
+	{:else if $contextsStore.length < 1}
+		<ContextAlert/>
+	{:else if $schemasStore.length < 1}
+		<SchemaAlert/>
+	{:else if $schemaVersionsStore.length < 1}
+		<VersionAlert/>
 	{:else}
-		<ValidatedInput type="search" name="search" id="search" placeholder="Search..."/>
-
-		<!-- <CardText> too light-->
-			<Folder detailed={$detailed} file={root} first={true}/>
-		<!-- </CardText> -->
-		
-		{#if $unitsStore.length < 1}
-			<UnitAlert/>
-		{:else}
-			{#if $contextsStore.length < 1}
-				<ContextAlert/>
-			{:else}
-				{#if $schemasStore.length < 1}
-					<SchemaAlert/>
-				{:else}
-					{#if $schemaVersionsStore.length < 1}
-						<VersionAlert/>
-					{:else}
-						{#if !$organizationStore}
-							<OrganizationAlert notChosenAlert/>
-						{:else if !$unitStore}
-							<UnitAlert notChosenAlert/>
-						{:else if !$contextStore}
-							<ContextAlert notChosenAlert/>
-						{:else if !$schemaStore}
-							<SchemaAlert notChosenAlert/>
-						{:else if !$schemaVersionStore}
-							<VersionAlert notChosenAlert/>
-						{/if}
-					{/if}
-				{/if}
-			{/if}
+		{#if !$organizationStore}
+			<OrganizationAlert notChosenAlert/>
+		{:else if !$unitStore}
+			<UnitAlert notChosenAlert/>
+		{:else if !$contextStore}
+			<ContextAlert notChosenAlert/>
+		{:else if !$schemaStore}
+			<SchemaAlert notChosenAlert/>
+		{:else if !$schemaVersionStore}
+			<VersionAlert notChosenAlert/>
 		{/if}
 	{/if}
 </Card>
 
-<VersionContainer on:versionChanged={(v) => updateTreeWith(v.detail)}/>
+{#if !isStoreEmpty($schemaVersionStore)}
+	<VersionContainer on:versionChanged={(v) => updateTreeWith(v.detail)}/>
+{/if}

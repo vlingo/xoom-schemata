@@ -1,8 +1,12 @@
 a {
 	text-decoration: none;
+	color: #00753b !important;
 }
 html {
 	scroll-behavior: smooth;
+}
+.outlined textarea {
+	font-family: Courier New, Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, monospace;
 }
 
 body {
@@ -31,9 +35,9 @@ h1 {
 	font-size: 2em;
 }
 
-a {
+/* a {
 	color: inherit;
-}
+} */
 
 code {
 	font-family: menlo, inconsolata, monospace;

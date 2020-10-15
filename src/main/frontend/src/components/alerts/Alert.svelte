@@ -4,7 +4,7 @@
 </script>
 
 
-<Alert class="info-color" outlined>
+<Alert transitionOpts={{ duration: 100 }} class="info-color" outlined>
 	<h4 class="alert-heading"><slot name="heading"></slot></h4>
 	<p><slot/></p>
 	{#if link}

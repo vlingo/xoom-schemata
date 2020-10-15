@@ -5,7 +5,8 @@
 
 <script>
 	import { adjustStoresTo, deAdjustStoresTo, isObjectInAStore } from "../utils";
-
+	import { fade } from 'svelte/transition';
+	
 	export let file;
 	export let selected;
 	let item;
@@ -24,7 +25,7 @@
 	$: active = (item == $current);
 </script>
 
-<div bind:this={item} class:active={active} class:notActive={!active} on:click={chooseThis}>
+<div transition:fade={{ duration: 100 }} bind:this={item} class:active={active} class:notActive={!active} on:click={chooseThis}>
 	<slot/>
 </div>
 

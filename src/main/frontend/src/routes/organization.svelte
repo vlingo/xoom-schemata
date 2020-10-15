@@ -49,14 +49,11 @@
 	}
 	
 	let defineMode = isStoreEmpty(($organizationsStore)); //maybe this doesn't work anymore, maybe .length,...
-	// maybe look into this, I just don't know enough stuff - document.getElementById("myForm").reset();
-	let clearFlag = false;
 	const newOrg = () => {
 		name = "";
 		description = "";
 		
 		defineMode = true;
-		clearFlag = !clearFlag;
 	}
 
 	let isDefineDisabled = true;
@@ -89,6 +86,6 @@
 	{#if !defineMode}
 		<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{/if}
-	<ValidatedInput label="Name" bind:value={name} {clearFlag}/>
-	<ValidatedInput type="textarea" label="Description" bind:value={description} {clearFlag}/>
+	<ValidatedInput label="Name" bind:value={name}/>
+	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
 </CardForm>

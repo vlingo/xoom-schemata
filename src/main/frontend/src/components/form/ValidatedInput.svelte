@@ -7,74 +7,17 @@
 	export let label = "";
 	export let placeholder = undefined;
 	export let type = "text";
-	// export let id = label.toLowerCase();
 	export let value = "";
 	export let disabled = false;
 	export let readonly = false;
 	export let options = "";
 	//validator function
 	export let validator = null;
-	// export let invalidString = "";
-	// export let rows = "";
 	export let containerClasses = "flex-child";
-	// export let inline = false;
 	export let outlined = false;
 	export let storeAll = undefined;
+	export let rows = undefined;
 
-	// let formGroupClasses = inline? "form-inline" : "";
-	// let labelClasses = inline? "justify-content-start" : "";
-	// let inputContainerClasses = inline? "align-self-end w-75" : "";
-	// let inputClasses = inline? "w-75" : "";
-
-	// let valueValid = false;
-	// let valueInvalid = false;
-	// let validationMessage = "";
-
-	// export let clearFlag = false;
-	// $: if(clearFlag || !clearFlag) {
-	// 	valueValid = false;
-	// 	valueInvalid = false;
-	// }
-	// $: if(value || !value) { valueCheck } ?
-	
-	// const valueCheck = (e) => {
-	// 	// console.log(value, e.type);
-	// 	//if select
-	// 	if(options && e.type !== "input") {
-	// 		// console.log(e.type, e.target.selectedOptions[0].__value);
-	// 		value = e.target.selectedOptions[0].__value;
-	// 		if(value.text) {
-	// 			if(value.id) {
-	// 				valueValid = true;
-	// 				valueInvalid = false;
-	// 			} else {
-	// 				valueValid = false;
-	// 				valueInvalid = true;
-	// 				validationMessage = errors.EMPTY;
-	// 			}
-	// 			return;
-	// 		}
-	// 	}
-	// 	if(value) {
-	// 		valueValid = true;
-	// 		valueInvalid = false;
-	// 	} else {
-	// 		valueValid = false;
-	// 		valueInvalid = true;
-	// 		validationMessage = errors.EMPTY;
-	// 	}
-
-	// 	if(validator) {
-	// 		if(validator(value)) {
-	// 			valueValid = true;
-	// 			valueInvalid = false;
-	// 		} else {
-	// 			valueValid = false;
-	// 			valueInvalid = true;
-	// 			validationMessage = invalidString;
-	// 		}
-	// 	}
-	// }
 	const getTextFromId = (val) => typeof val[0] === 'string' ? stringReturner($storeAll.find(element => idReturner(element) == val[0]), $detailed) : "";
 	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
 	const rules = validator ? [notEmpty, validator] : [notEmpty];
@@ -83,7 +26,7 @@
 {#if type === "text"}
 	<TextField {outlined} {placeholder} bind:value={value} {disabled} {rules} validateOnBlur {readonly}>{label}</TextField>
 {:else if type === "textarea"}
-	<Textarea {outlined} {placeholder} bind:value={value} {disabled} {rules} validateOnBlur {readonly}>{label}</Textarea>
+	<Textarea {rows} {outlined} {placeholder} bind:value={value} {disabled} {rules} validateOnBlur {readonly}>{label}</Textarea>
 {:else if type === "select"}
 	{#if $storeAll}
 		<div class={containerClasses}>
