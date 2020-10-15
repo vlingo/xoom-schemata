@@ -90,7 +90,7 @@ public class Bootstrap implements XoomInitializationAware {
   @Override
   public StaticFilesConfiguration staticFilesConfiguration() {
       final List<String> subPaths = Arrays.asList("/app", "/app/client", "/app/organization", "/app/unit", "/app/context", "/app/schema", "/app/schemaVersion");
-      return StaticFilesConfiguration.defineWith(100, "/frontend", subPaths);
+      return StaticFilesConfiguration.defineWith(100, "frontend", subPaths);
   }
 
 }
