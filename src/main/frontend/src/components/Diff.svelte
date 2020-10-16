@@ -27,6 +27,7 @@
         arrowRight: mdiArrowRight,
 	});
 	const iconFor = (type) => icons[type];
+	//TODO: colors should be corresponding to patch/minor/major
     const colorFor = (type) => {
         switch (type) {
             case "CHANGE_FIELD":

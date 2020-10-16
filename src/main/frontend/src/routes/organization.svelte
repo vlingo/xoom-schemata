@@ -13,8 +13,10 @@
 
 	$: changedOrganization($organizationStore);
 	function changedOrganization(store) {
-		name = store? store.name : "";
-		description = store? store.description : "";
+		if(store) {
+			name = store.name;
+			description = store.description;
+		}
 	}
 
 	const definable = () => (name && description );

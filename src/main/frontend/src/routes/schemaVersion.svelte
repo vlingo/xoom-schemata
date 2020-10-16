@@ -49,7 +49,7 @@
 	}
 
 	let description = $schemaVersionStore? $schemaVersionStore.description : "";
-	let previous = $schemaVersionStore? $schemaVersionStore.previousVersion : "0.0.0";
+	$: previous = $schemaVersionStore? $schemaVersionStore.previousVersion : "0.0.0";
 	let current = $schemaVersionStore? $schemaVersionStore.currentVersion : "0.0.1";
 	let specification = $schemaVersionStore? $schemaVersionStore.specification : "";
 
@@ -77,25 +77,20 @@
 		compatibleVersions = store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
 		$schemaVersionStore = store ? $schemaVersionsStore.find(v => v.schemaId == store.schemaId) : undefined;
 
-		store ? specification = `${store.category.toLowerCase()} ${store.name} {\n\t\n}` : "";
-		if($schemaVersionStore) {
-			current = $schemaVersionStore.currentVersion;
-			description = $schemaVersionStore.description;
-			specification = $schemaVersionStore.specification;
-			defineMode = false;
-		} else {
-			defineMode = true;
+		store && !$schemaVersionStore ? specification = `${store.category.toLowerCase()} ${store.name} {\n\t\n}` : "";
+	}
+	$: changedVersion($schemaVersionStore);
+	function changedVersion(store) {
+		if(store) {
+			current = store.currentVersion;
+			description = store.description;
+			specification = store.specification;
 		}
 	}
-	// $: changedVersion($schemaVersionStore);
-	// function changedVersion(store) {
-		
-	// }
 	
 
 	let defineMode = isStoreEmpty(($schemaVersionsStore));
 	const newVersion = () => {
-		previous = $schemaVersionStore ? $schemaVersionStore.currentVersion : "0.0.0"; //see comment below + would be best to have a "tip-version" from backend or here as a method
 		current = "";
 		defineMode = true;
 	}
@@ -114,6 +109,7 @@
 			($schemaStore).schemaId, specification, description, previous, current)
 			.then(created => {
 				updateStores(created);
+				updateSelects();
 				defineMode = false;
 			})
 			.catch(function (err) {
@@ -135,11 +131,15 @@
 		$schemaVersionStore = obj;
 		$schemaVersionsStore.push(obj);
 	}
+	function updateSelects() {
+		// maybe also other compatibles..
+		compatibleVersions = $schemaStore ? $schemaVersionsStore.filter(v => v.schemaId == $schemaStore.schemaId) : [];
+	}
 
 	let isCreateDisabled = true;
 	let isNextDisabled = true;
 
-	$: if(!validator(previous) && !validator(current) && description && specification && $organizationStore && $unitStore && $contextStore && $schemaStore && defineMode) {
+	$: if(previous && current && !validator(previous) && !validator(current) && description && specification && $organizationStore && $unitStore && $contextStore && $schemaStore && defineMode) {
 		isCreateDisabled = false;
 	} else {
 		isCreateDisabled = true;
@@ -161,7 +161,9 @@
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	<Select label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
-
+	{#if !isStoreEmpty(($schemaVersionsStore))}
+		<Select label="Schema Version" storeOne={schemaVersionStore} storeAll={schemaVersionsStore} arrayOfSelectables={compatibleVersions} containerClasses="folder-inset4"/>
+	{/if}
 	<div class="flex-two-col">
 		<!-- <ValidatedInput label="Previous Version" bind:value={previous} validator={validator} readonly/> -->
 		<ValidatedInput label="Current Version (previous was {previous})" placeholder="0.0.0" bind:value={current} validator={validator} disabled={!defineMode}/>

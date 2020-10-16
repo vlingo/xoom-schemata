@@ -217,6 +217,7 @@
                   <arguments>install</arguments>
                 </configuration>
               </execution>
+              <!-- export does not delete the files inside __sapper__/export first, find a way to clean before running export. -->
               <execution>
                 <id>npm run export</id>
                 <goals>
