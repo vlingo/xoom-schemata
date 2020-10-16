@@ -49,7 +49,7 @@
 	}
 
 	let description = $schemaVersionStore? $schemaVersionStore.description : "";
-	$: previous = $schemaVersionStore? $schemaVersionStore.previousVersion : "0.0.0";
+	$: previous = $schemaVersionStore? $schemaVersionStore.currentVersion : "0.0.0";
 	let current = $schemaVersionStore? $schemaVersionStore.currentVersion : "0.0.1";
 	let specification = $schemaVersionStore? $schemaVersionStore.specification : "";
 
@@ -91,7 +91,6 @@
 
 	let defineMode = isStoreEmpty(($schemaVersionsStore));
 	const newVersion = () => {
-		current = "";
 		defineMode = true;
 	}
 
@@ -101,6 +100,7 @@
 	let oldSpec;
 	let newSpec;
 	let changes;
+	//FIXME: this shouldn't be able to jump from 0.0.0 to 1.0.0 and then again from 0.0.0 to 1.0.1. It needs to take the closest available version under it as comparison, not 0.0.0.
 	const define = () => {
 		if(!definable()) { console.log(errors.SUBMIT); return; }
 		if(validator(previous) || validator(current)) { console.log(errors.SUBMITVER); return; }
@@ -150,6 +150,8 @@
 	let fullyQualified;
 
 	let showDiffDialog = false;
+
+	$: showVersionSelect = !isStoreEmpty(($schemaVersionsStore))
 </script>
 
 <svelte:head>
@@ -161,7 +163,7 @@
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	<Select label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
-	{#if !isStoreEmpty(($schemaVersionsStore))}
+	{#if showVersionSelect}
 		<Select label="Schema Version" storeOne={schemaVersionStore} storeAll={schemaVersionsStore} arrayOfSelectables={compatibleVersions} containerClasses="folder-inset4"/>
 	{/if}
 	<div class="flex-two-col">
