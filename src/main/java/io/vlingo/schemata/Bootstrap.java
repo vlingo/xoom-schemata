@@ -54,7 +54,7 @@ public class Bootstrap implements XoomInitializationAware {
                       .withMaxMessageSize(4096);
 
       final SchemataConfig config =
-              SchemataConfig.forRuntime(args[0]);
+              SchemataConfig.forRuntime(args[0] != null ? args[0] : "dev");
 
       final int port =
               config.randomPort ? nextFreePort(9019, 9100) :
