@@ -8,7 +8,6 @@
 package io.vlingo.schemata.resource;
 
 import io.vlingo.actors.Stage;
-import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
@@ -21,7 +20,6 @@ import io.vlingo.schemata.model.Id.UnitId;
 import io.vlingo.schemata.model.Naming;
 import io.vlingo.schemata.model.Unit;
 import io.vlingo.schemata.query.UnitQueries;
-import io.vlingo.schemata.query.view.UnitsView;
 import io.vlingo.schemata.resource.data.UnitData;
 
 import static io.vlingo.common.serialization.JsonSerialization.serialized;

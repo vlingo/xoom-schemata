@@ -1,4 +1,4 @@
-import Repository from '@/api/Repository'
+import Repository from './Repository'
 
 
 const resources = {
@@ -21,8 +21,10 @@ const resources = {
 }
 
 function ensure(response, status) {
-  if (response.status !== status) {
-    throw Error(`HTTP ${response.status}: ${response.statusText} (${response.config.url}).`);
+  if(response.status === 409) {
+    return Promise.reject(response.json());
+  } else if (response.status !== status) {
+    throw Error(`HTTP ${response.status}: ${response.statusText} ().`); //${response.config.url}
   }
   return response;
 }
@@ -35,82 +37,63 @@ function ensureCreated(response) {
   return ensure(response, 201);
 }
 
+async function repoGet(path) {
+  return Repository.get(path)
+  .then(ensureOk)
+  .then(res => res.json());
+}
+
 export default {
   getOrganizations() {
-    return Repository.get(resources.organizations())
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.organizations())
   },
   getOrganization(organization) {
-    return Repository.get(resources.organization(organization))
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.organizations(organization))
   },
-
   getUnits(organization) {
-    return Repository.get(resources.units(organization))
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.units(organization))
   },
   getUnit(organization, unit) {
-    return Repository.get(resources.unit(organization, unit))
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.unit(organization, unit))
   },
 
   getContexts(organization, unit) {
-    return Repository.get(resources.contexts(organization, unit))
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.contexts(organization, unit))
   },
   getContext(organization, unit, context) {
-    return Repository.get(resources.context(organization, unit, context))
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.context(organization, unit, context))
   },
 
   getCategories() {
-    return Repository.get(resources.categories())
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.categories())
   },
   getScopes() {
-    return Repository.get(resources.scopes())
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.scopes())
   },
   getSchemata(organization, unit, context) {
-    return Repository.get(resources.schemata(organization, unit, context))
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.schemata(organization, unit, context))
   },
   getSchema(organization, unit, context, schema) {
-    return Repository.get(resources.schema(organization, unit, context, schema))
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.schema(organization, unit, context, schema))
   },
 
   getVersions(organization, unit, context, schema) {
-    return Repository.get(resources.versions(organization, unit, context, schema))
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.versions(organization, unit, context, schema))
   },
   getVersion(organization, unit, context, schema, version) {
-    return Repository.get(resources.version(organization, unit, context, schema, version))
-      .then(ensureOk)
-      .then(response => response.data)
+    return repoGet(resources.version(organization, unit, context, schema, version))
   },
 
-  createOrganization(name, description) {
-    return Repository.post(resources.organizations(),
+  async createOrganization(name, description) {
+    const response = await Repository.post(resources.organizations(),
       {
         organizationId: '',
         name: name,
         description: description
       }
-      )
-      .then(ensureCreated)
-      .then(response => response.data)
+    );
+    const res = await ensureCreated(response);
+    return res.json();
   },
   updateOrganization(id, name, description) {
     return Repository.put(resources.organization(id), {
@@ -119,18 +102,18 @@ export default {
         description: description
       })
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
-  createUnit(organization, name, description) {
-    return Repository.post(resources.units(organization),
+  async createUnit(organization, name, description) {
+    const response = await Repository.post(resources.units(organization),
       {
         unitId: '',
         name: name,
         description: description
       }
-      )
-      .then(ensureCreated)
-      .then(response => response.data)
+    );
+    const res = await ensureCreated(response);
+    return res.json();
   },
   updateUnit(organization, id, name, description) {
     return Repository.put(resources.unit(organization, id), {
@@ -139,18 +122,18 @@ export default {
         description: description
       })
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
 
-  createContext(organization, unit, namespace, description) {
-    return Repository.post(resources.contexts(organization, unit),
+  async createContext(organization, unit, namespace, description) {
+    const response = await Repository.post(resources.contexts(organization, unit),
       {
         contextId: '',
         namespace: namespace,
         description: description
-      })
-      .then(ensureCreated)
-      .then(response => response.data)
+      });
+    const res = await ensureCreated(response);
+    return res.json();
   },
   updateContext(organizationId, unitId, id, namespace, description) {
     return Repository.put(resources.context(organizationId, unitId, id), {
@@ -159,20 +142,20 @@ export default {
         description: description
       })
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
 
-  createSchema(organization, unit, context, name, scope, category, description) {
-    return Repository.post(resources.schemata(organization, unit, context),
+  async createSchema(organization, unit, context, name, scope, category, description) {
+    const response = await Repository.post(resources.schemata(organization, unit, context),
       {
         schemaId: '',
         name: name,
         scope: scope,
         category: category,
         description: description
-      })
-      .then(ensureCreated)
-      .then(response => response.data)
+      });
+    const res = await ensureCreated(response);
+    return res.json();
   },
   updateSchema(organizationId, unitId, contextId, id, name, category, scope, description) {
     return Repository.put(resources.schema(organizationId, unitId, contextId, id), {
@@ -183,11 +166,9 @@ export default {
         description: description
       })
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
-  createSchemaVersion(
-    organization, unit, context, schema,
-    specification, description, previousVersion, currentVersion) {
+  createSchemaVersion(organization, unit, context, schema, specification, description, previousVersion, currentVersion) {
     return Repository.post(resources.versions(organization, unit, context, schema),
       {
         schemaVersionId: '',
@@ -196,84 +177,68 @@ export default {
         currentVersion: currentVersion,
         description: description
       }
-      )
-      .then(ensureCreated)
-      .then(response => response.data)
+    )
+   .then(ensureCreated)
+   .then(res => res.json())
   },
   saveSchemaVersionSpecification(
     organization, unit, context, schema, version, specification) {
-    let config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      responseType: 'text'
-    };
     return Repository.patch(
       resources.schemaSpecification(organization, unit, context, schema, version),
-      specification,
-      config
+      specification
       )
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
   saveSchemaVersionDescription(
     organization, unit, context, schema, version, description) {
-    let config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      responseType: 'text'
-    };
     return Repository.patch(
       resources.schemaDescription(organization, unit, context, schema, version),
-      description,
-      config
+      description
       )
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
   setSchemaVersionStatus(
     organization, unit, context, schema, version, status) {
-
-    let config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      responseType: 'text'
-    };
     return Repository.patch(
       resources.versionStatus(organization, unit, context, schema, version),
-      status,
-      config
+      status
       )
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.json())
   },
-  loadSources(
-    organization, unit, context, schema, version, language) {
-    let config = {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      responseType: 'text'
-    };
-    return Promise.all([
-      this.getOrganization(organization),
-      this.getUnit(organization, unit),
-      this.getContext(organization, unit, context),
-      this.getSchema(organization, unit, context, schema),
-      this.getVersion(organization, unit, context, schema, version),
-    ]).then(([org, unit, context, schema, version]) => {
-        return Repository.get(
-          resources.sources(
-            org.name,
-            unit.name,
-            context.namespace,
-            schema.name,
-            version.currentVersion,
-            language), config)
-      })
+  loadSources(organization, unit, context, schema, version, language) {
+    console.log(version);
+    return Repository.get(resources.sources(organization, unit, context, schema, version, language))
       .then(ensureOk)
-      .then(response => response.data)
+      .then(response => response.text())
   },
+  // loadSources(
+  //   organization, unit, context, schema, version, language) {
+  //   let config = {
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     responseType: 'text'
+  //   };
+  //   return Promise.all([
+  //     this.getOrganization(organization),
+  //     this.getUnit(organization, unit),
+  //     this.getContext(organization, unit, context),
+  //     this.getSchema(organization, unit, context, schema),
+  //     this.getVersion(organization, unit, context, schema, version),
+  //   ]).then(([org, unit, context, schema, version]) => {
+  //       return repoGet(
+  //         resources.sources(
+  //           org.name,
+  //           unit.name,
+  //           context.namespace,
+  //           schema.name,
+  //           version.currentVersion,
+  //           language), config)
+  //     })
+  //     .then(ensureOk)
+  //     .then(response => response.data)
+  // },
 }

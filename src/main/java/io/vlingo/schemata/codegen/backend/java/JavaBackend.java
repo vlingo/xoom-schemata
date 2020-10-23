@@ -98,14 +98,14 @@ public class JavaBackend implements Backend {
         final MethodSpec constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameters(fields.stream().filter(field -> !(field.type instanceof ComputableType)).map(this::toConstructorParameter).collect(Collectors.toList()))
-                .addCode(CodeBlock.join(initializers, "\n"))
+                .addCode(CodeBlock.join(initializers, ""))
                 .build();
 
         final MethodSpec noArgConstructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
-                .addCode(CodeBlock.join(computedFieldInitializers, "\n"))
+                .addCode(CodeBlock.join(computedFieldInitializers, ""))
                 .build();
-
+                
         final TypeSpec.Builder spec = TypeSpec.classBuilder(unqualifiedName(typeName))
                 .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
                 .addMethod(constructor)
@@ -126,15 +126,15 @@ public class JavaBackend implements Backend {
         if (type instanceof ComputableType) {
             switch (((ComputableType) type).typeName) {
                 case "type":
-                    return String.format("this.%s = \"%s\";", definition.name, owner.typeName);
+                    return String.format("this.%s = \"%s\";\n", definition.name, owner.typeName);
                 case "version":
-                    return String.format("this.%s = io.vlingo.common.version.SemanticVersion.toValue(\"%s\");", definition.name, version);
+                    return String.format("this.%s = io.vlingo.common.version.SemanticVersion.toValue(\"%s\");\n", definition.name, version);
                 case "timestamp":
-                    return String.format("this.%s = System.currentTimeMillis();", definition.name);
+                    return String.format("this.%s = System.currentTimeMillis();\n", definition.name);
             }
         }
 
-        return String.format("this.%s = %s; ", definition.name, definition.name);
+        return String.format("this.%s = %s;\n", definition.name, definition.name);
     }
 
     private FieldSpec toField(FieldDefinition definition) {

@@ -73,18 +73,20 @@ public class UnitsView {
     public static class UnitItem {
         public final String unitId;
         public final String name;
+        public final String organizationId;
 
-        public static UnitItem of(final String unitId, final String name) {
-            return new UnitItem(unitId, name);
+        public static UnitItem of(final String unitId, final String name, String organizationId) {
+            return new UnitItem(unitId, name, organizationId);
         }
 
         public static UnitItem only(final String unitId) {
-            return new UnitItem(unitId, "");
+            return new UnitItem(unitId, "", "");
         }
 
-        public UnitItem(final String unitId, final String name) {
+        public UnitItem(final String unitId, final String name, final String organizationId) {
             this.unitId = unitId;
             this.name = name;
+            this.organizationId = organizationId;
         }
 
         @Override

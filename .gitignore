@@ -9,7 +9,7 @@ target/
 *.doc#
 *.log
 build/
-
+.factorypath
 
 # Intellij
 .idea/
@@ -20,7 +20,7 @@ build/
 out/
 
 # vscode
-.vscode/
+.vscode/settings.json
 
 # Node
 node_modules/

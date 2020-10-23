@@ -22,23 +22,23 @@ public class SchemasView {
         this.schemas = new ArrayList<>();
     }
 
-    private SchemasView(List<SchemaItem> units) {
-        this.schemas = units;
+    private SchemasView(List<SchemaItem> schemas) {
+        this.schemas = schemas;
     }
 
-    public SchemasView add(final SchemaItem unit) {
-        if (schemas.contains(unit)) {
+    public SchemasView add(final SchemaItem schema) {
+        if (schemas.contains(schema)) {
             return this;
         } else {
             SchemasView result = new SchemasView(new ArrayList<>(schemas));
-            result.schemas.add(unit);
+            result.schemas.add(schema);
 
             return result;
         }
     }
 
-    public SchemaItem get(final String unitId) {
-        SchemaItem schema = SchemaItem.only(unitId);
+    public SchemaItem get(final String schemaId) {
+        SchemaItem schema = SchemaItem.only(schemaId);
 
         final int index = schemas.indexOf(schema);
 
@@ -49,11 +49,11 @@ public class SchemasView {
         return schema;
     }
 
-    public SchemasView replace(final SchemaItem unit) {
-        final int index = schemas.indexOf(unit);
+    public SchemasView replace(final SchemaItem schema) {
+        final int index = schemas.indexOf(schema);
         if (index >= 0) {
             SchemasView result = new SchemasView(new ArrayList<>(schemas));
-            result.schemas.set(index, unit);
+            result.schemas.set(index, schema);
 
             return result;
         } else {
@@ -73,18 +73,26 @@ public class SchemasView {
     public static class SchemaItem {
         public final String schemaId;
         public final String name;
+        public final String contextId;
+        public final String category;
 
-        public static SchemaItem of(final String schemaId, final String name) {
-            return new SchemaItem(schemaId, name);
+        public static SchemaItem of(final String schemaId, final String name, final String contextId, final String category) {
+            return new SchemaItem(schemaId, name, contextId, category);
+        }
+
+        public static SchemaItem of(final String schemaId, final String name, final String contextId) {
+            return new SchemaItem(schemaId, name, contextId, "");
         }
 
         public static SchemaItem only(final String schemaId) {
-            return new SchemaItem(schemaId, "");
+            return new SchemaItem(schemaId, "", "", "");
         }
 
-        public SchemaItem(final String schemaId, final String name) {
+        public SchemaItem(final String schemaId, final String name, final String contextId, final String category) {
             this.schemaId = schemaId;
             this.name = name;
+            this.contextId = contextId;
+            this.category = category;
         }
 
         @Override

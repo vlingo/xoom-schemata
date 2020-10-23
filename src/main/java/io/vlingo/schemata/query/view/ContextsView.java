@@ -26,12 +26,12 @@ public class ContextsView {
         this.contexts = contexts;
     }
 
-    public ContextsView add(final ContextItem unit) {
-        if (contexts.contains(unit)) {
+    public ContextsView add(final ContextItem context) {
+        if (contexts.contains(context)) {
             return this;
         } else {
             ContextsView result = new ContextsView(new ArrayList<>(contexts));
-            result.contexts.add(unit);
+            result.contexts.add(context);
 
             return result;
         }
@@ -73,18 +73,20 @@ public class ContextsView {
     public static class ContextItem {
         public final String contextId;
         public final String namespace;
+        public final String unitId;
 
-        public static ContextItem of(final String contextId, final String namespace) {
-            return new ContextItem(contextId, namespace);
+        public static ContextItem of(final String contextId, final String namespace, final String unitId) {
+            return new ContextItem(contextId, namespace, unitId);
         }
 
         public static ContextItem only(final String contextId) {
-            return new ContextItem(contextId, "");
+            return new ContextItem(contextId, "", "");
         }
 
-        public ContextItem(final String contextId, final String namespace) {
+        public ContextItem(final String contextId, final String namespace, final String unitId) {
             this.contextId = contextId;
             this.namespace = namespace;
+            this.unitId = unitId;
         }
 
         @Override
