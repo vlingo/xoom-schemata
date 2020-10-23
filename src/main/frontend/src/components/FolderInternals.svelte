@@ -31,11 +31,12 @@
 		{/if}
 		{getFileString(file, detailed)}
 		<!-- <Badge class="{status.color}-color" value={status.text}/> -->
-		{#if file.category}
-			<Badge class="primary-color" value={file.category} offsetX={0} offsetY={0}/>
-		{/if}
-		{#if file.scope}
-			<Badge class="primary-color" value={file.scope} offsetX={0} offsetY={0}/>
+		{#if file.scope && file.category}
+			<Badge class="primary-color" value={file.scope + " " + file.category} offsetX={2} offsetY={1}/>
+		{:else if file.scope}
+			<Badge class="primary-color" value={file.scope} offsetX={2} offsetY={1}/>
+		{:else if file.category}
+			<Badge class="primary-color" value={file.category} offsetX={2} offsetY={1}/>
 		{/if}
 	</Clickable>
 </Tooltip>
