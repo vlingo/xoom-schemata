@@ -30,7 +30,7 @@
 {:else if type === "select"}
 	{#if $storeAll}
 		<div class={containerClasses}>
-			<Select items={options} bind:value={value} mandatory callback={getTextFromId}>
+			<Select items={options} bind:value={value} mandatory format={getTextFromId}>
 				<span let:item slot="item">
 					<ListItem value={item.id}>
 						{item.text}
