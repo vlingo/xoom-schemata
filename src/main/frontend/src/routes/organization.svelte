@@ -16,6 +16,9 @@
 		if(store) {
 			name = store.name;
 			description = store.description;
+		} else {
+			name = "";
+			description = "";
 		}
 	}
 

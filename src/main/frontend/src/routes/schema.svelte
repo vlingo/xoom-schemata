@@ -11,8 +11,11 @@
 		return /^[A-Z][a-zA-Z\d]*$/.test(name) ? undefined : errors.CLASSNAME;
 	}
 
-	let name = $schemaStore? $schemaStore.name : "";
-	let description = $schemaStore? $schemaStore.description : "";
+	let name;
+	let description;
+	let category = ["Event"];
+	let scope = ["Public"];
+
 	let categorySelect = [
 		{ name: "Command", value: "Command" },
 		{ name: "Data", value: "Data" },
@@ -21,33 +24,45 @@
 		{ name: "Event", value: "Event" },
 		{ name: "Unknown", value: "Unknown" },
 	];
-	let category = $schemaStore? [$schemaStore.category] : ["Event"];
 	let scopeSelect = [
 		{ name: "Private", value: "Private" },
 		{ name: "Public", value: "Public" },
 	];
-	let scope = $schemaStore? [$schemaStore.scope] : ["Public"];
 
 	let compatibleUnits = [];
 	let compatibleContexts = [];
 	let compatibleSchemas = [];
-	$: changedUnits($organizationStore);
-	function changedUnits(store) {
+	$: changedOrganization($organizationStore);
+	function changedOrganization(store) {
 		console.log({store});
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	$: changedContexts($unitStore);
-	function changedContexts(store) {
+	$: changedUnit($unitStore);
+	function changedUnit(store) {
 		console.log({store});
 		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
 		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
-	$: changedSchemas($contextStore);
-	function changedSchemas(store) {
+	$: changedContext($contextStore);
+	function changedContext(store) {
 		console.log({store});
 		compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
 		$schemaStore = compatibleSchemas.length > 0 ? compatibleSchemas[compatibleSchemas.length-1] : undefined;
+	}
+	$: changedSchema($schemaStore);
+	function changedSchema(store) {
+		if(store) {
+			name = store.name;
+			description = store.description;
+			category = [store.category];
+			scope = [store.scope];
+		} else {
+			name = "";
+			description = "";
+			category = ["Event"];
+			scope = ["Public"];
+		}
 	}
 
 	// 	fullyQualified = getFullyQualifiedName("organization", $organizationStore);
@@ -62,8 +77,8 @@
 		defineMode = true;
 	}
 
-	const definable = () => (name && description && $organizationStore && $unitStore && $contextStore && scope && category);
-	const updatable = () => (name && description && $organizationStore && $unitStore && $contextStore && scope && category && $schemaStore);
+	const definable = () => (name && description && $organizationStore && $unitStore && $contextStore && scope[0] && category[0]);
+	const updatable = () => (name && description && $organizationStore && $unitStore && $contextStore && scope[0] && category[0] && $schemaStore);
 
 	const define = () => {
 		if(!definable()) { console.log(errors.SUBMIT); return; }
@@ -99,7 +114,7 @@
 	let isNextDisabled = true;
 	let isSaveDisabled = true;
 
-	$: if(!validName(name) && name && description && category && scope && $organizationStore && $unitStore && $contextStore && defineMode) {
+	$: if(!validName(name) && name && description && category[0] && scope[0] && $organizationStore && $unitStore && $contextStore && defineMode) {
 		isDefineDisabled = false;
 	} else {
 		isDefineDisabled = true;
@@ -107,7 +122,7 @@
 
 	$: if(!defineMode) { isNextDisabled = false; }
 
-	$: if(!validName(name) && name && description && category && scope && $organizationStore && $unitStore && $contextStore && $schemaStore) {
+	$: if(!validName(name) && name && description && category[0] && scope[0] && $organizationStore && $unitStore && $contextStore && $schemaStore) {
 		isSaveDisabled = false;
 	} else {
 		isSaveDisabled = true;

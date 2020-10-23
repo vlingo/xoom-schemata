@@ -11,21 +11,31 @@
 		return /^([a-z_]\d*(\.[a-z_])?)+$/.test(name) ? undefined : errors.NAMESPACE; //underscore should also be possible! see https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
 	}
 
-	let namespace = $contextStore? $contextStore.namespace : "";
-	let description = $contextStore? $contextStore.description : "";
+	let namespace;
+	let description;
 
 	let compatibleUnits = [];
 	let compatibleContexts = [];
 
-	$: changedUnits($organizationStore)
-	function changedUnits(store) {
+	$: changedOrganization($organizationStore)
+	function changedOrganization(store) {
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	$: changedContexts($unitStore)
-	function changedContexts(store) {
+	$: changedUnit($unitStore)
+	function changedUnit(store) {
 		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
 		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
+	}
+	$: changedContext($contextStore);
+	function changedContext(store) {
+		if(store) {
+			namespace = store.namespace;
+			description = store.description;
+		} else {
+			namespace = "";
+			description = "";
+		}
 	}
 
 

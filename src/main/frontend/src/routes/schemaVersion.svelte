@@ -48,32 +48,32 @@
 		return 0;
 	}
 
-	let description = $schemaVersionStore? $schemaVersionStore.description : "";
-	$: previous = $schemaVersionStore? $schemaVersionStore.currentVersion : "0.0.0";
-	let current = $schemaVersionStore? $schemaVersionStore.currentVersion : "0.0.1";
-	let specification = $schemaVersionStore? $schemaVersionStore.specification : "";
+	let current;
+	let previous;
+	let description;
+	let specification;
 
 	let compatibleUnits = [];
 	let compatibleContexts = [];
 	let compatibleSchemas = [];
 	let compatibleVersions = [];
-	$: changedUnits($organizationStore)
-	function changedUnits(store) {
+	$: changedOrganization($organizationStore)
+	function changedOrganization(store) {
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	$: changedContexts($unitStore)
-	function changedContexts(store) {
+	$: changedUnit($unitStore)
+	function changedUnit(store) {
 		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
 		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
-	$: changedSchemas($contextStore);
-	function changedSchemas(store) {
+	$: changedContext($contextStore);
+	function changedContext(store) {
 		compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
 		$schemaStore = compatibleSchemas.length > 0 ? compatibleSchemas[compatibleSchemas.length-1] : undefined;
 	}
-	$: changedVersions($schemaStore);
-	function changedVersions(store) {
+	$: changedSchema($schemaStore);
+	function changedSchema(store) {
 		compatibleVersions = store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
 		$schemaVersionStore = store ? $schemaVersionsStore.find(v => v.schemaId == store.schemaId) : undefined;
 
@@ -82,9 +82,16 @@
 	$: changedVersion($schemaVersionStore);
 	function changedVersion(store) {
 		if(store) {
-			current = store.currentVersion;
+			// current = store.currentVersion;
+			current = "";
+			previous = store.currentVersion;
 			description = store.description;
 			specification = store.specification;
+		} else {
+			current = "0.0.1";
+			previous = "0.0.0"
+			description = "";
+			specification = "";
 		}
 	}
 	

@@ -8,15 +8,25 @@
 	import { isStoreEmpty } from '../utils';
 	import errors from '../errors';
 
-	let name = $unitStore? $unitStore.name : "";
-	let description = $unitStore? $unitStore.description : "";
+	let name;
+	let description;
 
 	let compatibleUnits = [];
 
-	$: changedUnits($organizationStore)
-	function changedUnits(store) {
+	$: changedOrganization($organizationStore)
+	function changedOrganization(store) {
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
+	}
+	$: changedUnit($unitStore);
+	function changedUnit(store) {
+		if(store) {
+			name = store.name;
+			description = store.description;
+		} else {
+			name = "";
+			description = "";
+		}
 	}
 
 	let defineMode = isStoreEmpty(($unitsStore));
