@@ -1,7 +1,7 @@
 # Schema Definitions
 
 ### Create Organization
-POST http://localhost:9019/organizations
+POST http://localhost:9019/api/organizations
 Content-Type: application/json
 
 {
@@ -14,7 +14,7 @@ Content-Type: application/json
 
 
 ### Create Unit
-POST  http://localhost:9019/organizations/{{orgId}}/units
+POST  http://localhost:9019/api/organizations/{{orgId}}/units
 Content-Type: application/json
 
 {
@@ -27,7 +27,7 @@ Content-Type: application/json
 > {% client.global.set('unitId', response.body.unitId) %}
 
 ### Create Context
-POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts
+POST http://localhost:9019/api/organizations/{{orgId}}/units/{{unitId}}/contexts
 Content-Type: application/json
 
 {
@@ -41,7 +41,7 @@ Content-Type: application/json
 > {% client.global.set('contextId', response.body.contextId) %}
 
 ### Create Schema
-POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
+POST http://localhost:9019/api/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
 Content-Type: application/json
 
 {
@@ -62,7 +62,7 @@ Content-Type: application/json
 <> 2019-09-13T105413.201.txt
 
 ### Create Schema Version
-POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
+POST http://localhost:9019/api/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
 Content-Type: application/json
 
 {
@@ -80,13 +80,13 @@ Content-Type: application/json
 > {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
 
 ### Publish Schema Version
-PATCH http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions/{{schemaVersionId}}/status
+PATCH http://localhost:9019/api/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions/{{schemaVersionId}}/status
 
 'Published'
 
 
 ### Create second schema version
-POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
+POST http://localhost:9019/api/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
 Content-Type: application/json
 
 {
@@ -108,39 +108,39 @@ Content-Type: application/json
 # Schema Queries
 
 ### Units of Organisation
-GET http://localhost:9019/organizations/{{orgId}}/units
+GET http://localhost:9019/api/organizations/{{orgId}}/units
 Accept: application/json
 
 ### Contexts of Unit
-GET http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts
+GET http://localhost:9019/api/organizations/{{orgId}}/units/{{unitId}}/contexts
 Accept: application/json
 
 ### Schemata of Context
-GET http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
+GET http://localhost:9019/api/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
 Accept: application/json
 
 ### Schema Versions of Schema
-GET http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
+GET http://localhost:9019/api/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
 Accept: application/json
 
 ### Categories
-GET http://localhost:9019/schema/categories
+GET http://localhost:9019/api/schema/categories
 Accept: application/json
 
 ### Search for first schema version by names
-GET http://localhost:9019/versions/search?organization=Org3&unit=Unit3&context=io.vlingo.schemata5&schema=SchemaDefinedFoo&version=1.0.0
+GET http://localhost:9019/api/versions/search?organization=Org3&unit=Unit3&context=io.vlingo.schemata5&schema=SchemaDefinedFoo&version=1.0.0
 Accept: application/json
 
 ### Search for second schema version by names
-GET http://localhost:9019/versions/search?organization=Org3&unit=Unit3&context=io.vlingo.schemata5&schema=SchemaDefinedFoo&version=1.0.1
+GET http://localhost:9019/api/versions/search?organization=Org3&unit=Unit3&context=io.vlingo.schemata5&schema=SchemaDefinedFoo&version=1.0.1
 Accept: application/json
 
 ### Search for all schema versions by names
-GET http://localhost:9019/versions/search?organization=Org3&unit=Unit3&context=io.vlingo.schemata5&schema=SchemaDefinedFoo
+GET http://localhost:9019/api/versions/search?organization=Org3&unit=Unit3&context=io.vlingo.schemata5&schema=SchemaDefinedFoo
 Accept: application/json
 
 ### Retrieve schema versions by reference
-GET http://localhost:9019/versions/Org3:Unit3:io.vlingo.schemata5:SchemaDefinedFoo:1.0.0
+GET http://localhost:9019/api/versions/Org3:Unit3:io.vlingo.schemata5:SchemaDefinedFoo:1.0.0
 Accept: application/json
 
 
@@ -150,7 +150,7 @@ Accept: application/json
 ###
 
 // Reproduce https://github.com/vlingo/vlingo-schemata/issues/98
-POST http://localhost:9019/organizations
+POST http://localhost:9019/api/organizations
 Content-Type: application/json
 
 {
@@ -162,7 +162,7 @@ Content-Type: application/json
 
 
 ### Create Unit
-POST  http://localhost:9019/organizations/{{orgId}}/units
+POST  http://localhost:9019/api/organizations/{{orgId}}/units
 Content-Type: application/json
 
 {
@@ -175,7 +175,7 @@ Content-Type: application/json
 > {% client.global.set('unitId', response.body.unitId) %}
 
 ### Create Context
-POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts
+POST http://localhost:9019/api/organizations/{{orgId}}/units/{{unitId}}/contexts
 Content-Type: application/json
 
 {
@@ -189,7 +189,7 @@ Content-Type: application/json
 > {% client.global.set('contextId', response.body.contextId) %}
 
 ### Create Schema
-POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
+POST http://localhost:9019/api/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas
 Content-Type: application/json
 
 {
@@ -207,7 +207,7 @@ Content-Type: application/json
 
 
 ### Create Schema Version
-POST http://localhost:9019/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
+POST http://localhost:9019/api/organizations/{{orgId}}/units/{{unitId}}/contexts/{{contextId}}/schemas/{{schemaId}}/versions
 Content-Type: application/json
 
 {
@@ -227,7 +227,7 @@ Content-Type: application/json
 
 
 ### this makes the server hang
-GET http://localhost:9019/code/Org:Unit:Context:Schema:1.0.0/java
+GET http://localhost:9019/api/code/Org:Unit:Context:Schema:1.0.0/java
 Accept: application/json
 
 ###

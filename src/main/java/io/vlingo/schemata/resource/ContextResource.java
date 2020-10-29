@@ -109,34 +109,34 @@ public class ContextResource extends ResourceHandler {
   @Override
   public Resource<?> routes() {
     return resource("Context Resource", 1,
-      post("/organizations/{organizationId}/units/{unitId}/contexts")
+      post("/api/organizations/{organizationId}/units/{unitId}/contexts")
         .param(String.class)
         .param(String.class)
         .body(ContextData.class)
         .handle(this::defineWith),
-      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/description")
+      patch("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/description")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .body(String.class)
         .handle(this::describeAs),
-      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/namespace")
+      patch("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/namespace")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .body(String.class)
         .handle(this::moveToNamespace),
-      put("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}")
+      put("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .body(ContextData.class)
         .handle(this::redefineWith),
-      get("/organizations/{organizationId}/units/{unitId}/contexts")
+      get("/api/organizations/{organizationId}/units/{unitId}/contexts")
         .param(String.class)
         .param(String.class)
         .handle(this::queryContexts),
-      get("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}")
+      get("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}")
         .param(String.class)
         .param(String.class)
         .param(String.class)

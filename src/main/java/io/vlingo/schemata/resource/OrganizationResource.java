@@ -109,24 +109,24 @@ public class OrganizationResource extends ResourceHandler {
   @Override
   public Resource<?> routes() {
     return resource("Organization Resource", 1,
-      post("/organizations")
+      post("/api/organizations")
         .body(OrganizationData.class)
         .handle(this::defineWith),
-      put("/organizations/{organizationId}")
+      put("/api/organizations/{organizationId}")
         .param(String.class)
         .body(OrganizationData.class)
         .handle(this::redefineWith),
-      patch("/organizations/{organizationId}/description")
+      patch("/api/organizations/{organizationId}/description")
         .param(String.class)
         .body(String.class)
         .handle(this::describeAs),
-      patch("/organizations/{organizationId}/name")
+      patch("/api/organizations/{organizationId}/name")
         .param(String.class)
         .body(String.class)
         .handle(this::renameTo),
-      get("/organizations")
+      get("/api/organizations")
         .handle(this::queryOrganizations),
-      get("/organizations/{organizationId}")
+      get("/api/organizations/{organizationId}")
         .param(String.class)
         .handle(this::queryOrganization));
   }

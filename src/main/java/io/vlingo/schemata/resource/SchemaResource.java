@@ -132,61 +132,61 @@ public class SchemaResource extends ResourceHandler {
   @Override
   public Resource<?> routes() {
     return resource("Schema Resource", 1,
-      post("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas")
+      post("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .body(SchemaData.class)
         .handle(this::defineWith),
-      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/category")
+      patch("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/category")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .body(String.class)
         .handle(this::categorizeAs),
-      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/scope")
+      patch("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/scope")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .body(String.class)
         .handle(this::scopeAs),
-      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/description")
+      patch("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/description")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .body(String.class)
         .handle(this::describeAs),
-      patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/name")
+      patch("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/name")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .body(String.class)
         .handle(this::renameTo),
-      put("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}")
+      put("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .body(SchemaData.class)
         .handle(this::redefineWith),
-      get("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas")
+      get("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .handle(this::querySchemas),
-      get("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}")
+      get("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}")
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .param(String.class)
         .handle(this::querySchema),
-      get("/schema/categories")
+      get("/api/schema/categories")
         .handle(this::querySchemaCategories),
-      get("/schema/scopes")
+      get("/api/schema/scopes")
         .handle(this::querySchemaScopes));
   }
 

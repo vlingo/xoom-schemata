@@ -27,6 +27,7 @@ public class Schemata {
   // Paths
   //==========================
 
+  //TODO: Add /api in front?
   public static final String OrganizationsPath  = "/organizations/%s";
 
   public static final String UnitsPath          = "/organizations/%s/units/%s";

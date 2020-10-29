@@ -25,7 +25,7 @@ We provide an interface to allow for easy retrieval of schemata and
 schemata meta information, e.g. available versions and publication status.
 ~~The UI/Frontend can be accessed at http://localhost:9019.~~
 
-:warning: Currently, the UI is accessed by navigating to http://localhost:9019/app/index.html and then clicking one of the navigation links.
+:warning: Currently, the UI is accessed by navigating to http://localhost:9019/index.html and then clicking one of the navigation links.
 
 
 ## Advanced Options
@@ -91,66 +91,66 @@ https://github.com/vlingo/vlingo-examples/tree/master/vlingo-schemata-integratio
 
 #### Schema Definitions:
 
-`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","name":"Org1","description":"My organization."}' http://localhost:9019/organizations`
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","name":"Org1","description":"My organization."}' http://localhost:9019/api/organizations`
 
-`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","name":"Unit1","description":"My unit."}' http://localhost:9019/organizations/{orgId}/units`
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","name":"Unit1","description":"My unit."}' http://localhost:9019/api/organizations/{orgId}/units`
 
-`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","namespace":"io.vlingo.schemata","description":"Schemata Context."}' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts`
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","namespace":"io.vlingo.schemata","description":"Schemata Context."}' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts`
 
-`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","schemaId":"","category":"Event","name":"SchemaDefined","description":"Schemata was defined event."}' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas`
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","schemaId":"","category":"Event","name":"SchemaDefined","description":"Schemata was defined event."}' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas`
 
-`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","schemaId":"","schemaVersionId":"","description":"Initial revision.","specification":"event SchemaDefined { type eventType }","status":"Draft","previousVersion":"0.0.0","currentVersion":"1.0.0"}' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions`
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","schemaId":"","schemaVersionId":"","description":"Initial revision.","specification":"event SchemaDefined { type eventType }","status":"Draft","previousVersion":"0.0.0","currentVersion":"1.0.0"}' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions`
 
 #### Schema Queries:
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/organizations`
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/organizations/{orgId}`
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/organizations/{orgId}/units`
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/organizations/{orgId}/units/{unitId}`
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts`
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts/{contextId}`
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas`
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}`
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions`
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}`
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/schema/categories`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/schema/categories`
   - Enumeration names: Command, Data, Document, Envelope, Event, Unknown
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/schema/scopes`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/schema/scopes`
   - Enumeration names: Public, Private
 
-`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/code/{reference}/{language}`
+`$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/code/{reference}/{language}`
   - Takes the form:     /code/Org:Unit:Context:Schema:Version/Language
   - Or more precisely:  /code/vlingo:PlatformDevelopment:io.vlingo.schemata:SchemaDefined:1.0.0/java
 
 #### Schema Modifications:
 
-`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'My organization changed.' http://localhost:9019/organizations/{organizationId}/description`
-`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'Org123' http://localhost:9019/organizations/{organizationId}/name`
+`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'My organization changed.' http://localhost:9019/api/organizations/{organizationId}/description`
+`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'Org123' http://localhost:9019/api/organizations/{organizationId}/name`
 
-`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'My unit changed.' http://localhost:9019/organizations/{orgId}/units/{unitId}/description`
-`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'Unit123' http://localhost:9019/organizations/{orgId}/units/{unitId}/description`
+`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'My unit changed.' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/description`
+`$ curl -i -X PATCH -H "Content-Type: application/json" -d 'Unit123' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/description`
 
-`$ curl -i -X POST -H "Content-Type: application/json" -d 'My context changed.' http://localhost:9019//organizations/{organizationId}/units/{unitId}/contexts/{contextId}/description`
-`$ curl -i -X POST -H "Content-Type: application/json" -d 'io.vlingo.schemata.changed' http://localhost:9019//organizations/{organizationId}/units/{unitId}/contexts/{contextId}/namespace`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'My context changed.' http://localhost:9019/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/description`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'io.vlingo.schemata.changed' http://localhost:9019/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/namespace`
 
-`$ curl -i -X POST -H "Content-Type: application/json" -d 'Command' http://localhost:9019//organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/cateogry`
-`$ curl -i -X POST -H "Content-Type: application/json" -d 'DefineSchema command defined.' http://localhost:9019//organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/description`
-`$ curl -i -X POST -H "Content-Type: application/json" -d 'DefineSchema' http://localhost:9019//organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/name`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'Command' http://localhost:9019/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/cateogry`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'DefineSchema command defined.' http://localhost:9019/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/description`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'DefineSchema' http://localhost:9019/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/name`
 
-`$ curl -i -X POST -H "Content-Type: application/json" -d 'Initial revision of SchemaDefined.' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/description`
-`$ curl -i -X POST -H "Content-Type: application/json" -d 'event SchemaDefined { type eventType\n timestamp occurredOn }' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/specification`
-`$ curl -i -X POST -H "Content-Type: application/json" -d 'Published' http://localhost:9019/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/status`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'Initial revision of SchemaDefined.' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/description`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'event SchemaDefined { type eventType\n timestamp occurredOn }' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/specification`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'Published' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{versionId}/status`
 
 
 ## Development
