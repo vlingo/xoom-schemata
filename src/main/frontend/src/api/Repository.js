@@ -1,5 +1,5 @@
 
-const root = "http://localhost:9019"
+const root = "api"
 
 export async function get(path) {
 	const res = await fetch(root + path);

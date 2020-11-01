@@ -110,7 +110,7 @@ public class CodeResource extends ResourceHandler {
   @Override
   public Resource<?> routes() {
     return resource("Code Resource", 1,
-            get("/code/{reference}/{language}")
+            get("/api/code/{reference}/{language}")
                     .param(String.class)
                     .param(String.class)
                     .handle(this::queryCodeForLanguage));

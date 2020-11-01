@@ -320,14 +320,14 @@ public class SchemaVersionResource extends ResourceHandler {
     @Override
     public Resource<?> routes() {
         return resource("SchemaVersion Resource", 1,
-                post("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions")
+                post("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions")
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
                         .body(SchemaVersionData.class)
                         .handle(this::defineWith),
-                patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}/description")
+                patch("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}/description")
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
@@ -335,7 +335,7 @@ public class SchemaVersionResource extends ResourceHandler {
                         .param(String.class)
                         .body(String.class)
                         .handle(this::describeAs),
-                patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}/specification")
+                patch("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}/specification")
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
@@ -343,7 +343,7 @@ public class SchemaVersionResource extends ResourceHandler {
                         .param(String.class)
                         .body(String.class)
                         .handle(this::specifyWith),
-                patch("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}/status")
+                patch("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}/status")
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
@@ -351,34 +351,34 @@ public class SchemaVersionResource extends ResourceHandler {
                         .param(String.class)
                         .body(String.class)
                         .handle(this::statusOf),
-                get("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions")
+                get("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions")
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
                         .handle(this::querySchemaVersions),
-                get("/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}")
+                get("/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/versions/{schemaVersionId}")
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
                         .param(String.class)
                         .handle(this::querySchemaVersionByIds),
-                get("/versions/search")
+                get("/api/versions/search")
                         .query("version", String.class, null)
                         .query("organization", String.class)
                         .query("unit", String.class)
                         .query("context", String.class)
                         .query("schema", String.class)
                         .handle(this::searchSchemaVersions),
-                post("/versions/{reference}")
+                post("/api/versions/{reference}")
                         .param(String.class)
                         .body(SchemaVersionData.class)
                         .handle(this::pushSchemaVersion),
-                get("/versions/{reference}")
+                get("/api/versions/{reference}")
                   .param(String.class)
                   .handle(this::retrieveSchemaVersion),
-                get("/versions/{reference}/status")
+                get("/api/versions/{reference}/status")
                   .param(String.class)
                   .handle(this::retrieveSchemaVersionStatus));
     }

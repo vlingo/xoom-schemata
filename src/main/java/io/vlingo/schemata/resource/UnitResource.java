@@ -107,29 +107,29 @@ public class UnitResource extends ResourceHandler {
   @Override
   public Resource<?> routes() {
     return resource("Unit Resource", 1,
-      post("/organizations/{organizationId}/units")
+      post("/api/organizations/{organizationId}/units")
         .param(String.class)
         .body(UnitData.class)
         .handle(this::defineWith),
-      put("/organizations/{organizationId}/units/{unitId}")
+      put("/api/organizations/{organizationId}/units/{unitId}")
         .param(String.class)
         .param(String.class)
         .body(UnitData.class)
         .handle(this::redefineWith),
-      patch("/organizations/{organizationId}/units/{unitId}/description")
+      patch("/api/organizations/{organizationId}/units/{unitId}/description")
         .param(String.class)
         .param(String.class)
         .body(String.class)
         .handle(this::describeAs),
-      patch("/organizations/{organizationId}/units/{unitId}/name")
+      patch("/api/organizations/{organizationId}/units/{unitId}/name")
         .param(String.class)
         .param(String.class)
         .body(String.class)
         .handle(this::renameTo),
-      get("/organizations/{organizationId}/units")
+      get("/api/organizations/{organizationId}/units")
         .param(String.class)
         .handle(this::queryUnits),
-      get("/organizations/{organizationId}/units/{unitId}")
+      get("/api/organizations/{organizationId}/units/{unitId}")
         .param(String.class)
         .param(String.class)
         .handle(this::queryUnit));
