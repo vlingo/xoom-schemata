@@ -24,9 +24,9 @@
 </script>
 
 {#if type === "text"}
-	<TextField {outlined} {placeholder} bind:value={value} {disabled} {rules} validateOnBlur {readonly}>{label}</TextField>
+	<TextField {outlined} {placeholder} bind:value={value} {disabled} {rules} validateOnBlur={!value} {readonly}>{label}</TextField>
 {:else if type === "textarea"}
-	<Textarea {rows} {outlined} {placeholder} bind:value={value} {disabled} {rules} validateOnBlur {readonly}>{label}</Textarea>
+	<Textarea {rows} {outlined} {placeholder} bind:value={value} {disabled} {rules} validateOnBlur={!value} {readonly}>{label}</Textarea>
 {:else if type === "select"}
 	{#if $storeAll}
 		<div class={containerClasses}>
