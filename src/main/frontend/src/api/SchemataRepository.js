@@ -1,7 +1,6 @@
 import Repository from './Repository'
 
-
-const resources = {
+const resources = Object.freeze({
   organizations: () => '/organizations',
   organization: (o) => `${resources.organizations()}/${o}`,
   units: (o) => `${resources.organization(o)}/units`,
@@ -18,7 +17,7 @@ const resources = {
   version: (o, u, c, s, v) => `${resources.versions(o, u, c, s)}/${v}`,
   versionStatus: (o, u, c, s, v) => `${resources.version(o, u, c, s, v)}/status`,
   sources: (o, u, c, s, v, lang) => `/code/${o}:${u}:${c}:${s}:${v}/${lang}`,
-}
+})
 
 function ensure(response, status) {
   if(response.status === 409) {
@@ -41,6 +40,18 @@ async function repoGet(path) {
   return Repository.get(path)
   .then(ensureOk)
   .then(res => res.json());
+}
+
+async function repoPost(path, body) {
+	return Repository.post(path, body)
+	.then(ensureCreated)
+	.then(res => res.json());
+}
+
+async function repoPut(path, body) {
+	return Repository.put(path, body)
+	.then(ensureOk)
+	.then(res => res.json());
 }
 
 export default {
@@ -84,113 +95,84 @@ export default {
     return repoGet(resources.version(organization, unit, context, schema, version))
   },
 
-  async createOrganization(name, description) {
-    const response = await Repository.post(resources.organizations(),
-      {
+  loadSources(organization, unit, context, schema, version, language) {
+    return Repository.get(resources.sources(organization, unit, context, schema, version, language))
+      .then(ensureOk)
+      .then(response => response.text())
+  },
+
+  createOrganization(name, description) {
+    return repoPost(resources.organizations(), {
         organizationId: '',
         name: name,
         description: description
-      }
-    );
-    const res = await ensureCreated(response);
-    return res.json();
+    });
   },
   updateOrganization(id, name, description) {
-    return Repository.put(resources.organization(id), {
+    return repoPut(resources.organization(id), {
         organizationId: id,
         name: name,
         description: description
-      })
-      .then(ensureOk)
-      .then(response => response.json())
+    });
   },
-  async createUnit(organization, name, description) {
-    const response = await Repository.post(resources.units(organization),
-      {
+  createUnit(organization, name, description) {
+    return repoPost(resources.units(organization), {
         unitId: '',
         name: name,
         description: description
-      }
-    );
-    const res = await ensureCreated(response);
-    return res.json();
+    });
   },
   updateUnit(organization, id, name, description) {
-    return Repository.put(resources.unit(organization, id), {
+    return repoPut(resources.unit(organization, id), {
         unitId: id,
         name: name,
         description: description
-      })
-      .then(ensureOk)
-      .then(response => response.json())
+    });
   },
 
-  async createContext(organization, unit, namespace, description) {
-    const response = await Repository.post(resources.contexts(organization, unit),
-      {
+  createContext(organization, unit, namespace, description) {
+    return repoPost(resources.contexts(organization, unit), {
         contextId: '',
         namespace: namespace,
         description: description
-      });
-    const res = await ensureCreated(response);
-    return res.json();
+    });
   },
   updateContext(organizationId, unitId, id, namespace, description) {
-    return Repository.put(resources.context(organizationId, unitId, id), {
+    return repoPut(resources.context(organizationId, unitId, id), {
         contextId: id,
         namespace: namespace,
         description: description
-      })
-      .then(ensureOk)
-      .then(response => response.json())
+    });
   },
 
-  async createSchema(organization, unit, context, name, scope, category, description) {
-    const response = await Repository.post(resources.schemata(organization, unit, context),
-      {
+  createSchema(organization, unit, context, name, scope, category, description) {
+    return repoPost(resources.schemata(organization, unit, context), {
         schemaId: '',
         name: name,
         scope: scope,
         category: category,
         description: description
-      });
-    const res = await ensureCreated(response);
-    return res.json();
+    });
   },
   updateSchema(organizationId, unitId, contextId, id, name, category, scope, description) {
-    return Repository.put(resources.schema(organizationId, unitId, contextId, id), {
+    return repoPut(resources.schema(organizationId, unitId, contextId, id), {
         schemaId: id,
         name: name,
         scope: scope,
         category: category,
         description: description
-      })
-      .then(ensureOk)
-      .then(response => response.json())
+    })
   },
   createSchemaVersion(organization, unit, context, schema, specification, description, previousVersion, currentVersion) {
-    return Repository.post(resources.versions(organization, unit, context, schema),
-      {
+    return repoPost(resources.versions(organization, unit, context, schema), {
         schemaVersionId: '',
         specification: specification,
         previousVersion: previousVersion,
         currentVersion: currentVersion,
         description: description
-      }
-    )
-   .then(ensureCreated)
-   .then(res => res.json())
+    })
   },
-  saveSchemaVersionSpecification(
-    organization, unit, context, schema, version, specification) {
-    return Repository.patch(
-      resources.schemaSpecification(organization, unit, context, schema, version),
-      specification
-      )
-      .then(ensureOk)
-      .then(response => response.json())
-  },
-  saveSchemaVersionDescription(
+  patchSchemaVersionDescription(
     organization, unit, context, schema, version, description) {
     return Repository.patch(
       resources.schemaDescription(organization, unit, context, schema, version),
@@ -199,7 +181,7 @@ export default {
       .then(ensureOk)
       .then(response => response.json())
   },
-  setSchemaVersionStatus(
+  patchSchemaVersionStatus(
     organization, unit, context, schema, version, status) {
     return Repository.patch(
       resources.versionStatus(organization, unit, context, schema, version),
@@ -208,37 +190,14 @@ export default {
       .then(ensureOk)
       .then(response => response.json())
   },
-  loadSources(organization, unit, context, schema, version, language) {
-    console.log(version);
-    return Repository.get(resources.sources(organization, unit, context, schema, version, language))
-      .then(ensureOk)
-      .then(response => response.text())
-  },
-  // loadSources(
-  //   organization, unit, context, schema, version, language) {
-  //   let config = {
-  //     headers: {
-  //       'Content-Type': 'application/json'
-  //     },
-  //     responseType: 'text'
-  //   };
-  //   return Promise.all([
-  //     this.getOrganization(organization),
-  //     this.getUnit(organization, unit),
-  //     this.getContext(organization, unit, context),
-  //     this.getSchema(organization, unit, context, schema),
-  //     this.getVersion(organization, unit, context, schema, version),
-  //   ]).then(([org, unit, context, schema, version]) => {
-  //       return repoGet(
-  //         resources.sources(
-  //           org.name,
-  //           unit.name,
-  //           context.namespace,
-  //           schema.name,
-  //           version.currentVersion,
-  //           language), config)
-  //     })
+  // unused:
+  // patchSchemaVersionSpecification(
+  //   organization, unit, context, schema, version, specification) {
+  //   return Repository.patch(
+  //     resources.schemaSpecification(organization, unit, context, schema, version),
+  //     specification
+  //     )
   //     .then(ensureOk)
-  //     .then(response => response.data)
+  //     .then(response => response.json())
   // },
 }

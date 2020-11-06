@@ -18,7 +18,7 @@
 
 	let specification;
 	let description;
-	let status;
+	let statusChip;
 
 	let active;
 
@@ -26,7 +26,7 @@
 	function changedVersionStore($schemaVersionStore) {
 		specification = $schemaVersionStore ? $schemaVersionStore.specification : "";
 		description = $schemaVersionStore ? $schemaVersionStore.description : "";
-		status = $schemaVersionStore ? getStatusString($schemaVersionStore.status) : "";
+		statusChip = $schemaVersionStore ? getStatusString($schemaVersionStore.status) : "";
 	}
 	function getStatusString(status) {
 		if(!$schemaVersionStore) return;
@@ -43,31 +43,31 @@
 			console.log(errors.SUBMIT);
 			return;
 		}
-		SchemataRepository.saveSchemaVersionDescription(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, description)
+		SchemataRepository.patchSchemaVersionDescription(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, description)
 			.then(updated => {
 				updateStores(updated, true);
 				dispatch("versionChanged", updated);
 			})
 	}
 
-	const updateSpecification = () => {
-		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !specification) {
-			console.log(errors.SUBMIT);
-			return;
-		}
-		SchemataRepository.saveSchemaVersionSpecification(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, specification)
-			.then(updated => {
-				updateStores(updated, true);
-				dispatch("versionChanged", updated);
-			})
-	}
+	// const updateSpecification = () => {
+	// 	if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !specification) {
+	// 		console.log(errors.SUBMIT);
+	// 		return;
+	// 	}
+	// 	SchemataRepository.patchSchemaVersionSpecification(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, specification)
+	// 		.then(updated => {
+	// 			updateStores(updated, true);
+	// 			dispatch("versionChanged", updated);
+	// 		})
+	// }
 
-	const updateStatus = (status) => {
-		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !status) {
+	const updateStatus = (updatedStatus) => {
+		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !updatedStatus) {
 			console.log(errors.SUBMIT);
 			return;
 		}
-		SchemataRepository.setSchemaVersionStatus(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, status)
+		SchemataRepository.patchSchemaVersionStatus(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, updatedStatus)
 			.then(updated => {
 				updateStores(updated, true);
 				dispatch("versionChanged", updated);
@@ -105,7 +105,9 @@
 	let showPreviewModal = false;
 	const togglePreviewModal = () => showPreviewModal = !showPreviewModal;
 
-	const changeActive = (index) => active = index === 0 ? "spec" : "desc"
+	const changeActive = (index) => active = index === 0 ? "spec" : "desc";
+
+	$: status = $schemaVersionStore ? $schemaVersionStore.status : "";
 
 	// onMount(async () => {
 	// 	let script = document.createElement('script');
@@ -134,21 +136,27 @@
 				<ButtonGroupItem>Specification</ButtonGroupItem>
 				<ButtonGroupItem>Description</ButtonGroupItem>
 			</ButtonGroup>
-			{#if status}
+			{#if statusChip}
 				<!-- <Badge class="ml-4 p-2 align-self-center" color={status.color}>{status.text}</Badge> -->
 				<!-- <span style="width: 15rem"></span> -->
-				<Chip class="mt-2 mr-2 ml-auto {status.color}-color">{status.text}</Chip>
+				<Chip class="mt-2 mr-2 ml-auto {statusChip.color}-color">{statusChip.text}</Chip>
 			{/if}
 		</div>
 		{#if active=="spec"}
 			<!-- <wc-monaco-editor style="width: 800px; height: 800px; display: block;" language="javascript"></wc-monaco-editor> -->
 			<ValidatedInput label="Specification" outlined rows="10" type="textarea" bind:value={specification} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true} readonly/>
 			<ButtonBar>
-				<Button outlined color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
-				<Button outlined color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
-				<Button outlined color="error" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
+				{#if status !== "Removed"}
+					{#if status === "Draft"}
+						<Button outlined color="primary" icon={mdiLabel} text="PUBLISH" on:click={() => updateStatus("Published")}/>
+					{/if}
+					{#if status === "Published" || status === "Draft"}
+						<Button outlined color="warning" icon={mdiLabelOff} text="DEPRECATE" on:click={() => updateStatus("Deprecated")}/>
+					{/if}
+					<Button outlined color="error" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
+				{/if}
 				<Button outlined color="info" icon={mdiSourcePull} text="CODE" on:click={toggleCodeModal}/>
-				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
+				<!-- <Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/> -->
 			</ButtonBar>
 		{:else if active=="desc"}
 			<ValidatedInput label="Description" outlined rows="10" type="textarea" bind:value={description} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true}/>

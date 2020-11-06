@@ -217,14 +217,11 @@ export function getFullyQualifiedName(type, _) {
 
 //order matters (all elements have two ids + version has ALL ids)
 export function idReturner(obj) {
-	let id;
-	obj.schemaVersionId? id = obj.schemaVersionId :
-	obj.schemaId? id = obj.schemaId :
-	obj.contextId? id = obj.contextId :
-	obj.unitId? id = obj.unitId :
-	obj.organizationId? id = obj.organizationId :
-	id = "";
-	return id;
+	return obj.schemaVersionId? obj.schemaVersionId :
+	obj.schemaId? obj.schemaId :
+	obj.contextId? obj.contextId :
+	obj.unitId? obj.unitId :
+	obj.organizationId? obj.organizationId : "";
 }
 export function stringReturner(obj, detailed) {
 	return makeStringFrom(obj, filterCommonFrom(obj, detailed), detailed);
