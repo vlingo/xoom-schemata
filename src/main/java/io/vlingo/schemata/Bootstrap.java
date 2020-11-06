@@ -10,7 +10,6 @@ package io.vlingo.schemata;
 import io.vlingo.actors.Stage;
 import io.vlingo.http.resource.Configuration;
 import io.vlingo.http.resource.StaticFilesConfiguration;
-import io.vlingo.http.resource.Configuration.Sizing;
 import io.vlingo.http.resource.Configuration.Timing;
 import io.vlingo.schemata.infra.persistence.ProjectionDispatcherProvider;
 import io.vlingo.schemata.infra.persistence.StateStoreProvider;

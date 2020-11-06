@@ -17,7 +17,6 @@ import io.vlingo.schemata.model.Organization;
 import io.vlingo.schemata.model.OrganizationState;
 import io.vlingo.schemata.model.Unit;
 import io.vlingo.schemata.model.UnitState;
-import io.vlingo.schemata.resource.data.OrganizationData;
 import org.junit.Test;
 
 import io.vlingo.common.serialization.JsonSerialization;

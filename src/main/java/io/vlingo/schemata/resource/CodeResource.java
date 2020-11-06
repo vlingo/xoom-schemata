@@ -16,8 +16,8 @@ import io.vlingo.http.Header;
 import io.vlingo.http.Request;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
+import io.vlingo.http.resource.DynamicResourceHandler;
 import io.vlingo.http.resource.Resource;
-import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.infra.persistence.StorageProvider;
@@ -45,12 +45,13 @@ import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
 //
 // header: Authorization: VLINGO-SCHEMATA source=<some-hash-value> dependent=<some-hash-value>
 //
-public class CodeResource extends ResourceHandler {
+public class CodeResource extends DynamicResourceHandler {
   private final Logger logger;
   private final CodeQueries queries;
   private final Stage stage;
 
   public CodeResource(final Stage stage) {
+    super(stage);
     this.stage = stage;
     this.logger = stage.world().defaultLogger();
     this.queries = StorageProvider.instance().codeQueries;
@@ -73,8 +74,8 @@ public class CodeResource extends ResourceHandler {
     }
 
     // FIXME: temporary workaround for missing context in handler, see #55
-    final Request request = context() == null ? null : context().request;
-    final Collector collector = given(request, reference);
+    // final Request request = context() == null ? null : context().request;
+    // final Collector collector = given(request, reference);
     final Path path = Path.with(reference, true);
 
     return queries.codeFor(path)
@@ -84,7 +85,7 @@ public class CodeResource extends ResourceHandler {
             })
             .andThenTo(code -> {
               logger.debug("CODE: \n" + code.get());
-              return recordDependency(code.get(), collector);
+              return recordDependency(code.get(), null); //collector
             })
             .andThenTo(code -> {
               logger.debug("SUCCESS: \n" + code);

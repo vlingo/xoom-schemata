@@ -38,7 +38,6 @@ public abstract class ResourceTest {
   protected CodeQueries codeQueries;
 
   @Before
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   public void setUp() throws Exception {
     world = World.startWithDefaults("test-command-router");
     // TODO: Start an actual Grid here using Grid.start(...). Needs a test grid configuration first

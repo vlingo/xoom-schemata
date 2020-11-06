@@ -8,14 +8,13 @@
 package io.vlingo.schemata.resource;
 
 import io.vlingo.actors.Stage;
-import io.vlingo.actors.World;
 import io.vlingo.common.Completes;
 import io.vlingo.http.Body;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
+import io.vlingo.http.resource.DynamicResourceHandler;
 import io.vlingo.http.resource.Resource;
-import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.infra.persistence.StorageProvider;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Naming;
@@ -30,12 +29,13 @@ import static io.vlingo.http.ResponseHeader.*;
 import static io.vlingo.http.resource.ResourceBuilder.*;
 import static io.vlingo.schemata.Schemata.*;
 
-public class OrganizationResource extends ResourceHandler {
+public class OrganizationResource extends DynamicResourceHandler {
   private final OrganizationCommands commands;
   private final OrganizationQueries queries;
   private final Stage stage;
 
   public OrganizationResource(final Stage stage) {
+    super(stage);
     this.stage = stage;
     this.commands = new OrganizationCommands(this.stage, 10);
     this.queries = StorageProvider.instance().organizationQueries;

@@ -14,7 +14,6 @@ import io.vlingo.schemata.model.Category;
 import io.vlingo.schemata.model.Scope;
 import io.vlingo.schemata.resource.data.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static io.vlingo.http.Response.Status.Ok;
@@ -23,10 +22,8 @@ import static org.junit.Assert.assertTrue;
 
 public class JavaCodeResourceTest extends ResourceTest {
   @Test
-  @Ignore("FIXME:")
   public void testThatJavaCodeIsReferenced() {
     final CodeResource resource = new CodeResource(stage);
-    resource.__internal__test_set_up(context(), stage);
     final Response response = resource.queryCodeForLanguage(reference(), "java").await();
     assertEquals(Ok, response.status);
     assertTrue(response.entity.content().contains("SchemaDefined"));
@@ -127,14 +124,6 @@ public class JavaCodeResourceTest extends ResourceTest {
   }
 
   private String referenceFrom(final String...values) {
-    final StringBuilder builder = new StringBuilder();
-    String separator = "";
-
-    for (final String value : values) {
-      builder.append(separator).append(value);
-      separator = Schemata.ReferenceSeparator;
-    }
-
-    return builder.toString();
+    return String.join(Schemata.ReferenceSeparator, values);
   }
 }

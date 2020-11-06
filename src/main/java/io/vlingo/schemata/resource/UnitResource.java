@@ -12,8 +12,8 @@ import io.vlingo.common.Completes;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
+import io.vlingo.http.resource.DynamicResourceHandler;
 import io.vlingo.http.resource.Resource;
-import io.vlingo.http.resource.ResourceHandler;
 import io.vlingo.schemata.infra.persistence.StorageProvider;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.UnitId;
@@ -28,12 +28,13 @@ import static io.vlingo.http.ResponseHeader.*;
 import static io.vlingo.http.resource.ResourceBuilder.*;
 import static io.vlingo.schemata.Schemata.*;
 
-public class UnitResource extends ResourceHandler {
+public class UnitResource extends DynamicResourceHandler {
   private final UnitCommands commands;
   private final UnitQueries queries;
   private final Stage stage;
 
   public UnitResource(final Stage stage) {
+    super(stage);
     this.stage = stage;
     this.commands = new UnitCommands(this.stage, 10);
     this.queries = StorageProvider.instance().unitQueries;
