@@ -9,7 +9,6 @@ package io.vlingo.schemata.codegen.parser;
 
 import java.io.InputStream;
 
-import io.vlingo.common.Completes;
 import io.vlingo.common.Outcome;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.errors.SchemataBusinessException;

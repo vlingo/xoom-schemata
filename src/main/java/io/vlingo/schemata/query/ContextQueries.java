@@ -7,14 +7,9 @@
 
 package io.vlingo.schemata.query;
 
-import java.util.List;
-
 import io.vlingo.common.Completes;
-import io.vlingo.common.Outcome;
-import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.query.view.ContextView;
 import io.vlingo.schemata.query.view.ContextsView;
-import io.vlingo.schemata.resource.data.ContextData;
 
 public interface ContextQueries {
   Completes<ContextsView> contexts(final String organizationId, final String unitId);

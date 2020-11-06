@@ -8,7 +8,6 @@
 package io.vlingo.schemata.model;
 
 import io.vlingo.common.Completes;
-import io.vlingo.lattice.model.object.ObjectEntity;
 import io.vlingo.lattice.model.sourcing.EventSourced;
 import io.vlingo.schemata.model.Events.OrganizationDefined;
 import io.vlingo.schemata.model.Events.OrganizationDescribed;

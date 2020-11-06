@@ -13,7 +13,7 @@ import java.util.Objects;
 import io.vlingo.schemata.codegen.ast.Node;
 import io.vlingo.schemata.model.Category;
 
-public class TypeDefinition implements Node, Type {
+public class TypeDefinition implements Type {
     public final Category category;
     public final String fullyQualifiedTypeName;
     public final String typeName;

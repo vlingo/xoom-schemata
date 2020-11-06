@@ -7,11 +7,7 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.Map;
-
 import io.vlingo.schemata.model.Id.OrganizationId;
-import io.vlingo.symbio.store.MapQueryExpression.FluentMap;
-import io.vlingo.symbio.store.object.StateObject;
 
 public class OrganizationState {
   public final OrganizationId organizationId;

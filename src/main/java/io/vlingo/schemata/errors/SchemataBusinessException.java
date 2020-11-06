@@ -4,6 +4,7 @@ package io.vlingo.schemata.errors;
 import java.util.*;
 
 public class SchemataBusinessException extends RuntimeException {
+  private static final long serialVersionUID = 5064988574760273382L;
 
   public enum Code {
     NOT_FOUND,

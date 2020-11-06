@@ -41,13 +41,10 @@ public class Path {
     }
 
     public String toReference() {
-        final StringBuilder builder = new StringBuilder();
         final String[] parts = hasVersion()
                 ? new String[] { organization, unit, context, schema, version }
                 : new String[] { organization, unit, context, schema };
-        String reference =  String.join(Schemata.ReferenceSeparator, parts);
-
-        return reference;
+        return String.join(Schemata.ReferenceSeparator, parts);
     }
 
     @Override

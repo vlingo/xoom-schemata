@@ -35,7 +35,8 @@ import org.junit.Test;
 //import io.vlingo.symbio.store.dispatch.Dispatcher;
 //import io.vlingo.symbio.store.object.ObjectStore;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+// @SuppressWarnings({ "rawtypes", "unchecked" })
+//FIXME:
 public class JavaCodeGenSchemaVersionResolverTests {
   @Test
   public void testThatSpecificationsContainingBasicTypesCanBeCompiledWithSchemaVersionQueryTypeResolver() throws Exception {

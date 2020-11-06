@@ -7,11 +7,7 @@
 
 package io.vlingo.schemata.model;
 
-import java.util.Map;
-
 import io.vlingo.schemata.model.Id.SchemaVersionId;
-import io.vlingo.symbio.store.MapQueryExpression.FluentMap;
-import io.vlingo.symbio.store.object.StateObject;
 
 public class SchemaVersionState {
   public final SchemaVersionId schemaVersionId;

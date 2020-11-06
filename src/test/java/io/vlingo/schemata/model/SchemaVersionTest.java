@@ -326,7 +326,8 @@ public class SchemaVersionTest {
   private static void assertIncompatible(String message, SpecificationDiff diff) {
     assertFalse(message, diff.isCompatible());
   }
-
+  
+  @SuppressWarnings("unchecked")
   private SpecificationDiff unwrap(Completes<Outcome<SchemataBusinessException, SpecificationDiff>> outcome) throws SchemataBusinessException {
     return ((Outcome<SchemataBusinessException, SpecificationDiff>)outcome.await()).get();
   }

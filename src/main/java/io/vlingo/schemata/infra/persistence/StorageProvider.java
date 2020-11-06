@@ -9,7 +9,6 @@ package io.vlingo.schemata.infra.persistence;
 
 import io.vlingo.actors.World;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.SchemataConfig;
 import io.vlingo.schemata.model.*;
 import io.vlingo.schemata.model.Events.*;
 import io.vlingo.schemata.query.*;
@@ -30,6 +29,7 @@ public class StorageProvider {
     public final CodeQueries codeQueries;
     public final TypeResolverQueries typeResolverQueries;
 
+    @SuppressWarnings({"rawtypes"})
     public static StorageProvider with(final World world, StateStore stateStore, final Dispatcher dispatcher) {
         if (instance != null) return instance;
 

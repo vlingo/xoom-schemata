@@ -28,9 +28,6 @@ import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import io.vlingo.actors.Actor;
-import io.vlingo.actors.CompletesEventually;
-import io.vlingo.common.Completes;
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
 import io.vlingo.schemata.codegen.antlr.SchemaVersionDefinitionParser;
 import io.vlingo.schemata.codegen.ast.FieldDefinition;

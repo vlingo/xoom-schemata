@@ -27,8 +27,6 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import io.vlingo.actors.Actor;
-import io.vlingo.common.Completes;
 import io.vlingo.common.Failure;
 import io.vlingo.common.Outcome;
 import io.vlingo.common.Success;

@@ -9,14 +9,12 @@ package io.vlingo.schemata.codegen.specs;
 
 import io.vlingo.schemata.codegen.CodeGenTests;
 import io.vlingo.schemata.errors.SchemataBusinessException;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static junit.framework.TestCase.fail;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;

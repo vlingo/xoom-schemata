@@ -7,7 +7,6 @@
 
 package io.vlingo.schemata.model;
 
-import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.IdentifiedDomainEvent;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;

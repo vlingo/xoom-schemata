@@ -26,7 +26,6 @@ import io.vlingo.schemata.codegen.processor.Processor;
 import io.vlingo.schemata.errors.SchemataBusinessException;
 import io.vlingo.schemata.model.Events.*;
 import io.vlingo.schemata.model.Id.SchemaVersionId;
-import io.vlingo.schemata.query.view.SchemaVersionView;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
 
 public final class SchemaVersionEntity extends EventSourced implements SchemaVersion {

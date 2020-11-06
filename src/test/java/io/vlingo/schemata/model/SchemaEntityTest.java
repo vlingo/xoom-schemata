@@ -17,17 +17,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.vlingo.actors.World;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry;
-import io.vlingo.lattice.model.object.ObjectTypeRegistry.Info;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.model.Id.ContextId;
 import io.vlingo.schemata.model.Id.OrganizationId;
 import io.vlingo.schemata.model.Id.SchemaId;
 import io.vlingo.schemata.model.Id.UnitId;
-import io.vlingo.symbio.store.MapQueryExpression;
-import io.vlingo.symbio.store.object.ObjectStore;
-import io.vlingo.symbio.store.object.StateObjectMapper;
-import io.vlingo.symbio.store.object.inmemory.InMemoryObjectStoreActor;
 
 import java.util.concurrent.atomic.AtomicReference;
 
