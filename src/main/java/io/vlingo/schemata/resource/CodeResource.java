@@ -73,9 +73,10 @@ public class CodeResource extends DynamicResourceHandler {
       return Completes.withSuccess(Response.of(Response.Status.BadRequest, "Invalid reference parameter!"));
     }
 
-    // FIXME: temporary workaround for missing context in handler, see #55
-    // final Request request = context() == null ? null : context().request;
-    // final Collector collector = given(request, reference);
+    // TODO: this works as of #160, but the usecase might have vanished. All #55-FIXME's could be irrelevant now.
+    // final Collector collector = given(context().request, reference);
+    logger().debug(context().request.toString());
+    
     final Path path = Path.with(reference, true);
 
     return queries.codeFor(path)
@@ -110,7 +111,7 @@ public class CodeResource extends DynamicResourceHandler {
 
   @Override
   public Resource<?> routes() {
-    return resource("Code Resource", 1,
+    return resource("Code Resource", this, 1,
             get("/api/code/{reference}/{language}")
                     .param(String.class)
                     .param(String.class)
