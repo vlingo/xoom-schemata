@@ -50,17 +50,17 @@
 			})
 	}
 
-	// const updateSpecification = () => {
-	// 	if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !specification) {
-	// 		console.log(errors.SUBMIT);
-	// 		return;
-	// 	}
-	// 	SchemataRepository.patchSchemaVersionSpecification(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, specification)
-	// 		.then(updated => {
-	// 			updateStores(updated, true);
-	// 			dispatch("versionChanged", updated);
-	// 		})
-	// }
+	const updateSpecification = () => {
+		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !specification) {
+			console.log(errors.SUBMIT);
+			return;
+		}
+		SchemataRepository.patchSchemaVersionSpecification(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, specification)
+			.then(updated => {
+				updateStores(updated, true);
+				dispatch("versionChanged", updated);
+			})
+	}
 
 	const updateStatus = (updatedStatus) => {
 		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !updatedStatus) {
@@ -137,14 +137,13 @@
 				<ButtonGroupItem>Description</ButtonGroupItem>
 			</ButtonGroup>
 			{#if statusChip}
-				<!-- <Badge class="ml-4 p-2 align-self-center" color={status.color}>{status.text}</Badge> -->
 				<!-- <span style="width: 15rem"></span> -->
 				<Chip class="mt-2 mr-2 ml-auto {statusChip.color}-color">{statusChip.text}</Chip>
 			{/if}
 		</div>
 		{#if active=="spec"}
 			<!-- <wc-monaco-editor style="width: 800px; height: 800px; display: block;" language="javascript"></wc-monaco-editor> -->
-			<ValidatedInput label="Specification" outlined rows="10" type="textarea" bind:value={specification} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true} readonly/>
+			<ValidatedInput label="Specification" outlined rows="10" type="textarea" bind:value={specification} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true} readonly={$schemaVersionStore ? $schemaVersionStore.status !== "Draft" : true}/>
 			<ButtonBar>
 				{#if status !== "Removed"}
 					{#if status === "Draft"}
@@ -156,7 +155,7 @@
 					<Button outlined color="error" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
 				{/if}
 				<Button outlined color="info" icon={mdiSourcePull} text="CODE" on:click={toggleCodeModal}/>
-				<!-- <Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/> -->
+				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
 			</ButtonBar>
 		{:else if active=="desc"}
 			<ValidatedInput label="Description" outlined rows="10" type="textarea" bind:value={description} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true}/>

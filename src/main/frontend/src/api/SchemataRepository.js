@@ -190,14 +190,13 @@ export default {
       .then(ensureOk)
       .then(response => response.json())
   },
-  // unused:
-  // patchSchemaVersionSpecification(
-  //   organization, unit, context, schema, version, specification) {
-  //   return Repository.patch(
-  //     resources.schemaSpecification(organization, unit, context, schema, version),
-  //     specification
-  //     )
-  //     .then(ensureOk)
-  //     .then(response => response.json())
-  // },
+  patchSchemaVersionSpecification(
+    organization, unit, context, schema, version, specification) {
+    return Repository.patch(
+      resources.schemaSpecification(organization, unit, context, schema, version),
+      specification
+      )
+      .then(ensureOk)
+      .then(response => response.json())
+  },
 }

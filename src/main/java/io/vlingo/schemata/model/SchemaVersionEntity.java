@@ -81,7 +81,7 @@ public final class SchemaVersionEntity extends EventSourced implements SchemaVer
 
   @Override
   public Completes<SchemaVersionState> specifyWith(final Specification specification) {
-    if (specification != null) {
+    if (specification != null && state.status.isDraft()) {
       return apply(SchemaVersionSpecified.with(state.schemaVersionId, specification), () -> this.state);
     }
     return completes().with(state);

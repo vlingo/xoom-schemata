@@ -155,9 +155,6 @@ public class SchemaVersionResource extends DynamicResourceHandler {
         if (!SchemaVersionData.hasSpecification(specification)) {
             return Completes.withSuccess(Response.of(BadRequest, "Missing specification"));
         }
-
-        //FIXME: add diff/validation as like in define with
-
         return commands
                 .specifyWith(SchemaVersionId.existing(organizationId, unitId, contextId, schemaId, schemaVersionId), Specification.of(specification)).answer()
                 .andThenTo(state -> Completes.withSuccess(Response.of(Ok, serialized(SchemaVersionData.from(state)))));
@@ -178,7 +175,7 @@ public class SchemaVersionResource extends DynamicResourceHandler {
                 answer = commands.remove(id).answer();
                 break;
             default:
-                return Completes.withSuccess(Response.of(Conflict, serialized(SchemaVersionData.from(organizationId, unitId, contextId, schemaId, schemaVersionId, "", "", status, "", ""))));
+                return Completes.withSuccess(Response.of(Conflict, "Status '" + status + "' can only be set to published, deprecated or removed"));
         }
 
         return answer.andThenTo(state -> {
