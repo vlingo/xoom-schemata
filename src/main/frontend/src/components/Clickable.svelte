@@ -6,14 +6,25 @@
 <script>
 	import { adjustStoresTo, deAdjustStoresTo, isObjectInAStore } from "../utils";
 	import { fade } from 'svelte/transition';
+	import { schemaVersionStore } from '../stores';
 	
 	export let file;
 	export let selected;
 	let item;
 
-	$: if(!isObjectInAStore(file)) deAdjustStoresTo(file.type);
+	$: if(!isObjectInAStore(file)) {
+		deAdjustStoresTo(file.type);
+	}
+
+	$: whenTreeUpdatesWithVersion($schemaVersionStore);
+	function whenTreeUpdatesWithVersion(store) {
+		if(store && file.id === store.schemaVersionId) {
+			adjustStoresTo(file);
+			$current = item;
+		}
+	}
 	
-	function chooseThis() {
+	function toggleThis() {
 		if(!selected) {
 			adjustStoresTo(file);
 			$current = item;
@@ -25,7 +36,7 @@
 	$: active = (item == $current);
 </script>
 
-<div transition:fade={{ duration: 100 }} bind:this={item} class:active={active} class:notActive={!active} on:click={chooseThis}>
+<div transition:fade={{ duration: 100 }} bind:this={item} class:active={active} class:notActive={!active} on:click={toggleThis}>
 	<slot/>
 </div>
 
