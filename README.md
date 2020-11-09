@@ -23,9 +23,7 @@ Run <pre><code>java -jar vlingo-schemata-<b>{version}</b>-jar-with-dependencies.
 
 We provide an interface to allow for easy retrieval of schemata and 
 schemata meta information, e.g. available versions and publication status.
-~~The UI/Frontend can be accessed at http://localhost:9019.~~
-
-:warning: Currently, the UI is accessed by navigating to http://localhost:9019/index.html and then clicking one of the navigation links.
+The UI/Frontend can be accessed at http://localhost:9019.
 
 
 ## Advanced Options
