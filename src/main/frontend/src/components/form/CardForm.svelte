@@ -16,7 +16,7 @@ import Switch from 'svelte-materialify/src/components/Switch';
 	const dispatch = createEventDispatcher();
 
 	export let isDefineDisabled = false;
-	export let isSaveDisabled = false;
+	export let isRedefineDisabled = false;
 	export let isNextDisabled = false;
 
 	export let defineMode = true;
@@ -44,7 +44,7 @@ import Switch from 'svelte-materialify/src/components/Switch';
 					<Button color="info" text="New {title}" on:click={() => dispatch("new")}/>
 				</div>
 				{#if !defineMode}
-					<Button color="primary" text="Save" on:click={() => dispatch("save")} disabled={isSaveDisabled}/>
+					<Button color="primary" text="Redefine" on:click={() => dispatch("redefine")} disabled={isRedefineDisabled}/>
 				{:else}
 					<Button color="primary" text="Define" on:click={() => dispatch("define")} disabled={isDefineDisabled}/>
 				{/if}

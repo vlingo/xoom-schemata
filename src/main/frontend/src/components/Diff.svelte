@@ -27,7 +27,7 @@
         arrowRight: mdiArrowRight,
 	});
 	const iconFor = (type) => icons[type];
-	//TODO: colors should be corresponding to patch/minor/major
+	//TODO: colors should be corresponding to patch/minor/major (maybe they already do)
     const colorFor = (type) => {
         switch (type) {
             case "CHANGE_FIELD":
@@ -45,14 +45,17 @@
 	}
 </script>
 
-<Dialog bind:active={showDiffDialog}>
+<Dialog width={1000} bind:active={showDiffDialog}>
 	<Card>
-		<CardTitle>Diff:</CardTitle>
+		<CardTitle>Incompatible changes within a compatible version change.</CardTitle>
 		<CardText>
-			<Textarea outlined value={oldSpec} readonly>Old Specification</Textarea>
-			<Textarea outlined value={newSpec} readonly>New Specification</Textarea>
-			<List disabled dense>
+			<div class="d-flex">
+				<Textarea rows="10" outlined value={oldSpec} readonly>Old Specification</Textarea>
+				<Textarea rows="10" outlined value={newSpec} readonly>New Specification</Textarea>
+			</div>
+			<List disabled>
 				{#each changes as change}
+				<div class="changes">
 					<ListItem>
 						<Icon class="{colorFor(change.type)}-text" path={iconFor(change.type)}/>
 						<span class="subject">{change.subject} </span>
@@ -62,6 +65,7 @@
 							<span class="new">{change.newValue}</span>
 						{/if}
 					</ListItem>
+				</div>
 				{/each}
 			</List>
 		</CardText>
@@ -78,5 +82,9 @@
     .old {
         text-decoration: line-through;
         color: grey;
-    }
+	}
+	
+	:global(.s-list .changes .s-list-item .s-list-item__content) {
+		padding: 0;
+	}
 </style>

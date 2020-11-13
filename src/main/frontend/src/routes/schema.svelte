@@ -90,7 +90,7 @@
 			})
 	}
 
-	const save = async () => {
+	const redefine = async () => {
 		if(!updatable()) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.updateSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, name, category[0], scope[0], description)
 			.then(updated => {
@@ -112,7 +112,7 @@
 
 	let isDefineDisabled = true;
 	let isNextDisabled = true;
-	let isSaveDisabled = true;
+	let isRedefineDisabled = true;
 
 	$: if(!validName(name) && name && description && category[0] && scope[0] && $organizationStore && $unitStore && $contextStore && defineMode) {
 		isDefineDisabled = false;
@@ -123,9 +123,9 @@
 	$: if(!defineMode) { isNextDisabled = false; }
 
 	$: if(!validName(name) && name && description && category[0] && scope[0] && $organizationStore && $unitStore && $contextStore && $schemaStore) {
-		isSaveDisabled = false;
+		isRedefineDisabled = false;
 	} else {
-		isSaveDisabled = true;
+		isRedefineDisabled = true;
 	}
 	
 	let fullyQualified;
@@ -135,8 +135,8 @@
 	<title>Schema</title>
 </svelte:head>
 
-<CardForm title="Schema" linkToNext="New Schema Version" href="schemaVersion" on:new={newSchema} on:save={save} on:define={define} 
-{isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
+<CardForm title="Schema" linkToNext="New Schema Version" href="schemaVersion" on:new={newSchema} on:redefine={redefine} on:define={define} 
+{isDefineDisabled} {isNextDisabled} {isRedefineDisabled} {defineMode} {fullyQualified}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>

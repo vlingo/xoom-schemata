@@ -17,7 +17,7 @@ function filterSchemaAttributes(attributes) {
 	return attributes.filter(attrib => attrib !== "category" && attrib !== "scope");
 }
 function filterSchemaVersionAttributes(attributes) {
-	return attributes.filter(attrib => attrib !== "previous" && attrib !== "specification" && attrib !== "status");
+	return attributes.filter(attrib => attrib !== "previous" && attrib !== "previousVersion" && attrib !== "specification" && attrib !== "status");
 }
 function filterCommonFrom(element, detailed) {
 	if(detailed) return Object.keys(element).filter(attrib => attrib !== "type" && attrib !== "files" && attrib !== "description");
@@ -224,7 +224,7 @@ export function idReturner(obj) {
 	obj.organizationId? obj.organizationId : "";
 }
 export function stringReturner(obj, detailed) {
-	return makeStringFrom(obj, filterCommonFrom(obj, detailed), detailed);
+	return makeStringFrom(obj, filterSchemaVersionAttributes(filterCommonFrom(obj, detailed)), detailed);
 }
 
 export function changedSelect(array, detailed) {

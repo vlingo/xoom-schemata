@@ -50,7 +50,7 @@
 				defineMode = false;
 			})
 	}
-	const save = async () => {
+	const redefine = async () => {
 		if(!updatable) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.updateUnit(($organizationStore).organizationId, ($unitStore).unitId, name, description)
 			.then(updated => {
@@ -70,7 +70,7 @@
 
 	let isDefineDisabled = true;
 	let isNextDisabled = true;
-	let isSaveDisabled = true;
+	let isRedefineDisabled = true;
 
 	$: if(name && description && $organizationStore && defineMode) {
 		isDefineDisabled = false;
@@ -81,9 +81,9 @@
 	$: if(!defineMode) { isNextDisabled = false; }
 
 	$: if(name && description && $organizationStore && $unitStore) {
-		isSaveDisabled = false;
+		isRedefineDisabled = false;
 	} else {
-		isSaveDisabled = true;
+		isRedefineDisabled = true;
 	}
 
 	let fullyQualified;
@@ -93,8 +93,8 @@
 	<title>Unit</title>
 </svelte:head>
 
-<CardForm title="Unit" linkToNext="New Context" on:new={newUnit} on:save={save} on:define={define} 
-{isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
+<CardForm title="Unit" linkToNext="New Context" on:new={newUnit} on:redefine={redefine} on:define={define} 
+{isDefineDisabled} {isNextDisabled} {isRedefineDisabled} {defineMode} {fullyQualified}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{#if !defineMode}
 		<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>

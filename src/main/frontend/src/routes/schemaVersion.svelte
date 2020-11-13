@@ -4,14 +4,14 @@
 	import Button from '../components/form/Button.svelte';
 	import ButtonBar from '../components/form/ButtonBar.svelte';
 	import Select from '../components/form/Select.svelte';
-
 	import marked from 'marked';
-
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
 	import { isStoreEmpty } from '../utils';
 	import errors from '../errors';
 	import Diff from '../components/Diff.svelte';
+	import Card from 'svelte-materialify/src/components/Card';
+	import { fade } from 'svelte/transition';
 	const validator = (v) => {
 		return /^\d+\.\d+\.\d+$/.test(v) ? undefined : errors.VERSION
 	}
@@ -77,7 +77,7 @@
 		compatibleVersions = store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
 		$schemaVersionStore = store ? $schemaVersionsStore.find(v => v.schemaId == store.schemaId) : undefined;
 
-		store && !$schemaVersionStore ? specification = `${store.category.toLowerCase()} ${store.name} {\n\t\n}` : "";
+		store && !$schemaVersionStore ? specification = `${store.category.toLowerCase()} ${store.name} {\n\t\n\t\n\t\n\t\n\t\n}` : "";
 	}
 	$: changedVersion($schemaVersionStore);
 	function changedVersion(store) {
@@ -178,14 +178,24 @@
 		<ValidatedInput label="Current Version (previous was {previous})" placeholder="0.0.0" bind:value={current} validator={validator} disabled={!defineMode}/>
 		{#if defineMode}
 		<ButtonBar center>
-			<Button color="primary" text="New Patch" on:click={() => clickedVersionButton("patch")}/>
-			<Button color="warning" text="New Minor" on:click={() => clickedVersionButton("minor")}/>
 			<Button color="error" text="New Major" on:click={() => clickedVersionButton("major")}/>
+			<Button color="warning" text="New Minor" on:click={() => clickedVersionButton("minor")}/>
+			<Button color="primary" text="New Patch" on:click={() => clickedVersionButton("patch")}/>
 		</ButtonBar>
 		{/if}
 	</div>
 	<ValidatedInput outlined type="textarea" label="Description" bind:value={description} disabled={!defineMode}/>
-	<ValidatedInput outlined type="textarea" label="Specification" bind:value={specification} disabled={!defineMode}/>
+
+	<Card disabled={!description} class="ma-2 pl-5 pt-2 pb-5 pr-2" style="min-height: 5rem">
+		<div id="markdown-container" transition:fade>
+			{#if description}
+				{@html marked(description)}
+			{:else}
+				{@html marked("##### &#35;&#35;&#35;&#35; Write some &#95;_markdown_&#95; into &#42;&#42;**Description**&#42;&#42;")}
+			{/if}
+		</div>
+	</Card>
+	<ValidatedInput rows="8" outlined type="textarea" label="Specification" bind:value={specification} disabled={!defineMode}/>
 
 	<div slot="buttons">
 		<ButtonBar>
@@ -206,13 +216,13 @@
 	<!-- <Button color="primary" text="Define" on:click={define} disabled={isCreateDisabled}/> -->
 </Diff>
 
-{#if description}
-	{@html marked(description)}
-{/if}
-
 <style>
 	.flex-two-col {
 		display: flex;
 		flex-wrap: wrap;
+	}
+
+	:global(#markdown-container h1) {
+		font-size: 4rem;
 	}
 </style>
