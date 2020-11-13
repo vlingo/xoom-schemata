@@ -143,22 +143,10 @@
 		compatibleVersions = $schemaStore ? $schemaVersionsStore.filter(v => v.schemaId == $schemaStore.schemaId) : [];
 	}
 
-	let isCreateDisabled = true;
-	let isNextDisabled = true;
-
-	$: if(previous && current && !validator(previous) && !validator(current) && description && specification && $organizationStore && $unitStore && $contextStore && $schemaStore && defineMode) {
-		isCreateDisabled = false;
-	} else {
-		isCreateDisabled = true;
-	}
-
-	$: if(!defineMode) { isNextDisabled = false; }
+	let showDiffDialog = false;
+	$: showVersionSelect = !isStoreEmpty(($schemaVersionsStore));
 
 	let fullyQualified;
-
-	let showDiffDialog = false;
-
-	$: showVersionSelect = !isStoreEmpty(($schemaVersionsStore))
 </script>
 
 <svelte:head>
@@ -203,10 +191,10 @@
 				<Button color="info" text="New Schema Version" on:click={newVersion}/>
 			</div>
 			{#if defineMode}
-				<Button color="primary" text="Define" on:click={define} disabled={isCreateDisabled}/>
+				<Button color="primary" text="Define" on:click={define} disabled={!(previous && current && !validator(previous) && !validator(current) && description && specification && $organizationStore && $unitStore && $contextStore && $schemaStore && defineMode)}/>
 			{/if}
-			{#if !isNextDisabled}
-				<Button color="primary" outline text={"Home"} href={"."} disabled={isNextDisabled}/>
+			{#if !defineMode}
+				<Button color="primary" outline text={"Home"} href={"."} disabled={!defineMode}/>
 			{/if}
 		</ButtonBar>
 	</div>

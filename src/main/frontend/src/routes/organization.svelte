@@ -61,24 +61,6 @@
 		defineMode = true;
 	}
 
-	let isDefineDisabled = true;
-	let isNextDisabled = true;
-	let isRedefineDisabled = true;
-
-	$: if(name && description && defineMode) {
-		isDefineDisabled = false;
-	} else {
-		isDefineDisabled = true;
-	}
-
-	$: if(!defineMode) { isNextDisabled = false; }
-	
-	$: if($organizationStore && name && description) {
-		isRedefineDisabled = false;
-	} else {
-		isRedefineDisabled = true;
-	}
-
 	let fullyQualified;
 </script>
 
@@ -87,7 +69,8 @@
 </svelte:head>
 
 <CardForm title="Organization" linkToNext="New Unit" on:new={newOrg} on:redefine={redefine} on:define={define} 
-{isDefineDisabled} {isNextDisabled} {isRedefineDisabled} {defineMode} {fullyQualified}>
+isDefineDisabled={!(name && description && defineMode)} isNextDisabled={defineMode} isRedefineDisabled={!(name && description && $organizationStore)}
+{defineMode} {fullyQualified}>
 	{#if !defineMode}
 		<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{/if}

@@ -4,7 +4,7 @@
 	import { Card } from 'svelte-materialify/src';
 	import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
 	import CardTitle from 'svelte-materialify/src/components/Card/CardTitle.svelte';
-import Switch from 'svelte-materialify/src/components/Switch';
+	import Switch from 'svelte-materialify/src/components/Switch';
 	import { detailed } from '../../stores';
 	import Button from './Button.svelte';
 	import ButtonBar from './ButtonBar.svelte';

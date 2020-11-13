@@ -79,24 +79,6 @@
 		compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
 	}
 
-	let isDefineDisabled = true;
-	let isNextDisabled = true;
-	let isRedefineDisabled = true;
-
-	$: if(!validName(namespace) && description && $organizationStore && $unitStore && defineMode) {
-		isDefineDisabled = false;
-	} else {
-		isDefineDisabled = true;
-	}
-
-	$: if(!defineMode) { isNextDisabled = false; }
-
-	$: if(!validName(namespace) && namespace && description && $organizationStore && $unitStore && $contextStore) {
-		isRedefineDisabled = false;
-	} else {
-		isRedefineDisabled = true;
-	}
-
 	let fullyQualified;
 </script>
 
@@ -105,7 +87,8 @@
 </svelte:head>
 
 <CardForm title="Context" linkToNext="New Schema" on:new={newContext} on:redefine={redefine} on:define={define} 
-{isDefineDisabled} {isNextDisabled} {isRedefineDisabled} {defineMode} {fullyQualified}>
+isDefineDisabled={!(!validName(namespace) && description && $organizationStore && $unitStore && defineMode)} isNextDisabled={defineMode} isRedefineDisabled={!(!validName(namespace) && namespace && description && $organizationStore && $unitStore && $contextStore)}
+{defineMode} {fullyQualified}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	{#if !defineMode}
