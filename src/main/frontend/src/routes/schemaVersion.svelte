@@ -175,7 +175,7 @@
 	<ValidatedInput outlined type="textarea" label="Description" bind:value={description} disabled={!defineMode}/>
 
 	<Card disabled={!description} class="ma-2 pl-5 pt-2 pb-5 pr-2" style="min-height: 5rem">
-		<div id="markdown-container" transition:fade>
+		<div id="markdown-container">
 			{#if description}
 				{@html marked(description)}
 			{:else}

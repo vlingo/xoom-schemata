@@ -6,13 +6,11 @@
 	import SchemaAlert from '../components/alerts/SchemaAlert.svelte';
 	import VersionAlert from '../components/alerts/VersionAlert.svelte';
 	import VersionContainer from '../components/VersionContainer.svelte';
-	import ValidatedInput from '../components/form/ValidatedInput.svelte';
 	import Card from 'svelte-materialify/src/components/Card';
 	import CardTitle from 'svelte-materialify/src/components/Card/CardTitle.svelte';
-	import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
 	import Switch from 'svelte-materialify/src/components/Switch';
 	import { contextsStore, contextStore, detailed, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
-import { isStoreEmpty } from '../utils';
+	import { isStoreEmpty } from '../utils';
 
 	//could change to organizationId, unitId, etc.
 	//also could be reduced to one big function which would reduce for-loops
