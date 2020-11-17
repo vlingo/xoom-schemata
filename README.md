@@ -19,7 +19,7 @@ Build <pre><code>& "<b>{yourInstallPath}</b>\vlingo-schemata\mvnw.cmd" clean pac
 *e.g. <pre><code>& "<b>d:\vlingo</b>\vlingo-schemata\mvnw.cmd" clean package -Pfrontend -f "<b>d:\vlingo</b>\vlingo-schemata\pom.xml"</code></pre>*
 
 Run <pre><code>java -jar vlingo-schemata-<b>{version}</b>-jar-with-dependencies.jar</code></pre>
-*e.g. <pre><code>java -jar vlingo-schemata-<b>1.3.4-SNAPSHOT</b>-jar-with-dependencies.jar</code></pre>*
+*e.g. <pre><code>java -jar vlingo-schemata-<b>1.4.1-SNAPSHOT</b>-jar-with-dependencies.jar</code></pre>*
 
 We provide an interface to allow for easy retrieval of schemata and 
 schemata meta information, e.g. available versions and publication status.
@@ -56,7 +56,7 @@ If you want to configure the schemata runtime profile, you have several options:
 |prod|starts with a preconfigured PostgreSQL DB   |src/main/resources/vlingo-schemata-prod.properties|
 |[env](#env)|uses environment variables for configuration|src/main/resources/vlingo-schemata-env.properties |
 
-*e.g. <pre><code>java -jar vlingo-schemata-<b>1.3.4-SNAPSHOT</b>-jar-with-dependencies.jar <b>dev</b></code></pre>*
+*e.g. <pre><code>java -jar vlingo-schemata-<b>1.4.1-SNAPSHOT</b>-jar-with-dependencies.jar <b>dev</b></code></pre>*
 
 #### env:
 The defaults are the same as configured in **dev**.

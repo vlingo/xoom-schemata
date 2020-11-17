@@ -19,11 +19,16 @@ const resources = Object.freeze({
   sources: (o, u, c, s, v, lang) => `/code/${o}:${u}:${c}:${s}:${v}/${lang}`,
 })
 
-function ensure(response, status) {
-  if(response.status === 409) {
-    return Promise.reject(response.json());
-  } else if (response.status !== status) {
-    throw Error(`HTTP ${response.status}: ${response.statusText} ().`); //${response.config.url}
+async function ensure(response, status) {
+  if (response.status !== status) {
+    const contentType = response.headers.get("content-type");
+    let message;
+    if(contentType === "application/json") {
+      message = JSON.stringify(await response.json());
+    } else {
+      message = await response.text();
+    }
+    throw Error(`HTTP ${response.status}: ${response.statusText} (${message}).`); //${response.config.url}
   }
   return response;
 }
@@ -164,12 +169,19 @@ export default {
     })
   },
   createSchemaVersion(organization, unit, context, schema, specification, description, previousVersion, currentVersion) {
-    return repoPost(resources.versions(organization, unit, context, schema), {
-        schemaVersionId: '',
-        specification: specification,
-        previousVersion: previousVersion,
-        currentVersion: currentVersion,
-        description: description
+    return Repository.post(resources.versions(organization, unit, context, schema), {
+      schemaVersionId: '',
+      specification: specification,
+      previousVersion: previousVersion,
+      currentVersion: currentVersion,
+      description: description
+    })
+    .then(response => {
+      if(response.status === 409) {
+        return Promise.reject(response.json());
+      } else {
+        return response.json();
+      }
     })
   },
   patchSchemaVersionDescription(

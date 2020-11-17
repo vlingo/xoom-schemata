@@ -35,7 +35,7 @@
 			})
 	}
 
-	const save = async () => {
+	const redefine = async () => {
 		if(!updatable()) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.updateOrganization(($organizationStore).organizationId, name, description)
 			.then(updated => {
@@ -61,24 +61,6 @@
 		defineMode = true;
 	}
 
-	let isDefineDisabled = true;
-	let isNextDisabled = true;
-	let isSaveDisabled = true;
-
-	$: if(name && description && defineMode) {
-		isDefineDisabled = false;
-	} else {
-		isDefineDisabled = true;
-	}
-
-	$: if(!defineMode) { isNextDisabled = false; }
-	
-	$: if($organizationStore && name && description) {
-		isSaveDisabled = false;
-	} else {
-		isSaveDisabled = true;
-	}
-
 	let fullyQualified;
 </script>
 
@@ -86,8 +68,9 @@
 	<title>Organization</title>
 </svelte:head>
 
-<CardForm title="Organization" linkToNext="New Unit" on:new={newOrg} on:save={save} on:define={define} 
-{isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
+<CardForm title="Organization" linkToNext="New Unit" on:new={newOrg} on:redefine={redefine} on:define={define} 
+isDefineDisabled={!(name && description && defineMode)} isNextDisabled={defineMode} isRedefineDisabled={!(name && description && $organizationStore)}
+{defineMode} {fullyQualified}>
 	{#if !defineMode}
 		<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{/if}

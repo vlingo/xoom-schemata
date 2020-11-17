@@ -59,7 +59,7 @@
 				defineMode = false;
 			})
 	}
-	const save = async () => {
+	const redefine = async () => {
 		if(!updatable()) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.updateContext(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, namespace, description)
 			.then(updated => {
@@ -79,24 +79,6 @@
 		compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
 	}
 
-	let isDefineDisabled = true;
-	let isNextDisabled = true;
-	let isSaveDisabled = true;
-
-	$: if(!validName(namespace) && description && $organizationStore && $unitStore && defineMode) {
-		isDefineDisabled = false;
-	} else {
-		isDefineDisabled = true;
-	}
-
-	$: if(!defineMode) { isNextDisabled = false; }
-
-	$: if(!validName(namespace) && namespace && description && $organizationStore && $unitStore && $contextStore) {
-		isSaveDisabled = false;
-	} else {
-		isSaveDisabled = true;
-	}
-
 	let fullyQualified;
 </script>
 
@@ -104,8 +86,9 @@
 	<title>Context</title>
 </svelte:head>
 
-<CardForm title="Context" linkToNext="New Schema" on:new={newContext} on:save={save} on:define={define} 
-{isDefineDisabled} {isNextDisabled} {isSaveDisabled} {defineMode} {fullyQualified}>
+<CardForm title="Context" linkToNext="New Schema" on:new={newContext} on:redefine={redefine} on:define={define} 
+isDefineDisabled={!(!validName(namespace) && description && $organizationStore && $unitStore && defineMode)} isNextDisabled={defineMode} isRedefineDisabled={!(!validName(namespace) && namespace && description && $organizationStore && $unitStore && $contextStore)}
+{defineMode} {fullyQualified}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	{#if !defineMode}

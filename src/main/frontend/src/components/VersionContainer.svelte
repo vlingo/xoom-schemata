@@ -85,7 +85,7 @@
 
 	// ($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, "java")
 	const sourceCodeFor = (lang) => {
-		if(lang != "java") return;
+		if(lang != "java" || !showCodeModal) return;
 		SchemataRepository.loadSources(($organizationStore).name, ($unitStore).name, ($contextStore).namespace, ($schemaStore).name, ($schemaVersionStore).currentVersion, lang)
 			.then(code => {
 				console.log({code});
@@ -155,7 +155,9 @@
 					<Button outlined color="error" icon={mdiDelete} text="REMOVE" on:click={() => updateStatus("Removed")}/>
 				{/if}
 				<Button outlined color="info" icon={mdiSourcePull} text="CODE" on:click={toggleCodeModal}/>
-				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
+				{#if status === "Draft"}
+					<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
+				{/if}
 			</ButtonBar>
 		{:else if active=="desc"}
 			<ValidatedInput label="Description" outlined rows="10" type="textarea" bind:value={description} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true}/>
@@ -169,7 +171,7 @@
 	</div>
 </div>
 
-<Dialog bind:active={showCodeModal}>
+<Dialog width={800} bind:active={showCodeModal}>
 	<Card>
 		<CardTitle>Choose language to generate:</CardTitle>
 		<CardText>
@@ -185,7 +187,7 @@
 	</Card>
 </Dialog>
 
-<Dialog bind:active={showPreviewModal}>
+<Dialog width={1000} bind:active={showPreviewModal}>
 	<Card>
 		<CardTitle>Markup:</CardTitle>
 		<CardText>
@@ -211,5 +213,17 @@
 		.bottom-container {
 			flex-direction: row;
 		}
+	}
+	pre {
+		background-color: #f0f0f0;
+		border-radius: 4px;
+	}
+	code {
+		font-family: menlo, inconsolata, monospace;
+		font-size: calc(1em - 2px);
+		color: #555;
+		background-color: #f0f0f0;
+		padding: 0.2em 0.4em;
+		border-radius: 2px;
 	}
 </style>

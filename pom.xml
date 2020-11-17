@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.vlingo</groupId>
   <artifactId>vlingo-schemata</artifactId>
-  <version>1.3.4-SNAPSHOT</version>
+  <version>1.4.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>vlingo-schemata</name>
   <description>The schema registry for the vlingo/platform.</description>
@@ -130,17 +130,17 @@
     <dependency>
       <groupId>io.vlingo</groupId>
       <artifactId>vlingo-http</artifactId>
-      <version>1.3.4-SNAPSHOT</version>
+      <version>1.4.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.vlingo</groupId>
       <artifactId>vlingo-lattice</artifactId>
-      <version>1.3.4-SNAPSHOT</version>
+      <version>1.4.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>io.vlingo</groupId>
       <artifactId>vlingo-symbio-jdbc</artifactId>
-      <version>1.3.4-SNAPSHOT</version>
+      <version>1.4.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.squareup</groupId>
@@ -170,7 +170,7 @@
     <dependency>
       <groupId>io.vlingo</groupId>
       <artifactId>vlingo-xoom</artifactId>
-      <version>1.3.4-SNAPSHOT</version>
+      <version>1.4.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
   <profiles>
@@ -241,7 +241,7 @@
                 <path>
                   <groupId>io.vlingo</groupId>
                   <artifactId>vlingo-xoom</artifactId>
-                  <version>1.3.4-SNAPSHOT</version>
+                  <version>1.4.1-SNAPSHOT</version>
                 </path>
               </annotationProcessorPaths>
             </configuration>
@@ -259,7 +259,7 @@
                     <path>
                       <groupId>io.vlingo</groupId>
                       <artifactId>vlingo-xoom</artifactId>
-                      <version>1.3.4-SNAPSHOT</version>
+                      <version>1.4.1-SNAPSHOT</version>
                     </path>
                   </annotationProcessorPaths>
                 </configuration>

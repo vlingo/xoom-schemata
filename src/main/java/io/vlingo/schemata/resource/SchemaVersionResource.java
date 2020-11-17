@@ -87,6 +87,8 @@ public class SchemaVersionResource extends DynamicResourceHandler {
       final SemanticVersion currentSemantic = SemanticVersion.from(data.currentVersion);
 
       // FIXME: Refactor into one reactive pipeline without awaiting
+      // doesVersionExist
+      // true -> isSpecificationIncompatible
       if(currentSemantic.equals(previousSemantic.nextPatch()) || currentSemantic.equals(previousSemantic.nextMinor())) {
         SchemaVersionView previousVersion  = schemaVersionQueries.schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
                 .andThen(view -> GreatestVersion.equals(data.previousVersion)
@@ -94,10 +96,7 @@ public class SchemaVersionResource extends DynamicResourceHandler {
                   : view.withVersion(data.previousVersion))
                 .await();
 
-        if (
-          (previousVersion == null || previousVersion.isNone())
-          && !previousSemantic.equals(SemanticVersion.from(0,0,0))
-        ) {
+        if ((previousVersion == null || previousVersion.isNone()) && !previousSemantic.equals(SemanticVersion.from(0,0,0))) {
           return Completes.withSuccess(Response.of(NotFound, "Tried to update non-existing version " + previousSemantic.toString()));
         }
 
