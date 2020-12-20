@@ -59,8 +59,8 @@ jobs:
           command: |
             export VLINGO_SCHEMATA_PORT=9019
             java -jar ~/project/target/vlingo-schemata-*-jar-with-dependencies.jar env &
-            export CYPRESS_BASE_URL=http://localhost:9019/app
-            export API_URL=http://localhost:9019
+            export CYPRESS_BASE_URL=http://localhost:9019/
+            export API_URL=http://localhost:9019/api
             cd ~/project/src/test/e2e
             npm run test-multiple
       - store_test_results:
