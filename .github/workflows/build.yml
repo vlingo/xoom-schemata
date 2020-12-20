@@ -26,11 +26,8 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Configure Maven
-        run: cp .github/settings.xml ~/.m2/settings.xml
-
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots package
+        run: mvn --batch-mode --update-snapshots package -Pfrontend
 
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
