@@ -199,15 +199,6 @@
                 </goals>
                 <phase>initialize</phase>
               </execution>
-              <!-- <execution>
-                <id>npm install node-gyp</id>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <configuration>
-                  <arguments>install node-gyp</arguments>
-                </configuration>
-              </execution> -->
               <execution>
                 <id>npm install</id>
                 <goals>
@@ -288,5 +279,5 @@
       </releases>
     </repository>
   </repositories>
- 
+
 </project>
