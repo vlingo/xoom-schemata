@@ -7,7 +7,7 @@
 [![Build](https://github.com/vlingo/vlingo-schemata/workflows/Build/badge.svg)](https://github.com/vlingo/vlingo-schemata/actions?query=workflow%3ABuild)
 
 
-The **VLINGO**/PLATFORM schema registry.
+The **VLINGO**/PLATFORM Schema Registry.
 
 
 ## Quick Start
