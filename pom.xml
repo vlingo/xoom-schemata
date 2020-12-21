@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.vlingo</groupId>
   <artifactId>vlingo-schemata</artifactId>
-  <version>1.4.3-SNAPSHOT</version>
+  <version>1.4.3</version>
   <packaging>jar</packaging>
   <name>vlingo-schemata</name>
   <description>The schema registry for the vlingo/platform.</description>
