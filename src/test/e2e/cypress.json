@@ -1,9 +1,0 @@
-{
-  "baseUrl": "http://localhost:9019/app",
-  "numTestsKeptInMemory": 1,
-  "chromeWebSecurity": false,
-  "video": true,
-  "env": {
-    "apiUrl": "http://localhost:9019"
-  }
-}

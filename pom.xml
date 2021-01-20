@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.vlingo</groupId>
   <artifactId>vlingo-schemata</artifactId>
-  <version>1.4.1-SNAPSHOT</version>
+  <version>1.4.4-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>vlingo-schemata</name>
   <description>The schema registry for the vlingo/platform.</description>
@@ -113,7 +113,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.13.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -199,15 +199,6 @@
                 </goals>
                 <phase>initialize</phase>
               </execution>
-              <!-- <execution>
-                <id>npm install node-gyp</id>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <configuration>
-                  <arguments>install node-gyp</arguments>
-                </configuration>
-              </execution> -->
               <execution>
                 <id>npm install</id>
                 <goals>
@@ -288,5 +279,5 @@
       </releases>
     </repository>
   </repositories>
- 
+
 </project>

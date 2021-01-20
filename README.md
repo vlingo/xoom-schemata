@@ -4,11 +4,10 @@
 [![Gitter](https://img.shields.io/gitter/room/vlingo-platform-java/community?logo=gitter)](https://gitter.im/vlingo-platform-java/community)
 [![Docker Stars](https://img.shields.io/docker/stars/vlingo/vlingo-schemata?logo=docker)](https://hub.docker.com/r/vlingo/vlingo-schemata)
 [![Docker Pulls](https://img.shields.io/docker/pulls/vlingo/vlingo-schemata?logo=docker)](https://hub.docker.com/r/vlingo/vlingo-schemata)
-[![Travis Build](https://img.shields.io/travis/vlingo/vlingo-schemata?logo=travis)](https://travis-ci.org/vlingo/vlingo-schemata)
-[![CircleCI](https://img.shields.io/circleci/build/github/vlingo/vlingo-schemata?logo=CircleCi)](https://circleci.com/gh/vlingo/vlingo-schemata)
+[![Build](https://github.com/vlingo/vlingo-schemata/workflows/Build/badge.svg)](https://github.com/vlingo/vlingo-schemata/actions?query=workflow%3ABuild)
 
 
-The **VLINGO**/PLATFORM schema registry.
+The **VLINGO**/PLATFORM Schema Registry.
 
 
 ## Quick Start
@@ -191,29 +190,3 @@ Note that this also pulls in the current UI, so don't get confused.
 #### Unit Tests:
 
 Unit tests live in `src/test/java` and are executed by the Maven build (e.g. `mvn test`) as you would expect.
-
-#### E2E Tests:
-
-:warning: These need to be converted from Vue to Svelte, so this is not working for now.
-
-End-to-End tests are implemented using [Cypress.io](https://www.cypress.io/). 
-Test implementations are in `src/test/e2e`.
-
-To run the tests locally, you need to set the URL of the application under test, open cypress and launch select the tests to launch. 
-
-To run the tests against the development server and a locally running (debuggable) backend:
-```
-$ # run XoomInitializer.main from your IDE
-$ cd <project root>/src/main/frontend
-$ npm run dev &
-$ cd <project root>/src/test/e2e
-$ CYPRESS_BASE_URL=http://localhost:8080/app npx cypress open
-```
-
-To run the tests against `vlingo-schemata` within a docker container:
-[Docker Run](#docker-run) + match the E2E base URL default:
-```
-$ cd <project root>/src/test/e2e
-$ export CYPRESS_BASE_URL=http://localhost:9019/app # default
-$ npx cypress open
-```
