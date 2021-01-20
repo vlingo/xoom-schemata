@@ -38,6 +38,7 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("this.eventVersion = io.vlingo.common.version.SemanticVersion.toValue(\"0.0.1\");"));
     assertTrue(result.contains("this.toWhom = toWhom;"));
     assertTrue(result.contains("this.text = text;"));
+    assertFalse(result.contains("public SalutationHappened()"));
   }
 
   @Test

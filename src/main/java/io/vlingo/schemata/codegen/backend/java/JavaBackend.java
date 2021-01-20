@@ -103,14 +103,14 @@ public class JavaBackend implements Backend {
                 .addModifiers(Modifier.PUBLIC)
                 .addCode(CodeBlock.join(computedFieldInitializers, ""))
                 .build();
-                
+
         final TypeSpec.Builder spec = TypeSpec.classBuilder(unqualifiedName(typeName))
                 .addModifiers(Modifier.FINAL, Modifier.PUBLIC)
                 .addMethod(constructor)
                 .superclass(baseClass);
 
         if(constructor.parameters.size() != 0
-            && fields.stream().anyMatch(f -> f.hasDefaultValue() || f.type instanceof ComputableType)) {
+            && fields.stream().allMatch(f -> f.hasDefaultValue() || f.type instanceof ComputableType)) {
             spec.addMethod(noArgConstructor);
         }
 
