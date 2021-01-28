@@ -51,11 +51,11 @@ public abstract class ResourceTest {
     world.stageNamed(Schemata.StageName, Stage.class, new GridAddressFactory(IdentityGeneratorType.RANDOM));
     stage = world.stageNamed(Schemata.StageName);
 
-    final StateStoreProvider stateStoreProvider = StateStoreProvider.using(world);
+    final SchemataConfig config = SchemataConfig.forRuntime(SchemataConfig.RUNTIME_TYPE_DEV);
+
+    final StateStoreProvider stateStoreProvider = StateStoreProvider.using(world, config);
     final ProjectionDispatcherProvider projectionDispatcherProvider =
             ProjectionDispatcherProvider.using(world.stage(), stateStoreProvider.stateStore);
-
-    final SchemataConfig config = SchemataConfig.forRuntime(SchemataConfig.RUNTIME_TYPE_DEV);
 
     StorageProvider storageProvider = StorageProvider.newInstance(world, stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher, config);
 
