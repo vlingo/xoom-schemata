@@ -41,7 +41,7 @@ public class Bootstrap implements XoomInitializationAware {
     try {
       final SchemataConfig config = SchemataConfig.forRuntime(args.length == 0 ? "dev" : args[0]);
 
-      final StateStoreProvider stateStoreProvider = StateStoreProvider.using(stage.world());
+      final StateStoreProvider stateStoreProvider = StateStoreProvider.using(stage.world(), config);
 
       final ProjectionDispatcherProvider projectionDispatcherProvider =
               ProjectionDispatcherProvider.using(stage, stateStoreProvider.stateStore);
