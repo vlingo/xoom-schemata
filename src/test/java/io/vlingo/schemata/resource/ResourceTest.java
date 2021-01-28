@@ -7,6 +7,8 @@
 
 package io.vlingo.schemata.resource;
 
+import org.junit.Before;
+
 import io.vlingo.actors.Grid;
 import io.vlingo.actors.GridAddressFactory;
 import io.vlingo.actors.Stage;
@@ -16,12 +18,17 @@ import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
 import io.vlingo.schemata.Schemata;
+import io.vlingo.schemata.SchemataConfig;
 import io.vlingo.schemata.infra.persistence.ProjectionDispatcherProvider;
 import io.vlingo.schemata.infra.persistence.StateStoreProvider;
 import io.vlingo.schemata.infra.persistence.StorageProvider;
-import io.vlingo.schemata.query.*;
+import io.vlingo.schemata.query.CodeQueries;
+import io.vlingo.schemata.query.ContextQueries;
+import io.vlingo.schemata.query.OrganizationQueries;
+import io.vlingo.schemata.query.SchemaQueries;
+import io.vlingo.schemata.query.SchemaVersionQueries;
+import io.vlingo.schemata.query.UnitQueries;
 import io.vlingo.symbio.store.journal.Journal;
-import org.junit.Before;
 
 public abstract class ResourceTest {
   protected Journal<String> journal;
@@ -48,7 +55,9 @@ public abstract class ResourceTest {
     final ProjectionDispatcherProvider projectionDispatcherProvider =
             ProjectionDispatcherProvider.using(world.stage(), stateStoreProvider.stateStore);
 
-    StorageProvider storageProvider = StorageProvider.newInstance(world, stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher);
+    final SchemataConfig config = SchemataConfig.forRuntime(SchemataConfig.RUNTIME_TYPE_DEV);
+
+    StorageProvider storageProvider = StorageProvider.newInstance(world, stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher, config);
 
     organizationQueries = storageProvider.organizationQueries;
     unitQueries = storageProvider.unitQueries;
