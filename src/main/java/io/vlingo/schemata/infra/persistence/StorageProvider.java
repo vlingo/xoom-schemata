@@ -7,14 +7,71 @@
 
 package io.vlingo.schemata.infra.persistence;
 
+import java.util.Collections;
+
+import io.vlingo.actors.Definition;
 import io.vlingo.actors.World;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
-import io.vlingo.schemata.model.*;
-import io.vlingo.schemata.model.Events.*;
-import io.vlingo.schemata.query.*;
+import io.vlingo.schemata.SchemataConfig;
+import io.vlingo.schemata.model.ContextEntity;
+import io.vlingo.schemata.model.Events.ContextDefined;
+import io.vlingo.schemata.model.Events.ContextDescribed;
+import io.vlingo.schemata.model.Events.ContextMovedToNamespace;
+import io.vlingo.schemata.model.Events.ContextRedefined;
+import io.vlingo.schemata.model.Events.OrganizationDefined;
+import io.vlingo.schemata.model.Events.OrganizationDescribed;
+import io.vlingo.schemata.model.Events.OrganizationRedefined;
+import io.vlingo.schemata.model.Events.OrganizationRenamed;
+import io.vlingo.schemata.model.Events.SchemaCategorized;
+import io.vlingo.schemata.model.Events.SchemaDefined;
+import io.vlingo.schemata.model.Events.SchemaDescribed;
+import io.vlingo.schemata.model.Events.SchemaRedefined;
+import io.vlingo.schemata.model.Events.SchemaRenamed;
+import io.vlingo.schemata.model.Events.SchemaScoped;
+import io.vlingo.schemata.model.Events.SchemaVersionAssigned;
+import io.vlingo.schemata.model.Events.SchemaVersionDefined;
+import io.vlingo.schemata.model.Events.SchemaVersionDeprecated;
+import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
+import io.vlingo.schemata.model.Events.SchemaVersionPublished;
+import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
+import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
+import io.vlingo.schemata.model.Events.UnitDefined;
+import io.vlingo.schemata.model.Events.UnitDescribed;
+import io.vlingo.schemata.model.Events.UnitRedefined;
+import io.vlingo.schemata.model.Events.UnitRenamed;
+import io.vlingo.schemata.model.OrganizationEntity;
+import io.vlingo.schemata.model.SchemaEntity;
+import io.vlingo.schemata.model.SchemaVersionEntity;
+import io.vlingo.schemata.model.UnitEntity;
+import io.vlingo.schemata.query.CodeQueries;
+import io.vlingo.schemata.query.CodeQueriesActor;
+import io.vlingo.schemata.query.ContextQueries;
+import io.vlingo.schemata.query.ContextQueriesActor;
+import io.vlingo.schemata.query.OrganizationQueries;
+import io.vlingo.schemata.query.OrganizationQueriesActor;
+import io.vlingo.schemata.query.SchemaQueries;
+import io.vlingo.schemata.query.SchemaQueriesActor;
+import io.vlingo.schemata.query.SchemaVersionQueries;
+import io.vlingo.schemata.query.SchemaVersionQueriesActor;
+import io.vlingo.schemata.query.TypeResolverQueries;
+import io.vlingo.schemata.query.TypeResolverQueriesActor;
+import io.vlingo.schemata.query.UnitQueries;
+import io.vlingo.schemata.query.UnitQueriesActor;
+import io.vlingo.symbio.Entry;
+import io.vlingo.symbio.State.TextState;
+import io.vlingo.symbio.store.DataFormat;
+import io.vlingo.symbio.store.common.jdbc.Configuration;
+import io.vlingo.symbio.store.common.jdbc.postgres.PostgresConfigurationProvider;
+import io.vlingo.symbio.store.dispatch.Dispatchable;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
+import io.vlingo.symbio.store.dispatch.DispatcherControl;
+import io.vlingo.symbio.store.dispatch.control.DispatcherControlActor;
 import io.vlingo.symbio.store.journal.Journal;
 import io.vlingo.symbio.store.journal.inmemory.InMemoryJournalActor;
+import io.vlingo.symbio.store.journal.jdbc.JDBCDispatcherControlDelegate;
+import io.vlingo.symbio.store.journal.jdbc.JDBCJournalActor;
+import io.vlingo.symbio.store.journal.jdbc.JDBCJournalInstantWriter;
+import io.vlingo.symbio.store.journal.jdbc.JDBCJournalWriter;
 import io.vlingo.symbio.store.state.StateStore;
 
 public class StorageProvider {
@@ -30,15 +87,16 @@ public class StorageProvider {
     public final TypeResolverQueries typeResolverQueries;
 
     @SuppressWarnings({"rawtypes"})
-    public static StorageProvider with(final World world, StateStore stateStore, final Dispatcher dispatcher) {
+    public static StorageProvider with(final World world, StateStore stateStore, final Dispatcher dispatcher, final SchemataConfig config) throws Exception {
         if (instance != null) return instance;
 
-        return newInstance(world, stateStore, dispatcher);
+        return newInstance(world, stateStore, dispatcher, config);
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static StorageProvider newInstance(final World world, StateStore stateStore, final Dispatcher dispatcher) {
-        final Journal<String> journal = world.actorFor(Journal.class, InMemoryJournalActor.class, dispatcher);
+    public static StorageProvider newInstance(final World world, StateStore stateStore, final Dispatcher dispatcher, final SchemataConfig config) throws Exception {
+        final Journal<String> journal = startJounral(world, dispatcher, config);
+
         SourcedTypeRegistry registry = new SourcedTypeRegistry(world);
 
         registry.register(new SourcedTypeRegistry.Info(journal, OrganizationEntity.class, OrganizationEntity.class.getSimpleName()));
@@ -90,8 +148,8 @@ public class StorageProvider {
         CodeQueries codeQueries = world.stage().actorFor(CodeQueries.class, CodeQueriesActor.class, stateStore);
         TypeResolverQueries typeResolverQueries = world.stage().actorFor(TypeResolverQueries.class, TypeResolverQueriesActor.class, codeQueries);
 
-        instance = new StorageProvider(journal, organizationQueries, unitQueries, contextQueries, schemaQueries, schemaVersionQueries, codeQueries,
-                typeResolverQueries);
+        instance = new StorageProvider(journal, organizationQueries, unitQueries, contextQueries, schemaQueries, schemaVersionQueries, codeQueries, typeResolverQueries);
+
         return instance;
     }
 
@@ -110,5 +168,47 @@ public class StorageProvider {
         this.schemaVersionQueries = schemaVersionQueries;
         this.codeQueries = codeQueries;
         this.typeResolverQueries = typeResolverQueries;
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static Journal<String> startJounral(final World world, final Dispatcher dispatcher, final SchemataConfig config) throws Exception {
+      final Journal<String> journal;
+
+      if (config.isProductionRuntimeType() || config.isEnvironmentRuntimeType()) {
+        final Configuration postgresConfiguration =
+                PostgresConfigurationProvider.configuration(
+                        DataFormat.Text,
+                        config.databaseUrl,
+                        config.databaseName,
+                        config.databaseUsername,
+                        config.databasePassword,
+                        config.databaseOriginator,
+                        true);
+
+        final JDBCDispatcherControlDelegate dispatcherControlDelegate =
+                new JDBCDispatcherControlDelegate(Configuration.cloneOf(postgresConfiguration), world.defaultLogger());
+
+        DispatcherControl dispatcherControl = world.stage().actorFor(DispatcherControl.class,
+                Definition.has(DispatcherControlActor.class,
+                        new DispatcherControl.DispatcherControlInstantiator(
+                                Collections.singletonList(typed(dispatcher)),
+                                dispatcherControlDelegate,
+                                StateStore.DefaultCheckConfirmationExpirationInterval,
+                                StateStore.DefaultConfirmationExpiration)));
+
+        JDBCJournalWriter journalWriter = new JDBCJournalInstantWriter(postgresConfiguration, Collections.singletonList(typed(dispatcher)), dispatcherControl);
+
+        journal = world.stage().actorFor(Journal.class, JDBCJournalActor.class, postgresConfiguration, journalWriter);
+
+      } else {
+        journal = world.actorFor(Journal.class, InMemoryJournalActor.class, dispatcher);
+      }
+
+      return journal;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static Dispatcher<Dispatchable<Entry<String>, TextState>> typed(Dispatcher dispatcher) {
+        return dispatcher;
     }
 }

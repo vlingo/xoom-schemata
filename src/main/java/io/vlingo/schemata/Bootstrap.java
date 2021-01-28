@@ -7,26 +7,26 @@
 
 package io.vlingo.schemata;
 
-import io.vlingo.actors.Stage;
-import io.vlingo.http.resource.Configuration;
-import io.vlingo.http.resource.StaticFilesConfiguration;
-import io.vlingo.http.resource.Configuration.Timing;
-import io.vlingo.schemata.infra.persistence.ProjectionDispatcherProvider;
-import io.vlingo.schemata.infra.persistence.StateStoreProvider;
-import io.vlingo.schemata.infra.persistence.StorageProvider;
-import io.vlingo.xoom.XoomInitializationAware;
-import io.vlingo.xoom.annotation.initializer.AddressFactory;
-import io.vlingo.xoom.annotation.initializer.Xoom;
-import io.vlingo.xoom.annotation.initializer.XoomInitializationException;
-import io.vlingo.xoom.annotation.initializer.ResourceHandlers;
+import static io.vlingo.xoom.annotation.initializer.AddressFactory.IdentityGenerator.RANDOM;
+import static io.vlingo.xoom.annotation.initializer.AddressFactory.Type.GRID;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.vlingo.xoom.annotation.initializer.AddressFactory.IdentityGenerator.RANDOM;
-import static io.vlingo.xoom.annotation.initializer.AddressFactory.Type.GRID;
+import io.vlingo.actors.Stage;
+import io.vlingo.http.resource.Configuration;
+import io.vlingo.http.resource.Configuration.Timing;
+import io.vlingo.http.resource.StaticFilesConfiguration;
+import io.vlingo.schemata.infra.persistence.ProjectionDispatcherProvider;
+import io.vlingo.schemata.infra.persistence.StateStoreProvider;
+import io.vlingo.schemata.infra.persistence.StorageProvider;
+import io.vlingo.xoom.XoomInitializationAware;
+import io.vlingo.xoom.annotation.initializer.AddressFactory;
+import io.vlingo.xoom.annotation.initializer.ResourceHandlers;
+import io.vlingo.xoom.annotation.initializer.Xoom;
+import io.vlingo.xoom.annotation.initializer.XoomInitializationException;
 
 @ResourceHandlers(packages = "io.vlingo.schemata.resource")
 @Xoom(name = "vlingo-schemata", addressFactory = @AddressFactory(type = GRID, generator = RANDOM))
@@ -34,26 +34,26 @@ public class Bootstrap implements XoomInitializationAware {
 
   @Override
   public void onInit(final Stage stage) {
-    final StateStoreProvider stateStoreProvider = StateStoreProvider.using(stage.world());
-
-    final ProjectionDispatcherProvider projectionDispatcherProvider =
-            ProjectionDispatcherProvider.using(stage, stateStoreProvider.stateStore);
-
-    StorageProvider.with(stage.world(), stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher);
   }
 
   @Override
   public Configuration configureServer(final Stage stage, final String[] args) {
-    try {    
-      final SchemataConfig config =
-              SchemataConfig.forRuntime(args.length == 0 ? "dev" : args[0]);
+    try {
+      final SchemataConfig config = SchemataConfig.forRuntime(args.length == 0 ? "dev" : args[0]);
+
+      final StateStoreProvider stateStoreProvider = StateStoreProvider.using(stage.world());
+
+      final ProjectionDispatcherProvider projectionDispatcherProvider =
+              ProjectionDispatcherProvider.using(stage, stateStoreProvider.stateStore);
+
+      StorageProvider.with(stage.world(), stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher, config);
 
       final int port =
               config.randomPort ? nextFreePort(9019, 9100) :
                       config.serverPort;
 
       return Configuration.define().withPort(port).with(Timing.defineWith(7, 3, 100));
-    } catch (final IOException exception) {
+    } catch (final Exception exception) {
       throw new XoomInitializationException(exception);
     }
   }
