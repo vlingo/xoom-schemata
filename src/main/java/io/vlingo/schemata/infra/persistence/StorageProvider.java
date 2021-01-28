@@ -8,6 +8,7 @@
 package io.vlingo.schemata.infra.persistence;
 
 import java.util.Collections;
+import java.util.List;
 
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.World;
@@ -188,15 +189,18 @@ public class StorageProvider {
         final JDBCDispatcherControlDelegate dispatcherControlDelegate =
                 new JDBCDispatcherControlDelegate(Configuration.cloneOf(postgresConfiguration), world.defaultLogger());
 
+        final List<Dispatcher<Dispatchable<Entry<String>, TextState>>> dispatchers =
+                Collections.singletonList(typed(dispatcher));
+
         DispatcherControl dispatcherControl = world.stage().actorFor(DispatcherControl.class,
                 Definition.has(DispatcherControlActor.class,
                         new DispatcherControl.DispatcherControlInstantiator(
-                                Collections.singletonList(typed(dispatcher)),
+                                dispatchers,
                                 dispatcherControlDelegate,
-                                StateStore.DefaultCheckConfirmationExpirationInterval,
-                                StateStore.DefaultConfirmationExpiration)));
+                                config.confirmationExpirationInterval,
+                                config.confirmationExpiration)));
 
-        JDBCJournalWriter journalWriter = new JDBCJournalInstantWriter(postgresConfiguration, Collections.singletonList(typed(dispatcher)), dispatcherControl);
+        JDBCJournalWriter journalWriter = new JDBCJournalInstantWriter(postgresConfiguration, dispatchers, dispatcherControl);
 
         journal = world.stage().actorFor(Journal.class, JDBCJournalActor.class, postgresConfiguration, journalWriter);
 
