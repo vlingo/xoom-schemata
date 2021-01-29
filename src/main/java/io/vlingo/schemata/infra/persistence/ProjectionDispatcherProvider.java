@@ -17,7 +17,31 @@ import io.vlingo.actors.Stage;
 import io.vlingo.lattice.model.projection.ProjectionDispatcher;
 import io.vlingo.lattice.model.projection.ProjectionDispatcher.ProjectToDescription;
 import io.vlingo.lattice.model.projection.TextProjectionDispatcherActor;
-import io.vlingo.schemata.model.Events.*;
+import io.vlingo.schemata.model.Events.ContextDefined;
+import io.vlingo.schemata.model.Events.ContextDescribed;
+import io.vlingo.schemata.model.Events.ContextMovedToNamespace;
+import io.vlingo.schemata.model.Events.ContextRedefined;
+import io.vlingo.schemata.model.Events.OrganizationDefined;
+import io.vlingo.schemata.model.Events.OrganizationDescribed;
+import io.vlingo.schemata.model.Events.OrganizationRedefined;
+import io.vlingo.schemata.model.Events.OrganizationRenamed;
+import io.vlingo.schemata.model.Events.SchemaCategorized;
+import io.vlingo.schemata.model.Events.SchemaDefined;
+import io.vlingo.schemata.model.Events.SchemaDescribed;
+import io.vlingo.schemata.model.Events.SchemaRedefined;
+import io.vlingo.schemata.model.Events.SchemaRenamed;
+import io.vlingo.schemata.model.Events.SchemaScoped;
+import io.vlingo.schemata.model.Events.SchemaVersionAssigned;
+import io.vlingo.schemata.model.Events.SchemaVersionDefined;
+import io.vlingo.schemata.model.Events.SchemaVersionDeprecated;
+import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
+import io.vlingo.schemata.model.Events.SchemaVersionPublished;
+import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
+import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
+import io.vlingo.schemata.model.Events.UnitDefined;
+import io.vlingo.schemata.model.Events.UnitDescribed;
+import io.vlingo.schemata.model.Events.UnitRedefined;
+import io.vlingo.schemata.model.Events.UnitRenamed;
 import io.vlingo.symbio.store.dispatch.Dispatcher;
 import io.vlingo.symbio.store.state.StateStore;
 
@@ -26,6 +50,7 @@ public class ProjectionDispatcherProvider {
     public final ProjectionDispatcher projectionDispatcher;
     public final Dispatcher storeDispatcher;
 
+    @SuppressWarnings("unchecked")
     public static ProjectionDispatcherProvider using(final Stage stage, final StateStore stateStore) {
         final List<ProjectToDescription> descriptions =
                 Arrays.asList(
