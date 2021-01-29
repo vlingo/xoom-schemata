@@ -7,6 +7,17 @@
 
 package io.vlingo.schemata.resource;
 
+import static io.vlingo.http.RequestHeader.Authorization;
+import static io.vlingo.http.Response.Status.BadRequest;
+import static io.vlingo.http.Response.Status.InternalServerError;
+import static io.vlingo.http.Response.Status.Ok;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
+import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import io.vlingo.actors.Logger;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
@@ -24,16 +35,13 @@ import io.vlingo.schemata.infra.persistence.StorageProvider;
 import io.vlingo.schemata.model.Path;
 import io.vlingo.schemata.query.CodeQueries;
 import io.vlingo.schemata.query.QueryResultsCollector;
-import io.vlingo.schemata.resource.data.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import static io.vlingo.http.RequestHeader.Authorization;
-import static io.vlingo.http.Response.Status.*;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
+import io.vlingo.schemata.resource.data.AuthorizationData;
+import io.vlingo.schemata.resource.data.ContextData;
+import io.vlingo.schemata.resource.data.OrganizationData;
+import io.vlingo.schemata.resource.data.PathData;
+import io.vlingo.schemata.resource.data.SchemaData;
+import io.vlingo.schemata.resource.data.SchemaVersionData;
+import io.vlingo.schemata.resource.data.UnitData;
 
 //
 // like this:
@@ -76,7 +84,7 @@ public class CodeResource extends DynamicResourceHandler {
     // TODO: this works as of #160, but the usecase might have vanished. All #55-FIXME's could be irrelevant now.
     // final Collector collector = given(context().request, reference);
     logger().debug(context().request.toString());
-    
+
     final Path path = Path.with(reference, true);
 
     return queries.codeFor(path)
@@ -127,6 +135,7 @@ public class CodeResource extends DynamicResourceHandler {
     return compilerFor(stage, language).compile(inputStream, reference, currentVersion);
   }
 
+  @SuppressWarnings("unused")
   private Collector given(final Request request, final String reference) {
     AuthorizationData auth = null;
     PathData path = null;
@@ -160,6 +169,7 @@ public class CodeResource extends DynamicResourceHandler {
             parts[2];
   }
 
+  @SuppressWarnings("unused")
   private Completes<Outcome<SchemataBusinessException,ContextData>> queryContextWith(final ContextData contextIds, final Collector collector) {
 //    final Completes<Outcome<SchemataBusinessException,ContextData>> context =
 //            Queries.forContexts().context(
@@ -179,6 +189,7 @@ public class CodeResource extends DynamicResourceHandler {
     return Completes.withSuccess(code);
   }
 
+  @SuppressWarnings("unused")
   private Completes<ContextData> validateContext(final ContextData context, final Collector collector) {
     return collector.authorization.sameDependent(context.organizationId, context.unitId, context.contextId) ?
             Completes.withSuccess(context) :
@@ -187,7 +198,9 @@ public class CodeResource extends DynamicResourceHandler {
 
   private static class Collector implements QueryResultsCollector {
     public final AuthorizationData authorization;
+    @SuppressWarnings("unused")
     public final ContextData contextIndentities;
+    @SuppressWarnings("unused")
     public final PathData path;
 
     private Completes<Outcome<SchemataBusinessException,OrganizationData>> eventualOrganization;
