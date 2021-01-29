@@ -7,6 +7,9 @@
 
 package io.vlingo.schemata.infra.persistence;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.IdentifiedDomainEvent;
 import io.vlingo.lattice.model.projection.Projectable;
@@ -15,9 +18,6 @@ import io.vlingo.schemata.model.Events;
 import io.vlingo.schemata.query.view.ContextView;
 import io.vlingo.symbio.Entry;
 import io.vlingo.symbio.store.state.StateStore;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ContextProjection extends StateStoreProjectionActor<ContextView> {
     private String dataId;
@@ -86,6 +86,9 @@ public class ContextProjection extends StateStoreProjectionActor<ContextView> {
                 case Unmatched:
                     logger().warn("Event of type " + event.typeName() + " was not matched.");
                     break;
+                case UnitDefined:
+                  // unused
+                  break;
             }
         }
 

@@ -89,6 +89,9 @@ public class UnitProjection extends StateStoreProjectionActor<UnitView> {
                 case Unmatched:
                     logger().warn("Event of type " + event.typeName() + " was not matched.");
                     break;
+                case OrganizationDefined:
+                  // unused
+                  break;
             }
         }
 

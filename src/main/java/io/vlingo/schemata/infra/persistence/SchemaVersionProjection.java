@@ -7,18 +7,24 @@
 
 package io.vlingo.schemata.infra.persistence;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.vlingo.lattice.model.DomainEvent;
 import io.vlingo.lattice.model.IdentifiedDomainEvent;
 import io.vlingo.lattice.model.projection.Projectable;
 import io.vlingo.lattice.model.projection.StateStoreProjectionActor;
-import io.vlingo.schemata.model.Events.*;
+import io.vlingo.schemata.model.Events.SchemaVersionAssigned;
+import io.vlingo.schemata.model.Events.SchemaVersionDefined;
+import io.vlingo.schemata.model.Events.SchemaVersionDeprecated;
+import io.vlingo.schemata.model.Events.SchemaVersionDescribed;
+import io.vlingo.schemata.model.Events.SchemaVersionPublished;
+import io.vlingo.schemata.model.Events.SchemaVersionRemoved;
+import io.vlingo.schemata.model.Events.SchemaVersionSpecified;
 import io.vlingo.schemata.model.SchemaVersion.Status;
 import io.vlingo.schemata.query.view.SchemaVersionView;
 import io.vlingo.symbio.Entry;
 import io.vlingo.symbio.store.state.StateStore;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SchemaVersionProjection extends StateStoreProjectionActor<SchemaVersionView> {
     private String dataId;
@@ -94,6 +100,9 @@ public class SchemaVersionProjection extends StateStoreProjectionActor<SchemaVer
                 case Unmatched:
                     logger().warn("Event of type " + event.typeName() + " was not matched.");
                     break;
+                case SchemaDefined:
+                  // unused
+                  break;
             }
         }
 
