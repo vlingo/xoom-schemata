@@ -69,7 +69,7 @@ export function initStoresOfOne() {
 			break;
 		case "schemaVersion": schemaVersionStore.set(get(schemaVersionsStore)[0]);
 			break;
-		default: console.log("type is non-existent.");
+		default: console.log("stores are empty");
 	}
 	switch(deepestLeaf.type) {
 		case "schemaVersion": schemaStore.set(get(schemasStore).find(s => s.schemaId == get(schemaVersionStore).schemaId));
@@ -77,8 +77,6 @@ export function initStoresOfOne() {
 		case "context": unitStore.set(get(unitsStore).find(u => u.unitId == get(contextStore).unitId));
 		case "unit": organizationStore.set(get(organizationsStore).find(o => o.organizationId == get(unitStore).organizationId));
 		case "organization": //do nothing
-		break;
-		default: console.log("type is non-existent.");
 	}
 }
 
@@ -87,61 +85,68 @@ export function isObjectInAStore(file, ...stores) {
 	switch(file.type) {
 		case "organization":
 			return get(organizationStore) ? get(organizationStore).organizationId == file.id : false;
-			break;
 		case "unit":
 			return get(unitStore) ? get(unitStore).unitId == file.id : false;
-			break;
 		case "context":
 			return get(contextStore) ? get(contextStore).contextId == file.id : false;
-			break;
 		case "schema":
 			return get(schemaStore) ? get(schemaStore).schemaId == file.id : false;
-			break;
 		case "schemaVersion":
 			return get(schemaVersionStore) ? get(schemaVersionStore).schemaVersionId == file.id : false;
-			break;
 		default: console.log("type root");
 	}
 }
+// switch(file.type) {
+// 	case "organization": expanded = $organizationStore ? $organizationStore.organizationId === file.id : false;
+// 	break;
+// 	case "unit": expanded = $unitStore ? $unitStore.unitId === file.id : false;
+// 	break;
+// 	case "context": expanded = $contextStore ? $contextStore.contextId === file.id : false;
+// 	break;
+// 	case "schema": expanded = $schemaStore ? $schemaStore.schemaId === file.id : false;
+// 	break;
+// 	case "schemaVersion":  expanded = $schemaVersionStore ? $schemaVersionStore.schemaVersionId === file.id : false;
+// 	default: console.log("type root");
+// }
 
 export function adjustStoresTo(file) {
 	switch(file.type) {
 		case "organization":
-			setOrganizationStoreToOrganizationWithId(file.id);
+			setStoreToObjectWithId(organizationStore, organizationsStore, "organizationId", file.id);
 			break;
 		case "unit":
-			setUnitStoreToUnitWithId(file.id);
-			setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
+			setStoreToObjectWithId(unitStore, unitsStore, "unitId", file.id);
+			setStoreToObjectWithId(organizationStore, organizationsStore, "organizationId", get(unitStore).organizationId)
 			break;
 		case "context":
-			setContextStoreToContextWithId(file.id);
-			setUnitStoreToUnitWithId(get(contextStore).unitId);
-			setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
+			setStoreToObjectWithId(contextStore, contextsStore, "contextId", file.id);
+			setStoreToObjectWithId(unitStore, unitsStore, "unitId", get(contextStore).unitId)
+			setStoreToObjectWithId(organizationStore, organizationsStore, "organizationId", get(unitStore).organizationId)
 			break;
 		case "schema":
-			setSchemaStoreToSchemaWithId(file.id);
-			setContextStoreToContextWithId(get(schemaStore).contextId);
-			setUnitStoreToUnitWithId(get(contextStore).unitId);
-			setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
+			setStoreToObjectWithId(schemaStore, schemasStore, "schemaId", file.id);
+			setStoreToObjectWithId(contextStore, contextsStore, "contextId", get(schemaStore).contextId)
+			setStoreToObjectWithId(unitStore, unitsStore, "unitId", get(contextStore).unitId)
+			setStoreToObjectWithId(organizationStore, organizationsStore, "organizationId", get(unitStore).organizationId)
 			break;
 		case "schemaVersion":
-			setSchemaVersionToSchemaVersionWithId(file.id)
-			setSchemaStoreToSchemaWithId(get(schemaVersionStore).schemaId);
-			setContextStoreToContextWithId(get(schemaStore).contextId);
-			setUnitStoreToUnitWithId(get(contextStore).unitId);
-			setOrganizationStoreToOrganizationWithId(get(unitStore).organizationId);
+			setStoreToObjectWithId(schemaVersionStore, schemaVersionsStore, "schemaVersionId", file.id)
+			setStoreToObjectWithId(schemaStore, schemasStore, "schemaId", get(schemaVersionStore).schemaId)
+			setStoreToObjectWithId(contextStore, contextsStore, "contextId", get(schemaStore).contextId)
+			setStoreToObjectWithId(unitStore, unitsStore, "unitId", get(contextStore).unitId)
+			setStoreToObjectWithId(organizationStore, organizationsStore, "organizationId", get(unitStore).organizationId)
 			break;
 		default: console.log("type is non-existent.");
 	}
 	switch(file.type) {
 		case "organization":
-			resetStores(unitStore);
+			resetStore(unitStore);
 		case "unit":
-			resetStores(contextStore);
+			resetStore(contextStore);
 		case "context":
-			resetStores(schemaStore);
+			resetStore(schemaStore);
 		case "schema":
-			resetStores(schemaVersionStore);
+			resetStore(schemaVersionStore);
 		case "schemaVersion":
 			break;
 		default: console.log("type is non-existent.");
@@ -152,52 +157,30 @@ export function adjustStoresTo(file) {
 export function deAdjustStoresTo(type) {
 	switch(type) {
 		case "organization":
-			resetStores(organizationStore);
+			resetStore(organizationStore);
 		case "unit":
-			resetStores(unitStore);
+			resetStore(unitStore);
 		case "context":
-			resetStores(contextStore);
+			resetStore(contextStore);
 		case "schema":
-			resetStores(schemaStore);
+			resetStore(schemaStore);
 		case "schemaVersion":
-			resetStores(schemaVersionStore);
+			resetStore(schemaVersionStore);
 			break;
 		default: console.log("type is non-existent.");
 	}
 }
 
-function resetStores(...stores) {
-	stores.forEach(store => store.set(undefined));
+function resetStore(store) {
+	store.set(undefined);
 }
 
-function setSchemaVersionToSchemaVersionWithId(id) {
-	schemaVersionStore.set(
-		get(schemaVersionsStore).find(obj => obj.schemaVersionId == id)
-	);
-}
-function setSchemaStoreToSchemaWithId(id) {
-	schemaStore.set(
-		get(schemasStore).find(obj => obj.schemaId == id)
-	);
-}
-function setContextStoreToContextWithId(id) {
-	contextStore.set(
-		get(contextsStore).find(obj => obj.contextId == id)
-	);
-}
-function setUnitStoreToUnitWithId(id) {
-	unitStore.set(
-		get(unitsStore).find(obj => obj.unitId == id)
-	);
-}
-function setOrganizationStoreToOrganizationWithId(id) {
-	organizationStore.set(
-		get(organizationsStore).find(obj => obj.organizationId == id)
-	);
+function setStoreToObjectWithId(storeOne, storeAll, idProp, id) {
+	storeOne.set(get(storeAll).find(obj => obj[idProp] === id))
 }
 
-export function isStoreEmpty(store) {
-	for(var _ in store) return false;
+export function isEmpty(obj) {
+	for(var _ in obj) return false;
 	return true;
 }
 
