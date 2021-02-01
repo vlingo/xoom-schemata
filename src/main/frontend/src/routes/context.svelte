@@ -48,7 +48,7 @@
 	}
 
 	const define = async () => {
-		if(!definable) { console.log(errors.SUBMIT); return; }
+		if(!definable) return;
 		SchemataRepository.createContext(($organizationStore).organizationId, ($unitStore).unitId, namespace, description)
 			.then(created => {
 				updateStores(created);
@@ -57,7 +57,7 @@
 			})
 	}
 	const redefine = async () => {
-		if(!redefinable) { console.log(errors.SUBMIT); return; }
+		if(!redefinable) return;
 		SchemataRepository.updateContext(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, namespace, description)
 			.then(updated => {
 				updateStores(updated, true);

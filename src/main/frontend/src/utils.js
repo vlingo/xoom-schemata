@@ -9,7 +9,6 @@ export function getFileString(file, detailed) {
 		case "context": return makeStringFrom(file, filterCommonFrom(file, detailed), detailed);
 		case "schema": return makeStringFrom(file, filterSchemaAttributes(filterCommonFrom(file, detailed)), detailed);
 		case "schemaVersion": return makeStringFrom(file, filterSchemaVersionAttributes(filterCommonFrom(file, detailed)), detailed);
-		default: console.log("type is non-existent.");
 	}
 	
 }
@@ -69,7 +68,6 @@ export function initStoresOfOne() {
 			break;
 		case "schemaVersion": schemaVersionStore.set(get(schemaVersionsStore)[0]);
 			break;
-		default: console.log("stores are empty");
 	}
 	switch(deepestLeaf.type) {
 		case "schemaVersion": schemaStore.set(get(schemasStore).find(s => s.schemaId == get(schemaVersionStore).schemaId));
@@ -93,9 +91,9 @@ export function isObjectInAStore(file, ...stores) {
 			return get(schemaStore) ? get(schemaStore).schemaId == file.id : false;
 		case "schemaVersion":
 			return get(schemaVersionStore) ? get(schemaVersionStore).schemaVersionId == file.id : false;
-		default: console.log("type root");
 	}
 }
+// isObjectInAStore is only used once, we could do this inline:
 // switch(file.type) {
 // 	case "organization": expanded = $organizationStore ? $organizationStore.organizationId === file.id : false;
 // 	break;
@@ -106,7 +104,6 @@ export function isObjectInAStore(file, ...stores) {
 // 	case "schema": expanded = $schemaStore ? $schemaStore.schemaId === file.id : false;
 // 	break;
 // 	case "schemaVersion":  expanded = $schemaVersionStore ? $schemaVersionStore.schemaVersionId === file.id : false;
-// 	default: console.log("type root");
 // }
 
 export function adjustStoresTo(file) {
@@ -136,7 +133,6 @@ export function adjustStoresTo(file) {
 			setStoreToObjectWithId(unitStore, unitsStore, "unitId", get(contextStore).unitId)
 			setStoreToObjectWithId(organizationStore, organizationsStore, "organizationId", get(unitStore).organizationId)
 			break;
-		default: console.log("type is non-existent.");
 	}
 	switch(file.type) {
 		case "organization":
@@ -149,7 +145,6 @@ export function adjustStoresTo(file) {
 			resetStore(schemaVersionStore);
 		case "schemaVersion":
 			break;
-		default: console.log("type is non-existent.");
 	}
 }
 
@@ -167,7 +162,6 @@ export function deAdjustStoresTo(type) {
 		case "schemaVersion":
 			resetStore(schemaVersionStore);
 			break;
-		default: console.log("type is non-existent.");
 	}
 }
 
@@ -211,12 +205,6 @@ export function stringReturner(obj, detailed) {
 }
 
 export function changedSelect(array, detailed) {
-	// return [{
-	// 	value: "",
-	// 	name: " "
-	// }].concat(array.map(obj => {
-	// 	return initSelected(obj, stringReturner, idReturner, detailed);
-	// }))
 	return array.map(obj => {
 		return initSelected(obj, stringReturner, idReturner, detailed);
 	})
@@ -231,5 +219,3 @@ function initSelected(obj, stringReturner, idReturner, detailed) {
 	}
 	return {};
 }
-
-// console.log(get(organizationsStore), get(organizationStore), get(unitsStore), get(unitStore), get(contextsStore), get(contextStore), get(schemasStore), get(schemaStore), get(schemaVersionsStore), get(schemaVersionStore));

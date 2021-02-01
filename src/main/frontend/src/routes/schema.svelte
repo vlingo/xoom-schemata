@@ -35,19 +35,16 @@
 // 	$: fullyQualified = getFullyQualifiedName("organization", $organizationStore);
 	
 	function changedOrganization(store) {
-		console.log({store});
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
 	
 	function changedUnit(store) {
-		console.log({store});
 		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
 		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
 	
 	function changedContext(store) {
-		console.log({store});
 		compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
 		$schemaStore = compatibleSchemas.length > 0 ? compatibleSchemas[compatibleSchemas.length-1] : undefined;
 	}
@@ -77,7 +74,7 @@
 	}
 
 	const define = () => {
-		if(!definable) { console.log(errors.SUBMIT); return; }
+		if(!definable) return;
 		SchemataRepository.createSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, name, scope[0], category[0], description)
 			.then(created => {
 				updateStores(created);
@@ -87,7 +84,7 @@
 	}
 
 	const redefine = async () => {
-		if(!redefinable) { console.log(errors.SUBMIT); return; }
+		if(!redefinable) return;
 		SchemataRepository.updateSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, name, category[0], scope[0], description)
 			.then(updated => {
 				updateStores(updated, true);

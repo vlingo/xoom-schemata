@@ -25,11 +25,8 @@
 	export let schemaVersions = [];
 	
 	if($firstPage) {
-		console.log(orgs, units, contexts, schemas, schemaVersions);
-		console.log($organizationsStore, $organizationStore, $unitsStore, $unitStore, $contextsStore, $contextStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore);		
 		setAllStores();
 		$firstPage = false;
-		console.log($organizationsStore, $organizationStore, $unitsStore, $unitStore, $contextsStore, $contextStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore);
 	}
 	
 	function setAllStores() {
@@ -64,7 +61,7 @@
 	const toggleTheme = () => $theme = ($theme === "light") ? "dark" : "light";
 	$: bgTheme = ($theme === "light") ? "#ffffff" : "#212121"
 	//debug, btw. this doesn't fire when store gets set to undefined, for whatever reason
-	$: console.log({$organizationsStore}, {$organizationStore}, {$unitsStore}, {$unitStore}, {$contextsStore}, {$contextStore}, {$schemasStore}, {$schemaStore}, {$schemaVersionsStore}, {$schemaVersionStore});
+	// $: console.log({$organizationsStore}, {$organizationStore}, {$unitsStore}, {$unitStore}, {$contextsStore}, {$contextStore}, {$schemasStore}, {$schemaStore}, {$schemaVersionsStore}, {$schemaVersionStore});
 </script>
 
 <svelte:window on:resize={checkMobile} />

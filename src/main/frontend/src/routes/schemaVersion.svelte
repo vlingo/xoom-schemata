@@ -110,9 +110,7 @@
 	let changes;
 	//FIXME: this shouldn't be able to jump from 0.0.0 to 1.0.0 and then again from 0.0.0 to 1.0.1. It needs to take the closest available version under it as comparison, not 0.0.0.
 	const define = () => {
-		if(!definable) { console.log(errors.SUBMIT); return; }
-		if(validator(previous) || validator(current)) { console.log(errors.SUBMITVER); return; }
-		if(versionAlreadyExists(current)) { console.log(errors.SUBMITVEREXISTS); return; }
+		if(!definable) return;
 		SchemataRepository.createSchemaVersion(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId,
 			($schemaStore).schemaId, specification, description, previous, current)
 			.then(created => {

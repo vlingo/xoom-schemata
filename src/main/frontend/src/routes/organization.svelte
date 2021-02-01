@@ -23,7 +23,7 @@
 	}
 
 	const define = async () => {
-		if(!definable) { console.log(errors.SUBMIT); return; }
+		if(!definable) return;
 		SchemataRepository.createOrganization(name, description)
 			.then(created => {
 				updateStores(created);
@@ -32,7 +32,7 @@
 	}
 
 	const redefine = async () => {
-		if(!redefinable) { console.log(errors.SUBMIT); return; }
+		if(!redefinable) return;
 		SchemataRepository.updateOrganization(($organizationStore).organizationId, name, description)
 			.then(updated => {
 				updateStores(updated, true);

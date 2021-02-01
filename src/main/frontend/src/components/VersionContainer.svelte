@@ -5,7 +5,6 @@
 	import ValidatedInput from '../components/form/ValidatedInput.svelte';
 	import ButtonBar from '../components/form/ButtonBar.svelte';
 	import Button from '../components/form/Button.svelte';
-	import errors from '../errors';
 	import marked from 'marked';
 	import Card from 'svelte-materialify/src/components/Card';
 	import ButtonGroup from 'svelte-materialify/src/components/ButtonGroup';
@@ -21,8 +20,15 @@
 	let statusChip;
 
 	let active;
+	let showCodeModal = false;
+	let chosenLang;
+	let langs = [
+		'Java',
+		'C#',
+	]
+	let sourceCode = "";
+	let showPreviewModal = false;
 
-	$: {changedVersionStore($schemaVersionStore)};
 	function changedVersionStore($schemaVersionStore) {
 		specification = $schemaVersionStore ? $schemaVersionStore.specification : "";
 		description = $schemaVersionStore ? $schemaVersionStore.description : "";
@@ -38,11 +44,9 @@
 		}
 	}
 
+	const statusRedefinable = (status) => definable && status;
 	const updateDescription = () => {
-		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !description) {
-			console.log(errors.SUBMIT);
-			return;
-		}
+		if(!descDefinable) return;
 		SchemataRepository.patchSchemaVersionDescription(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, description)
 			.then(updated => {
 				updateStores(updated, true);
@@ -51,10 +55,7 @@
 	}
 
 	const updateSpecification = () => {
-		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !specification) {
-			console.log(errors.SUBMIT);
-			return;
-		}
+		if(!specDefinable) return;
 		SchemataRepository.patchSchemaVersionSpecification(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, specification)
 			.then(updated => {
 				updateStores(updated, true);
@@ -63,10 +64,7 @@
 	}
 
 	const updateStatus = (updatedStatus) => {
-		if(!$schemaVersionStore || !$organizationStore || !$unitStore || !$contextStore || !$schemaStore || !updatedStatus) {
-			console.log(errors.SUBMIT);
-			return;
-		}
+		if(!statusRedefinable(updatedStatus)) return;
 		SchemataRepository.patchSchemaVersionStatus(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, updatedStatus)
 			.then(updated => {
 				updateStores(updated, true);
@@ -80,9 +78,6 @@
 		$schemaVersionsStore.push(obj);
 	}
 
-	let showCodeModal = false;
-	const toggleCodeModal = () => showCodeModal = !showCodeModal;
-
 	// ($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, "java")
 	const sourceCodeFor = (lang) => {
 		if(lang != "java" || !showCodeModal) return;
@@ -93,40 +88,19 @@
 			})
 	};
 
-	let chosenLang;
-	$: if(chosenLang && typeof chosenLang === "string") sourceCodeFor(chosenLang.toLowerCase());
-	$: if(!showCodeModal) {chosenLang = undefined; sourceCode = undefined;}
-	let langs = [
-		'Java',
-		'C#',
-	]
-	let sourceCode = "";
-
-	let showPreviewModal = false;
+	const toggleCodeModal = () => showCodeModal = !showCodeModal;
 	const togglePreviewModal = () => showPreviewModal = !showPreviewModal;
-
 	const changeActive = (index) => active = index === 0 ? "spec" : "desc";
 
+	$: changedVersionStore($schemaVersionStore);
+	$: definable = $schemaVersionStore && $organizationStore && $unitStore && $contextStore && $schemaStore
+	$: descDefinable = definable && description
+	$: specDefinable = definable && specification
+	$: if(chosenLang && typeof chosenLang === "string") sourceCodeFor(chosenLang.toLowerCase());
+	$: if(!showCodeModal) {chosenLang = undefined; sourceCode = undefined;}
 	$: status = $schemaVersionStore ? $schemaVersionStore.status : "";
-
-	// onMount(async () => {
-	// 	let script = document.createElement('script');
-	// 	script.type = "module";
-   	// 	script.src = "https://cdn.jsdelivr.net/gh/vanillawc/wc-monaco-editor@1/index.js";
-   	// 	document.head.append(script);
-
-   	// 	script.onload = function() {
-	// 		   console.log("test");
-   	// 	};
-	// 	// const { default: WCMonacoEditor } = await import('@vanillawc/wc-monaco-editor');
-	// 	// const { default: EditorWorker } = await import('@vanillawc/wc-monaco-editor/monaco/workers/editor.worker');
-	// });
-		
 </script>
 
-<!-- <svelte:head>
-	<script src="https://cdn.jsdelivr.net/gh/vanillawc/wc-monaco-editor@1/index.js"></script>
-</svelte:head> -->
 
 <div class="bottom-container">
 	<div class="bottom-flex">
@@ -156,7 +130,7 @@
 				{/if}
 				<Button outlined color="info" icon={mdiSourcePull} text="CODE" on:click={toggleCodeModal}/>
 				{#if status === "Draft"}
-					<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}/>
+					<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateSpecification}  disabled={!specDefinable}/>
 				{/if}
 			</ButtonBar>
 		{:else if active=="desc"}
@@ -164,7 +138,7 @@
 			<ButtonBar>
 				<Button color="success" icon={mdiFileFind} text="PREVIEW" on:click={togglePreviewModal}/>
 				<Button color="warning" icon={mdiFileUndo} text="REVERT" on:click={() => description = $schemaVersionStore.description}/>
-				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateDescription}/>
+				<Button color="info" icon={mdiContentSave} text="SAVE" on:click={updateDescription} disabled={!descDefinable}/>
 			</ButtonBar>
 		{/if}
 	</Card>
