@@ -7,14 +7,12 @@
 </script>
 
 <script>
-	import { Button, Icon, MaterialApp } from "svelte-materialify/src";
+	import { Button, Icon, MaterialApp, Container, AppBar } from "svelte-materialify/src";
 	import { contextsStore, firstPage, isMobile, organizationsStore, schemasStore, schemaVersionsStore, theme, unitsStore} from '../stores';
 	import { initStoresOfOne } from '../utils';
-	import AppBar from 'svelte-materialify/src/components/AppBar';
 	import { mdiMenu, mdiWeatherNight, mdiWeatherSunny, mdiGithub } from '@mdi/js';
 	import { onMount } from 'svelte';
 	import SiteNavigation from '../components/SiteNavigation.svelte';
-	import Container from 'svelte-materialify/src/components/Grid/Container.svelte';
 
 	export let segment;
 
@@ -39,30 +37,18 @@
 	}
 
 	let sidenav = false;
-	let breakpoints = {};
-	function checkMobile() {
-		$isMobile = window.matchMedia(breakpoints['md-and-down']).matches;
-	}
+	const toggleTheme = () => $theme = ($theme === "light") ? "dark" : "light";
+	$: bgTheme = ($theme === "light") ? "#ffffff" : "#212121";
+
 	onMount(() => {
 		SchemataRepository.setFetchFunction(fetch);
-		$theme = window.localStorage.getItem('theme') || 'light';
-		const unsubscribe = theme.subscribe((value) => {
-			window.localStorage.setItem('theme', value);
-		});
-		import('svelte-materialify/src/utils/breakpoints').then(({ default: data }) => {
-			breakpoints = data;
-			checkMobile();
-		});
-		return unsubscribe;
-	});
-
-	const toggleTheme = () => $theme = ($theme === "light") ? "dark" : "light";
-	$: bgTheme = ($theme === "light") ? "#ffffff" : "#212121"
+		isMobile.check();
+	})
 	//debug, btw. this doesn't fire when store gets set to undefined, for whatever reason
 	// $: console.log({$organizationsStore}, {$organizationStore}, {$unitsStore}, {$unitStore}, {$contextsStore}, {$contextStore}, {$schemasStore}, {$schemaStore}, {$schemaVersionsStore}, {$schemaVersionStore});
 </script>
 
-<svelte:window on:resize={checkMobile} />
+<svelte:window on:resize={isMobile.check} />
 
 <div style="height: 100%; background-color: {bgTheme}">
 <MaterialApp theme={$theme}>
@@ -99,11 +85,22 @@
 </MaterialApp>
 </div>
 
-<style>
+<style lang="scss" global>
+	@import 'svelte-materialify/src/styles/variables';
+
 	main {
 	  padding-top: 5rem;
 	}
 	.navigation-enabled {
 	  padding: 5rem 11rem 0 18rem;
+	}
+	.error {
+		label, .s-input__details {
+			color: $error-color !important;
+		}
+	}
+	.s-card {
+		box-shadow: 0 0 64px 16px rgba(0, 0, 0, 0.075) !important;
+		border-radius: 16px !important;
 	}
 </style>
