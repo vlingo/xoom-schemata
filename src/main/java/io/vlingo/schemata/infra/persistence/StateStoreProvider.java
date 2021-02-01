@@ -68,6 +68,7 @@ public class StateStoreProvider {
 
         } else {
           stateStore = world.stage().actorFor(StateStore.class, InMemoryStateStoreActor.class, Arrays.asList(new NoopDispatcher()));
+          new StateStoreInitializationPrimer(world).prime(stateStore);
         }
 
         return new StateStoreProvider(stateStore);
