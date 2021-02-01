@@ -10,7 +10,7 @@
 	.button-bar {
 		display: flex;
 		justify-content: flex-end;
-
+		width: 100%;
 		flex-wrap: wrap;
 	}
 
