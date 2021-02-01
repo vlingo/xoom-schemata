@@ -1,6 +1,5 @@
 <script>
-	import { TextField, Textarea, Select } from 'svelte-materialify/src';
-	import ListItem from 'svelte-materialify/src/components/List/ListItem.svelte';
+	import { TextField, Textarea, Select, ListItem } from 'svelte-materialify/src';
 	import errors from "../../errors";
 	import { detailed } from '../../stores';
 	import { idReturner, stringReturner } from '../../utils';
