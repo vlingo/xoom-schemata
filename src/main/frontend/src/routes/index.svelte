@@ -6,9 +6,8 @@
 	import SchemaAlert from '../components/alerts/SchemaAlert.svelte';
 	import VersionAlert from '../components/alerts/VersionAlert.svelte';
 	import VersionContainer from '../components/VersionContainer.svelte';
-	import Card from 'svelte-materialify/src/components/Card';
-	import CardTitle from 'svelte-materialify/src/components/Card/CardTitle.svelte';
-	import Switch from 'svelte-materialify/src/components/Switch';
+
+	import { Card, CardTitle, Switch } from 'svelte-materialify/src';
 	import { contextsStore, contextStore, detailed, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
 	import { isEmpty } from '../utils';
 

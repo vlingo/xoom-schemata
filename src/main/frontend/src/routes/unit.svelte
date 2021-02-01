@@ -6,7 +6,6 @@
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
 	import { isEmpty } from '../utils';
-	import errors from '../errors';
 
 	let name;
 	let description;

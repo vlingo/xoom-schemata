@@ -1,18 +1,15 @@
 <script>
 	import { contextStore, organizationStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitStore } from '../stores';
 	import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull, mdiFileFind, mdiFileUndo, mdiContentSave} from '@mdi/js'
+	import { Card, ButtonGroup, ButtonGroupItem, Chip, Radio, Dialog, CardTitle, CardText } from 'svelte-materialify/src';
 	import SchemataRepository from '../api/SchemataRepository';
 	import ValidatedInput from '../components/form/ValidatedInput.svelte';
 	import ButtonBar from '../components/form/ButtonBar.svelte';
 	import Button from '../components/form/Button.svelte';
 	import marked from 'marked';
-	import Card from 'svelte-materialify/src/components/Card';
-	import ButtonGroup from 'svelte-materialify/src/components/ButtonGroup';
-	import ButtonGroupItem from 'svelte-materialify/src/components/ButtonGroup/ButtonGroupItem.svelte';
-	import { createEventDispatcher, onMount } from 'svelte';
-	import Chip from 'svelte-materialify/src/components/Chip';
-	import { Dialog, CardTitle, CardText } from 'svelte-materialify/src';
-	import Radio from 'svelte-materialify/src/components/Radio';
+
+
+	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
 	let specification;

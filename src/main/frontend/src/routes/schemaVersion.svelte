@@ -187,7 +187,7 @@
 	</Card>
 	<ValidatedInput rows="8" outlined type="textarea" label="Specification" bind:value={specification} disabled={!defineMode}/>
 
-	<div slot="buttons">
+	<div style="flex:1;" slot="buttons">
 		<ButtonBar>
 			<div class="mr-auto">
 				<Button color="info" text="New Schema Version" on:click={newVersion}/>
