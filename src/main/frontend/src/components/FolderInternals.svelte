@@ -13,13 +13,11 @@
 </script>
 
 <Tooltip tooltipText={file.type}>
-	<Clickable {file} bind:selected={expanded}>
+	<Clickable {file} bind:expanded>
 		{#if expandable}
 			{#if expanded}▾{:else}▸{/if}
 		{/if}
 
-		<!-- this can also be done via the initial array in index.svelte -->
-		<!-- {#if file.icon} <Icon icon={file.icon}/> {/if}-->
 		{#if file.status == "Draft"}
 			<Icon style="color: inherit" path={mdiPlaylistPlay} />
 		{:else if file.status == "Published"}

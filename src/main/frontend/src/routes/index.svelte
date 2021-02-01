@@ -10,171 +10,136 @@
 	import CardTitle from 'svelte-materialify/src/components/Card/CardTitle.svelte';
 	import Switch from 'svelte-materialify/src/components/Switch';
 	import { contextsStore, contextStore, detailed, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
-	import { isStoreEmpty } from '../utils';
+	import { isEmpty } from '../utils';
 
-	//could change to organizationId, unitId, etc.
-	//also could be reduced to one big function which would reduce for-loops
-	// ################
-	// for(const org of tree) {
-	// 	const compatibleUnits = ($unitsStore).find(u => u.organizationId == org.id);
-	// 	if(compatibleUnits) org.files = [];
-	// 	for(const unit of compatibleUnits) {
-	// 		org.files.push(
-	// 			{
+	// let root = { files: {
+	// 	"org1" : {
+	// 		type: 'organization',
+	// 		name: "org.name",
+	// 		description: "org.description",
+	// 		id: "org.organizationId",
+	// 		files: {
+	// 			"unit1": {
 	// 				type: 'unit',
-	// 				name: unit.name,
-	// 				description: unit.description,
-	// 				id: unit.unitId
+	// 				name: "unit.name",
+	// 				description: "unit.description",
+	// 				id: "unit.unitId",
+	// 				files: {
+	// 					"context1": {
+	// 						type: 'context',
+	// 						namespace: "context.namespace",
+	// 						description: "context.description",
+	// 						id: "context.contextId",
+	// 						files: {
+	// 							"schema1" : {
+	// 								type: 'schema',
+	// 								name: "schema.name",
+	// 								description: "schema.description",
+	// 								category: "schema.category",
+	// 								scope: "schema.scope",
+	// 								id: "schema.schemaId",
+	// 								files: {
+	// 									"1.0.0" : {
+	// 										type: 'schemaVersion',
+	// 										status: "schemaVersion.status",
+	// 										specification: "schemaVersion.specification",
+	// 										description: "schemaVersion.description",
+	// 										previous: "schemaVersion.previousVersion",
+	// 										current: "schemaVersion.currentVersion",
+	// 										id: "schemaVersion.schemaVersionId"
+	// 									},
+	// 									"2.0.0" : {
+	// 										type: 'schemaVersion',
+	// 										status: "schemaVersion.status2",
+	// 										specification: "schemaVersion.specification2",
+	// 										description: "schemaVersion.description2",
+	// 										previous: "schemaVersion.previousVersion2",
+	// 										current: "schemaVersion.currentVersion2",
+	// 										id: "schemaVersion.schemaVersionId2"
+	// 									}
+	// 								}
+	// 							}
+	// 						}
+	// 					}
+	// 				}
 	// 			}
-	// 		)
-	// 		//you would need something like org.files[0], org.files[1], etc to do this, also still seems non-optimal
+	// 		}
 	// 	}
-	// }
-	// ################
-	let tree = [];
-	tree.files = [];
-	// onMount(async () => {
-	if(process.browser) {
+	// }}
 
+	const getTree = () => {
+		const root = {};
+		root.files = {};
 		for(const org of $organizationsStore) {
-			tree.files.push(
-				{
-					type: 'organization',
-					name: org.name,
-					description: org.description,
-					id: org.organizationId
-				}
-			)
-		}
-		
-		for(const org of tree.files) {
-			const compatibleUnits = ($unitsStore).filter(u => u.organizationId == org.id);
-			if(compatibleUnits.length>0) org.files = [];
-
+			root.files[org.organizationId] = {
+				type: 'organization',
+				name: org.name,
+				description: org.description,
+				id: org.organizationId
+			}
+			const compatibleUnits = ($unitsStore).filter(u => u.organizationId == org.organizationId);
+			root.files[org.organizationId].files = {};
 			for(const unit of compatibleUnits) {
-				org.files.push(
-					{
-						type: 'unit',
-						name: unit.name,
-						description: unit.description,
-						id: unit.unitId
-					}
-				)
-			}
-		}
-		
-		for(const org of tree.files) {
-			if(org.files) {
-				for(const unit of org.files) {
-					const compatibleContexts = ($contextsStore).filter(c => c.unitId == unit.id);
-					if(compatibleContexts.length>0) unit.files = [];
-
-					for(const context of compatibleContexts) {
-						unit.files.push(
-							{
-								type: 'context',
-								namespace: context.namespace,
-								description: context.description,
-								id: context.contextId
-							}
-						)
-					}
+				root.files[org.organizationId].files[unit.unitId] = {
+					type: 'unit',
+					name: unit.name,
+					description: unit.description,
+					id: unit.unitId
 				}
-			}
-		}
-
-		for(const org of tree.files) {
-			if(org.files) {
-				for(const unit of org.files) {
-					if(unit.files) {
-						for(const context of unit.files) {
-							const compatibleSchemas = ($schemasStore).filter(s => s.contextId == context.id);
-							if(compatibleSchemas.length>0) context.files = [];
-
-							for(const schema of compatibleSchemas) {
-								context.files.push(
-									{
-										type: 'schema',
-										name: schema.name,
-										description: schema.description,
-										category: schema.category,
-										scope: schema.scope,
-										id: schema.schemaId
-									}
-								)
+				const compatibleContexts = ($contextsStore).filter(c => c.unitId == unit.unitId);
+				root.files[org.organizationId].files[unit.unitId].files = {};
+				for(const context of compatibleContexts) {
+					root.files[org.organizationId].files[unit.unitId].files[context.contextId] = {
+						type: 'context',
+						namespace: context.namespace,
+						description: context.description,
+						id: context.contextId
+					}
+					const compatibleSchemas = ($schemasStore).filter(s => s.contextId == context.contextId);
+					root.files[org.organizationId].files[unit.unitId].files[context.contextId].files = {};
+					for(const schema of compatibleSchemas) {
+						root.files[org.organizationId].files[unit.unitId].files[context.contextId].files[schema.schemaId] = {
+							type: 'schema',
+							name: schema.name,
+							description: schema.description,
+							category: schema.category,
+							scope: schema.scope,
+							id: schema.schemaId
+						}
+						const compatibleSchemaVersions = ($schemaVersionsStore).filter(sv => sv.schemaId == schema.schemaId);
+						root.files[org.organizationId].files[unit.unitId].files[context.contextId].files[schema.schemaId].files = {};
+						for(const schemaVersion of compatibleSchemaVersions) {
+							root.files[org.organizationId].files[unit.unitId].files[context.contextId].files[schema.schemaId].files[schemaVersion.schemaVersionId] = {
+								type: 'schemaVersion',
+								status: schemaVersion.status,
+								specification: schemaVersion.specification,
+								description: schemaVersion.description,
+								previous: schemaVersion.previousVersion,
+								current: schemaVersion.currentVersion,
+								id: schemaVersion.schemaVersionId
 							}
 						}
 					}
 				}
 			}
 		}
-
-		for(const org of tree.files) {
-			if(org.files) {
-				for(const unit of org.files) {
-					if(unit.files) {
-						for(const context of unit.files) {
-							if(context.files) {
-								for(const schema of context.files) {
-									const compatibleSchemaVersions = ($schemaVersionsStore).filter(sv => sv.schemaId == schema.id);
-									if(compatibleSchemaVersions.length>0) schema.files = [];
-									
-									for(const schemaVersion of compatibleSchemaVersions) {
-										schema.files.push(
-											{
-												type: 'schemaVersion',
-												status: schemaVersion.status,
-												specification: schemaVersion.specification,
-												description: schemaVersion.description,
-												previous: schemaVersion.previousVersion,
-												current: schemaVersion.currentVersion,
-												id: schemaVersion.schemaVersionId
-											}
-										)
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		// console.log(document);
+		return root;
 	}
-	
-	let root = [];
-	root = tree;
+
+
+	let root = getTree();
 	console.log(root);
 
 	function updateTreeWith(updated) {
-		// the tree could also just be a map: root[orgId][unitId]...
-		function replaceInTree(rootfiles, updated) {
-			let idsFromOrgToVersion = [updated.organizationId, updated.unitId, updated.contextId, updated.schemaId, updated.schemaVersionId];
-			function recursiveSearch(array, iteration) {
-				const idx = array.findIndex(el => el.id == idsFromOrgToVersion[iteration]);
-				//end
-				if(iteration >= idsFromOrgToVersion.length-1) {
-					console.log(array, idx);
-					array[idx] =
-					{
-						type: 'schemaVersion',
-						status: updated.status,
-						specification: updated.specification,
-						description: updated.description,
-						previous: updated.previousVersion,
-						current: updated.currentVersion,
-						id: updated.schemaVersionId
-					};
-					return
-				}
-				recursiveSearch(array[idx].files, ++iteration);
-			}
-			//start
-			recursiveSearch(rootfiles, 0);
-		}
-		replaceInTree(root.files, updated);
-		root = root;
+		root.files[updated.organizationId].files[updated.unitId].files[updated.contextId].files[updated.schemaId].files[updated.schemaVersionId] = {
+			type: 'schemaVersion',
+			status: updated.status,
+			specification: updated.specification,
+			description: updated.description,
+			previous: updated.previousVersion,
+			current: updated.currentVersion,
+			id: updated.schemaVersionId
+		};
 	}
 
 </script>
@@ -184,24 +149,24 @@
 </svelte:head>
 
 <Card>
-	{#if root.files.length > 0}
-	<CardTitle>
-		Home
-		<span style="margin-left: auto; font-size: 1rem;"><Switch bind:checked={$detailed}>Details</Switch></span>
-	</CardTitle>
+	{#if $organizationsStore.length}
+		<CardTitle>
+			Home
+			<span style="margin-left: auto; font-size: 1rem;"><Switch bind:checked={$detailed}>Details</Switch></span>
+		</CardTitle>
 		<!-- <ValidatedInput type="search" placeholder="Search..."/> -->
-		<Folder detailed={$detailed} file={root} first={true}/>
+		<Folder detailed={$detailed} file={root} first/>
 	{/if}
 
-	{#if root.files.length < 1}
+	{#if !$organizationsStore.length}
 		<OrganizationAlert/>
-	{:else if $unitsStore.length < 1}
+	{:else if !$unitsStore.length}
 		<UnitAlert/>
-	{:else if $contextsStore.length < 1}
+	{:else if !$contextsStore.length}
 		<ContextAlert/>
-	{:else if $schemasStore.length < 1}
+	{:else if !$schemasStore.length}
 		<SchemaAlert/>
-	{:else if $schemaVersionsStore.length < 1}
+	{:else if !$schemaVersionsStore.length}
 		<VersionAlert/>
 	{:else}
 		{#if !$organizationStore}
@@ -218,6 +183,6 @@
 	{/if}
 </Card>
 
-{#if !isStoreEmpty($schemaVersionStore)}
+{#if !isEmpty($schemaVersionStore)}
 	<VersionContainer on:versionChanged={(v) => updateTreeWith(v.detail)}/>
 {/if}

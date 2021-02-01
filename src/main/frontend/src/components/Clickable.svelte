@@ -9,7 +9,7 @@
 	import { schemaVersionStore } from '../stores';
 	
 	export let file;
-	export let selected;
+	export let expanded;
 	let item;
 
 	$: if(!isObjectInAStore(file)) {
@@ -25,7 +25,7 @@
 	}
 	
 	function toggleThis() {
-		if(!selected) {
+		if(!expanded) {
 			adjustStoresTo(file);
 			$current = item;
 		} else {
@@ -33,10 +33,9 @@
 		}
 	}
 
-	$: active = (item == $current);
 </script>
 
-<div transition:fade={{ duration: 100 }} bind:this={item} class:active={active} class:notActive={!active} on:click={toggleThis}>
+<div transition:fade={{ duration: 100 }} bind:this={item} class:active={item === $current} on:click={toggleThis}>
 	<slot/>
 </div>
 
@@ -46,7 +45,7 @@
 		font-weight: bold;
 		/* background-color: var(--vlingo-color1);  only do this on the schemaVersion*/
 	}
-	.notActive {
+	div {
 		font-weight: lighter;
 	}
 </style>

@@ -1,5 +1,5 @@
 <script>
-	import { isObjectInAStore } from "../utils";
+	import { isEmpty, isObjectInAStore } from "../utils";
 	import { contextStore, organizationStore, schemaStore, schemaVersionStore, unitStore } from '../stores';
 	import FolderInternals from './FolderInternals.svelte';
 	export let first = false;
@@ -12,22 +12,21 @@
 
 
 {#if !first}
-<span class:expanded>
-	<FolderInternals {file} expandable={true} bind:expanded={expanded} detailed={detailed}/>
-</span>
+	<span class:expanded>
+		<FolderInternals {file} expandable bind:expanded {detailed}/>
+	</span>
 {/if}
 
 {#if expanded || first}
 	<ul>
-		{#each file.files as file}
+		{#each Object.values(file.files) as file}
 			<li>
-				{#if file.files != undefined}
-					<svelte:self {file} detailed={detailed}/>
+				{#if !isEmpty(file.files)}
+					<svelte:self {file} {detailed}/>
 				{:else}
-					<!-- original: <span>{file.name}</span>   style="background-image: url(tutorial/icons/{type}.svg) -->
 					<!-- this is the leaf-element, we could style it differently-->
 					<span>
-						<FolderInternals {file} expandable={false} detailed={detailed}/>
+						<FolderInternals {file} {detailed}/>
 					</span>
 				{/if}
 			</li>
@@ -37,27 +36,17 @@
 
 
 <style>
-	.expanded {
-		/* background-image: url(tutorial/icons/folder-open.svg); */
-	}
 	span {
-		/* padding: 0 0 0 1.5em; */
-		/* background: url(tutorial/icons/folder.svg) 0 0.1em no-repeat; */
-		/* background-size: 1em 1em; */
 		font-weight: bold;
 		cursor: pointer;
-		
-		/* make unmarkable */
 		user-select: none;
 	}
-
 	ul {
 		padding: 0.2em 0 0 0.5em;
 		margin: 0 0 0 2em;
 		list-style: none;
 		border-left: 1px solid #eee;
 	}
-
 	li {
 		padding: 0.2em 0;
 	}
