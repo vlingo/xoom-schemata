@@ -1,7 +1,7 @@
 
 const root = "api"
 
-export async function get(path) {
+export async function get(path, fetch) {
 	const res = await fetch(root + path);
 	return res;
 }

@@ -1,55 +1,8 @@
 <script context="module">
 	import SchemataRepository from '../api/SchemataRepository';
-
-	export async function preload(page, session) {
-
-		if(process.browser) {
-
-		let orgs = [];
-		
-		let units = [];
-
-		let contexts = [];
-
-		let schemas = [];
-
-		let schemaVersions = [];
-		
-		try {
-
-		orgs.push(...await SchemataRepository.getOrganizations());
-
-		for(const org of orgs) {
-			const orgUnits = await SchemataRepository.getUnits(org.organizationId);
-			if(orgUnits) {
-				units.push(...orgUnits);
-				for(const unit of units.filter(u => u.organizationId == org.organizationId)) {
-					const unitContexts = await SchemataRepository.getContexts(org.organizationId, unit.unitId);
-					if(unitContexts) {
-						contexts.push(...unitContexts);
-						for(const context of contexts.filter(c => c.unitId == unit.unitId)) {
-							const contextSchemas = await SchemataRepository.getSchemata(org.organizationId, unit.unitId, context.contextId);
-							if(contextSchemas) {
-								schemas.push(...contextSchemas);
-								for(const schema of schemas.filter(s => s.contextId == context.contextId)) {
-									const schemaSchemaVersions = await SchemataRepository.getVersions(org.organizationId, unit.unitId, context.contextId, schema.schemaId);
-									if(schemaSchemaVersions) {
-										schemaVersions.push(...schemaSchemaVersions);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-	} catch (e) {
-		console.error(`${e}: API is unreachable.`);
-	}
-
-		return { orgs, units, contexts, schemas, schemaVersions };
-		}
+	export async function preload() {
+		SchemataRepository.setFetchFunction(this.fetch)
+		return await SchemataRepository.getAll();
 	}
 </script>
 
@@ -58,7 +11,7 @@
 	import { contextsStore, contextStore, firstPage, mobileStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, theme, unitsStore, unitStore } from '../stores';
 	import { initStoresOfOne } from '../utils';
 	import AppBar from 'svelte-materialify/src/components/AppBar';
-	import { mdiMenu, mdiWeatherNight, mdiWeatherSunny } from '@mdi/js';
+	import { mdiMenu, mdiWeatherNight, mdiWeatherSunny, mdiGithub } from '@mdi/js';
 	import { onMount } from 'svelte';
 	import SiteNavigation from '../components/SiteNavigation.svelte';
 	import Container from 'svelte-materialify/src/components/Grid/Container.svelte';
@@ -72,25 +25,14 @@
 	export let schemaVersions = [];
 	
 	if($firstPage) {
-		console.log({$firstPage}, "BEFORE");
 		console.log(orgs, units, contexts, schemas, schemaVersions);
 		console.log($organizationsStore, $organizationStore, $unitsStore, $unitStore, $contextsStore, $contextStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore);		
 		setAllStores();
-
 		$firstPage = false;
-
-		console.log({$firstPage}, "AFTER");
 		console.log($organizationsStore, $organizationStore, $unitsStore, $unitStore, $contextsStore, $contextStore, $schemasStore, $schemaStore, $schemaVersionsStore, $schemaVersionStore);
 	}
 	
 	function setAllStores() {
-		// test if it still works without all arrays defined
-		// function initStoreOfAll(array, storeOfAll) {
-		// 	if(array) {
-		// 		storeOfAll.update(arr => arr.concat(...array));
-		// 	}
-		// }
-		
 		$organizationsStore = orgs;
 		$unitsStore = units;
 		$contextsStore = contexts;
@@ -107,6 +49,7 @@
 		mobile = window.matchMedia(breakpoints['md-and-down']).matches;
 	}
 	onMount(() => {
+		SchemataRepository.setFetchFunction(fetch);
 		$theme = window.localStorage.getItem('theme') || 'light';
 		const unsubscribe = theme.subscribe((value) => {
 			window.localStorage.setItem('theme', value);
@@ -128,7 +71,7 @@
 
 <div style="height: 100%; background-color: {bgTheme}">
 <MaterialApp theme={$theme}>
-	<AppBar fixed style="width:100%"> <!-- class={'primary-color theme--dark'} -->
+	<AppBar fixed style="width:100%">
     	<div slot="icon">
     	  {#if mobile}
     	    <Button fab depressed on:click={() => (sidenav = !sidenav)} aria-label="Open Menu">
@@ -138,15 +81,11 @@
 		</div>
 		<a href="." slot="title" class="text--primary"><span style="color: var(--theme-text-primary)"> VLINGO/SCHEMATA </span></a>
 		<div style="flex-grow:1" />
-    	<!-- <a
-    	  href="https://github.com/TheComputerM/svelte-materialify"
-    	  target="_blank"
-    	  rel="noopener">
-    	  <Button class="white-text grey darken-3" aria-label="GitHub" fab={mobile}>
-    	    <Icon path={mdiGithub} class={!mobile ? 'mr-3' : ''} />
-    	    {#if !mobile}GitHub{/if}
+    	<a href="https://github.com/vlingo/vlingo-schemata" target="_blank" rel="noopener">
+    	  <Button class="white-text grey darken-3" aria-label="GitHub" fab>
+    	    <Icon path={mdiGithub} />
     	  </Button>
-    	</a> -->
+    	</a>
     	<Button fab text on:click={toggleTheme} aria-label="Toggle Theme">
     		<Icon path={$theme === "light" ? mdiWeatherNight : mdiWeatherSunny}/>
     	</Button>

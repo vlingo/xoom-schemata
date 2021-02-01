@@ -41,8 +41,14 @@ function ensureCreated(response) {
   return ensure(response, 201);
 }
 
+let fetch;
+
+function setFetchFunction(fetchFunc) {
+  fetch = fetchFunc;
+}
+
 async function repoGet(path) {
-  return Repository.get(path)
+  return Repository.get(path, fetch)
   .then(ensureOk)
   .then(res => res.json());
 }
@@ -59,49 +65,53 @@ async function repoPut(path, body) {
 	.then(res => res.json());
 }
 
+async function getOrganizations() {
+  return repoGet(resources.organizations())
+}
+async function getOrganization(organization) {
+  return repoGet(resources.organizations(organization))
+}
+
+async function getUnits(organization) {
+  return repoGet(resources.units(organization))
+}
+async function getUnit(organization, unit) {
+  return repoGet(resources.unit(organization, unit))
+}
+
+async function getContexts(organization, unit) {
+  return repoGet(resources.contexts(organization, unit))
+}
+async function getContext(organization, unit, context) {
+  return repoGet(resources.context(organization, unit, context))
+}
+
+async function getCategories() {
+  return repoGet(resources.categories())
+}
+async function getScopes() {
+  return repoGet(resources.scopes())
+}
+
+async function getSchemata(organization, unit, context) {
+  return repoGet(resources.schemata(organization, unit, context))
+}
+async function getSchema(organization, unit, context, schema) {
+  return repoGet(resources.schema(organization, unit, context, schema))
+}
+
+async function getVersions(organization, unit, context, schema) {
+  return repoGet(resources.versions(organization, unit, context, schema))
+}
+async function getVersion(organization, unit, context, schema, version) {
+  return repoGet(resources.version(organization, unit, context, schema, version))
+}
+
 export default {
-  getOrganizations() {
-    return repoGet(resources.organizations())
-  },
-  getOrganization(organization) {
-    return repoGet(resources.organizations(organization))
-  },
-  getUnits(organization) {
-    return repoGet(resources.units(organization))
-  },
-  getUnit(organization, unit) {
-    return repoGet(resources.unit(organization, unit))
-  },
-
-  getContexts(organization, unit) {
-    return repoGet(resources.contexts(organization, unit))
-  },
-  getContext(organization, unit, context) {
-    return repoGet(resources.context(organization, unit, context))
-  },
-
-  getCategories() {
-    return repoGet(resources.categories())
-  },
-  getScopes() {
-    return repoGet(resources.scopes())
-  },
-  getSchemata(organization, unit, context) {
-    return repoGet(resources.schemata(organization, unit, context))
-  },
-  getSchema(organization, unit, context, schema) {
-    return repoGet(resources.schema(organization, unit, context, schema))
-  },
-
-  getVersions(organization, unit, context, schema) {
-    return repoGet(resources.versions(organization, unit, context, schema))
-  },
-  getVersion(organization, unit, context, schema, version) {
-    return repoGet(resources.version(organization, unit, context, schema, version))
-  },
-
+  setFetchFunction,
+  getOrganizations, getOrganization, getUnits, getUnit, getContexts, getContext, getCategories, getScopes, getSchemata, getSchema, getVersions, getVersion,
   loadSources(organization, unit, context, schema, version, language) {
-    return Repository.get(resources.sources(organization, unit, context, schema, version, language))
+    return Repository.get(resources.sources(organization, unit, context, schema, version, language), fetch)
       .then(ensureOk)
       .then(response => response.text())
   },
@@ -211,4 +221,42 @@ export default {
       .then(ensureOk)
       .then(response => response.json())
   },
+  async getAll() {
+    let orgs = [];
+		let units = [];
+		let contexts = [];
+		let schemas = [];
+		let schemaVersions = [];
+		
+		try {
+			orgs.push(...await getOrganizations());
+			for(const org of orgs) {
+				const orgUnits = await getUnits(org.organizationId);
+				if(orgUnits) {
+					units.push(...orgUnits);
+					for(const unit of units.filter(u => u.organizationId == org.organizationId)) {
+						const unitContexts = await getContexts(org.organizationId, unit.unitId);
+						if(unitContexts) {
+							contexts.push(...unitContexts);
+							for(const context of contexts.filter(c => c.unitId == unit.unitId)) {
+								const contextSchemas = await getSchemata(org.organizationId, unit.unitId, context.contextId);
+								if(contextSchemas) {
+									schemas.push(...contextSchemas);
+									for(const schema of schemas.filter(s => s.contextId == context.contextId)) {
+										const schemaSchemaVersions = await getVersions(org.organizationId, unit.unitId, context.contextId, schema.schemaId);
+										if(schemaSchemaVersions) {
+											schemaVersions.push(...schemaSchemaVersions);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch (e) {
+			console.error(`${e}: API is unreachable.`);
+    }
+    return { orgs, units, contexts, schemas, schemaVersions };
+  }
 }
