@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.resource;
 
+import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.Command;
@@ -39,6 +40,7 @@ class OrganizationCommands {
               .speaks(Organization.class)
               .to(OrganizationEntity.class)
               .at(organizationId.value)
+              .createsWith(Definition.parameters(organizationId))
               .named(Organization.nameFrom(organizationId))
               .delivers(describeAs)
               .answers(Completes.using(stage.scheduler()))
@@ -61,6 +63,7 @@ class OrganizationCommands {
               .speaks(Organization.class)
               .to(OrganizationEntity.class)
               .at(organizationId.value)
+              .createsWith(Definition.parameters(organizationId))
               .named(Organization.nameFrom(organizationId))
               .delivers(redefineWith)
               .answers(Completes.using(stage.scheduler()))
@@ -82,6 +85,7 @@ class OrganizationCommands {
               .speaks(Organization.class)
               .to(OrganizationEntity.class)
               .at(organizationId.value)
+              .createsWith(Definition.parameters(organizationId))
               .named(Organization.nameFrom(organizationId))
               .delivers(renameTo)
               .answers(Completes.using(stage.scheduler()))

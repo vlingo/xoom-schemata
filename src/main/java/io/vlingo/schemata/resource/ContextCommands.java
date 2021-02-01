@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.resource;
 
+import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.Command;
@@ -39,6 +40,7 @@ class ContextCommands {
               .speaks(Context.class)
               .to(ContextEntity.class)
               .at(contextId.value)
+              .createsWith(Definition.parameters(contextId))
               .named(Context.nameFrom(contextId))
               .delivers(describeAs)
               .answers(Completes.using(stage.scheduler()))
@@ -60,6 +62,7 @@ class ContextCommands {
               .speaks(Context.class)
               .to(ContextEntity.class)
               .at(contextId.value)
+              .createsWith(Definition.parameters(contextId))
               .named(Context.nameFrom(contextId))
               .delivers(renameTo)
               .answers(Completes.using(stage.scheduler()))
@@ -82,6 +85,7 @@ class ContextCommands {
               .speaks(Context.class)
               .to(ContextEntity.class)
               .at(contextId.value)
+              .createsWith(Definition.parameters(contextId))
               .named(Context.nameFrom(contextId))
               .delivers(redefineWith)
               .answers(Completes.using(stage.scheduler()))

@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.resource;
 
+import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.Command;
@@ -39,6 +40,7 @@ class UnitCommands {
               .speaks(Unit.class)
               .to(UnitEntity.class)
               .at(unitId.value)
+              .createsWith(Definition.parameters(unitId))
               .named(Unit.nameFrom(unitId))
               .delivers(describeAs)
               .answers(Completes.using(stage.scheduler()))
@@ -61,6 +63,7 @@ class UnitCommands {
               .speaks(Unit.class)
               .to(UnitEntity.class)
               .at(unitId.value)
+              .createsWith(Definition.parameters(unitId))
               .named(Unit.nameFrom(unitId))
               .delivers(defineWith)
               .answers(Completes.using(stage.scheduler()))
@@ -83,6 +86,7 @@ class UnitCommands {
               .speaks(Unit.class)
               .to(UnitEntity.class)
               .at(unitId.value)
+              .createsWith(Definition.parameters(unitId))
               .named(Unit.nameFrom(unitId))
               .delivers(redefineWith)
               .answers(Completes.using(stage.scheduler()))
@@ -104,6 +108,7 @@ class UnitCommands {
               .speaks(Unit.class)
               .to(UnitEntity.class)
               .at(unitId.value)
+              .createsWith(Definition.parameters(unitId))
               .named(Unit.nameFrom(unitId))
               .delivers(renameTo)
               .answers(Completes.using(stage.scheduler()))

@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.resource;
 
+import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.common.Outcome;
@@ -45,6 +46,7 @@ class SchemaVersionCommands {
               .speaks(SchemaVersion.class)
               .to(SchemaVersionEntity.class)
               .at(schemaVersionId.value)
+              .createsWith(Definition.parameters(schemaVersionId))
               .named(SchemaVersion.nameFrom(schemaVersionId))
               .delivers(describeAs)
               .answers(Completes.using(stage.scheduler()))
@@ -65,6 +67,7 @@ class SchemaVersionCommands {
               .speaks(SchemaVersion.class)
               .to(SchemaVersionEntity.class)
               .at(schemaVersionId.value)
+              .createsWith(Definition.parameters(schemaVersionId))
               .named(SchemaVersion.nameFrom(schemaVersionId))
               .delivers(publish)
               .answers(Completes.using(stage.scheduler()))
@@ -85,6 +88,7 @@ class SchemaVersionCommands {
               .speaks(SchemaVersion.class)
               .to(SchemaVersionEntity.class)
               .at(schemaVersionId.value)
+              .createsWith(Definition.parameters(schemaVersionId))
               .named(SchemaVersion.nameFrom(schemaVersionId))
               .delivers(deprecate)
               .answers(Completes.using(stage.scheduler()))
@@ -105,6 +109,7 @@ class SchemaVersionCommands {
               .speaks(SchemaVersion.class)
               .to(SchemaVersionEntity.class)
               .at(schemaVersionId.value)
+              .createsWith(Definition.parameters(schemaVersionId))
               .named(SchemaVersion.nameFrom(schemaVersionId))
               .delivers(remove)
               .answers(Completes.using(stage.scheduler()))
@@ -126,6 +131,7 @@ class SchemaVersionCommands {
               .speaks(SchemaVersion.class)
               .to(SchemaVersionEntity.class)
               .at(schemaVersionId.value)
+              .createsWith(Definition.parameters(schemaVersionId))
               .named(SchemaVersion.nameFrom(schemaVersionId))
               .delivers(specifyWith)
               .answers(Completes.using(stage.scheduler()))
@@ -146,6 +152,7 @@ class SchemaVersionCommands {
         .speaks(SchemaVersion.class)
         .to(SchemaVersionEntity.class)
         .at(schemaVersionId.value)
+        .createsWith(Definition.parameters(schemaVersionId))
         .named(SchemaVersion.nameFrom(schemaVersionId))
         .delivers(diffAgainst)
         .answers(Completes.using(stage.scheduler()))

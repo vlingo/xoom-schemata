@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.resource;
 
+import io.vlingo.actors.Definition;
 import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.lattice.model.Command;
@@ -41,6 +42,7 @@ class SchemaCommands {
               .speaks(Schema.class)
               .to(SchemaEntity.class)
               .at(schemaId.value)
+              .createsWith(Definition.parameters(schemaId))
               .named(Schema.nameFrom(schemaId))
               .delivers(categorizedAs)
               .answers(Completes.using(stage.scheduler()))
@@ -62,6 +64,7 @@ class SchemaCommands {
               .speaks(Schema.class)
               .to(SchemaEntity.class)
               .at(schemaId.value)
+              .createsWith(Definition.parameters(schemaId))
               .named(Schema.nameFrom(schemaId))
               .delivers(scopeAs)
               .answers(Completes.using(stage.scheduler()))
@@ -83,6 +86,7 @@ class SchemaCommands {
               .speaks(Schema.class)
               .to(SchemaEntity.class)
               .at(schemaId.value)
+              .createsWith(Definition.parameters(schemaId))
               .named(Schema.nameFrom(schemaId))
               .delivers(describeAs)
               .answers(Completes.using(stage.scheduler()))
@@ -107,6 +111,7 @@ class SchemaCommands {
               .speaks(Schema.class)
               .to(SchemaEntity.class)
               .at(schemaId.value)
+              .createsWith(Definition.parameters(schemaId))
               .named(Schema.nameFrom(schemaId))
               .delivers(redefineWith)
               .answers(Completes.using(stage.scheduler()))
@@ -128,6 +133,7 @@ class SchemaCommands {
               .speaks(Schema.class)
               .to(SchemaEntity.class)
               .at(schemaId.value)
+              .createsWith(Definition.parameters(schemaId))
               .named(Schema.nameFrom(schemaId))
               .delivers(renameTo)
               .answers(Completes.using(stage.scheduler()))
