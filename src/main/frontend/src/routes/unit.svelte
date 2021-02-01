@@ -5,7 +5,7 @@
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
-	import { isStoreEmpty } from '../utils';
+	import { isEmpty } from '../utils';
 	import errors from '../errors';
 
 	let name;
@@ -13,12 +13,13 @@
 
 	let compatibleUnits = [];
 
-	$: changedOrganization($organizationStore)
+	let fullyQualified;
+	
 	function changedOrganization(store) {
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	$: changedUnit($unitStore);
+	
 	function changedUnit(store) {
 		if(store) {
 			name = store.name;
@@ -29,7 +30,7 @@
 		}
 	}
 
-	let defineMode = isStoreEmpty(($unitsStore));
+	let defineMode = isEmpty(($unitsStore));
 	const newUnit = () => {
 		name = "";
 		description = "";
@@ -37,12 +38,8 @@
 		defineMode = true;
 	}
 
-	// ++organizationStore is always an object, right? so it always returns true.. so check emptyness instead, probably - or have it be undefined instead of empty object
-	const definable = () => (name && description && $organizationStore);
-	const updatable = () => (name && description && $organizationStore && $unitStore);
-
 	const define = async () => {
-		if(!definable()) { console.log(errors.SUBMIT); return; }
+		if(!definable) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.createUnit(($organizationStore).organizationId, name, description)
 			.then(created => {
 				updateStores(created);
@@ -51,7 +48,7 @@
 			})
 	}
 	const redefine = async () => {
-		if(!updatable) { console.log(errors.SUBMIT); return; }
+		if(!redefinable) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.updateUnit(($organizationStore).organizationId, ($unitStore).unitId, name, description)
 			.then(updated => {
 				updateStores(updated, true);
@@ -68,20 +65,10 @@
 		compatibleUnits = $organizationStore ? $unitsStore.filter(u => u.organizationId == $organizationStore.organizationId) : [];
 	}
 
-	let isDefineDisabled = true;
-	let isNextDisabled = true;
-	let isRedefineDisabled = true;
-
-
-	$: if(!defineMode) { isNextDisabled = false; }
-
-	$: if(name && description && $organizationStore && $unitStore) {
-		isRedefineDisabled = false;
-	} else {
-		isRedefineDisabled = true;
-	}
-
-	let fullyQualified;
+	$: changedOrganization($organizationStore)
+	$: changedUnit($unitStore);
+	$: definable = name && description && $organizationStore;
+	$: redefinable = definable && $unitStore;
 </script>
 
 <svelte:head>
@@ -89,7 +76,7 @@
 </svelte:head>
 
 <CardForm title="Unit" linkToNext="New Context" on:new={newUnit} on:redefine={redefine} on:define={define} 
-isDefineDisabled={!(name && description && $organizationStore && defineMode)} isNextDisabled={defineMode} isRedefineDisabled={!(name && description && $organizationStore && $unitStore)}
+isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{#if !defineMode}

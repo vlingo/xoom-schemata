@@ -2,10 +2,9 @@
 	import CardForm from '../components/form/CardForm.svelte';
 	import ValidatedInput from '../components/form/ValidatedInput.svelte';
 	import Select from '../components/form/Select.svelte';
-
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, unitsStore, unitStore } from '../stores';
-	import { isStoreEmpty } from '../utils';
+	import { isEmpty } from '../utils';
 	import errors from "../errors";
 	const validName = (name) => {
 		return /^([a-z_]\d*(\.[a-z_])?)+$/.test(name) ? undefined : errors.NAMESPACE; //underscore should also be possible! see https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
@@ -17,17 +16,18 @@
 	let compatibleUnits = [];
 	let compatibleContexts = [];
 
-	$: changedOrganization($organizationStore)
+	let fullyQualified;
+	
 	function changedOrganization(store) {
-		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
-		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
+		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId === store.organizationId) : [];
+		$unitStore = compatibleUnits.length ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	$: changedUnit($unitStore)
+	
 	function changedUnit(store) {
-		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
-		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
+		compatibleContexts = store ? $contextsStore.filter(c => c.unitId === store.unitId) : [];
+		$contextStore = compatibleContexts.length ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
-	$: changedContext($contextStore);
+	
 	function changedContext(store) {
 		if(store) {
 			namespace = store.namespace;
@@ -39,7 +39,7 @@
 	}
 
 
-	let defineMode = isStoreEmpty(($contextsStore));
+	let defineMode = isEmpty(($contextsStore));
 	const newContext = () => {
 		namespace = "";
 		description = "";
@@ -47,11 +47,8 @@
 		defineMode = true;
 	}
 
-	const definable = () => (namespace && description && $organizationStore && $unitStore);
-	const updatable = () => (namespace && description && $organizationStore && $unitStore && $contextStore);
-
 	const define = async () => {
-		if(!definable()) { console.log(errors.SUBMIT); return; }
+		if(!definable) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.createContext(($organizationStore).organizationId, ($unitStore).unitId, namespace, description)
 			.then(created => {
 				updateStores(created);
@@ -60,7 +57,7 @@
 			})
 	}
 	const redefine = async () => {
-		if(!updatable()) { console.log(errors.SUBMIT); return; }
+		if(!redefinable) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.updateContext(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, namespace, description)
 			.then(updated => {
 				updateStores(updated, true);
@@ -79,7 +76,11 @@
 		compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
 	}
 
-	let fullyQualified;
+	$: changedOrganization($organizationStore)
+	$: changedUnit($unitStore)
+	$: changedContext($contextStore);
+	$: definable = namespace && description && $organizationStore && $unitStore;
+	$: redefinable = definable && $contextStore;
 </script>
 
 <svelte:head>
@@ -87,7 +88,7 @@
 </svelte:head>
 
 <CardForm title="Context" linkToNext="New Schema" on:new={newContext} on:redefine={redefine} on:define={define} 
-isDefineDisabled={!(!validName(namespace) && description && $organizationStore && $unitStore && defineMode)} isNextDisabled={defineMode} isRedefineDisabled={!(!validName(namespace) && namespace && description && $organizationStore && $unitStore && $contextStore)}
+isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>

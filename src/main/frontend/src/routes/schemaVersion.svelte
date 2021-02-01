@@ -7,11 +7,10 @@
 	import marked from 'marked';
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
-	import { isStoreEmpty } from '../utils';
+	import { isEmpty } from '../utils';
 	import errors from '../errors';
 	import Diff from '../components/Diff.svelte';
 	import Card from 'svelte-materialify/src/components/Card';
-	import { fade } from 'svelte/transition';
 	const validator = (v) => {
 		return /^\d+\.\d+\.\d+$/.test(v) ? undefined : errors.VERSION
 	}
@@ -57,29 +56,32 @@
 	let compatibleContexts = [];
 	let compatibleSchemas = [];
 	let compatibleVersions = [];
-	$: changedOrganization($organizationStore)
+
+	let showDiffDialog = false;
+	let fullyQualified;
+	
 	function changedOrganization(store) {
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	$: changedUnit($unitStore)
+	
 	function changedUnit(store) {
 		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
 		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
-	$: changedContext($contextStore);
+	
 	function changedContext(store) {
 		compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
 		$schemaStore = compatibleSchemas.length > 0 ? compatibleSchemas[compatibleSchemas.length-1] : undefined;
 	}
-	$: changedSchema($schemaStore);
+	
 	function changedSchema(store) {
 		compatibleVersions = store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
 		$schemaVersionStore = store ? $schemaVersionsStore.find(v => v.schemaId == store.schemaId) : undefined;
 
 		store && !$schemaVersionStore ? specification = `${store.category.toLowerCase()} ${store.name} {\n\t\n\t\n\t\n\t\n\t\n}` : "";
 	}
-	$: changedVersion($schemaVersionStore);
+	
 	function changedVersion(store) {
 		if(store) {
 			// current = store.currentVersion;
@@ -96,12 +98,11 @@
 	}
 	
 
-	let defineMode = isStoreEmpty(($schemaVersionsStore));
+	let defineMode = isEmpty(($schemaVersionsStore));
 	const newVersion = () => {
 		defineMode = true;
 	}
-
-	const definable = () => (specification && description && $organizationStore && $unitStore && $contextStore && $schemaStore);
+	
 	const versionAlreadyExists = (current) => !!compatibleVersions.find(sv => sv.currentVersion === current);
 
 	let oldSpec;
@@ -109,7 +110,7 @@
 	let changes;
 	//FIXME: this shouldn't be able to jump from 0.0.0 to 1.0.0 and then again from 0.0.0 to 1.0.1. It needs to take the closest available version under it as comparison, not 0.0.0.
 	const define = () => {
-		if(!definable()) { console.log(errors.SUBMIT); return; }
+		if(!definable) { console.log(errors.SUBMIT); return; }
 		if(validator(previous) || validator(current)) { console.log(errors.SUBMITVER); return; }
 		if(versionAlreadyExists(current)) { console.log(errors.SUBMITVEREXISTS); return; }
 		SchemataRepository.createSchemaVersion(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId,
@@ -128,7 +129,7 @@
                     newSpec = result.newSpecification;
                     changes = result.changes;
 				})
-                // vm.$store.commit('raiseError', {message: 'Incompatible changes within a compatible version change'}) Alert maybe
+                //'Incompatible changes within a compatible version change' Alert maybe
             })
 		
 	}
@@ -143,10 +144,13 @@
 		compatibleVersions = $schemaStore ? $schemaVersionsStore.filter(v => v.schemaId == $schemaStore.schemaId) : [];
 	}
 
-	let showDiffDialog = false;
-	$: showVersionSelect = !isStoreEmpty(($schemaVersionsStore));
-
-	let fullyQualified;
+	$: changedOrganization($organizationStore)
+	$: changedUnit($unitStore)
+	$: changedContext($contextStore);
+	$: changedSchema($schemaStore);
+	$: changedVersion($schemaVersionStore);
+	$: definable = specification && description && $organizationStore && $unitStore && $contextStore && $schemaStore && !validator(previous) && !validator(current) && !versionAlreadyExists(current);
+	$: showVersionSelect = !isEmpty(($schemaVersionsStore));
 </script>
 
 <svelte:head>
@@ -191,7 +195,7 @@
 				<Button color="info" text="New Schema Version" on:click={newVersion}/>
 			</div>
 			{#if defineMode}
-				<Button color="primary" text="Define" on:click={define} disabled={!(previous && current && !validator(previous) && !validator(current) && description && specification && $organizationStore && $unitStore && $contextStore && $schemaStore && defineMode)}/>
+				<Button color="primary" text="Define" on:click={define} disabled={!definable}/>
 			{/if}
 			{#if !defineMode}
 				<Button color="primary" outline text={"Home"} href={"."} disabled={!defineMode}/>

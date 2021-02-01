@@ -2,20 +2,13 @@
 	import CardForm from '../components/form/CardForm.svelte';
 	import ValidatedInput from '../components/form/ValidatedInput.svelte';
 	import Select from '../components/form/Select.svelte';
-
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
-	import { isStoreEmpty } from '../utils';
+	import { isEmpty } from '../utils';
 	import errors from '../errors';
 	const validName = (name) => {
 		return /^[A-Z][a-zA-Z\d]*$/.test(name) ? undefined : errors.CLASSNAME;
 	}
-
-	let name;
-	let description;
-	let category = ["Event"];
-	let scope = ["Public"];
-
 	let categorySelect = [
 		{ name: "Command", value: "Command" },
 		{ name: "Data", value: "Data" },
@@ -29,28 +22,36 @@
 		{ name: "Public", value: "Public" },
 	];
 
+	let name;
+	let description;
+	let category = ["Event"];
+	let scope = ["Public"];
+
 	let compatibleUnits = [];
 	let compatibleContexts = [];
 	let compatibleSchemas = [];
-	$: changedOrganization($organizationStore);
+
+	let fullyQualified;
+// 	$: fullyQualified = getFullyQualifiedName("organization", $organizationStore);
+	
 	function changedOrganization(store) {
 		console.log({store});
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	$: changedUnit($unitStore);
+	
 	function changedUnit(store) {
 		console.log({store});
 		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
 		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
-	$: changedContext($contextStore);
+	
 	function changedContext(store) {
 		console.log({store});
 		compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
 		$schemaStore = compatibleSchemas.length > 0 ? compatibleSchemas[compatibleSchemas.length-1] : undefined;
 	}
-	$: changedSchema($schemaStore);
+	
 	function changedSchema(store) {
 		if(store) {
 			name = store.name;
@@ -64,10 +65,8 @@
 			scope = ["Public"];
 		}
 	}
-
-	// 	fullyQualified = getFullyQualifiedName("organization", $organizationStore);
 	
-	let defineMode = isStoreEmpty(($schemasStore));
+	let defineMode = isEmpty(($schemasStore));
 	const newSchema = () => {
 		name = "";
 		description = "";
@@ -77,11 +76,8 @@
 		defineMode = true;
 	}
 
-	const definable = () => (name && description && $organizationStore && $unitStore && $contextStore && scope[0] && category[0]);
-	const updatable = () => (name && description && $organizationStore && $unitStore && $contextStore && scope[0] && category[0] && $schemaStore);
-
 	const define = () => {
-		if(!definable()) { console.log(errors.SUBMIT); return; }
+		if(!definable) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.createSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, name, scope[0], category[0], description)
 			.then(created => {
 				updateStores(created);
@@ -91,7 +87,7 @@
 	}
 
 	const redefine = async () => {
-		if(!updatable()) { console.log(errors.SUBMIT); return; }
+		if(!redefinable) { console.log(errors.SUBMIT); return; }
 		SchemataRepository.updateSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, name, category[0], scope[0], description)
 			.then(updated => {
 				updateStores(updated, true);
@@ -110,7 +106,12 @@
 		compatibleSchemas = $contextStore ? $schemasStore.filter(s => s.contextId == $contextStore.contextId) : [];
 	}
 
-	let fullyQualified;
+	$: changedOrganization($organizationStore);
+	$: changedUnit($unitStore);
+	$: changedContext($contextStore);
+	$: changedSchema($schemaStore);
+	$: definable = !validName(name) && name && description && $organizationStore && $unitStore && $contextStore && scope[0] && category[0];
+	$: redefinable = definable && $schemaStore;
 </script>
 
 <svelte:head>
@@ -118,7 +119,7 @@
 </svelte:head>
 
 <CardForm title="Schema" linkToNext="New Schema Version" href="schemaVersion" on:new={newSchema} on:redefine={redefine} on:define={define} 
-isDefineDisabled={!(!validName(name) && name && description && category[0] && scope[0] && $organizationStore && $unitStore && $contextStore && defineMode)} isNextDisabled={defineMode} isRedefineDisabled={!(!validName(name) && name && description && category[0] && scope[0] && $organizationStore && $unitStore && $contextStore && $schemaStore)}
+isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={redefinable}
 {defineMode} {fullyQualified}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
