@@ -1,10 +1,7 @@
 <script>
 	import { mdiChevronRight } from '@mdi/js';
 	import { createEventDispatcher } from 'svelte';
-	import { Card } from 'svelte-materialify/src';
-	import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
-	import CardTitle from 'svelte-materialify/src/components/Card/CardTitle.svelte';
-	import Switch from 'svelte-materialify/src/components/Switch';
+	import { Card, CardActions, CardText, CardTitle, Switch } from 'svelte-materialify/src';
 	import { detailed } from '../../stores';
 	import Button from './Button.svelte';
 	import ButtonBar from './ButtonBar.svelte';
@@ -25,19 +22,21 @@
 
 </script>
 
-<Card>
-	<CardTitle>
-		<span>{title}
+<Card class="pa-4 pa-md-8">
+	<CardTitle class="pa-0">
+		<h5>{title}
 			{#if fullyQualified}
 				<code>{fullyQualified}</code>
 			{/if}
-		</span>
+		</h5>
 		{#if !(title==="Organization" && defineMode)}
 			<span style="margin-left: auto; font-size: 1rem;"><Switch bind:checked={$detailed}>Details</Switch></span>
 		{/if}
 	</CardTitle>
-	<CardText>
+	<CardText class="pa-0 mt-6 mb-6">
 		<slot/>
+	</CardText>
+	<CardActions class="pa-0">
 		<slot name="buttons">
 			<ButtonBar>
 				<div class="mr-auto">
@@ -54,10 +53,13 @@
 				{/if}
 			</ButtonBar>
 		</slot>
-	</CardText>
+	</CardActions>
 </Card>
 
 <style>
+	h5 {
+		font-weight: bold;
+	}
 	code {
 		margin-left: 5rem;
 	}
