@@ -1,11 +1,11 @@
 <script>
-	import { mobileStore } from "../stores";
+	import { isMobile } from "../stores";
 	export let tooltipText;
 </script>
 
 <span class="tooltip-css" on:click>
 	<slot/>
-	<div style={$mobileStore ? "" : "z-index: 5;"} class="tooltiptext-css">{tooltipText}</div>
+	<div style={$isMobile ? "" : "z-index: 5;"} class="tooltiptext-css">{tooltipText}</div>
 </span>
 
 <style>

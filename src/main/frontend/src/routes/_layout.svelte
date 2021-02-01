@@ -8,7 +8,7 @@
 
 <script>
 	import { Button, Icon, MaterialApp } from "svelte-materialify/src";
-	import { contextsStore, contextStore, firstPage, mobileStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, theme, unitsStore, unitStore } from '../stores';
+	import { contextsStore, firstPage, isMobile, organizationsStore, schemasStore, schemaVersionsStore, theme, unitsStore} from '../stores';
 	import { initStoresOfOne } from '../utils';
 	import AppBar from 'svelte-materialify/src/components/AppBar';
 	import { mdiMenu, mdiWeatherNight, mdiWeatherSunny, mdiGithub } from '@mdi/js';
@@ -40,10 +40,8 @@
 
 	let sidenav = false;
 	let breakpoints = {};
-	let mobile = false;
-	$: $mobileStore = mobile;
 	function checkMobile() {
-		mobile = window.matchMedia(breakpoints['md-and-down']).matches;
+		$isMobile = window.matchMedia(breakpoints['md-and-down']).matches;
 	}
 	onMount(() => {
 		SchemataRepository.setFetchFunction(fetch);
@@ -70,7 +68,7 @@
 <MaterialApp theme={$theme}>
 	<AppBar fixed style="width:100%">
     	<div slot="icon">
-    	  {#if mobile}
+    	  {#if $isMobile}
     	    <Button fab depressed on:click={() => (sidenav = !sidenav)} aria-label="Open Menu">
     	    	<Icon path={mdiMenu} />
     	    </Button>
@@ -88,9 +86,9 @@
     	</Button>
 	</AppBar>
 
-	<SiteNavigation {segment} {mobile} bind:sidenav />
+	<SiteNavigation {segment} mobile={$isMobile} bind:sidenav />
 
-	<main class:navigation-enabled={!mobile}>
+	<main class:navigation-enabled={!$isMobile}>
 		<Container>
     	<!-- {#if ...}
     		<Loading />
