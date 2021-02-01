@@ -175,7 +175,7 @@ public class StorageProvider {
     private static Journal<String> startJounral(final World world, final Dispatcher dispatcher, final SchemataConfig config) throws Exception {
       final Journal<String> journal;
 
-      if (config.isProductionRuntimeType() || config.isEnvironmentRuntimeType()) {
+      if (config.isProductionRuntimeType()) {
         final Configuration postgresConfiguration =
                 PostgresConfigurationProvider.configuration(
                         DataFormat.Text,
