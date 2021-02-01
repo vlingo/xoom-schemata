@@ -147,7 +147,7 @@
 	<title>Home</title>
 </svelte:head>
 
-<Card>
+<Card class="vl-card">
 	{#if $organizationsStore.length}
 		<CardTitle>
 			Home

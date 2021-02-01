@@ -22,7 +22,7 @@
 
 </script>
 
-<Card class="pa-4 pa-md-8">
+<Card class="vl-card pa-4 pa-md-8">
 	<CardTitle class="pa-0">
 		<h5>{title}
 			{#if fullyQualified}
