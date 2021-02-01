@@ -1,7 +1,21 @@
 import { writable } from 'svelte/store';
 
+
+export function isMobileStore() {
+	const { subscribe, set } = writable(false);
+	return {
+		subscribe,
+		set,
+		check: () => {
+			import('svelte-materialify/src/utils/breakpoints').then(({ default: breakpoints }) => {
+				set(window.matchMedia(breakpoints['md-and-down']).matches);
+			});
+		},
+	};
+};
+
 export const theme = writable("light");
-export const isMobile = writable(false);
+export const isMobile = isMobileStore();
 
 export const firstPage = writable(true);
 
