@@ -99,7 +99,7 @@
 			color: $error-color !important;
 		}
 	}
-	.s-card {
+	.s-card.vl-card {
 		box-shadow: 0 0 64px 16px rgba(0, 0, 0, 0.075) !important;
 		border-radius: 16px !important;
 	}
