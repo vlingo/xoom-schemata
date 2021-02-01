@@ -1,14 +1,6 @@
 <script>
 	import { mdiArrowRight, mdiCodeBraces, mdiLabelOff, mdiMinusBox, mdiNotEqual, mdiPlusBox, mdiSwapVertical, mdiVariable } from '@mdi/js'
-	import Card from "svelte-materialify/src/components/Card";
-	import CardActions from "svelte-materialify/src/components/Card/CardActions.svelte";
-	import CardText from "svelte-materialify/src/components/Card/CardText.svelte";
-	import CardTitle from "svelte-materialify/src/components/Card/CardTitle.svelte";
-	import Dialog from "svelte-materialify/src/components/Dialog";
-	import Icon from "svelte-materialify/src/components/Icon";
-	import List from "svelte-materialify/src/components/List";
-	import ListItem from "svelte-materialify/src/components/List/ListItem.svelte";
-	import Textarea from "svelte-materialify/src/components/Textarea";
+	import { Card, CardActions, CardText, CardTitle, Dialog, Icon, List, ListItem, Textarea } from "svelte-materialify/src/";
 
 	export let oldSpec;
 	export let newSpec;

@@ -3,8 +3,7 @@
 	import Clickable from "./Clickable.svelte";
 	import Tooltip from "./Tooltip.svelte";
 	import { getFileString } from "../utils";
-	import Badge from 'svelte-materialify/src/components/Badge';
-	import Icon from 'svelte-materialify/src/components/Icon';
+	import { Badge, Icon } from 'svelte-materialify/src';
 
 	export let file;
 	export let expandable = false;
