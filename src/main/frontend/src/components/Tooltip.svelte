@@ -9,13 +9,10 @@
 </span>
 
 <style>
-	/* Tooltip container */
 	.tooltip-css {
 	  position: relative;
 	  display: inline-block;
 	}
-	
-	/* Tooltip text */
 	.tooltip-css .tooltiptext-css {
 	  visibility: hidden;
 	  width: 120px;
@@ -24,15 +21,9 @@
 	  text-align: center;
 	  padding: 5px 0;
 	  border-radius: 6px;
-	  
-	  /* Position the tooltip text */
 	  position: absolute;
-	  
-	  /* make unmarkable */
 	  user-select: none;
 	}
-	
-	/* Show the tooltip text when you mouse over the tooltip container */
 	.tooltip-css:hover .tooltiptext-css {
 		visibility: visible;
 	}

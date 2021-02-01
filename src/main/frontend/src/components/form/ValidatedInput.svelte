@@ -44,42 +44,7 @@
 	{/if}
 {/if}
 
-<!-- keyup: instant check on input, blur: checks on doing nothing, change: checks on selects -->
-<!--careful, everything inside <option></option> counts as the value, newlines/whitespace etc-->
-<!-- <div class={containerClasses}>
-<FormGroup class={formGroupClasses}>
-	<div class:label-container={inline}>
-		<Label class={labelClasses} for={id}>{label}</Label>
-	</div>
-	
-	<div class={inputContainerClasses}>
-		<Input class={inputClasses} type={type} name={id} id={id} placeholder={placeholder} bind:value={value} disabled={disabled}
-		valid={valueValid} invalid={valueInvalid} on:blur={valueCheck} on:keyup={valueCheck} on:change={valueCheck} on:input={valueCheck} {rows} {readonly}>
-			{#if options}
-				{#each options as option}
-					{#if option.text}
-						<option selected={option.id === value.id} value={option}>{option.text}</option>
-					{:else}
-						<option>{option}</option>
-					{/if}
-				{/each}
-			{/if}
-		</Input>
-
-		{#if validationMessage}
-			<div class="invalid-feedback">
-        		{validationMessage}
-    		</div>
-	{/if}
-	</div>
-</FormGroup>
-</div> -->
-
 <style>
-	/* .label-container {
-		width: 10rem;
-		padding: 0 12px;
-	} */
 	.flex-child {
 		flex: 0 0 50%;
 		padding: 12px;
