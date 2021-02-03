@@ -11,6 +11,7 @@
 	import errors from '../errors';
 	import Diff from '../components/Diff.svelte';
 	import Card from 'svelte-materialify/src/components/Card';
+import { mdiChevronLeft } from '@mdi/js';
 	const validator = (v) => {
 		return /^\d+\.\d+\.\d+$/.test(v) ? undefined : errors.VERSION
 	}
@@ -192,6 +193,7 @@
 
 	<div style="flex:1;" slot="buttons">
 		<ButtonBar>
+			<Button outlined color="primary" text="Prev" icon={mdiChevronLeft} href="schema"/>
 			<div class="mr-auto">
 				<Button color="info" text="New Schema Version" on:click={newVersion}/>
 			</div>

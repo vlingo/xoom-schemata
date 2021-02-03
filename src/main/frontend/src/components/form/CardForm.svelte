@@ -1,5 +1,5 @@
 <script>
-	import { mdiChevronRight } from '@mdi/js';
+	import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
 	import { createEventDispatcher } from 'svelte';
 	import { Card, CardActions, CardText, CardTitle, Switch } from 'svelte-materialify/src';
 	import { detailed } from '../../stores';
@@ -8,6 +8,7 @@
 
 	export let title = "";
 	export let linkToNext = "NEXT";
+	export let prevLink = "";
 	export let href = linkToNext.split(" ")[1].toLowerCase(); //"CREATE UNIT" = unit
 	export let showNewButton = true;
 	const dispatch = createEventDispatcher();
@@ -39,6 +40,9 @@
 	<CardActions class="pa-0">
 		<slot name="buttons">
 			<ButtonBar>
+				{#if prevLink}
+					<Button outlined color="primary" text="Prev" icon={mdiChevronLeft} href={prevLink}/>
+				{/if}
 				{#if showNewButton}
 					<div class="mr-auto">
 						<Button color="info" text="{ !defineMode ? `New ${title}` : `Redefine ${title}` }" on:click={() => dispatch("new")}/>
