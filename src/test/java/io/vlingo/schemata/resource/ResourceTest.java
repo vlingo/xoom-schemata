@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.resource;
 
+import org.junit.After;
 import org.junit.Before;
 
 import io.vlingo.actors.Grid;
@@ -65,6 +66,11 @@ public abstract class ResourceTest {
     schemaQueries = storageProvider.schemaQueries;
     schemaVersionQueries = storageProvider.schemaVersionQueries;
     codeQueries = storageProvider.codeQueries;
+  }
+
+  @After
+  public void tearDown() {
+    world.terminate();
   }
 
   protected String extractResourceIdFrom(final Response response) {
