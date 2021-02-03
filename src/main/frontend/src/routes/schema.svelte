@@ -70,7 +70,7 @@
 		category = ["Event"];
 		scope = ["Public"];
 
-		defineMode = true;
+		defineMode = !defineMode;
 	}
 
 	const define = () => {
@@ -96,7 +96,7 @@
 		console.log({obj});
 		$schemaStore = obj;
 		if(reset) $schemasStore = ($schemasStore).filter(schema => schema.schemaId !=  ($schemaStore).schemaId);
-		$schemasStore.push(obj);
+		$schemasStore = [...$schemasStore, obj];
 	}
 	function updateSelects() {
 		// maybe also other compatibles..
@@ -109,6 +109,7 @@
 	$: changedSchema($schemaStore);
 	$: definable = !validName(name) && name && description && $organizationStore && $unitStore && $contextStore && scope[0] && category[0];
 	$: redefinable = definable && $schemaStore;
+  $: showNewButton = $schemasStore.length > 0;
 </script>
 
 <svelte:head>
@@ -117,7 +118,7 @@
 
 <CardForm title="Schema" linkToNext="New Schema Version" href="schemaVersion" on:new={newSchema} on:redefine={redefine} on:define={define} 
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={redefinable}
-{defineMode} {fullyQualified}>
+{defineMode} {fullyQualified} {showNewButton}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
