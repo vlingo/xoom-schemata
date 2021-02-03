@@ -34,7 +34,7 @@
 		name = "";
 		description = "";
 
-		defineMode = true;
+		defineMode = !defineMode;
 	}
 
 	const define = async () => {
@@ -58,7 +58,7 @@
 		console.log({obj});
 		$unitStore = obj;
 		if(reset) $unitsStore = ($unitsStore).filter(unit => unit.unitId != ($unitStore).unitId);
-		$unitsStore.push(obj);
+		$unitsStore = [...$unitsStore, onj];
 	}
 	function updateSelects() {
 		compatibleUnits = $organizationStore ? $unitsStore.filter(u => u.organizationId == $organizationStore.organizationId) : [];
@@ -68,6 +68,7 @@
 	$: changedUnit($unitStore);
 	$: definable = name && description && $organizationStore;
 	$: redefinable = definable && $unitStore;
+  $: showNewButton = $unitsStore.length > 0;
 </script>
 
 <svelte:head>
@@ -76,7 +77,7 @@
 
 <CardForm title="Unit" linkToNext="New Context" on:new={newUnit} on:redefine={redefine} on:define={define} 
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
-{defineMode} {fullyQualified}>
+{defineMode} {fullyQualified} {showNewButton}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{#if !defineMode}
 		<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
