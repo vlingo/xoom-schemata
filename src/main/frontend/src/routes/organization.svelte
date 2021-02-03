@@ -38,23 +38,22 @@
 			})
 	}
 	function updateStores(obj, reset = false) {
-		console.log({obj});
 		$organizationStore = obj;
 		if(reset) $organizationsStore = ($organizationsStore).filter(org => org.organizationId != ($organizationStore).organizationId);
-		$organizationsStore.push(obj);
+    $organizationsStore = [...$organizationsStore, obj];
 	}
 	
 	let defineMode = isEmpty(($organizationsStore));
 	const newOrg = () => {
 		name = "";
 		description = "";
-		
-		defineMode = true;
+    defineMode = !defineMode;
 	}
 
 	$: changedOrganization($organizationStore);
 	$: definable = name && description;
-	$: redefinable = definable && $organizationStore;
+  $: redefinable = definable && $organizationStore;
+  $: showNewButton = $organizationsStore.length > 0;
 </script>
 
 <svelte:head>
@@ -63,7 +62,7 @@
 
 <CardForm title="Organization" linkToNext="New Unit" on:new={newOrg} on:redefine={redefine} on:define={define} 
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
-{defineMode} {fullyQualified}>
+{defineMode} {fullyQualified} {showNewButton}>
 	{#if !defineMode}
 		<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{/if}
