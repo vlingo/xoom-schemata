@@ -9,7 +9,7 @@
 	export let title = "";
 	export let linkToNext = "NEXT";
 	export let href = linkToNext.split(" ")[1].toLowerCase(); //"CREATE UNIT" = unit
-
+	export let showNewButton = true;
 	const dispatch = createEventDispatcher();
 
 	export let isDefineDisabled = false;
@@ -39,9 +39,11 @@
 	<CardActions class="pa-0">
 		<slot name="buttons">
 			<ButtonBar>
-				<div class="mr-auto">
-					<Button color="info" text="New {title}" on:click={() => dispatch("new")}/>
-				</div>
+				{#if showNewButton}
+					<div class="mr-auto">
+						<Button color="info" text="{ !defineMode ? `New ${title}` : `Redefine ${title}` }" on:click={() => dispatch("new")}/>
+					</div>
+				{/if}
 				{#if !defineMode}
 					<Button color="primary" text="Redefine" on:click={() => dispatch("redefine")} disabled={isRedefineDisabled}/>
 				{:else}
