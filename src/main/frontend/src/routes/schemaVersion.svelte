@@ -149,6 +149,9 @@
 	$: changedVersion($schemaVersionStore);
 	$: definable = specification && description && $organizationStore && $unitStore && $contextStore && $schemaStore && !validator(previous) && !validator(current) && !versionAlreadyExists(current);
 	$: showVersionSelect = !isEmpty(($schemaVersionsStore));
+	$: {
+		console.log($schemaVersionsStore);
+	}
 </script>
 
 <svelte:head>
