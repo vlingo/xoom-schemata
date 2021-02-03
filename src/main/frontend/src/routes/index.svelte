@@ -156,7 +156,7 @@
 		<!-- <ValidatedInput type="search" placeholder="Search..."/> -->
 		<Folder detailed={$detailed} file={root} first/>
 	{/if}
-
+	<div class="ma-4 pb-4">
 	{#if !$organizationsStore.length}
 		<OrganizationAlert/>
 	{:else if !$unitsStore.length}
@@ -180,6 +180,7 @@
 			<VersionAlert notChosenAlert/>
 		{/if}
 	{/if}
+</div>
 </Card>
 
 {#if !isEmpty($schemaVersionStore)}

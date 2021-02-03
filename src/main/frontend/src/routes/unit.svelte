@@ -58,7 +58,7 @@
 		console.log({obj});
 		$unitStore = obj;
 		if(reset) $unitsStore = ($unitsStore).filter(unit => unit.unitId != ($unitStore).unitId);
-		$unitsStore = [...$unitsStore, onj];
+		$unitsStore = [...$unitsStore, obj];
 	}
 	function updateSelects() {
 		compatibleUnits = $organizationStore ? $unitsStore.filter(u => u.organizationId == $organizationStore.organizationId) : [];
