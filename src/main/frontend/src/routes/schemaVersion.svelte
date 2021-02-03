@@ -135,7 +135,7 @@
 	function updateStores(obj) {
 		console.log({obj});
 		$schemaVersionStore = obj;
-		$schemaVersionsStore.push(obj);
+		$schemaVersionsStore = [...$schemaVersionsStore, obj]
 	}
 	function updateSelects() {
 		// maybe also other compatibles..
