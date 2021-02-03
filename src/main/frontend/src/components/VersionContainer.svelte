@@ -99,9 +99,9 @@
 </script>
 
 
-<div class="bottom-container">
+<div class="bottom-container mt-6">
 	<div class="bottom-flex">
-	<Card>
+	<Card class="vl-card pa-6">
 		<div style="display: flex">
 			<ButtonGroup value={[0]} on:change={(e) => changeActive(e.detail[0])} mandatory class="primary-text d-flex">
 				<ButtonGroupItem>Specification</ButtonGroupItem>
