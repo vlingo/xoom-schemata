@@ -1,6 +1,10 @@
 <script>
 	import { Icon } from 'svelte-materialify/src';
 	import MatButton from 'svelte-materialify/src/components/Button';
+	import { createEventDispatcher } from 'svelte';
+	import { goto } from '@sapper/app';
+
+	const dispatch = createEventDispatcher();
 
 	export let text = "";
 	export let color = "primary";
@@ -9,12 +13,20 @@
 	export let href = "";
 	export let disabled = false;
 
-	let btnClass = outlined ? color+"-color " + color+"-text" : color+"-color ";
+	function clicked() {
+		if (href) {
+			goto(href);
+			return;
+		} else {
+			dispatch("click");
+		}
+	}
+
+	$: btnClass = outlined ? color+"-color " + color+"-text" : disabled ? disabled : color+"-color ";
+
 </script>
 
-
-{#if !href}
-<MatButton class={"m-1 " + btnClass} {...$$restProps} disabled={disabled} on:click {outlined}>
+<MatButton class={"m-1 " + btnClass} {...$$restProps} disabled={disabled} on:click={clicked} {outlined}>
 	<span>
 		{#if icon}
 			<Icon path={icon}/>
@@ -22,15 +34,3 @@
 		{text}
 	</span>
 </MatButton>
-{:else}
-	<a href={href} rel="noopener">
-		<MatButton class={"m-1 " + btnClass} {...$$restProps} disabled={disabled} on:click {outlined}>
-			<span>
-				{#if icon}
-					<Icon path={icon}/>
-				{/if}
-				{text}
-			</span>
-		</MatButton>
-	</a>
-{/if}

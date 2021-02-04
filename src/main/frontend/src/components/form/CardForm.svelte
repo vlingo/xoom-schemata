@@ -1,18 +1,16 @@
 <script>
-	import { mdiChevronRight } from '@mdi/js';
+	import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
 	import { createEventDispatcher } from 'svelte';
-	import { Card } from 'svelte-materialify/src';
-	import CardText from 'svelte-materialify/src/components/Card/CardText.svelte';
-	import CardTitle from 'svelte-materialify/src/components/Card/CardTitle.svelte';
-	import Switch from 'svelte-materialify/src/components/Switch';
+	import { Card, CardActions, CardText, CardTitle, Switch } from 'svelte-materialify/src';
 	import { detailed } from '../../stores';
 	import Button from './Button.svelte';
 	import ButtonBar from './ButtonBar.svelte';
 
 	export let title = "";
 	export let linkToNext = "NEXT";
+	export let prevLink = "";
 	export let href = linkToNext.split(" ")[1].toLowerCase(); //"CREATE UNIT" = unit
-
+	export let showNewButton = true;
 	const dispatch = createEventDispatcher();
 
 	export let isDefineDisabled = false;
@@ -25,24 +23,31 @@
 
 </script>
 
-<Card>
-	<CardTitle>
-		<span>{title}
+<Card class="vl-card pa-4 pa-md-8">
+	<CardTitle class="pa-0">
+		<h5>{title}
 			{#if fullyQualified}
 				<code>{fullyQualified}</code>
 			{/if}
-		</span>
+		</h5>
 		{#if !(title==="Organization" && defineMode)}
 			<span style="margin-left: auto; font-size: 1rem;"><Switch bind:checked={$detailed}>Details</Switch></span>
 		{/if}
 	</CardTitle>
-	<CardText>
+	<CardText class="pa-0 mt-6 mb-6">
 		<slot/>
+	</CardText>
+	<CardActions class="pa-0">
 		<slot name="buttons">
 			<ButtonBar>
-				<div class="mr-auto">
-					<Button color="info" text="New {title}" on:click={() => dispatch("new")}/>
-				</div>
+				{#if prevLink}
+					<Button outlined color="primary" text="Prev" icon={mdiChevronLeft} href={prevLink}/>
+				{/if}
+				{#if showNewButton}
+					<div class="mr-auto">
+						<Button color="info" text="{ !defineMode ? `New ${title}` : `Redefine ${title}` }" on:click={() => dispatch("new")}/>
+					</div>
+				{/if}
 				{#if !defineMode}
 					<Button color="primary" text="Redefine" on:click={() => dispatch("redefine")} disabled={isRedefineDisabled}/>
 				{:else}
@@ -54,10 +59,13 @@
 				{/if}
 			</ButtonBar>
 		</slot>
-	</CardText>
+	</CardActions>
 </Card>
 
 <style>
+	h5 {
+		font-weight: bold;
+	}
 	code {
 		margin-left: 5rem;
 	}

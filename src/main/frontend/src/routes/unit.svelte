@@ -6,7 +6,6 @@
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
 	import { isEmpty } from '../utils';
-	import errors from '../errors';
 
 	let name;
 	let description;
@@ -31,11 +30,11 @@
 	}
 
 	let defineMode = isEmpty(($unitsStore));
-	const newUnit = () => {
+	const toggleDefineMode = () => {
 		name = "";
 		description = "";
 
-		defineMode = true;
+		defineMode = !defineMode;
 	}
 
 	const define = async () => {
@@ -59,7 +58,7 @@
 		console.log({obj});
 		$unitStore = obj;
 		if(reset) $unitsStore = ($unitsStore).filter(unit => unit.unitId != ($unitStore).unitId);
-		$unitsStore.push(obj);
+		$unitsStore = [...$unitsStore, obj];
 	}
 	function updateSelects() {
 		compatibleUnits = $organizationStore ? $unitsStore.filter(u => u.organizationId == $organizationStore.organizationId) : [];
@@ -69,15 +68,16 @@
 	$: changedUnit($unitStore);
 	$: definable = name && description && $organizationStore;
 	$: redefinable = definable && $unitStore;
+  $: showNewButton = $unitsStore.length > 0;
 </script>
 
 <svelte:head>
 	<title>Unit</title>
 </svelte:head>
 
-<CardForm title="Unit" linkToNext="New Context" on:new={newUnit} on:redefine={redefine} on:define={define} 
+<CardForm title="Unit" linkToNext="New Context" prevLink="organization" on:new={toggleDefineMode} on:redefine={redefine} on:define={define} 
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
-{defineMode} {fullyQualified}>
+{defineMode} {fullyQualified} {showNewButton}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{#if !defineMode}
 		<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>

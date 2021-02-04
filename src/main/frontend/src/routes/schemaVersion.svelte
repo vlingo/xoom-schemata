@@ -11,12 +11,14 @@
 	import errors from '../errors';
 	import Diff from '../components/Diff.svelte';
 	import Card from 'svelte-materialify/src/components/Card';
+import { mdiChevronLeft } from '@mdi/js';
 	const validator = (v) => {
 		return /^\d+\.\d+\.\d+$/.test(v) ? undefined : errors.VERSION
 	}
 	const versionPattern = /(\d+)\.(\d+)\.(\d+)/;
+	$: showVersionButtons = $schemaStore && $schemaVersionsStore.find(v => v.schemaId === $schemaStore.schemaId);
 	function clickedVersionButton(type) {
-		if($schemaStore && $schemaVersionsStore.find(v => v.schemaId === $schemaStore.schemaId)) {
+		if(showVersionButtons) {
 			let versionsWithSameSchemaAsCurrent = $schemaVersionsStore.filter(v => v.schemaId === $schemaStore.schemaId);
 			console.log(versionsWithSameSchemaAsCurrent);
 			let highestVersion = versionsWithSameSchemaAsCurrent.map(v => v.currentVersion).sort(sortVersions).pop();
@@ -135,7 +137,7 @@
 	function updateStores(obj) {
 		console.log({obj});
 		$schemaVersionStore = obj;
-		$schemaVersionsStore.push(obj);
+		$schemaVersionsStore = [...$schemaVersionsStore, obj]
 	}
 	function updateSelects() {
 		// maybe also other compatibles..
@@ -149,6 +151,9 @@
 	$: changedVersion($schemaVersionStore);
 	$: definable = specification && description && $organizationStore && $unitStore && $contextStore && $schemaStore && !validator(previous) && !validator(current) && !versionAlreadyExists(current);
 	$: showVersionSelect = !isEmpty(($schemaVersionsStore));
+	$: {
+		console.log($schemaVersionsStore);
+	}
 </script>
 
 <svelte:head>
@@ -166,7 +171,7 @@
 	<div class="flex-two-col">
 		<!-- <ValidatedInput label="Previous Version" bind:value={previous} validator={validator} readonly/> -->
 		<ValidatedInput label="Current Version (previous was {previous})" placeholder="0.0.0" bind:value={current} validator={validator} disabled={!defineMode}/>
-		{#if defineMode}
+		{#if defineMode && showVersionButtons}
 		<ButtonBar center>
 			<Button color="error" text="New Major" on:click={() => clickedVersionButton("major")}/>
 			<Button color="warning" text="New Minor" on:click={() => clickedVersionButton("minor")}/>
@@ -174,7 +179,7 @@
 		</ButtonBar>
 		{/if}
 	</div>
-	<ValidatedInput outlined type="textarea" label="Description" bind:value={description} disabled={!defineMode}/>
+	<ValidatedInput outlined placeholder="Markdown Description" type="textarea" label="Description" bind:value={description} disabled={!defineMode}/>
 
 	<Card disabled={!description} class="ma-2 pl-5 pt-2 pb-5 pr-2" style="min-height: 5rem">
 		<div id="markdown-container">
@@ -185,18 +190,18 @@
 			{/if}
 		</div>
 	</Card>
-	<ValidatedInput rows="8" outlined type="textarea" label="Specification" bind:value={specification} disabled={!defineMode}/>
+	<ValidatedInput rows="8" outlined placeholder="Specify your schema" type="textarea" label="Specification" bind:value={specification} disabled={!defineMode}/>
 
-	<div slot="buttons">
+	<div style="flex:1;" slot="buttons">
 		<ButtonBar>
+			<Button outlined color="primary" text="Prev" icon={mdiChevronLeft} href="schema"/>
 			<div class="mr-auto">
 				<Button color="info" text="New Schema Version" on:click={newVersion}/>
 			</div>
 			{#if defineMode}
 				<Button color="primary" text="Define" on:click={define} disabled={!definable}/>
-			{/if}
-			{#if !defineMode}
-				<Button color="primary" outline text={"Home"} href={"."} disabled={!defineMode}/>
+			{:else}
+				<Button color="primary" outline text={"Home"} href={"."} />
 			{/if}
 		</ButtonBar>
 	</div>

@@ -5,7 +5,6 @@
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationStore, organizationsStore } from '../stores'
 	import { isEmpty } from '../utils';
-	import errors from '../errors';
 
 	let name;
 	let description;
@@ -39,32 +38,31 @@
 			})
 	}
 	function updateStores(obj, reset = false) {
-		console.log({obj});
 		$organizationStore = obj;
 		if(reset) $organizationsStore = ($organizationsStore).filter(org => org.organizationId != ($organizationStore).organizationId);
-		$organizationsStore.push(obj);
+    $organizationsStore = [...$organizationsStore, obj];
 	}
 	
 	let defineMode = isEmpty(($organizationsStore));
-	const newOrg = () => {
+	const toggleDefineMode = () => {
 		name = "";
 		description = "";
-		
-		defineMode = true;
+    defineMode = !defineMode;
 	}
 
 	$: changedOrganization($organizationStore);
 	$: definable = name && description;
-	$: redefinable = definable && $organizationStore;
+  $: redefinable = definable && $organizationStore;
+  $: showNewButton = $organizationsStore.length > 0;
 </script>
 
 <svelte:head>
 	<title>Organization</title>
 </svelte:head>
 
-<CardForm title="Organization" linkToNext="New Unit" on:new={newOrg} on:redefine={redefine} on:define={define} 
+<CardForm title="Organization" linkToNext="New Unit" on:new={toggleDefineMode} on:redefine={redefine} on:define={define} 
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
-{defineMode} {fullyQualified}>
+{defineMode} {fullyQualified} {showNewButton}>
 	{#if !defineMode}
 		<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{/if}

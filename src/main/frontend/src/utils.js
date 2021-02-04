@@ -219,3 +219,13 @@ function initSelected(obj, stringReturner, idReturner, detailed) {
 	}
 	return {};
 }
+
+export const isNameUnique = (name, store, updateStore, key, defineMode) => {
+	let count;
+	if (defineMode) {
+		count = store.filter(org => org.name === name).length;
+	} else {
+		count = store.filter(org => org.name === name && org[key] !== updateStore[key]).length;
+	}
+	return count < 1 ? undefined : "Name must be unique";
+};
