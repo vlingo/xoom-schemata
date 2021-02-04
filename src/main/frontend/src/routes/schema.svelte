@@ -64,7 +64,7 @@
 	}
 	
 	let defineMode = isEmpty(($schemasStore));
-	const newSchema = () => {
+	const toggleDefineMode = () => {
 		name = "";
 		description = "";
 		category = ["Event"];
@@ -116,7 +116,7 @@
 	<title>Schema</title>
 </svelte:head>
 
-<CardForm title="Schema" linkToNext="New Schema Version"  prevLink="context" href="schemaVersion" on:new={newSchema} on:redefine={redefine} on:define={define} 
+<CardForm title="Schema" linkToNext="New Schema Version"  prevLink="context" href="schemaVersion" on:new={toggleDefineMode} on:redefine={redefine} on:define={define} 
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>

@@ -40,7 +40,7 @@
 
 
 	let defineMode = isEmpty(($contextsStore));
-	const newContext = () => {
+	const toggleDefineMode = () => {
 		namespace = "";
 		description = "";
 
@@ -88,7 +88,7 @@
 	<title>Context</title>
 </svelte:head>
 
-<CardForm title="Context" linkToNext="New Schema" prevLink="unit" on:new={newContext} on:redefine={redefine} on:define={define} 
+<CardForm title="Context" linkToNext="New Schema" prevLink="unit" on:new={toggleDefineMode} on:redefine={redefine} on:define={define} 
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>

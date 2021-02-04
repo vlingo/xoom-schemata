@@ -30,7 +30,7 @@
 	}
 
 	let defineMode = isEmpty(($unitsStore));
-	const newUnit = () => {
+	const toggleDefineMode = () => {
 		name = "";
 		description = "";
 
@@ -75,7 +75,7 @@
 	<title>Unit</title>
 </svelte:head>
 
-<CardForm title="Unit" linkToNext="New Context" prevLink="organization" on:new={newUnit} on:redefine={redefine} on:define={define} 
+<CardForm title="Unit" linkToNext="New Context" prevLink="organization" on:new={toggleDefineMode} on:redefine={redefine} on:define={define} 
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
