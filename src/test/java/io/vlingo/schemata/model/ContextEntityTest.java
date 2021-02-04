@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.Arrays;
 import io.vlingo.actors.World;
 import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
@@ -38,7 +39,7 @@ public class ContextEntityTest {
   public void setUp() {
     world = World.start("context-test");
 
-    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, Arrays.asList(new NoopDispatcher()));
 
     registry = new SourcedTypeRegistry(world);
     registry.register(new SourcedTypeRegistry.Info(journal, ContextEntity.class, ContextEntity.class.getSimpleName()));

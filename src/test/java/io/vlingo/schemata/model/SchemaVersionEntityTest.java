@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SchemaVersionEntityTest {
@@ -37,7 +38,7 @@ public class SchemaVersionEntityTest {
   public void setUp() {
     world = World.start("schema-version-test");
 
-    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, Arrays.asList(new NoopDispatcher()));
 
     registry = new SourcedTypeRegistry(world);
     registry.register(new SourcedTypeRegistry.Info(journal, SchemaVersionEntity.class, SchemaVersionEntity.class.getSimpleName()));

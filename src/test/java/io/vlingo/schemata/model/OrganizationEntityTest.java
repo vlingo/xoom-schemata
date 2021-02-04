@@ -17,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import io.vlingo.actors.World;
 import io.vlingo.schemata.NoopDispatcher;
 import io.vlingo.schemata.model.Id.OrganizationId;
@@ -38,7 +39,7 @@ public class OrganizationEntityTest {
   public void setUp() {
     world = World.start("organization-test");
 
-    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, Arrays.asList(new NoopDispatcher()));
 
     registry = new SourcedTypeRegistry(world);
     registry.register(new Info(journal, OrganizationEntity.class, OrganizationEntity.class.getSimpleName()));

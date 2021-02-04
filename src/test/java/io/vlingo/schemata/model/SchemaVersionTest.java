@@ -59,7 +59,7 @@ public class SchemaVersionTest {
     World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
     TypeParser typeParser = new AntlrTypeParser();
 
-    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, Arrays.asList(new NoopDispatcher()));
 
     registry = new SourcedTypeRegistry(world);
     registry.register(new Info(journal, SchemaVersionEntity.class, SchemaVersionEntity.class.getSimpleName()));
