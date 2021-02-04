@@ -3,4 +3,4 @@
 	export let notChosenAlert = false;
 </script>
 
-<Alert name="Organization" link={!notChosenAlert ? "organization" : ""} />
+<Alert name="an Organization" link={!notChosenAlert ? "organization" : ""} />

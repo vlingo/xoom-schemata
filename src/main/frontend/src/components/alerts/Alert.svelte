@@ -2,9 +2,9 @@
 	import { Alert } from 'svelte-materialify/src';
 	export let name;
 	export let link;
-	$: headingText = link ? `Define an ${name}` : `Choose an ${name}`;
-	$: paragraphText = link ? `When you have defined an ${name.toLowerCase()}, it will be shown inside a tree right here.` : `Choose an ${name} in the tree.`
-	$: linkText = link ? `Click here to start by defining an ${name}.` : ``
+	$: headingText = link ? `Define ${name}` : `Choose ${name}`;
+	$: paragraphText = link ? `When you have defined ${name}, it will be shown inside a tree right here.` : `Choose ${name} in the tree.`
+	$: linkText = link ? `Click here to start by defining ${name}.` : ``
 </script>
 
 

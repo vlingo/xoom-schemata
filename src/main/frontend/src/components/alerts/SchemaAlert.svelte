@@ -3,4 +3,4 @@
 	export let notChosenAlert = false;
 </script>
 
-<Alert name="Schema" link={!notChosenAlert ? "schema" : ""} />
+<Alert name="a Schema" link={!notChosenAlert ? "schema" : ""} />
