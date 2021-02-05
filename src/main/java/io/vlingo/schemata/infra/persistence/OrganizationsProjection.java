@@ -73,13 +73,13 @@ public class OrganizationsProjection extends StateStoreProjectionActor<Organizat
             switch (OrganizationViewType.match(event)) {
                 case OrganizationDefined:
                     final OrganizationDefined defined = typed(event);
-                    mergedData = mergedData.add(OrganizationItem.of(defined.organizationId, defined.name));
+                    mergedData = mergedData.add(OrganizationItem.of(defined.organizationId, defined.name, defined.description));
                     break;
                 case OrganizationDescribed:
                     break;
                 case OrganizationRedefined:
                     final OrganizationRedefined redefined = typed(event);
-                    mergedData = mergedData.replace(OrganizationItem.of(redefined.organizationId, redefined.name));
+                    mergedData = mergedData.replace(OrganizationItem.of(redefined.organizationId, redefined.name, redefined.description));
                     break;
                 case OrganizationRenamed:
                     final OrganizationRenamed renamed = typed(event);

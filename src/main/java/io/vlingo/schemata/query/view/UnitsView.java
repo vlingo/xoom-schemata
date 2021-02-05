@@ -74,19 +74,25 @@ public class UnitsView {
         public final String unitId;
         public final String name;
         public final String organizationId;
+        public final String description;
 
-        public static UnitItem of(final String unitId, final String name, String organizationId) {
-            return new UnitItem(unitId, name, organizationId);
+        public static UnitItem of(final String unitId, final String name, final String organizationId, final String description) {
+            return new UnitItem(unitId, name, organizationId, description);
+        }
+// TODO: see if this works -> if I made a unit and renamed it, is it still giving back unitId, name, description and orgId?
+        public static UnitItem of(final String unitId, final String name) {
+            return new UnitItem(unitId, name, "", "");
         }
 
         public static UnitItem only(final String unitId) {
-            return new UnitItem(unitId, "", "");
+            return new UnitItem(unitId, "", "", "");
         }
 
-        public UnitItem(final String unitId, final String name, final String organizationId) {
+        public UnitItem(final String unitId, final String name, final String organizationId, final String description) {
             this.unitId = unitId;
             this.name = name;
             this.organizationId = organizationId;
+            this.description = description;
         }
 
         @Override

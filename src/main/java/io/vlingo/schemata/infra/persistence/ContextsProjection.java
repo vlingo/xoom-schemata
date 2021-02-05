@@ -83,17 +83,17 @@ public class ContextsProjection extends StateStoreProjectionActor<ContextsView> 
                     break;
                 case ContextDefined:
                     final Events.ContextDefined defined = typed(event);
-                    mergedData = mergedData.add(ContextItem.of(defined.contextId, defined.name, defined.unitId));
+                    mergedData = mergedData.add(ContextItem.of(defined.contextId, defined.name, defined.unitId, defined.description));
                     break;
                 case ContextDescribed:
                     break;
                 case ContextRedefined:
                     final Events.ContextRedefined redefined = typed(event);
-                    mergedData = mergedData.replace(ContextItem.of(redefined.contextId, redefined.name, redefined.unitId));
+                    mergedData = mergedData.replace(ContextItem.of(redefined.contextId, redefined.name, redefined.unitId, redefined.description));
                     break;
                 case ContextMovedToNamespace:
                     final Events.ContextMovedToNamespace movedToNamespace = typed(event);
-                    mergedData = mergedData.replace(ContextItem.of(movedToNamespace.contextId, movedToNamespace.namespace, movedToNamespace.unitId));
+                    mergedData = mergedData.replace(ContextItem.of(movedToNamespace.contextId, movedToNamespace.namespace));
                     break;
                 case Unmatched:
                     logger().warn("Event of type " + event.typeName() + " was not matched.");

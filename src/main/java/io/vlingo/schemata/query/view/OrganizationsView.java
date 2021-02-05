@@ -75,18 +75,24 @@ public class OrganizationsView {
     public static class OrganizationItem {
         public final String organizationId;
         public final String name;
+        public final String description;
+
+        public static OrganizationItem of(final String organizationId, final String name, final String description) {
+            return new OrganizationItem(organizationId, name, description);
+        }
 
         public static OrganizationItem of(final String organizationId, final String name) {
-            return new OrganizationItem(organizationId, name);
+            return new OrganizationItem(organizationId, name, "");
         }
 
         public static OrganizationItem only(final String organizationId) {
-            return new OrganizationItem(organizationId, "");
+            return new OrganizationItem(organizationId, "", "");
         }
 
-        public OrganizationItem(final String organizationId, final String name) {
+        public OrganizationItem(final String organizationId, final String name, final String description) {
             this.organizationId = organizationId;
             this.name = name;
+            this.description = description;
         }
 
         @Override
