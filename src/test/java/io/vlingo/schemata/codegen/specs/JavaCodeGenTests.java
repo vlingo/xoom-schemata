@@ -15,8 +15,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 public class JavaCodeGenTests extends CodeGenTests {
@@ -46,15 +44,15 @@ public class JavaCodeGenTests extends CodeGenTests {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
     final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1");
 
-    assertThat(result, containsString("public boolean booleanAttribute = true;"));
-    assertThat(result, containsString("public byte byteAttribute = 4;"));
-    assertThat(result, containsString("public char charAttribute = 'x';"));
-    assertThat(result, containsString("public double doubleAttribute = 0.23;"));
-    assertThat(result, containsString("public float floatAttribute = 0.42f;"));
-    assertThat(result, containsString("public int intAttribute = 4242;"));
-    assertThat(result, containsString("public long longAttribute = 42L;"));
-    assertThat(result, containsString("public short shortAttribute = 258;"));
-    assertThat(result, containsString("public String stringAttribute = \"foo\";"));
+    assertTrue(result.contains("public boolean booleanAttribute = true;"));
+    assertTrue(result.contains("public byte byteAttribute = 4;"));
+    assertTrue(result.contains("public char charAttribute = 'x';"));
+    assertTrue(result.contains("public double doubleAttribute = 0.23;"));
+    assertTrue(result.contains("public float floatAttribute = 0.42f;"));
+    assertTrue(result.contains("public int intAttribute = 4242;"));
+    assertTrue(result.contains("public long longAttribute = 42L;"));
+    assertTrue(result.contains("public short shortAttribute = 258;"));
+    assertTrue(result.contains("public String stringAttribute = \"foo\";"));
   }
 
   @Test
@@ -68,15 +66,15 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
     assertTrue(result.contains("this.eventVersion = io.vlingo.common.version.SemanticVersion.toValue(\"0.0.1\");"));
 
-    assertThat(result, containsString("public boolean booleanAttribute = true;"));
-    assertThat(result, containsString("public byte byteAttribute = 4;"));
-    assertThat(result, containsString("public char charAttribute = 'x';"));
-    assertThat(result, containsString("public double doubleAttribute = 0.23;"));
-    assertThat(result, containsString("public float floatAttribute = 0.42f;"));
-    assertThat(result, containsString("public int intAttribute = 4242;"));
-    assertThat(result, containsString("public long longAttribute = 42L;"));
-    assertThat(result, containsString("public short shortAttribute = 258;"));
-    assertThat(result, containsString("public String stringAttribute = \"foo\";"));
+    assertTrue(result.contains("public boolean booleanAttribute = true;"));
+    assertTrue(result.contains("public byte byteAttribute = 4;"));
+    assertTrue(result.contains("public char charAttribute = 'x';"));
+    assertTrue(result.contains("public double doubleAttribute = 0.23;"));
+    assertTrue(result.contains("public float floatAttribute = 0.42f;"));
+    assertTrue(result.contains("public int intAttribute = 4242;"));
+    assertTrue(result.contains("public long longAttribute = 42L;"));
+    assertTrue(result.contains("public short shortAttribute = 258;"));
+    assertTrue(result.contains("public String stringAttribute = \"foo\";"));
   }
 
   @Test
@@ -90,7 +88,7 @@ public class JavaCodeGenTests extends CodeGenTests {
     while (matcher.find()) {
       matches++;
     }
-    assertThat(matches, is(1));
+    assertTrue(matches == 1);
   }
 
   @Test
@@ -98,15 +96,15 @@ public class JavaCodeGenTests extends CodeGenTests {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
     final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basicArrays"), fullyQualifiedTypeName, "0.0.1");
 
-    assertThat(result, containsString("public final boolean[] booleanAttribute"));
-    assertThat(result, containsString("public final byte[] byteAttribute"));
-    assertThat(result, containsString("public final char[] charAttribute"));
-    assertThat(result, containsString("public final double[] doubleAttribute"));
-    assertThat(result, containsString("public final float[] floatAttribute"));
-    assertThat(result, containsString("public final int[] intAttribute"));
-    assertThat(result, containsString("public final long[] longAttribute"));
-    assertThat(result, containsString("public final short[] shortAttribute"));
-    assertThat(result, containsString("public final String[] stringAttribute"));
+    assertTrue(result.contains("public final boolean[] booleanAttribute"));
+    assertTrue(result.contains("public final byte[] byteAttribute"));
+    assertTrue(result.contains("public final char[] charAttribute"));
+    assertTrue(result.contains("public final double[] doubleAttribute"));
+    assertTrue(result.contains("public final float[] floatAttribute"));
+    assertTrue(result.contains("public final int[] intAttribute"));
+    assertTrue(result.contains("public final long[] longAttribute"));
+    assertTrue(result.contains("public final short[] shortAttribute"));
+    assertTrue(result.contains("public final String[] stringAttribute"));
   }
 
   @Test
@@ -114,15 +112,15 @@ public class JavaCodeGenTests extends CodeGenTests {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
     final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basicArraysWithDefaultValues"), fullyQualifiedTypeName, "0.0.1");
 
-    assertThat(result, containsString("public boolean[] booleanAttribute = new boolean[] { true, false, true }"));
-    assertThat(result, containsString("public byte[] byteAttribute = new byte[] { 4, 3, 2, 1 }"));
-    assertThat(result, containsString("public char[] charAttribute = new char[] { 'x', 'y', 'z' }"));
-    assertThat(result, containsString("public double[] doubleAttribute = new double[] { 0.23, 0.22, 0.21 }"));
-    assertThat(result, containsString("public float[] floatAttribute = new float[] { 0.42f, 0.42f, 0.1f }"));
-    assertThat(result, containsString("public int[] intAttribute = new int[] { 4242, 424242, 42424242 }"));
-    assertThat(result, containsString("public long[] longAttribute = new long[] { 42L, 4242L, 424242L }"));
-    assertThat(result, containsString("public short[] shortAttribute = new short[] { 258, 259, 260 }"));
-    assertThat(result, containsString("public String[] stringAttribute = new java.lang.String[] { \"foo\", \"bar\", \"baz\" }"));
+    assertTrue(result.contains("public boolean[] booleanAttribute = new boolean[] { true, false, true }"));
+    assertTrue(result.contains("public byte[] byteAttribute = new byte[] { 4, 3, 2, 1 }"));
+    assertTrue(result.contains("public char[] charAttribute = new char[] { 'x', 'y', 'z' }"));
+    assertTrue(result.contains("public double[] doubleAttribute = new double[] { 0.23, 0.22, 0.21 }"));
+    assertTrue(result.contains("public float[] floatAttribute = new float[] { 0.42f, 0.42f, 0.1f }"));
+    assertTrue(result.contains("public int[] intAttribute = new int[] { 4242, 424242, 42424242 }"));
+    assertTrue(result.contains("public long[] longAttribute = new long[] { 42L, 4242L, 424242L }"));
+    assertTrue(result.contains("public short[] shortAttribute = new short[] { 258, 259, 260 }"));
+    assertTrue(result.contains("public String[] stringAttribute = new java.lang.String[] { \"foo\", \"bar\", \"baz\" }"));
   }
 
   @Test

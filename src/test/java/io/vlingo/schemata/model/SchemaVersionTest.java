@@ -36,10 +36,8 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.vlingo.schemata.LambdaMatcher.matches;
 import static java.util.stream.Collectors.toList;
 import static junit.framework.TestCase.assertTrue;
-import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class SchemaVersionTest {
@@ -164,16 +162,16 @@ public class SchemaVersionTest {
     SchemaVersionData dst = SchemaVersionData.just("event Foo { string bar }",null,null,null, null);
 
     SpecificationDiff diff = unwrap(simpleSchemaVersion.diff(typeDefinitionMiddleware,dst));
-    assertThat(diff.changes().size(),is(0));
+    assertTrue(diff.changes().size() == 0);
   }
 
   @Test public void removalIsTrackedInDiff() {
     SchemaVersionData dst = SchemaVersionData.just("event Foo { }",null,null,null, null);
 
     SpecificationDiff diff = unwrap(simpleSchemaVersion.diff(typeDefinitionMiddleware, dst));
-    assertThat(diff.changes().size(),is(1));
-    assertThat(diff.changes().get(0).subject, is("bar"));
-    assertThat(diff.changes().get(0).type, is(Change.Type.REMOVE_FIELD));
+    assertTrue(diff.changes().size() == 1);
+    assertTrue(diff.changes().get(0).subject.equals("bar"));
+    assertTrue(diff.changes().get(0).type == Change.Type.REMOVE_FIELD);
   }
 
   @Test public void multipleRemovalsAreTrackedInDiff() {
@@ -187,53 +185,50 @@ public class SchemaVersionTest {
       "}",null,null,null, null);
 
     SpecificationDiff diff = unwrap(basicTypesSchemaVersion.diff(typeDefinitionMiddleware, dst));
-    assertThat(diff.changes().size(),is(11));
-    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.REMOVE_FIELD).count(), is(6L));
-    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.MOVE_FIELD).count(), is(5L));
+    assertTrue(diff.changes().size() == 11);
+    assertTrue(diff.changes().stream().filter(c -> c.type == Change.Type.REMOVE_FIELD).count() == 6L);
+    assertTrue(diff.changes().stream().filter(c -> c.type == Change.Type.MOVE_FIELD).count() == 5L);
   }
 
   @Test public void additionIsTrackedInDiff() {
     SchemaVersionData dst = SchemaVersionData.just("event Foo { string bar\nstring baz\nstring qux }",null,null,null, null);
 
     SpecificationDiff diff = unwrap(simpleSchemaVersion.diff(typeDefinitionMiddleware,dst));
-    assertThat(diff.changes().size(),is(2));
-    assertThat(diff.changes(), everyItem(matches(c -> c.type == Change.Type.ADD_FIELD, "All changes must be additions")));
-    assertThat(diff.changes(), hasItems(
-      Change.additionOfField("baz"),
-      Change.additionOfField("qux")
-    ));
+    assertTrue(diff.changes().size() == 2);
+    assertTrue(diff.changes().stream().allMatch(c -> c.type == Change.Type.ADD_FIELD));
+    assertTrue(diff.changes().containsAll(Arrays.asList(Change.additionOfField("baz"), Change.additionOfField("qux"))));
   }
 
   @Test public void renamingIsTrackedInDiff() {
     SchemaVersionData dst = SchemaVersionData.just("event Foo { string baz }",null,null,null, null);
 
     SpecificationDiff diff = unwrap(simpleSchemaVersion.diff(typeDefinitionMiddleware,dst));
-    assertThat(diff.changes().size(),is(2));
-    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.ADD_FIELD).count(), is(1L));
-    assertThat(diff.changes().stream().filter(c -> c.type == Change.Type.REMOVE_FIELD).count(), is(1L));
+    assertTrue(diff.changes().size() == 2);
+    assertTrue(diff.changes().stream().filter(c -> c.type == Change.Type.ADD_FIELD).count() == 1L);
+    assertTrue(diff.changes().stream().filter(c -> c.type == Change.Type.REMOVE_FIELD).count() == 1L);
   }
 
   @Test public void typeChangeIsTrackedInDiff() {
     SchemaVersionData dst = SchemaVersionData.just("event Bar { string bar }",null,null,null, null);
 
     SpecificationDiff diff = unwrap(simpleSchemaVersion.diff(typeDefinitionMiddleware,dst));
-    assertThat(diff.changes().size(),is(1));
-    assertThat(diff.changes().get(0).subject, is("Foo"));
-    assertThat(diff.changes().get(0).type, is(Change.Type.CHANGE_TYPE));
-    assertThat(diff.changes().get(0).oldValue, is("Foo"));
-    assertThat(diff.changes().get(0).newValue, is("Bar"));
+    assertTrue(diff.changes().size() == 1);
+    assertTrue(diff.changes().get(0).subject.equals("Foo"));
+    assertTrue(diff.changes().get(0).type == Change.Type.CHANGE_TYPE);
+    assertTrue(diff.changes().get(0).oldValue.equals("Foo"));
+    assertTrue(diff.changes().get(0).newValue.equals("Bar"));
   }
 
   @Test public void fieldTypeChangeIsTrackedInDiff() {
     SchemaVersionData dst = SchemaVersionData.just("event Foo { int bar }",null,null,null, null);
 
     SpecificationDiff diff = unwrap(simpleSchemaVersion.diff(typeDefinitionMiddleware,dst));
-    assertThat(diff.changes().size(),is(1));
-    assertThat(diff.changes().get(0).subject, is("bar"));
-    assertThat(diff.changes().get(0).type, is(Change.Type.CHANGE_FIELD_TYPE));
+    assertTrue(diff.changes().size() == 1);
+    assertTrue(diff.changes().get(0).subject.equals("bar"));
+    assertTrue(diff.changes().get(0).type == Change.Type.CHANGE_FIELD_TYPE);
   }
 
-  @Test public void mixedChangesArtTrackedInDiff() {
+  @Test public void mixedChangesAreTrackedInDiff() {
     SchemaVersionData dst = SchemaVersionData.just("event Bar { " +
       "timestamp at\n"+
       "string newStringAttribute\n" +
@@ -246,7 +241,7 @@ public class SchemaVersionTest {
       "}",null,null,null, null);
 
     SpecificationDiff diff = unwrap(basicTypesSchemaVersion.diff(typeDefinitionMiddleware, dst));
-    assertThat(diff.changes().size(),is(14));
+    assertTrue(diff.changes().size() == 14);
 
     List<Change> typeChanges = diff.changes().stream().filter(c -> c.type == Change.Type.CHANGE_TYPE).collect(toList());
     List<Change> additions = diff.changes().stream().filter(c -> c.type == Change.Type.ADD_FIELD).collect(toList());
@@ -255,34 +250,34 @@ public class SchemaVersionTest {
     List<Change> moves = diff.changes().stream().filter(c -> c.type == Change.Type.MOVE_FIELD).collect(toList());
 
     assertEquals(typeChanges.size(), 1);
-    assertThat(typeChanges, hasItem(Change.ofType("Foo", "Bar")));
-
-
+    assertTrue(typeChanges.contains(Change.ofType("Foo", "Bar")));
     assertEquals(removals.size(), 6);
-    assertThat(removals, hasItems(
+    System.out.println(removals);
+    assertTrue(removals.containsAll(Arrays.asList(
       Change.removalOfField("eventType"),
       Change.removalOfField("occurredOn"),
       Change.removalOfField("booleanAttribute"),
       Change.removalOfField("byteAttribute"),
       Change.removalOfField("doubleAttribute"),
-      Change.removalOfField("floatAttribute")));
-
+      Change.removalOfField("floatAttribute")
+    )));
 
     assertEquals(changes.size(), 1);
-    assertThat(changes, hasItems(
-      Change.ofFieldType("charAttribute", "char","int")));
+    assertTrue(changes.contains(Change.ofFieldType("charAttribute", "char","int")));
 
     assertEquals(additions.size(), 2);
-    assertThat(additions, hasItems(
+    assertTrue(additions.containsAll(Arrays.asList(
       Change.additionOfField("newStringAttribute"),
-      Change.additionOfField("at")));
+      Change.additionOfField("at")
+    )));
 
     assertEquals(moves.size(), 4);
-    assertThat(moves, hasItems(
+    assertTrue(moves.containsAll(Arrays.asList(
       Change.moveOf("intAttribute"),
       Change.moveOf("longAttribute"),
       Change.moveOf("shortAttribute"),
-      Change.moveOf("stringAttribute")));
+      Change.moveOf("stringAttribute")
+    )));
   }
 
 
