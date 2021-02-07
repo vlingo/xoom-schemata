@@ -113,8 +113,8 @@
 								status: schemaVersion.status,
 								specification: schemaVersion.specification,
 								description: schemaVersion.description,
-								previous: schemaVersion.previousVersion,
-								current: schemaVersion.currentVersion,
+								previousVersion: schemaVersion.previousVersion,
+								currentVersion: schemaVersion.currentVersion,
 								id: schemaVersion.schemaVersionId
 							}
 						}
