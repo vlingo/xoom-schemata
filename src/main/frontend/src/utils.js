@@ -22,15 +22,15 @@ export function getFileString(file, detailed) {
 	return fileStrings.filter(el => el != null && el != '').join(", ");
 }
 
-//the deepest path needs be set inside the single stores
+//set deepest available plural store
 export function initStoresOfOne() {
-	const deepestLeaf = get(schemaVersionsStore).length > 0 ? { type: "schemaVersion" } :
-		get(schemasStore).length > 0 ? { type: "schema" } :
-			get(contextsStore).length > 0 ? { type: "context" } :
-				get(unitsStore).length > 0 ? { type: "unit" } :
-					get(organizationsStore).length > 0 ? { type: "organization" } : "";
+	const deepestLeaf = get(schemaVersionsStore).length ? "schemaVersion" :
+		get(schemasStore).length ? "schema" :
+			get(contextsStore).length ? "context" :
+				get(unitsStore).length ? "unit" :
+					get(organizationsStore).length ? "organization" : "";
 
-	switch (deepestLeaf.type) {
+	switch (deepestLeaf) {
 		case "organization": organizationStore.set(get(organizationsStore)[0]);
 			break;
 		case "unit": unitStore.set(get(unitsStore)[0]);
@@ -42,7 +42,8 @@ export function initStoresOfOne() {
 		case "schemaVersion": schemaVersionStore.set(get(schemaVersionsStore)[0]);
 			break;
 	}
-	switch (deepestLeaf.type) {
+
+	switch (deepestLeaf) {
 		case "schemaVersion": schemaStore.set(get(schemasStore).find(s => s.schemaId == get(schemaVersionStore).schemaId));
 		case "schema": contextStore.set(get(contextsStore).find(c => c.contextId == get(schemaStore).contextId));
 		case "context": unitStore.set(get(unitsStore).find(u => u.unitId == get(contextStore).unitId));
