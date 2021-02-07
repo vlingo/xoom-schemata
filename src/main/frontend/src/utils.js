@@ -8,7 +8,7 @@ export function getFileString(file, detailed) {
 	if (file.namespace) fileStrings[0] = detailed ? `Namespace: ${file.namespace}` : file.namespace;
 	if (file.currentVersion) fileStrings[0] = detailed ? `Version: ${file.currentVersion}` : file.currentVersion;
 	if (file.id && detailed) fileStrings[1] = `Id: ${file.id}`;
-	//we should consider renaming all id's to 'id': it's easier to have a base element, so you can filter with one condition.
+	//we should consider renaming all id's to 'id': it's easier to have a base element, so you can filter with one condition. (the second id on each object should stay the same)
 	if (file.organizationId && detailed) fileStrings[1] = `Id: ${file.organizationId}`;
 	if (file.unitId && detailed) fileStrings[1] = `Id: ${file.unitId}`;
 	if (file.contextId && detailed) fileStrings[1] = `Id: ${file.contextId}`;
@@ -44,10 +44,10 @@ export function initStoresOfOne() {
 	}
 
 	switch (deepestLeaf) {
-		case "schemaVersion": schemaStore.set(get(schemasStore).find(s => s.schemaId == get(schemaVersionStore).schemaId));
-		case "schema": contextStore.set(get(contextsStore).find(c => c.contextId == get(schemaStore).contextId));
-		case "context": unitStore.set(get(unitsStore).find(u => u.unitId == get(contextStore).unitId));
-		case "unit": organizationStore.set(get(organizationsStore).find(o => o.organizationId == get(unitStore).organizationId));
+		case "schemaVersion": schemaStore.set(get(schemasStore).find(s => s.schemaId === get(schemaVersionStore).schemaId));
+		case "schema": contextStore.set(get(contextsStore).find(c => c.contextId === get(schemaStore).contextId));
+		case "context": unitStore.set(get(unitsStore).find(u => u.unitId === get(contextStore).unitId));
+		case "unit": organizationStore.set(get(organizationsStore).find(o => o.organizationId === get(unitStore).organizationId));
 		case "organization": //do nothing
 	}
 }
@@ -56,29 +56,17 @@ export function initStoresOfOne() {
 export function isObjectInAStore(file, ...stores) {
 	switch (file.type) {
 		case "organization":
-			return get(organizationStore) ? get(organizationStore).organizationId == file.id : false;
+			return get(organizationStore) && get(organizationStore).organizationId === file.id;
 		case "unit":
-			return get(unitStore) ? get(unitStore).unitId == file.id : false;
+			return get(unitStore) && get(unitStore).unitId === file.id;
 		case "context":
-			return get(contextStore) ? get(contextStore).contextId == file.id : false;
+			return get(contextStore) && get(contextStore).contextId === file.id;
 		case "schema":
-			return get(schemaStore) ? get(schemaStore).schemaId == file.id : false;
+			return get(schemaStore) && get(schemaStore).schemaId === file.id;
 		case "schemaVersion":
-			return get(schemaVersionStore) ? get(schemaVersionStore).schemaVersionId == file.id : false;
+			return get(schemaVersionStore) && get(schemaVersionStore).schemaVersionId === file.id;
 	}
 }
-// isObjectInAStore is only used once, we could do this inline:
-// switch(file.type) {
-// 	case "organization": expanded = $organizationStore ? $organizationStore.organizationId === file.id : false;
-// 	break;
-// 	case "unit": expanded = $unitStore ? $unitStore.unitId === file.id : false;
-// 	break;
-// 	case "context": expanded = $contextStore ? $contextStore.contextId === file.id : false;
-// 	break;
-// 	case "schema": expanded = $schemaStore ? $schemaStore.schemaId === file.id : false;
-// 	break;
-// 	case "schemaVersion":  expanded = $schemaVersionStore ? $schemaVersionStore.schemaVersionId === file.id : false;
-// }
 
 export function adjustStoresTo(file) {
 	switch (file.type) {
@@ -180,18 +168,8 @@ export function stringReturner(obj, detailed) {
 
 export function changedSelect(array, detailed) {
 	return array.map(obj => {
-		return initSelected(obj, stringReturner, idReturner, detailed);
+		return obj ? { id: idReturner(obj), text: stringReturner(obj, detailed) } : {}
 	})
-}
-
-function initSelected(obj, stringReturner, idReturner, detailed) {
-	if (obj) {
-		return {
-			id: idReturner(obj),
-			text: stringReturner(obj, detailed)
-		};
-	}
-	return {};
 }
 
 export const isNameUnique = (name, store, updateStore, key, defineMode) => {
