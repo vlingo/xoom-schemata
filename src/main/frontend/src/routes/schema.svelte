@@ -33,22 +33,22 @@
 
 	let fullyQualified;
 // 	$: fullyQualified = getFullyQualifiedName("organization", $organizationStore);
-	
+
 	function changedOrganization(store) {
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	
+
 	function changedUnit(store) {
 		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
 		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
-	
+
 	function changedContext(store) {
 		compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
 		$schemaStore = compatibleSchemas.length > 0 ? compatibleSchemas[compatibleSchemas.length-1] : undefined;
 	}
-	
+
 	function changedSchema(store) {
 		if(store) {
 			name = store.name;
@@ -62,7 +62,7 @@
 			scope = ["Public"];
 		}
 	}
-	
+
 	let defineMode = isEmpty(($schemasStore));
 	const toggleDefineMode = () => {
 		name = "";
@@ -116,7 +116,7 @@
 	<title>Schema</title>
 </svelte:head>
 
-<CardForm title="Schema" linkToNext="New Schema Version"  prevLink="context" href="schemaVersion" on:new={toggleDefineMode} on:redefine={redefine} on:define={define} 
+<CardForm title="Schema" linkToNext="New Schema Version"  prevLink="context" href="schemaVersion" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
@@ -125,12 +125,12 @@ isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!r
 	{#if !defineMode}
 		<Select label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
 	{/if}
-	
+
 	<span class="flex-two-col">
 		<ValidatedInput type="select" label="Category" bind:value={category} options={categorySelect}/>
 		<ValidatedInput type="select" label="Scope" bind:value={scope} options={scopeSelect}/>
 	</span>
-	<ValidatedInput label="Name" bind:value={name} validator={validName} invalidString={errors.CLASSNAME}/>
+	<ValidatedInput label="Name" bind:value={name} validator={validName}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
 </CardForm>
 

@@ -5,13 +5,14 @@
 	import ButtonBar from '../components/form/ButtonBar.svelte';
 	import Select from '../components/form/Select.svelte';
 	import marked from 'marked';
+	import DOMPurify from 'dompurify';
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
 	import { isEmpty } from '../utils';
 	import errors from '../errors';
 	import Diff from '../components/Diff.svelte';
 	import Card from 'svelte-materialify/src/components/Card';
-import { mdiChevronLeft } from '@mdi/js';
+	import { mdiChevronLeft } from '@mdi/js';
 	const validator = (v) => {
 		return /^\d+\.\d+\.\d+$/.test(v) ? undefined : errors.VERSION
 	}
@@ -61,29 +62,29 @@ import { mdiChevronLeft } from '@mdi/js';
 
 	let showDiffDialog = false;
 	let fullyQualified;
-	
+
 	function changedOrganization(store) {
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	
+
 	function changedUnit(store) {
 		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
 		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
-	
+
 	function changedContext(store) {
 		compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
 		$schemaStore = compatibleSchemas.length > 0 ? compatibleSchemas[compatibleSchemas.length-1] : undefined;
 	}
-	
+
 	function changedSchema(store) {
 		compatibleVersions = store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
 		$schemaVersionStore = store ? $schemaVersionsStore.find(v => v.schemaId == store.schemaId) : undefined;
 
 		store && !$schemaVersionStore ? specification = `${store.category.toLowerCase()} ${store.name} {\n\t\n\t\n\t\n\t\n\t\n}` : "";
 	}
-	
+
 	function changedVersion(store) {
 		if(store) {
 			// current = store.currentVersion;
@@ -98,13 +99,13 @@ import { mdiChevronLeft } from '@mdi/js';
 			specification = "";
 		}
 	}
-	
+
 
 	let defineMode = isEmpty(($schemaVersionsStore));
 	const newVersion = () => {
 		defineMode = true;
 	}
-	
+
 	const versionAlreadyExists = (current) => !!compatibleVersions.find(sv => sv.currentVersion === current);
 
 	let oldSpec;
@@ -131,7 +132,7 @@ import { mdiChevronLeft } from '@mdi/js';
 				})
                 //'Incompatible changes within a compatible version change' Alert maybe
             })
-		
+
 	}
 
 	function updateStores(obj) {
@@ -184,7 +185,7 @@ import { mdiChevronLeft } from '@mdi/js';
 	<Card disabled={!description} class="ma-2 pl-5 pt-2 pb-5 pr-2" style="min-height: 5rem">
 		<div id="markdown-container">
 			{#if description}
-				{@html marked(description)}
+				{@html DOMPurify.sanitize(marked(description))}
 			{:else}
 				{@html marked("##### &#35;&#35;&#35;&#35; Write some &#95;_markdown_&#95; into &#42;&#42;**Description**&#42;&#42;")}
 			{/if}
