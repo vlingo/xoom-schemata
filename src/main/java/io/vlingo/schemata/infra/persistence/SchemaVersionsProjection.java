@@ -85,6 +85,7 @@ public class SchemaVersionsProjection extends StateStoreProjectionActor<SchemaVe
                     break;
                 case SchemaVersionDescribed:
                     final Events.SchemaVersionDescribed described = typed(event);
+                    //TODO: Change this to the same method used in the other Elements (e.g.  mergedData = mergedData.add(OrganizationItem.of...)
                     mergedData = mergedData.mergeDescriptionWith(described.schemaVersionId, described.description);
                     break;
                 case SchemaVersionAssigned:
