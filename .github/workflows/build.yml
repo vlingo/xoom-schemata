@@ -19,22 +19,6 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Cache Maven packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Cache Node packages
-        uses: actions/cache@v2
-        with:
-          path: |
-            target/node
-            src/main/frontend/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('src/main/frontend/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-node
-
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots package -Pfrontend
         env:
