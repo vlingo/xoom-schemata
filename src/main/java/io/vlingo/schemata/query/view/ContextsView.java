@@ -74,19 +74,25 @@ public class ContextsView {
         public final String contextId;
         public final String namespace;
         public final String unitId;
+        public final String description;
 
-        public static ContextItem of(final String contextId, final String namespace, final String unitId) {
-            return new ContextItem(contextId, namespace, unitId);
+        public static ContextItem of(final String contextId, final String namespace, final String unitId, final String description) {
+            return new ContextItem(contextId, namespace, unitId, description);
+        }
+
+        public static ContextItem of(final String contextId, final String namespace) {
+            return new ContextItem(contextId, namespace, "", "");
         }
 
         public static ContextItem only(final String contextId) {
-            return new ContextItem(contextId, "", "");
+            return new ContextItem(contextId, "", "", "");
         }
 
-        public ContextItem(final String contextId, final String namespace, final String unitId) {
+        public ContextItem(final String contextId, final String namespace, final String unitId, final String description) {
             this.contextId = contextId;
             this.namespace = namespace;
             this.unitId = unitId;
+            this.description = description;
         }
 
         @Override

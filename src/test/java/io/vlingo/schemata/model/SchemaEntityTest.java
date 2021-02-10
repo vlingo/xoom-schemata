@@ -7,6 +7,7 @@
 
 package io.vlingo.schemata.model;
 
+import java.util.Arrays;
 import io.vlingo.actors.testkit.AccessSafely;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
 import io.vlingo.symbio.store.journal.Journal;
@@ -40,7 +41,7 @@ public class SchemaEntityTest {
   public void setUp() {
     world = World.start("schema-test");
 
-    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, new NoopDispatcher());
+    journal = world.actorFor(Journal.class, InMemoryJournalActor.class, Arrays.asList(new NoopDispatcher()));
 
     registry = new SourcedTypeRegistry(world);
     registry.register(new SourcedTypeRegistry.Info(journal, SchemaEntity.class, SchemaEntity.class.getSimpleName()));

@@ -3,4 +3,4 @@
 	export let notChosenAlert = false;
 </script>
 
-<Alert name="Context" link={!notChosenAlert ? "context" : ""} />
+<Alert name="a Context" link={!notChosenAlert ? "context" : ""} />

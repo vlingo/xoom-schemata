@@ -3,4 +3,4 @@
 	export let notChosenAlert = false;
 </script>
 
-<Alert name="Schema Version" link={!notChosenAlert ? "schemaVersion" : ""} />
+<Alert name="a Schema Version" link={!notChosenAlert ? "schemaVersion" : ""} />

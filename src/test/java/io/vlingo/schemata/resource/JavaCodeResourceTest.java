@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 
 public class JavaCodeResourceTest extends ResourceTest {
   @Test
-  @Ignore("FIXME: still hanging (at/after CodeQueriesActor.codeFor(->queryStateFor))")
+  @Ignore //FIXME: still hanging (at/after CodeQueriesActor.codeFor(->queryStateFor)) + this now needs to inject the context or test different
   public void testThatJavaCodeIsReferenced() {
     final CodeResource resource = new CodeResource(stage);
     final Response response = resource.queryCodeForLanguage(reference(), "java").await();

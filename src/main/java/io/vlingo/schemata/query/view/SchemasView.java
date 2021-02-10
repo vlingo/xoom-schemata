@@ -75,24 +75,28 @@ public class SchemasView {
         public final String name;
         public final String contextId;
         public final String category;
+        public final String scope;
+        public final String description;
 
-        public static SchemaItem of(final String schemaId, final String name, final String contextId, final String category) {
-            return new SchemaItem(schemaId, name, contextId, category);
+        public static SchemaItem of(final String schemaId, final String name, final String contextId, final String category, final String scope, final String description) {
+            return new SchemaItem(schemaId, name, contextId, category, scope, description);
         }
 
-        public static SchemaItem of(final String schemaId, final String name, final String contextId) {
-            return new SchemaItem(schemaId, name, contextId, "");
+        public static SchemaItem of(final String schemaId, final String name) {
+            return new SchemaItem(schemaId, name, "", "", "", "");
         }
 
         public static SchemaItem only(final String schemaId) {
-            return new SchemaItem(schemaId, "", "", "");
+            return new SchemaItem(schemaId, "", "", "", "", "");
         }
 
-        public SchemaItem(final String schemaId, final String name, final String contextId, final String category) {
+        public SchemaItem(final String schemaId, final String name, final String contextId, final String category, final String scope, final String description) {
             this.schemaId = schemaId;
             this.name = name;
             this.contextId = contextId;
             this.category = category;
+            this.scope = scope;
+            this.description = description;
         }
 
         @Override

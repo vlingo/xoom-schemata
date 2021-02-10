@@ -7,6 +7,7 @@
 	import ButtonBar from '../components/form/ButtonBar.svelte';
 	import Button from '../components/form/Button.svelte';
 	import marked from 'marked';
+	import DOMPurify from 'dompurify';
 
 
 	import { createEventDispatcher } from 'svelte';
@@ -163,7 +164,7 @@
 		<CardTitle>Markup:</CardTitle>
 		<CardText>
 			<div class="mx-3">
-				{@html marked(description)}
+				{@html DOMPurify.sanitize(marked(description))}
 			</div>
 		</CardText>
 	</Card>

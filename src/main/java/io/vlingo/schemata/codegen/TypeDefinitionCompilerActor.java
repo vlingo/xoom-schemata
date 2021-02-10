@@ -53,7 +53,7 @@ public class TypeDefinitionCompilerActor implements TypeDefinitionCompiler, Type
         return node -> {
             Completes<Node> result = Completes.withSuccess(node);
             for (Processor p : processors) {
-                result = result.andThen(n -> p.process(n, this, fullyQualifiedTypeName)).await();
+                result = result.andThenTo(n -> p.process(n, this, fullyQualifiedTypeName));
             }
 
             return result.await();

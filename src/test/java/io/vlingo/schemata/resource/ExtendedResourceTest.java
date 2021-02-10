@@ -12,6 +12,7 @@ import io.vlingo.http.Response;
 import io.vlingo.schemata.model.Category;
 import io.vlingo.schemata.model.Scope;
 import io.vlingo.schemata.resource.data.*;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -122,7 +123,7 @@ public class ExtendedResourceTest extends ResourceTest {
     }
 
     @Test
-    @Ignore
+    @Ignore //FIXME: hangs only sometimes, on github CI
     public void testSchemaVersionSelection() {
         String[] schemaVersion1Ids = createFixture1();
         String schemaVersion2Id = createFixture2();

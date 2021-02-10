@@ -9,6 +9,7 @@ package io.vlingo.schemata.infra.persistence;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Arrays;
 
 import io.vlingo.actors.Definition;
 import io.vlingo.actors.World;
@@ -205,7 +206,7 @@ public class StorageProvider {
         journal = world.stage().actorFor(Journal.class, JDBCJournalActor.class, postgresConfiguration, journalWriter);
 
       } else {
-        journal = world.actorFor(Journal.class, InMemoryJournalActor.class, dispatcher);
+        journal = world.actorFor(Journal.class, InMemoryJournalActor.class, Arrays.asList(dispatcher));
       }
 
       return journal;

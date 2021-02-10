@@ -17,17 +17,17 @@
 	let compatibleContexts = [];
 
 	let fullyQualified;
-	
+
 	function changedOrganization(store) {
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId === store.organizationId) : [];
 		$unitStore = compatibleUnits.length ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	
+
 	function changedUnit(store) {
 		compatibleContexts = store ? $contextsStore.filter(c => c.unitId === store.unitId) : [];
 		$contextStore = compatibleContexts.length ? compatibleContexts[compatibleContexts.length-1] : undefined;
 	}
-	
+
 	function changedContext(store) {
 		if(store) {
 			namespace = store.namespace;
@@ -40,7 +40,7 @@
 
 
 	let defineMode = isEmpty(($contextsStore));
-	const newContext = () => {
+	const toggleDefineMode = () => {
 		namespace = "";
 		description = "";
 
@@ -64,7 +64,7 @@
 				updateSelects();
 			})
 	}
-	
+
 	function updateStores(obj, reset = false) {
 		console.log({obj});
 		$contextStore = obj;
@@ -88,7 +88,7 @@
 	<title>Context</title>
 </svelte:head>
 
-<CardForm title="Context" linkToNext="New Schema" prevLink="unit" on:new={newContext} on:redefine={redefine} on:define={define} 
+<CardForm title="Context" linkToNext="New Schema" prevLink="unit" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
 	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
@@ -97,6 +97,6 @@ isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!r
 		<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	{/if}
 
-	<ValidatedInput label="Namespace" placeholder="your.namespace.here" bind:value={namespace} validator={validName} invalidString={errors.NAMESPACE}/>
+	<ValidatedInput label="Namespace" placeholder="your.namespace.here" bind:value={namespace} validator={validName}/>
 	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
 </CardForm>
