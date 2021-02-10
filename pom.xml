@@ -269,7 +269,10 @@
       <id>github</id>
       <url>https://maven.pkg.github.com/vlingo/vlingo-platform</url>
       <releases><enabled>true</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
     </repository>
   </repositories>
 
