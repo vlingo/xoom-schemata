@@ -26,9 +26,6 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Clear cache
-        run: rm -rf ~/.m2/repository
-
       - name: Cache Node packages
         uses: actions/cache@v2
         with:
