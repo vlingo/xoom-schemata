@@ -7,14 +7,7 @@
 
 package io.vlingo.schemata;
 
-import static io.vlingo.xoom.annotation.initializer.AddressFactory.IdentityGenerator.RANDOM;
-import static io.vlingo.xoom.annotation.initializer.AddressFactory.Type.GRID;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.Arrays;
-import java.util.List;
-
+import io.vlingo.actors.Grid;
 import io.vlingo.actors.Stage;
 import io.vlingo.http.resource.Configuration;
 import io.vlingo.http.resource.Configuration.Timing;
@@ -23,22 +16,27 @@ import io.vlingo.schemata.infra.persistence.ProjectionDispatcherProvider;
 import io.vlingo.schemata.infra.persistence.StateStoreProvider;
 import io.vlingo.schemata.infra.persistence.StorageProvider;
 import io.vlingo.xoom.XoomInitializationAware;
-import io.vlingo.xoom.annotation.initializer.AddressFactory;
 import io.vlingo.xoom.annotation.initializer.ResourceHandlers;
 import io.vlingo.xoom.annotation.initializer.Xoom;
 import io.vlingo.xoom.annotation.initializer.XoomInitializationException;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.Arrays;
+import java.util.List;
+
+@Xoom(name = "vlingo-schemata")
 @ResourceHandlers(packages = "io.vlingo.schemata.resource")
-@Xoom(name = "vlingo-schemata", addressFactory = @AddressFactory(type = GRID, generator = RANDOM))
 public class Bootstrap implements XoomInitializationAware {
 
   @Override
-  public void onInit(final Stage stage) {
+  public void onInit(final Grid grid) {
   }
 
   @Override
-  public Configuration configureServer(final Stage stage, final String[] args) {
+  public Configuration configureServer(final Grid grid, final String[] args) {
     try {
+      final Stage stage = grid.world().stage();
       final SchemataConfig config = SchemataConfig.forRuntime(args.length == 0 ? "dev" : args[0]);
 
       final StateStoreProvider stateStoreProvider = StateStoreProvider.using(stage.world(), config);
@@ -56,6 +54,10 @@ public class Bootstrap implements XoomInitializationAware {
     } catch (final Exception exception) {
       throw new XoomInitializationException(exception);
     }
+  }
+
+  public String parseNodeName(final String[] args) {
+    return Schemata.NodeName;
   }
 
   private int nextFreePort(final int from, final int to) throws IOException {
