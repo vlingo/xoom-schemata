@@ -7,22 +7,17 @@
 
 package io.vlingo.schemata.resource;
 
+import io.vlingo.common.serialization.JsonSerialization;
+import io.vlingo.http.Response;
+import io.vlingo.schemata.model.Organization;
+import io.vlingo.schemata.model.OrganizationState;
+import io.vlingo.schemata.resource.data.UnitData;
+import org.junit.Test;
+
 import static io.vlingo.http.Response.Status.Created;
 import static io.vlingo.http.Response.Status.NotFound;
 import static io.vlingo.http.ResponseHeader.Location;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import io.vlingo.schemata.Schemata;
-import io.vlingo.schemata.model.Organization;
-import io.vlingo.schemata.model.OrganizationState;
-import org.junit.Test;
-
-import io.vlingo.common.serialization.JsonSerialization;
-import io.vlingo.http.Response;
-import io.vlingo.schemata.resource.data.UnitData;
+import static org.junit.Assert.*;
 
 public class UnitResourceTest extends ResourceTest {
   private static final String OrgId = "O123";
@@ -42,7 +37,7 @@ public class UnitResourceTest extends ResourceTest {
   @Test
   public void testThatNonExistingUnitReturns404() {
     final UnitResource resource = new UnitResource(stage);
-    OrganizationState org = Organization.with(world.stageNamed(Schemata.StageName), Organization.uniqueId(),"o", "d").await();
+    OrganizationState org = Organization.with(stage, Organization.uniqueId(),"o", "d").await();
     final Response response = resource.queryUnit(org.organizationId.value,"-1").await();
     assertEquals(NotFound, response.status);
     assertTrue(response.entity.content().contains("Unit not found"));

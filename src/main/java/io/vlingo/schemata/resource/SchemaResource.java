@@ -7,7 +7,7 @@
 
 package io.vlingo.schemata.resource;
 
-import io.vlingo.actors.Stage;
+import io.vlingo.actors.Grid;
 import io.vlingo.common.Completes;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
@@ -28,17 +28,18 @@ import static io.vlingo.common.serialization.JsonSerialization.serialized;
 import static io.vlingo.http.Response.Status.*;
 import static io.vlingo.http.ResponseHeader.*;
 import static io.vlingo.http.resource.ResourceBuilder.*;
-import static io.vlingo.schemata.Schemata.*;
+import static io.vlingo.schemata.Schemata.NoId;
+import static io.vlingo.schemata.Schemata.SchemasPath;
 
 public class SchemaResource extends DynamicResourceHandler {
+  private final Grid grid;
   private final SchemaCommands commands;
   private final SchemaQueries queries;
-  private final Stage stage;
 
-  public SchemaResource(final Stage stage) {
-    super(stage);
-    this.stage = stage;
-    this.commands = new SchemaCommands(this.stage, 10);
+  public SchemaResource(final Grid grid) {
+    super(grid.world().stage());
+    this.grid = grid;
+    this.commands = new SchemaCommands(grid, 10);
     this.queries = StorageProvider.instance().schemaQueries;
   }
 
@@ -47,7 +48,7 @@ public class SchemaResource extends DynamicResourceHandler {
       return Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
     }
 
-    return Schema.with(stage, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(data.category),
+    return Schema.with(grid, ContextId.existing(organizationId, unitId, contextId), Category.valueOf(data.category),
             data.scope == null ? Scope.Private : Scope.valueOf(data.scope), data.name, data.description)
             .andThenTo(3000, state -> {
                 final String location = schemaLocation(state.schemaId);

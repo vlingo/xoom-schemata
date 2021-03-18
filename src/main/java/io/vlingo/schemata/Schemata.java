@@ -44,5 +44,5 @@ public class Schemata {
   // Names
   //==========================
 
-  public static final String StageName = "vlingo-schemata-grid";
+  public static final String NodeName = "schemata-node-1";
 }

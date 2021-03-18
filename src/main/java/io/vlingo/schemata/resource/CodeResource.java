@@ -7,19 +7,8 @@
 
 package io.vlingo.schemata.resource;
 
-import static io.vlingo.http.RequestHeader.Authorization;
-import static io.vlingo.http.Response.Status.BadRequest;
-import static io.vlingo.http.Response.Status.InternalServerError;
-import static io.vlingo.http.Response.Status.Ok;
-import static io.vlingo.http.resource.ResourceBuilder.get;
-import static io.vlingo.http.resource.ResourceBuilder.resource;
-import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
+import io.vlingo.actors.Grid;
 import io.vlingo.actors.Logger;
-import io.vlingo.actors.Stage;
 import io.vlingo.common.Completes;
 import io.vlingo.common.Outcome;
 import io.vlingo.common.Tuple3;
@@ -35,13 +24,16 @@ import io.vlingo.schemata.infra.persistence.StorageProvider;
 import io.vlingo.schemata.model.Path;
 import io.vlingo.schemata.query.CodeQueries;
 import io.vlingo.schemata.query.QueryResultsCollector;
-import io.vlingo.schemata.resource.data.AuthorizationData;
-import io.vlingo.schemata.resource.data.ContextData;
-import io.vlingo.schemata.resource.data.OrganizationData;
-import io.vlingo.schemata.resource.data.PathData;
-import io.vlingo.schemata.resource.data.SchemaData;
-import io.vlingo.schemata.resource.data.SchemaVersionData;
-import io.vlingo.schemata.resource.data.UnitData;
+import io.vlingo.schemata.resource.data.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static io.vlingo.http.RequestHeader.Authorization;
+import static io.vlingo.http.Response.Status.*;
+import static io.vlingo.http.resource.ResourceBuilder.get;
+import static io.vlingo.http.resource.ResourceBuilder.resource;
+import static io.vlingo.schemata.codegen.TypeDefinitionCompiler.compilerFor;
 
 //
 // like this:
@@ -54,14 +46,14 @@ import io.vlingo.schemata.resource.data.UnitData;
 // header: Authorization: VLINGO-SCHEMATA source=<some-hash-value> dependent=<some-hash-value>
 //
 public class CodeResource extends DynamicResourceHandler {
+  private final Grid grid;
   private final Logger logger;
   private final CodeQueries queries;
-  private final Stage stage;
 
-  public CodeResource(final Stage stage) {
-    super(stage);
-    this.stage = stage;
-    this.logger = stage.world().defaultLogger();
+  public CodeResource(final Grid grid) {
+    super(grid.world().stage());
+    this.grid = grid;
+    this.logger = grid.world().defaultLogger();
     this.queries = StorageProvider.instance().codeQueries;
   }
 
@@ -132,7 +124,7 @@ public class CodeResource extends DynamicResourceHandler {
 
   private Completes<Outcome<SchemataBusinessException, String>> compile(final String reference, final String specification, final String currentVersion, final String language) {
     final InputStream inputStream = new ByteArrayInputStream(specification.getBytes());
-    return compilerFor(stage, language).compile(inputStream, reference, currentVersion);
+    return compilerFor(grid, language).compile(inputStream, reference, currentVersion);
   }
 
   @SuppressWarnings("unused")

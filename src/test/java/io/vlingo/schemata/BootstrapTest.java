@@ -29,8 +29,7 @@ public class BootstrapTest {
   }
 
   @After
-  public void tearDown() {
-    XoomInitializer.instance().server.shutDown();
-    XoomInitializer.instance().world.terminate();
+  public void tearDown() throws Exception {
+    io.vlingo.schemata.XoomInitializer.instance().stopServer();
   }
 }

@@ -9,7 +9,6 @@ package io.vlingo.schemata.resource;
 
 import io.vlingo.common.serialization.JsonSerialization;
 import io.vlingo.http.Response;
-import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.model.*;
 import io.vlingo.schemata.model.SchemaVersion.Status;
 import io.vlingo.schemata.resource.data.SchemaVersionData;
@@ -50,10 +49,10 @@ public class SchemaVersionResourceTest extends ResourceTest {
     @Test
     public void testThatNonExistingSchemaVersionReturns404() {
         final SchemaVersionResource resource = new SchemaVersionResource(stage);
-        OrganizationState org = Organization.with(world.stageNamed(Schemata.StageName), Organization.uniqueId(),"o", "d").await();
-        UnitState unit = Unit.with(world.stageNamed(Schemata.StageName), org.organizationId,"u", "d").await();
-        ContextState context = Context.with(world.stageNamed(Schemata.StageName), unit.unitId,"c", "d").await();
-        SchemaState schema = Schema.with(world.stageNamed(Schemata.StageName), context.contextId, Category.Event, Scope.Public, "s", "d").await();
+        OrganizationState org = Organization.with(stage, Organization.uniqueId(),"o", "d").await();
+        UnitState unit = Unit.with(stage, org.organizationId,"u", "d").await();
+        ContextState context = Context.with(stage, unit.unitId,"c", "d").await();
+        SchemaState schema = Schema.with(stage, context.contextId, Category.Event, Scope.Public, "s", "d").await();
 
         final Response response = resource.querySchemaVersionByIds(org.organizationId.value, unit.unitId.value, context.contextId.value, schema.schemaId.value, "-1").await();
         assertEquals(NotFound, response.status);

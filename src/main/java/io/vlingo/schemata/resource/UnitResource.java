@@ -7,7 +7,7 @@
 
 package io.vlingo.schemata.resource;
 
-import io.vlingo.actors.Stage;
+import io.vlingo.actors.Grid;
 import io.vlingo.common.Completes;
 import io.vlingo.http.Header.Headers;
 import io.vlingo.http.Response;
@@ -26,17 +26,18 @@ import static io.vlingo.common.serialization.JsonSerialization.serialized;
 import static io.vlingo.http.Response.Status.*;
 import static io.vlingo.http.ResponseHeader.*;
 import static io.vlingo.http.resource.ResourceBuilder.*;
-import static io.vlingo.schemata.Schemata.*;
+import static io.vlingo.schemata.Schemata.NoId;
+import static io.vlingo.schemata.Schemata.UnitsPath;
 
 public class UnitResource extends DynamicResourceHandler {
+  private final Grid grid;
   private final UnitCommands commands;
   private final UnitQueries queries;
-  private final Stage stage;
 
-  public UnitResource(final Stage stage) {
-    super(stage);
-    this.stage = stage;
-    this.commands = new UnitCommands(this.stage, 10);
+  public UnitResource(final Grid grid) {
+    super(grid.world().stage());
+    this.grid = grid;
+    this.commands = new UnitCommands(grid, 10);
     this.queries = StorageProvider.instance().unitQueries;
   }
 
@@ -45,7 +46,7 @@ public class UnitResource extends DynamicResourceHandler {
       return Completes.withSuccess(Response.of(BadRequest, Naming.invalidNameMessage(data.name)));
     }
 
-    return Unit.with(stage, OrganizationId.existing(organizationId), data.name, data.description)
+    return Unit.with(grid, OrganizationId.existing(organizationId), data.name, data.description)
             .andThenTo(3000, state -> {
                 final String location = unitLocation(state.unitId);
                 final Headers<ResponseHeader> headers =Headers.of(
