@@ -85,3 +85,16 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: vlingo/vlingo-schemata
           tag_with_ref: true
+
+      - name: Notify slack
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_COLOR: "${{ job.status == 'success' && 'good' || 'danger' }}"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: ci-cd
+          SLACK_USERNAME: Suzi the Publisher
+          SLACK_ICON: 'https://vlingo.io/wp-content/uploads/cropped-vlingo-favicon-180x180.png'
+          SLACK_FOOTER: '${{ github.repository }}'
+          SLACK_TITLE: 'Docker Image'
+          SLACK_MESSAGE: ':rocket: ${{ needs.build.outputs.vlingo_version }}'
