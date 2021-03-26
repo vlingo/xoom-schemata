@@ -7,7 +7,7 @@
 
 package io.vlingo.schemata.resource;
 
-import io.vlingo.actors.CompletesEventually;
+// import io.vlingo.actors.CompletesEventually;
 import io.vlingo.http.*;
 import io.vlingo.schemata.Schemata;
 import io.vlingo.schemata.model.Category;
@@ -48,19 +48,19 @@ public class JavaCodeResourceTest extends ResourceTest {
     createFixtures();
   }
 
-  private Context context() {
-    final String authValue =
-            AuthorizationData.AuthorizationType +
-            " source = " + organizationId +
-            "    dependent = " + referenceFrom(organizationId, unitId, contextId);
+  // private Context context() {
+  //   final String authValue =
+  //           AuthorizationData.AuthorizationType +
+  //           " source = " + organizationId +
+  //           "    dependent = " + referenceFrom(organizationId, unitId, contextId);
 
-    final Request request =
-            Request
-              .has(Method.GET)
-              .and(RequestHeader.of(RequestHeader.Authorization, authValue));
+  //   final Request request =
+  //           Request
+  //             .has(Method.GET)
+  //             .and(RequestHeader.of(RequestHeader.Authorization, authValue));
 
-    return new Context(request, (CompletesEventually) null);
-  }
+  //   return new Context(request, (CompletesEventually) null);
+  // }
 
   private static final String OrgName = "VLINGO, LLC";
   private static final String OrgDescription = "We are the vlingo/PLATFORM company.";

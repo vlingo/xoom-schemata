@@ -35,7 +35,6 @@ public class StateStoreProvider {
 
   public final StateStore stateStore;
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public static StateStoreProvider using(final World world, final SchemataConfig config) throws Exception {
     final StateStore stateStore =
             config.isProductionRuntimeType() || config.isEnvironmentRuntimeType() ?
@@ -43,7 +42,8 @@ public class StateStoreProvider {
 
     return new StateStoreProvider(world, stateStore);
   }
-
+  
+  @SuppressWarnings({"rawtypes", "unchecked"})
   private static StateStore resolveProductionDatabase(final World world, final SchemataConfig config) throws Exception {
     final Configuration databaseConfiguration = buildDatabaseConfiguration(world, config);
 
@@ -83,6 +83,7 @@ public class StateStoreProvider {
     throw connectionException;
   }
 
+  @SuppressWarnings({"rawtypes"})
   private static StateStore resolveDeveloperDatabase(final World world) {
     return world.stage().actorFor(StateStore.class, InMemoryStateStoreActor.class, Arrays.asList(new NoopDispatcher()));
   }
