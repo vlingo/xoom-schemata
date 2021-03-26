@@ -40,9 +40,9 @@ public class Schemata {
 
   public static final String CodePath = "/code/%s/%s";
 
-  //==========================
+  //=========================
   // Names
   //==========================
 
-  public static final String NodeName = "schemata-node-1";
+  public static final String NodeName = "node1";
 }
