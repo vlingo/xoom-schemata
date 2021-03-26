@@ -1,9 +1,0 @@
-version: '3'
-services:
-  schemata:
-    image: vlingo/vlingo-schemata:latest
-    ports:
-      - 9019:9019
-    environment:
-      VLINGO_SCHEMATA_PORT: 9019
-      VLINGO_ENV: dev
