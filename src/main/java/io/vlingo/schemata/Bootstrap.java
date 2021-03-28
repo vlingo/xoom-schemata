@@ -7,6 +7,11 @@
 
 package io.vlingo.schemata;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.Arrays;
+import java.util.List;
+
 import io.vlingo.actors.Grid;
 import io.vlingo.actors.Stage;
 import io.vlingo.cluster.model.Properties;
@@ -20,11 +25,6 @@ import io.vlingo.xoom.XoomInitializationAware;
 import io.vlingo.xoom.annotation.initializer.ResourceHandlers;
 import io.vlingo.xoom.annotation.initializer.Xoom;
 import io.vlingo.xoom.annotation.initializer.XoomInitializationException;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.Arrays;
-import java.util.List;
 
 @Xoom(name = "vlingo-schemata")
 @ResourceHandlers(packages = "io.vlingo.schemata.resource")
@@ -57,6 +57,7 @@ public class Bootstrap implements XoomInitializationAware {
     }
   }
 
+  @Override
   public String parseNodeName(final String[] args) {
     return Schemata.NodeName;
   }
@@ -87,7 +88,7 @@ public class Bootstrap implements XoomInitializationAware {
     try {
       final java.util.Properties properties = new java.util.Properties();
       properties.load(this.getClass().getResourceAsStream("/vlingo-cluster.properties"));
-      return Properties.openForTest(properties);
+      return Properties.openWith(properties);
     } catch (IOException e) {
       System.out.println("Unable to load cluster properties for Schemata.");
       return null;
