@@ -18,6 +18,7 @@ import io.vlingo.cluster.model.Properties;
 import io.vlingo.http.resource.Configuration;
 import io.vlingo.http.resource.Configuration.Timing;
 import io.vlingo.http.resource.StaticFilesConfiguration;
+import io.vlingo.lattice.grid.GridClusterProperties;
 import io.vlingo.schemata.infra.persistence.ProjectionDispatcherProvider;
 import io.vlingo.schemata.infra.persistence.StateStoreProvider;
 import io.vlingo.schemata.infra.persistence.StorageProvider;
@@ -89,9 +90,9 @@ public class Bootstrap implements XoomInitializationAware {
       final java.util.Properties properties = new java.util.Properties();
       properties.load(this.getClass().getResourceAsStream("/vlingo-cluster.properties"));
       return Properties.openWith(properties);
-    } catch (IOException e) {
-      System.out.println("Unable to load cluster properties for Schemata.");
-      return null;
+    } catch (Throwable t) {
+      System.out.println("Unable to load cluster properties for Schemata; using default single-node cluster.");
+      return GridClusterProperties.oneNode();
     }
   }
 
