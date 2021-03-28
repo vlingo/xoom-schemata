@@ -9,7 +9,6 @@ package io.vlingo.schemata.resource;
 
 import io.vlingo.actors.Grid;
 import io.vlingo.actors.World;
-import io.vlingo.cluster.model.Properties;
 import io.vlingo.http.Response;
 import io.vlingo.http.ResponseHeader;
 import io.vlingo.lattice.model.sourcing.SourcedTypeRegistry;
@@ -23,8 +22,6 @@ import io.vlingo.symbio.store.journal.Journal;
 import io.vlingo.xoom.Boot;
 import org.junit.After;
 import org.junit.Before;
-
-import java.io.IOException;
 
 public abstract class ResourceTest {
   protected Journal<String> journal;
@@ -42,7 +39,7 @@ public abstract class ResourceTest {
   @Before
   public void setUp() throws Exception {
     // TODO: Start an actual Grid here using Grid.start(...). Needs a test grid configuration first
-    stage = Boot.start("test-command-router", Schemata.NodeName, clusterProperties());
+    stage = Boot.start("test-command-router", Schemata.NodeName);
     world = stage.world();
 
     final SchemataConfig config = SchemataConfig.forRuntime(SchemataConfig.RUNTIME_TYPE_DEV);
@@ -69,16 +66,5 @@ public abstract class ResourceTest {
   protected String extractResourceIdFrom(final Response response) {
     final String[] parts = response.headerValueOr(ResponseHeader.Location, null).split("/");
     return parts[parts.length - 1];
-  }
-
-  public Properties clusterProperties() {
-    try {
-      final java.util.Properties properties = new java.util.Properties();
-      properties.load(this.getClass().getResourceAsStream("/vlingo-cluster.properties"));
-      return Properties.openForTest(properties);
-    } catch (IOException e) {
-      System.out.println("Unable to load cluster properties for Schemata.");
-      return null;
-    }
   }
 }
