@@ -240,7 +240,7 @@
       </build>
     </profile>
     <profile>
-      <!-- We only need GitHub packages during during releases as syncing to cenral is too slow. -->
+      <!-- We only need GitHub packages during releases as syncing to central is too slow. -->
       <id>github-releases</id>
       <repositories>
         <repository>
