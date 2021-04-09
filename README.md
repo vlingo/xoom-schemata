@@ -72,7 +72,7 @@ The defaults are the same as configured in **dev**.
 
 #### Docker Run:
 You can run the registry with an in-memory database within docker using `docker run -p9019:9019 vlingo/xoom-schemata`.
-The docker image supports the three runtime profiles by setting `$VLINGO_ENV` inside the Dockerfile accordingly.
+The docker image supports the three runtime profiles by setting `$XOOM_ENV` inside the Dockerfile accordingly.
 
 
 ## Usage
