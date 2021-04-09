@@ -36,7 +36,7 @@ Content-Type: application/json
   "organizationId": "{{orgId}}",
   "unitId": "{{unitId}}",
   "contextId": "",
-  "namespace": "io.vlingo.schemata",
+  "namespace": "io.vlingo.xoom.schemata",
   "description": "Schemata Context"
 }
 
@@ -65,7 +65,7 @@ Content-Type: application/json
 
 ### Push schema by reference
 
-POST http://localhost:9019/api/versions/Vlingo:schemata:io.vlingo.schemata:SchemaDefined:0.0.1
+POST http://localhost:9019/api/versions/Vlingo:schemata:io.vlingo.xoom.schemata:SchemaDefined:0.0.1
 Content-Type: application/json
 
 {
@@ -78,7 +78,7 @@ Content-Type: application/json
 
 ### Update schema by reference
 
-POST http://localhost:9019/api/versions/Vlingo:schemata:io.vlingo.schemata:SchemaDefined:1.0.0
+POST http://localhost:9019/api/versions/Vlingo:schemata:io.vlingo.xoom.schemata:SchemaDefined:1.0.0
 Content-Type: application/json
 
 {
@@ -90,7 +90,7 @@ Content-Type: application/json
 > {% client.global.set('schemaVersionId', response.body.schemaVersionId) %}
 
 ### Pull code by reference
-GET http://localhost:9019/api/code/Vlingo:schemata:io.vlingo.schemata:SchemaDefined:0.0.1/java
+GET http://localhost:9019/api/code/Vlingo:schemata:io.vlingo.xoom.schemata:SchemaDefined:0.0.1/java
 Accept: application/json
 
 ### Update description

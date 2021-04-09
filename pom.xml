@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.vlingo</groupId>
-  <artifactId>vlingo-schemata</artifactId>
+  <groupId>io.vlingo.xoom</groupId>
+  <artifactId>xoom-schemata</artifactId>
   <version>1.6.1-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>vlingo-schemata</name>
+  <name>xoom-schemata</name>
   <description>The schema registry for the vlingo/platform.</description>
   <licenses>
     <license>
@@ -27,9 +27,9 @@
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:git://github.com/vlingo/vlingo-schemata.git</connection>
-    <developerConnection>scm:git:ssh://github.com/vlingo/vlingo-schemata.git</developerConnection>
-    <url>http://github.com/vlingo/vlingo-schemata/tree/master</url>
+    <connection>scm:git:git://github.com/vlingo/xoom-schemata.git</connection>
+    <developerConnection>scm:git:ssh://github.com/vlingo/xoom-schemata.git</developerConnection>
+    <url>http://github.com/vlingo/xoom-schemata/tree/master</url>
   </scm>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -89,7 +89,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>io.vlingo.schemata.XoomInitializer</mainClass>
+              <mainClass>io.vlingo.xoom.schemata.XoomInitializer</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
@@ -122,18 +122,18 @@
       <version>4.7.1</version>
     </dependency>
     <dependency>
-      <groupId>io.vlingo</groupId>
-      <artifactId>vlingo-http</artifactId>
+      <groupId>io.vlingo.xoom</groupId>
+      <artifactId>xoom-http</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.vlingo</groupId>
-      <artifactId>vlingo-lattice</artifactId>
+      <groupId>io.vlingo.xoom</groupId>
+      <artifactId>xoom-lattice</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.vlingo</groupId>
-      <artifactId>vlingo-symbio-jdbc</artifactId>
+      <groupId>io.vlingo.xoom</groupId>
+      <artifactId>xoom-symbio-jdbc</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -147,8 +147,8 @@
       <version>1.2.3</version>
     </dependency>
     <dependency>
-      <groupId>io.vlingo</groupId>
-      <artifactId>vlingo-xoom</artifactId>
+      <groupId>io.vlingo.xoom</groupId>
+      <artifactId>xoom-turbo</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
@@ -209,8 +209,8 @@
               </compilerArgs>
               <annotationProcessorPaths>
                 <path>
-                  <groupId>io.vlingo</groupId>
-                  <artifactId>vlingo-xoom</artifactId>
+                  <groupId>io.vlingo.xoom</groupId>
+                  <artifactId>xoom-turbo</artifactId>
                   <version>${project.version}</version>
                 </path>
               </annotationProcessorPaths>
@@ -227,8 +227,8 @@
                   </compilerArgs>
                   <annotationProcessorPaths>
                     <path>
-                      <groupId>io.vlingo</groupId>
-                      <artifactId>vlingo-xoom</artifactId>
+                      <groupId>io.vlingo.xoom</groupId>
+                      <artifactId>xoom-turbo</artifactId>
                       <version>${project.version}</version>
                     </path>
                   </annotationProcessorPaths>
@@ -246,7 +246,7 @@
         <repository>
           <id>github</id>
           <name>GitHub Packages</name>
-          <url>https://maven.pkg.github.com/vlingo/vlingo-platform</url>
+          <url>https://maven.pkg.github.com/vlingo/xoom-platform</url>
         </repository>
       </repositories>
     </profile>

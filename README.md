@@ -1,10 +1,10 @@
 
-# vlingo-schemata
+# xoom-schemata
 
-[![Gitter](https://img.shields.io/gitter/room/vlingo-platform-java/community?logo=gitter)](https://gitter.im/vlingo-platform-java/community)
-[![Docker Stars](https://img.shields.io/docker/stars/vlingo/vlingo-schemata?logo=docker)](https://hub.docker.com/r/vlingo/vlingo-schemata)
-[![Docker Pulls](https://img.shields.io/docker/pulls/vlingo/vlingo-schemata?logo=docker)](https://hub.docker.com/r/vlingo/vlingo-schemata)
-[![Build](https://github.com/vlingo/vlingo-schemata/workflows/Build/badge.svg)](https://github.com/vlingo/vlingo-schemata/actions?query=workflow%3ABuild)
+[![Gitter](https://img.shields.io/gitter/room/xoom-platform-java/community?logo=gitter)](https://gitter.im/vlingo-platform-java/community)
+[![Docker Stars](https://img.shields.io/docker/stars/vlingo/xoom-schemata?logo=docker)](https://hub.docker.com/r/vlingo/xoom-schemata)
+[![Docker Pulls](https://img.shields.io/docker/pulls/vlingo/xoom-schemata?logo=docker)](https://hub.docker.com/r/vlingo/xoom-schemata)
+[![Build](https://github.com/vlingo/xoom-schemata/workflows/Build/badge.svg)](https://github.com/vlingo/xoom-schemata/actions?query=workflow%3ABuild)
 
 
 The VLINGO XOOM Schema Registry.
@@ -14,11 +14,11 @@ The VLINGO XOOM Schema Registry.
 
 :warning: Make sure you are using a Java 8 JDK.
 
-Build <pre><code>& "<b>{yourInstallPath}</b>\vlingo-schemata\mvnw.cmd" clean package -Pfrontend -f "<b>{yourInstallPath}</b>\vlingo-schemata\pom.xml"</code></pre>
-*e.g. <pre><code>& "<b>d:\vlingo</b>\vlingo-schemata\mvnw.cmd" clean package -Pfrontend -f "<b>d:\vlingo</b>\vlingo-schemata\pom.xml"</code></pre>*
+Build <pre><code>& "<b>{yourInstallPath}</b>\xoom-schemata\mvnw.cmd" clean package -Pfrontend -f "<b>{yourInstallPath}</b>\xoom-schemata\pom.xml"</code></pre>
+*e.g. <pre><code>& "<b>d:\vlingo</b>\xoom-schemata\mvnw.cmd" clean package -Pfrontend -f "<b>d:\vlingo</b>\xoom-schemata\pom.xml"</code></pre>*
 
-Run <pre><code>java -jar target/vlingo-schemata-<b>{version}</b>-jar-with-dependencies.jar</code></pre>
-*e.g. <pre><code>java -jar target/vlingo-schemata-<b>1.5.1-SNAPSHOT</b>-jar-with-dependencies.jar</code></pre>*
+Run <pre><code>java -jar target/xoom-schemata-<b>{version}</b>-jar-with-dependencies.jar</code></pre>
+*e.g. <pre><code>java -jar target/xoom-schemata-<b>1.5.1-SNAPSHOT</b>-jar-with-dependencies.jar</code></pre>*
 
 We provide an interface to allow for easy retrieval of schemata and 
 schemata meta information, e.g. available versions and publication status.
@@ -41,47 +41,47 @@ The maven build takes care of the following:
 * Package the backend, frontend and dependencies within a fat jar
 
 #### Docker Build:
-After building, you can optionally build the docker container with `docker build . -t vlingo/vlingo-schemata`.
+After building, you can optionally build the docker container with `docker build . -t vlingo/xoom-schemata`.
 
 
 ### Run
 
 If you want to configure the schemata runtime profile, you have several options:
-<pre><code>java -jar target/vlingo-schemata-<b>{version}</b>-jar-with-dependencies.jar <b>{arg}</b></code></pre>
+<pre><code>java -jar target/xoom-schemata-<b>{version}</b>-jar-with-dependencies.jar <b>{arg}</b></code></pre>
 
 |arg |What does it do?                            |Properties file|
 |--- |---                                         |---|
-|dev |starts with an in-memory HSQLDB             |src/main/resources/vlingo-schemata-dev.properties |
-|prod|starts with a preconfigured PostgreSQL DB   |src/main/resources/vlingo-schemata-prod.properties|
-|[env](#env)|uses environment variables for configuration|src/main/resources/vlingo-schemata-env.properties |
+|dev |starts with an in-memory HSQLDB             |src/main/resources/xoom-schemata-dev.properties |
+|prod|starts with a preconfigured PostgreSQL DB   |src/main/resources/xoom-schemata-prod.properties|
+|[env](#env)|uses environment variables for configuration|src/main/resources/xoom-schemata-env.properties |
 
-*e.g. <pre><code>java -jar target/vlingo-schemata-<b>1.5.1-SNAPSHOT</b>-jar-with-dependencies.jar <b>dev</b></code></pre>*
+*e.g. <pre><code>java -jar target/xoom-schemata-<b>1.5.1-SNAPSHOT</b>-jar-with-dependencies.jar <b>dev</b></code></pre>*
 
 #### env:
 The defaults are the same as configured in **dev**.
 |Property|Variable|Default|
 |---|---|---|
-|server.port        |VLINGO_SCHEMATA_PORT       |9019|
-|database.type      |VLINGO_SCHEMATA_DB_TYPE    |io.vlingo.schemata.infra.persistence.HSQLDBSchemataObjectStore|
-|database.driver    |VLINGO_SCHEMATA_DB_DRIVER  |org.hsqldb.jdbc.JDBCDriver|
-|database.url       |VLINGO_SCHEMATA_DB_URL     |jdbc:hsqldb:mem:|
-|database.name      |VLINGO_SCHEMATA_DB_NAME    |vlingo_schemata|
-|database.username  |VLINGO_SCHEMATA_DB_USER    |SA|
-|database.password  |VLINGO_SCHEMATA_DB_PASS    ||
-|database.originator|VLINGO_SCHEMATA_DB_ORIGINATOR|MAIN| 
+|server.port        |XOOM_SCHEMATA_PORT       |9019|
+|database.type      |XOOM_SCHEMATA_DB_TYPE    |io.vlingo.xoom.schemata.infra.persistence.HSQLDBSchemataObjectStore|
+|database.driver    |XOOM_SCHEMATA_DB_DRIVER  |org.hsqldb.jdbc.JDBCDriver|
+|database.url       |XOOM_SCHEMATA_DB_URL     |jdbc:hsqldb:mem:|
+|database.name      |XOOM_SCHEMATA_DB_NAME    |xoom_schemata|
+|database.username  |XOOM_SCHEMATA_DB_USER    |SA|
+|database.password  |XOOM_SCHEMATA_DB_PASS    ||
+|database.originator|XOOM_SCHEMATA_DB_ORIGINATOR|MAIN| 
 
 #### Docker Run:
-You can run the registry with an in-memory database within docker using `docker run -p9019:9019 vlingo/vlingo-schemata`.
+You can run the registry with an in-memory database within docker using `docker run -p9019:9019 vlingo/xoom-schemata`.
 The docker image supports the three runtime profiles by setting `$VLINGO_ENV` inside the Dockerfile accordingly.
 
 
 ## Usage
 
 You can find detailed instructions at:
-https://docs.vlingo.io/vlingo-schemata#working-with-schema-specifications-and-schema-dependencies.
+https://docs.vlingo.io/xoom-schemata#working-with-schema-specifications-and-schema-dependencies.
 
 An example for talking to the schema registry as part of a maven build:
-https://github.com/vlingo/vlingo-examples/tree/master/vlingo-schemata-integration
+https://github.com/vlingo/xoom-examples/tree/master/xoom-schemata-integration
 
 
 ### API Examples
@@ -92,7 +92,7 @@ https://github.com/vlingo/vlingo-examples/tree/master/vlingo-schemata-integratio
 
 `$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","name":"Unit1","description":"My unit."}' http://localhost:9019/api/organizations/{orgId}/units`
 
-`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","namespace":"io.vlingo.schemata","description":"Schemata Context."}' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts`
+`$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","namespace":"io.vlingo.xoom.schemata","description":"Schemata Context."}' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts`
 
 `$ curl -i -X POST -H "Content-Type: application/json" -d '{"organizationId":"","unitId":"","contextId":"","schemaId":"","category":"Event","name":"SchemaDefined","description":"Schemata was defined event."}' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/contexts/{contextId}/schemas`
 
@@ -128,7 +128,7 @@ https://github.com/vlingo/vlingo-examples/tree/master/vlingo-schemata-integratio
 
 `$ curl -i -X GET -H "Accept: application/json" http://localhost:9019/api/code/{reference}/{language}`
   - Takes the form:     /code/Org:Unit:Context:Schema:Version/Language
-  - Or more precisely:  /code/vlingo:PlatformDevelopment:io.vlingo.schemata:SchemaDefined:1.0.0/java
+  - Or more precisely:  /code/vlingo:PlatformDevelopment:io.vlingo.xoom.schemata:SchemaDefined:1.0.0/java
 
 #### Schema Modifications:
 
@@ -139,7 +139,7 @@ https://github.com/vlingo/vlingo-examples/tree/master/vlingo-schemata-integratio
 `$ curl -i -X PATCH -H "Content-Type: application/json" -d 'Unit123' http://localhost:9019/api/organizations/{orgId}/units/{unitId}/description`
 
 `$ curl -i -X POST -H "Content-Type: application/json" -d 'My context changed.' http://localhost:9019/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/description`
-`$ curl -i -X POST -H "Content-Type: application/json" -d 'io.vlingo.schemata.changed' http://localhost:9019/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/namespace`
+`$ curl -i -X POST -H "Content-Type: application/json" -d 'io.vlingo.xoom.schemata.changed' http://localhost:9019/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/namespace`
 
 `$ curl -i -X POST -H "Content-Type: application/json" -d 'Command' http://localhost:9019/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/cateogry`
 `$ curl -i -X POST -H "Content-Type: application/json" -d 'DefineSchema command defined.' http://localhost:9019/api/organizations/{organizationId}/units/{unitId}/contexts/{contextId}/schemas/{schemaId}/description`

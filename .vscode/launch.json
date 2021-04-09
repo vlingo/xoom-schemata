@@ -6,11 +6,11 @@
 	"configurations": [
 		{
 			"type": "java",
-			"name": "Debug (Launch)-XoomInitializer<vlingo-schemata>",
+			"name": "Debug (Launch)-XoomInitializer<xoom-schemata>",
 			"request": "launch",
-			"mainClass": "io.vlingo.schemata.XoomInitializer",
+			"mainClass": "io.vlingo.xoom.schemata.XoomInitializer",
 			"args": "dev",
-			"projectName": "vlingo-schemata"
+			"projectName": "xoom-schemata"
 		}
 	]
 }

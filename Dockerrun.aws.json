@@ -1,7 +1,7 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "vlingo/vlingo-schemata",
+    "Name": "vlingo/xoom-schemata",
     "Update": "false"
   },
   "Ports": [
