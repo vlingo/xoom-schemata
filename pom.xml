@@ -123,11 +123,6 @@
     </dependency>
     <dependency>
       <groupId>io.vlingo.xoom</groupId>
-      <artifactId>xoom-http</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.vlingo.xoom</groupId>
       <artifactId>xoom-lattice</artifactId>
       <version>${project.version}</version>
     </dependency>
