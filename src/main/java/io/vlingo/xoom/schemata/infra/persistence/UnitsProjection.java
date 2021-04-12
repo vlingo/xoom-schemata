@@ -18,10 +18,12 @@ import io.vlingo.xoom.schemata.model.Events.UnitRenamed;
 import io.vlingo.xoom.schemata.query.view.UnitsView;
 import io.vlingo.xoom.schemata.query.view.UnitsView.UnitItem;
 import io.vlingo.xoom.symbio.Entry;
+import io.vlingo.xoom.symbio.Source;
 import io.vlingo.xoom.symbio.store.state.StateStore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UnitsProjection extends StateStoreProjectionActor<UnitsView> {
     private String dataId;
@@ -105,7 +107,7 @@ public class UnitsProjection extends StateStoreProjectionActor<UnitsView> {
             }
         }
 
-        logger().info("PROJECTED: " + mergedData);
+        logger().info("PROJECTED: " + events.stream().map(Source::typeName).collect(Collectors.toList()) + ", " + mergedData);
 
         return mergedData;
     }

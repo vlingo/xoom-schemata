@@ -15,10 +15,12 @@ import io.vlingo.xoom.schemata.model.Events;
 import io.vlingo.xoom.schemata.query.view.SchemasView;
 import io.vlingo.xoom.schemata.query.view.SchemasView.SchemaItem;
 import io.vlingo.xoom.symbio.Entry;
+import io.vlingo.xoom.symbio.Source;
 import io.vlingo.xoom.symbio.store.state.StateStore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SchemasProjection extends StateStoreProjectionActor<SchemasView> {
     private String dataId;
@@ -100,7 +102,7 @@ public class SchemasProjection extends StateStoreProjectionActor<SchemasView> {
             }
         }
 
-        logger().info("PROJECTED: " + mergedData);
+        logger().info("PROJECTED: " + events.stream().map(Source::typeName).collect(Collectors.toList()) + ", " + mergedData);
 
         return mergedData;
     }
