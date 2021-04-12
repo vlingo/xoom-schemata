@@ -17,10 +17,12 @@ import io.vlingo.xoom.schemata.model.Events.OrganizationRenamed;
 import io.vlingo.xoom.schemata.query.view.OrganizationsView;
 import io.vlingo.xoom.schemata.query.view.OrganizationsView.OrganizationItem;
 import io.vlingo.xoom.symbio.Entry;
+import io.vlingo.xoom.symbio.Source;
 import io.vlingo.xoom.symbio.store.state.StateStore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class OrganizationsProjection extends StateStoreProjectionActor<OrganizationsView> {
     private final List<IdentifiedDomainEvent> events;
@@ -91,7 +93,7 @@ public class OrganizationsProjection extends StateStoreProjectionActor<Organizat
             }
         }
 
-        logger().info("PROJECTED: " + initialData);
+        logger().info("PROJECTED: " + events.stream().map(Source::typeName).collect(Collectors.toList()) + ", " + initialData);
 
         return mergedData;
     }

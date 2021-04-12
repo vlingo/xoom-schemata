@@ -9,6 +9,7 @@ package io.vlingo.xoom.schemata.infra.persistence;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import io.vlingo.xoom.lattice.model.DomainEvent;
 import io.vlingo.xoom.lattice.model.IdentifiedDomainEvent;
@@ -17,6 +18,7 @@ import io.vlingo.xoom.lattice.model.projection.StateStoreProjectionActor;
 import io.vlingo.xoom.schemata.model.Events;
 import io.vlingo.xoom.schemata.query.view.ContextView;
 import io.vlingo.xoom.symbio.Entry;
+import io.vlingo.xoom.symbio.Source;
 import io.vlingo.xoom.symbio.store.state.StateStore;
 
 public class ContextProjection extends StateStoreProjectionActor<ContextView> {
@@ -92,7 +94,7 @@ public class ContextProjection extends StateStoreProjectionActor<ContextView> {
             }
         }
 
-        logger().info("PROJECTED: " + mergedData);
+        logger().info("PROJECTED: " + events.stream().map(Source::typeName).collect(Collectors.toList()) + ", " + mergedData);
 
         return mergedData;
     }
