@@ -63,16 +63,16 @@ public class JavaCodeResourceTest extends ResourceTest {
   // }
 
   private static final String OrgName = "VLINGO, LLC";
-  private static final String OrgDescription = "We are the vlingo/PLATFORM company.";
+  private static final String OrgDescription = "We are the VLINGO XOOM Platform company.";
   private String organizationId;
 
   private static final String UnitName = "Development Team";
-  private static final String UnitDescription = "We are vlingo/PLATFORM development.";
+  private static final String UnitDescription = "We are VLINGO XOOM Platform development.";
   private String unitId;
 
 
   private static final String ContextNamespace = "io.vlingo.xoom.schemata";
-  private static final String ContextDescription = "We are the vlingo/xoom-schemata team.";
+  private static final String ContextDescription = "We are the VLINGO XOOM Scehmata team.";
   private String contextId;
 
   private static final String SchemaName = "SchemaDefined";
