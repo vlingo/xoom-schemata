@@ -135,8 +135,8 @@
 			status: updated.status,
 			specification: updated.specification,
 			description: updated.description,
-			previous: updated.previousVersion,
-			current: updated.currentVersion,
+			previousVersion: updated.previousVersion,
+			currentVersion: updated.currentVersion,
 			id: updated.schemaVersionId
 		};
 	}
