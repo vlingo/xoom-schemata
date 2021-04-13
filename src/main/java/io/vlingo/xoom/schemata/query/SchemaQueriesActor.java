@@ -66,13 +66,9 @@ public class SchemaQueriesActor extends StateStoreQueryActor implements SchemaQu
             Tuple4<Tuple4<String, String, String, String>, CompletesEventually, Long, Integer> retryData = Tuple4.from(
                     query, completes, sleepTime, --remaining
             );
-            scheduler().scheduleOnce(selfAs(Scheduled.class), retryData, 0, sleepTime);
+            scheduler().scheduleOnce((scheduled, data) -> tryQuery(data._1, data._2, data._3, data._4), retryData, 0, sleepTime);
         } else {
             completes.with(NamedSchemaView.empty());
         }
-    }
-
-    public void intervalSignal(Scheduled me, Tuple4<Tuple4<String, String, String, String>, CompletesEventually, Long, Integer> data) {
-        tryQuery(data._1, data._2, data._3, data._4);
     }
 }
