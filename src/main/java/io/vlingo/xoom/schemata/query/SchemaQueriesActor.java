@@ -43,16 +43,16 @@ public class SchemaQueriesActor extends StateStoreQueryActor implements SchemaQu
     }
 
     @Override
-    public Completes<NamedSchemaView> schemaByNamesWithRetries(String organization, String unit, String context,
-                                                               String schema, long sleepTime, int retryCount) {
-        return tryQuery(Tuple4.from(organization, unit, context, schema), completesEventually(), sleepTime, retryCount);
+    public Completes<NamedSchemaView> schemaByNamesWithRetryInterval(String organization, String unit, String context,
+                                                                     String schema, long retryInterval, int retryCount) {
+        return tryQuery(Tuple4.from(organization, unit, context, schema), completesEventually(), retryInterval, retryCount);
     }
 
     private Completes<NamedSchemaView> tryQuery(Tuple4<String, String, String, String> query,
-                                                CompletesEventually completes, long sleepTime, int remainingRetries) {
+                                                CompletesEventually completes, long retryInterval, int remainingRetries) {
         schemaByNames(query._1, query._2, query._3, query._4).andThenConsume(result -> {
             if (result == null) {
-                retry(query, completes, sleepTime, remainingRetries);
+                retry(query, completes, retryInterval, remainingRetries);
             } else {
                 completes.with(result);
             }
@@ -61,12 +61,12 @@ public class SchemaQueriesActor extends StateStoreQueryActor implements SchemaQu
     }
 
     private void retry(Tuple4<String, String, String, String> query,
-                       CompletesEventually completes, long sleepTime, int remaining) {
+                       CompletesEventually completes, long retryInterval, int remaining) {
         if (remaining > 0) {
             Tuple4<Tuple4<String, String, String, String>, CompletesEventually, Long, Integer> retryData = Tuple4.from(
-                    query, completes, sleepTime, --remaining
+                    query, completes, retryInterval, --remaining
             );
-            scheduler().scheduleOnce((scheduled, data) -> tryQuery(data._1, data._2, data._3, data._4), retryData, 0, sleepTime);
+            scheduler().scheduleOnce((scheduled, data) -> tryQuery(data._1, data._2, data._3, data._4), retryData, 0, retryInterval);
         } else {
             completes.with(NamedSchemaView.empty());
         }
