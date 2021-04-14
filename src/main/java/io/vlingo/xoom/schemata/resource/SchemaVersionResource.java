@@ -254,7 +254,7 @@ public class SchemaVersionResource extends DynamicResourceHandler {
               msg));
     }
 
-    SchemaVersionData updatedSchemaVersionData = schemaQueries.schemaByNamesWithRetryInterval(fqr.organization,
+    SchemaVersionData updatedSchemaVersionData = schemaQueries.schemaByNamesWithRetries(fqr.organization,
             fqr.unit, fqr.context, fqr.schema, 500, 5)
             .andThenTo(namedSchemaView -> Completes.withSuccess(SchemaVersionData.from(
                     namedSchemaView.organizationId(),

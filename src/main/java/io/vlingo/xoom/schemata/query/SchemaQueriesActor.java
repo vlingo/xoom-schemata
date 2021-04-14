@@ -43,8 +43,8 @@ public class SchemaQueriesActor extends StateStoreQueryActor implements SchemaQu
     }
 
     @Override
-    public Completes<NamedSchemaView> schemaByNamesWithRetryInterval(String organization, String unit, String context,
-                                                                     String schema, long retryInterval, int retryCount) {
+    public Completes<NamedSchemaView> schemaByNamesWithRetries(String organization, String unit, String context,
+                                                               String schema, long retryInterval, int retryCount) {
         return tryQuery(Tuple4.from(organization, unit, context, schema), completesEventually(), retryInterval, retryCount);
     }
 
