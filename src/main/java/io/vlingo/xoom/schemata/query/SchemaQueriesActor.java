@@ -45,30 +45,27 @@ public class SchemaQueriesActor extends StateStoreQueryActor implements SchemaQu
     @Override
     public Completes<NamedSchemaView> schemaByNamesWithRetries(String organization, String unit, String context,
                                                                String schema, long retryInterval, int retryCount) {
-        return tryQuery(Tuple4.from(organization, unit, context, schema), completesEventually(), retryInterval, retryCount);
+        return tryQuery(Tuple4.from(organization, unit, context, schema), completes(), retryInterval, retryCount);
     }
 
     private Completes<NamedSchemaView> tryQuery(Tuple4<String, String, String, String> query,
-                                                CompletesEventually completes, long retryInterval, int remainingRetries) {
+                                                Completes<NamedSchemaView> completes, long retryInterval, int remainingRetries) {
         schemaByNames(query._1, query._2, query._3, query._4).andThenConsume(result -> {
             if (result == null) {
-                retry(query, completes, retryInterval, remainingRetries);
+                if (remainingRetries > 0){
+                    scheduler().scheduleOnce(
+                            (scheduled, data) -> tryQuery(data._1, data._2, data._3, data._4),
+                            Tuple4.from(query, completes, retryInterval, remainingRetries-1),
+                            0,
+                            retryInterval
+                    );
+                }else{
+                    completes.with(NamedSchemaView.empty());
+                }
             } else {
                 completes.with(result);
             }
         });
-        return completes(); // note: this is NOT completesEventually
-    }
-
-    private void retry(Tuple4<String, String, String, String> query,
-                       CompletesEventually completes, long retryInterval, int remaining) {
-        if (remaining > 0) {
-            Tuple4<Tuple4<String, String, String, String>, CompletesEventually, Long, Integer> retryData = Tuple4.from(
-                    query, completes, retryInterval, --remaining
-            );
-            scheduler().scheduleOnce((scheduled, data) -> tryQuery(data._1, data._2, data._3, data._4), retryData, 0, retryInterval);
-        } else {
-            completes.with(NamedSchemaView.empty());
-        }
+        return completes;
     }
 }
