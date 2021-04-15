@@ -60,9 +60,9 @@
     	    </Button>
     	  {/if}
 		</div>
-		<a href="." slot="title" class="text--primary"><span style="color: var(--theme-text-primary)"> VLINGO/SCHEMATA </span></a>
+		<a href="." slot="title" class="text--primary"><span style="color: var(--theme-text-primary)"> VLINGO XOOM Schemata </span></a>
 		<div style="flex-grow:1" />
-    	<a href="https://github.com/vlingo/vlingo-schemata" target="_blank" rel="noopener">
+    	<a href="https://github.com/vlingo/xoom-schemata" target="_blank" rel="noopener">
     	  <Button class="white-text grey darken-3" aria-label="GitHub" fab>
     	    <Icon path={mdiGithub} />
     	  </Button>

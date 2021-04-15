@@ -2,7 +2,7 @@
   "name": "vlingo-schemata-ui",
   "version": "0.1.1",
   "private": true,
-  "description": "The UI of the schema registry for the vlingo/platform.",
+  "description": "The UI of the schema registry for the VLINGO XOOM Platform.",
   "scripts": {
     "dev": "sapper dev",
     "build": "sapper build --legacy",

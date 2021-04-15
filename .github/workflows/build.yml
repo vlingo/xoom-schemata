@@ -6,10 +6,15 @@ on:
   schedule:
     - cron: '0 4 * * *'
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   build:
     name: Build & Deploy
     runs-on: ubuntu-latest
+    outputs:
+      xoom_version: ${{ steps.version.outputs.xoom_version }}
 
     steps:
       - uses: actions/checkout@v2
@@ -22,9 +27,9 @@ jobs:
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
-          path: ~/.m2
+          path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          restore-keys: ${{ runner.os }}-m2-repository
 
       - name: Cache Node packages
         uses: actions/cache@v2
@@ -35,8 +40,12 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('src/main/frontend/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node
 
+      - name: Determine version
+        id: version
+        run: echo "::set-output name=xoom_version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)"
+
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots package -Pfrontend
+        run: mvn --batch-mode --update-snapshots package -Pfrontend -Pgithub-releases
 
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
@@ -53,7 +62,7 @@ jobs:
           SLACK_CHANNEL: ci-cd
           SLACK_USERNAME: Bob the Builder
           SLACK_ICON: 'https://vlingo.io/wp-content/uploads/cropped-vlingo-favicon-180x180.png'
-          SLACK_FOOTER: '${{ github.repository }}'
+          SLACK_FOOTER: '${{ github.repository }}:${{ steps.version.outputs.xoom_version }}'
 
       - name: Cleanup
         run: rm -rf ~/.m2/repository/io/vlingo
@@ -75,5 +84,18 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          repository: vlingo/vlingo-schemata
+          repository: vlingo/xoom-schemata
           tag_with_ref: true
+
+      - name: Notify slack
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_COLOR: "${{ job.status == 'success' && 'good' || 'danger' }}"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: ci-cd
+          SLACK_USERNAME: Suzi the Publisher
+          SLACK_ICON: 'https://vlingo.io/wp-content/uploads/cropped-vlingo-favicon-180x180.png'
+          SLACK_FOOTER: '${{ github.repository }}'
+          SLACK_TITLE: 'Docker Image'
+          SLACK_MESSAGE: ':rocket: ${{ needs.build.outputs.xoom_version }}'
