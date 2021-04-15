@@ -8,6 +8,7 @@ import io.vlingo.xoom.schemata.query.SchemaQueries;
 import io.vlingo.xoom.schemata.query.SchemaQueriesActor;
 import io.vlingo.xoom.schemata.query.view.NamedSchemaView;
 import io.vlingo.xoom.symbio.store.dispatch.NoOpDispatcher;
+import io.vlingo.xoom.symbio.store.state.inmemory.InMemoryStateStoreActor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,7 +26,7 @@ public class SchemaQueriesTest {
     public void init(){
         TestWorld.startWithDefaults("test-state-store-query");
         world = World.startWithDefaults("test-state-store-query");
-        stateStore = new CountingStateStore(Arrays.asList(new NoOpDispatcher()));
+        stateStore = new CountingStateStore(new InMemoryStateStoreActor<>(Arrays.asList(new NoOpDispatcher())));
         StatefulTypeRegistry.registerAll(world, stateStore, NamedSchemaView.class);
         queries = world.actorFor(SchemaQueries.class, SchemaQueriesActor.class, stateStore);
     }
