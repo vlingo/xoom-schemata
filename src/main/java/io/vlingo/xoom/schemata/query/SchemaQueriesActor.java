@@ -7,9 +7,7 @@
 
 package io.vlingo.xoom.schemata.query;
 
-import io.vlingo.xoom.actors.CompletesEventually;
 import io.vlingo.xoom.common.Completes;
-import io.vlingo.xoom.common.Scheduled;
 import io.vlingo.xoom.common.Tuple4;
 import io.vlingo.xoom.lattice.query.StateStoreQueryActor;
 import io.vlingo.xoom.schemata.model.Path;
@@ -52,14 +50,14 @@ public class SchemaQueriesActor extends StateStoreQueryActor implements SchemaQu
                                                 Completes<NamedSchemaView> completes, long retryInterval, int remainingRetries) {
         schemaByNames(query._1, query._2, query._3, query._4).andThenConsume(result -> {
             if (result == null) {
-                if (remainingRetries > 0){
+                if (remainingRetries > 0) {
                     scheduler().scheduleOnce(
                             (scheduled, data) -> tryQuery(data._1, data._2, data._3, data._4),
-                            Tuple4.from(query, completes, retryInterval, remainingRetries-1),
+                            Tuple4.from(query, completes, retryInterval, remainingRetries - 1),
                             0,
                             retryInterval
                     );
-                }else{
+                } else {
                     completes.with(NamedSchemaView.empty());
                 }
             } else {
