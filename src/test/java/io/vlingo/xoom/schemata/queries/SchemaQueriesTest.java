@@ -32,7 +32,7 @@ public class SchemaQueriesTest {
 
   private World world;
   private SchemaQueries queries;
-  private CountingStateStore stateStore;
+  private FailingStateStore stateStore;
 
   @Test
   public void schemaByNamesReturnsTheSchemaIfFound() {
@@ -55,12 +55,11 @@ public class SchemaQueriesTest {
   @Test
   public void schemaByNamesWithRetriesReturnsTheSchemaDespiteInitialFailures() {
     givenNamedSchemaView("vlingo", "schemata-test", "io.vlingo.xoom.schemata", "SchemaDefined", "First schema", "My first schema");
+    stateStore.expectReadFailures(3);
 
     Completes<NamedSchemaView> query = queries.schemaByNamesWithRetries("OO", "UU", "CC", "SS", 100, 3);
     NamedSchemaView view = query.await();
-    int readCount = stateStore.getReadCount();
 
-    assertEquals(3, readCount);
     assertEquals("First schema", view.name());
   }
 
@@ -68,7 +67,7 @@ public class SchemaQueriesTest {
   public void init() {
     TestWorld.startWithDefaults("test-state-store-query");
     world = World.startWithDefaults("test-state-store-query");
-    stateStore = new CountingStateStore(new InMemoryStateStoreActor<>(Arrays.asList(new NoOpDispatcher())));
+    stateStore = new FailingStateStore(new InMemoryStateStoreActor<>(Arrays.asList(new NoOpDispatcher())));
     StatefulTypeRegistry.registerAll(world, stateStore, NamedSchemaView.class);
     queries = world.actorFor(SchemaQueries.class, SchemaQueriesActor.class, stateStore);
   }
