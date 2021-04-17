@@ -1,11 +1,14 @@
 <script>
-	import { TextField, Textarea } from 'svelte-materialify/src';
+	import { TextField, Textarea, Select } from 'svelte-materialify/src';
 	import CardForm from '../components/form/CardForm.svelte';
-	import HierarchySelect from '../components/form/HierarchySelect.svelte';
+	import OrganizationSelect from '../components/form/OrganizationSelect.svelte';
+	import UnitSelect from '../components/form/UnitSelect.svelte';
+	import ContextSelect from '../components/form/ContextSelect.svelte';
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, unitsStore, unitStore } from '../stores';
 	import { isEmpty } from '../utils';
 	import errors from "../errors";
+	import { writable } from 'svelte/store';
 	const validName = (name) => {
 		return /^([a-z_]\d*(\.[a-z_])?)+$/.test(name) ? undefined : errors.NAMESPACE; //underscore should also be possible! see https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
 	}
@@ -14,20 +17,20 @@
 	let namespace;
 	let description;
 
-	let compatibleUnits = [];
-	let compatibleContexts = [];
+	let compatibleUnits = writable([]);
+	let compatibleContexts = writable([]);
 
 	let fullyQualified;
 
 	function changedOrganization(store) {
-		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId === store.organizationId) : [];
-		console.log("ORG", store, compatibleUnits);
-		$unitStore = compatibleUnits.length ? compatibleUnits[compatibleUnits.length-1] : undefined;
+		$compatibleUnits = store ? $unitsStore.filter(u => u.organizationId === store.organizationId) : [];
+		console.log("ORG", store, $compatibleUnits);
+		$unitStore = $compatibleUnits.length ? $compatibleUnits[$compatibleUnits.length-1] : undefined;
 	}
 
 	function changedUnit(store) {
-		compatibleContexts = store ? $contextsStore.filter(c => c.unitId === store.unitId) : [];
-		$contextStore = compatibleContexts.length ? compatibleContexts[compatibleContexts.length-1] : undefined;
+		$compatibleContexts = store ? $contextsStore.filter(c => c.unitId === store.unitId) : [];
+		$contextStore = $compatibleContexts.length ? $compatibleContexts[$compatibleContexts.length-1] : undefined;
 	}
 
 	function changedContext(store) {
@@ -75,7 +78,7 @@
 	}
 	function updateSelects() {
 		// maybe also units..
-		compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
+		$compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
 	}
 
 	$: changedOrganization($organizationStore);
@@ -93,12 +96,44 @@
 <CardForm title="Context" linkToNext="New Schema" prevLink="unit" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
-	<HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
-	<HierarchySelect label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
+
+	<OrganizationSelect/>
+	<UnitSelect {compatibleUnits}/>
+
 	{#if !defineMode}
-		<HierarchySelect label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
+		<ContextSelect {compatibleContexts}/>
 	{/if}
+	<!-- <Select class="flex-child" items={getHierarchySelectItemsFrom($organizationsStore, $detailed)}
+	value={$organizationStore ? idReturner($organizationStore) : ""} mandatory
+	on:change={(e) => $organizationStore = e.detail ? $organizationsStore.find(obj => idReturner(obj) === e.detail) : undefined}>
+		Organization
+	</Select> -->
+
+	<!-- <Select class="flex-child folder-inset1" items={getHierarchySelectItemsFrom(compatibleUnits, $detailed)}
+	value={$unitStore ? idReturner($unitStore) : ""} mandatory
+	on:change={(e) => $unitStore = e.detail ? $unitsStore.find(obj => idReturner(obj) === e.detail) : undefined}>
+	Unit
+	</Select> -->
+
+	<!-- {#if !defineMode}<Select class="flex-child folder-inset2" items={getHierarchySelectItemsFrom(compatibleContexts, $detailed)}
+		value={$contextStore ? idReturner($contextStore) : ""} mandatory
+		on:change={(e) => $contextStore = e.detail ? $contextsStore.find(obj => idReturner(obj) === e.detail) : undefined}>
+		Context
+		</Select> {/if}-->
+
+	<!-- <HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} items={getHierarchySelectItemsFrom($organizationsStore, $detailed)}/>
+	<HierarchySelect label="Unit" storeOne={unitStore} storeAll={unitsStore}  items={getHierarchySelectItemsFrom(compatibleUnits, $detailed)} containerClasses="folder-inset1"/>
+	{#if !defineMode}
+		<HierarchySelect label="Context" storeOne={contextStore} storeAll={contextsStore}  items={getHierarchySelectItemsFrom(compatibleContexts, $detailed)} containerClasses="folder-inset2"/>
+	{/if} -->
 
 	<TextField class="mb-4 pb-4" placeholder="your.namespace.here" bind:value={namespace} rules={[notEmpty, validName]}>Namespace</TextField>
 	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>
+
+<style>
+	:global(.flex-child) {
+		/* flex: 0 0 50%; */
+		padding: 12px;
+	}
+</style>

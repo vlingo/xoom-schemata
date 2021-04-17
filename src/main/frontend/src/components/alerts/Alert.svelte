@@ -8,7 +8,7 @@
 </script>
 
 
-<Alert transitionOpts={{ duration: 100 }} class="info-color" outlined>
+<Alert transitionOpts={{ duration: 250 }} class="info-color" outlined>
 	<h4 class="alert-heading">
 		<slot name="heading">
 			{headingText}

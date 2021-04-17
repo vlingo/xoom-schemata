@@ -3,7 +3,11 @@
 	import CardForm from '../components/form/CardForm.svelte';
 	import Button from '../components/form/Button.svelte';
 	import ButtonBar from '../components/form/ButtonBar.svelte';
-	import HierarchySelect from '../components/form/HierarchySelect.svelte';
+	import OrganizationSelect from '../components/form/OrganizationSelect.svelte';
+	import UnitSelect from '../components/form/UnitSelect.svelte';
+	import ContextSelect from '../components/form/ContextSelect.svelte';
+	import SchemaSelect from '../components/form/SchemaSelect.svelte';
+	import VersionSelect from '../components/form/VersionSelect.svelte';
 	import marked from 'marked';
 	import DOMPurify from 'dompurify';
 	import SchemataRepository from '../api/SchemataRepository';
@@ -13,14 +17,16 @@
 	import Diff from '../components/Diff.svelte';
 	import Card from 'svelte-materialify/src/components/Card';
 	import { mdiChevronLeft } from '@mdi/js';
+	import { writable } from 'svelte/store';
+
 	const validator = (v) => {
 		return /^\d+\.\d+\.\d+$/.test(v) ? undefined : errors.VERSION
 	}
 	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
 	const versionPattern = /(\d+)\.(\d+)\.(\d+)/;
-	$: showVersionButtons = $schemaStore && $schemaVersionsStore.find(v => v.schemaId === $schemaStore.schemaId);
+	$: showVersionButtons = !!$schemaStore && !!$schemaVersionsStore.find(v => v.schemaId === $schemaStore.schemaId);
 	function clickedVersionButton(type) {
-		if(showVersionButtons) {
+		if(showVersionButtons && $schemaStore) {
 			let versionsWithSameSchemaAsCurrent = $schemaVersionsStore.filter(v => v.schemaId === $schemaStore.schemaId);
 			console.log(versionsWithSameSchemaAsCurrent);
 			let highestVersion = versionsWithSameSchemaAsCurrent.map(v => v.currentVersion).sort(sortVersions).pop();
@@ -56,31 +62,31 @@
 	let description;
 	let specification;
 
-	let compatibleUnits = [];
-	let compatibleContexts = [];
-	let compatibleSchemas = [];
-	let compatibleVersions = [];
+	let compatibleUnits = writable([]);
+	let compatibleContexts = writable([]);
+	let compatibleSchemas = writable([]);
+	let compatibleVersions = writable([]);
 
 	let showDiffDialog = false;
 	let fullyQualified;
 
 	function changedOrganization(store) {
-		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
-		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
+		$compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
+		$unitStore = $compatibleUnits.length > 0 ? $compatibleUnits[$compatibleUnits.length-1] : undefined;
 	}
 
 	function changedUnit(store) {
-		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
-		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
+		$compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
+		$contextStore = $compatibleContexts.length > 0 ? $compatibleContexts[$compatibleContexts.length-1] : undefined;
 	}
 
 	function changedContext(store) {
-		compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
-		$schemaStore = compatibleSchemas.length > 0 ? compatibleSchemas[compatibleSchemas.length-1] : undefined;
+		$compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
+		$schemaStore = $compatibleSchemas.length > 0 ? $compatibleSchemas[$compatibleSchemas.length-1] : undefined;
 	}
 
 	function changedSchema(store) {
-		compatibleVersions = store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
+		$compatibleVersions = store ? $schemaVersionsStore.filter(v => v.schemaId == store.schemaId) : [];
 		$schemaVersionStore = store ? $schemaVersionsStore.find(v => v.schemaId == store.schemaId) : undefined;
 
 		store && !$schemaVersionStore ? specification = `${store.category.toLowerCase()} ${store.name} {\n\t\n\t\n\t\n\t\n\t\n}` : "";
@@ -107,7 +113,7 @@
 		defineMode = true;
 	}
 
-	const versionAlreadyExists = (current) => !!compatibleVersions.find(sv => sv.currentVersion === current);
+	const versionAlreadyExists = (current) => !!$compatibleVersions.find(sv => sv.currentVersion === current);
 
 	let oldSpec;
 	let newSpec;
@@ -143,7 +149,7 @@
 	}
 	function updateSelects() {
 		// maybe also other compatibles..
-		compatibleVersions = $schemaStore ? $schemaVersionsStore.filter(v => v.schemaId == $schemaStore.schemaId) : [];
+		$compatibleVersions = $schemaStore ? $schemaVersionsStore.filter(v => v.schemaId == $schemaStore.schemaId) : [];
 	}
 
 	$: changedOrganization($organizationStore)
@@ -163,13 +169,21 @@
 </svelte:head>
 
 <CardForm title="Schema Version" linkToNext="Home" href="/" on:new={newVersion} on:define={define} {defineMode} {fullyQualified}>
-	<HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
+	<OrganizationSelect/>
+	<UnitSelect {compatibleUnits}/>
+	<ContextSelect {compatibleContexts}/>
+	<SchemaSelect {compatibleSchemas}/>
+	{#if showVersionSelect}
+		<VersionSelect {compatibleVersions}/>
+	{/if}
+
+	<!-- <HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	<HierarchySelect label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	<HierarchySelect label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	<HierarchySelect label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
 	{#if showVersionSelect}
 		<HierarchySelect label="Schema Version" storeOne={schemaVersionStore} storeAll={schemaVersionsStore} arrayOfSelectables={compatibleVersions} containerClasses="folder-inset4"/>
-	{/if}
+	{/if} -->
 	<div class="flex-two-col">
 		<TextField class="mb-4 pb-4" placeholder="0.0.0" bind:value={current} rules={[notEmpty, validator]} disabled={!defineMode}>Current Version (previous was {previous})</TextField>
 
@@ -221,5 +235,9 @@
 
 	:global(#markdown-container h1) {
 		font-size: 4rem;
+	}
+
+	:global(.flex-child) {
+		padding: 12px;
 	}
 </style>

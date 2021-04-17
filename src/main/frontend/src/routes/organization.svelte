@@ -1,7 +1,7 @@
 <script>
 	import { TextField, Textarea } from 'svelte-materialify/src';
 	import CardForm from '../components/form/CardForm.svelte';
-	import HierarchySelect from '../components/form/HierarchySelect.svelte';
+	import OrganizationSelect from '../components/form/OrganizationSelect.svelte';
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationStore, organizationsStore } from '../stores'
 	import { isEmpty } from '../utils';
@@ -53,8 +53,8 @@
 
 	$: changedOrganization($organizationStore);
 	$: definable = name && description;
-  $: redefinable = definable && $organizationStore;
-  $: showNewButton = $organizationsStore.length > 0;
+	$: redefinable = definable && $organizationStore;
+	$: showNewButton = $organizationsStore.length > 0;
 </script>
 
 <svelte:head>
@@ -65,7 +65,8 @@
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
 	{#if !defineMode}
-		<HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
+		<OrganizationSelect/>
+		<!-- <HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/> -->
 	{/if}
 	<TextField class="mb-4 pb-4" bind:value={name} rules={[notEmpty]}>Name</TextField>
 	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
