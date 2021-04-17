@@ -42,8 +42,8 @@
 		<CardTitle>Incompatible changes within a compatible version change.</CardTitle>
 		<CardText>
 			<div class="d-flex">
-				<Textarea rows="10" outlined value={oldSpec} readonly>Old Specification</Textarea>
-				<Textarea rows="10" outlined value={newSpec} readonly>New Specification</Textarea>
+				<Textarea rows="10" outlined value={oldSpec} readonly noResize>Old Specification</Textarea>
+				<Textarea rows="10" outlined value={newSpec} readonly noResize>New Specification</Textarea>
 			</div>
 			<List disabled>
 				{#each changes as change}
@@ -75,7 +75,7 @@
         text-decoration: line-through;
         color: grey;
 	}
-	
+
 	:global(.s-list .changes .s-list-item .s-list-item__content) {
 		padding: 0;
 	}

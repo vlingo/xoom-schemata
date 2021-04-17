@@ -171,7 +171,7 @@
 		<HierarchySelect label="Schema Version" storeOne={schemaVersionStore} storeAll={schemaVersionsStore} arrayOfSelectables={compatibleVersions} containerClasses="folder-inset4"/>
 	{/if}
 	<div class="flex-two-col">
-		<TextField placeholder="0.0.0" bind:value={current} rules={[notEmpty, validator]} disabled={!defineMode}>Current Version (previous was {previous})</TextField>
+		<TextField class="mb-4 pb-4" placeholder="0.0.0" bind:value={current} rules={[notEmpty, validator]} disabled={!defineMode}>Current Version (previous was {previous})</TextField>
 
 		{#if defineMode && showVersionButtons}
 		<ButtonBar center>

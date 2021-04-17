@@ -128,10 +128,10 @@ isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!r
 	{/if}
 
 	<span class="flex-two-col">
-		<Select bind:value={category} items={categorySelect}>Category</Select>
-		<Select bind:value={scope} items={scopeSelect}>Scope</Select>
+		<Select class="flex-child" bind:value={category} items={categorySelect}>Category</Select>
+		<Select class="flex-child" bind:value={scope} items={scopeSelect}>Scope</Select>
 	</span>
-	<TextField bind:value={name} rules={[notEmpty, validName]}>Name</TextField>
+	<TextField class="mb-4 pb-4" bind:value={name} rules={[notEmpty, validName]}>Name</TextField>
 	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>
 
@@ -139,5 +139,9 @@ isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!r
 <style>
 	.flex-two-col {
 		display: flex;
+	}
+	:global(.flex-child) {
+		flex: 0 0 50%;
+		padding: 12px;
 	}
 </style>

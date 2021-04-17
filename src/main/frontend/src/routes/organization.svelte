@@ -67,6 +67,6 @@ isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!r
 	{#if !defineMode}
 		<HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{/if}
-	<TextField bind:value={name} rules={[notEmpty]}>Name</TextField>
+	<TextField class="mb-4 pb-4" bind:value={name} rules={[notEmpty]}>Name</TextField>
 	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>

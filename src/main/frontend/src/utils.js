@@ -166,9 +166,9 @@ export function stringReturner(obj, detailed) {
 	return getFileString(obj, detailed);
 }
 
-export function changedSelect(array, detailed) {
+export function getHierarchySelectItemsFrom(array, detailed) {
 	return array.map(obj => {
-		return obj ? { id: idReturner(obj), text: stringReturner(obj, detailed) } : {}
+		return obj ? { value: idReturner(obj), name: stringReturner(obj, detailed) } : {}
 	})
 }
 

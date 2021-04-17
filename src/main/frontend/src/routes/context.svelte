@@ -21,6 +21,7 @@
 
 	function changedOrganization(store) {
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId === store.organizationId) : [];
+		console.log("ORG", store, compatibleUnits);
 		$unitStore = compatibleUnits.length ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
 
@@ -77,12 +78,12 @@
 		compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
 	}
 
-	$: changedOrganization($organizationStore)
-	$: changedUnit($unitStore)
+	$: changedOrganization($organizationStore);
+	$: changedUnit($unitStore);
 	$: changedContext($contextStore);
 	$: definable = namespace && description && $organizationStore && $unitStore;
 	$: redefinable = definable && $contextStore;
-  $: showNewButton = $contextsStore.length > 0;
+	$: showNewButton = $contextsStore.length > 0;
 </script>
 
 <svelte:head>
@@ -98,6 +99,6 @@ isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!r
 		<HierarchySelect label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	{/if}
 
-	<TextField placeholder="your.namespace.here" bind:value={namespace} rules={[notEmpty, validName]}>Namespace</TextField>
+	<TextField class="mb-4 pb-4" placeholder="your.namespace.here" bind:value={namespace} rules={[notEmpty, validName]}>Namespace</TextField>
 	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>

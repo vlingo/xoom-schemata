@@ -1,56 +1,32 @@
 <script>
 	import { detailed} from "../../stores";
-	import { changedSelect, idReturner, stringReturner } from "../../utils";
-	import { Select, ListItem } from 'svelte-materialify/src';
+	import { getHierarchySelectItemsFrom, idReturner } from "../../utils";
+	import { Select } from 'svelte-materialify/src';
 
 	export let label = "";
 	export let storeOne;
 	export let storeAll;
 	export let arrayOfSelectables;
-	export let containerClasses = "flex-child";
+	export let containerClasses = "";
 
-	$: {changedSelected(value)};
-	function changedSelected(selected) {
-		$storeOne = selected ? ($storeAll).find(obj => idReturner(obj) == selected[0]) : undefined;
-	}
-
-	$: {changedSelectables(arrayOfSelectables, $detailed)};
-	function changedSelectables(arrayOfSelectables, detailed) {
-		items = changedSelect(arrayOfSelectables, detailed);
-		value = [items[items.length - 1]];
-	}
-
-	const getTextFromId = (val) => typeof val[0] === 'string' ? stringReturner($storeAll.find(element => idReturner(element) == val[0]), $detailed) : "";
-
-	let items;
-	let value;
-
-	//init selected
-	let first = true;
-	$: if(first && items) {
-		value = [items[items.length - 1]];
-		first = false;
+	function updateStore(e) {
+		let value = e.detail;
+		console.log(value);
+		console.log("test");
+		$storeOne = value ? $storeAll.find(obj => idReturner(obj) === value) : undefined;
+		console.log($storeOne);
 	}
 </script>
 
-<!-- {#if $storeAll} -->
-	<div class={containerClasses}>
-		<Select {items} bind:value mandatory format={getTextFromId}>
-			<span let:item slot="item">
-				<ListItem value={item.id}>
-					{item.text}
-				</ListItem>
-			</span>
-			{label}
-		</Select>
-	</div>
-<!-- {:else}
-	<Select {items} bind:value mandatory>{label}</Select>
-{/if} -->
+<div class="flex-child {containerClasses}">
+	<Select items={getHierarchySelectItemsFrom(arrayOfSelectables, $detailed)} value={$storeOne ? idReturner($storeOne) : ""} mandatory on:change={updateStore}>
+		{label}
+	</Select>
+</div>
 
 <style>
 	.flex-child {
-		flex: 0 0 50%;
+		/* flex: 0 0 50%; */
 		padding: 12px;
 	}
 </style>

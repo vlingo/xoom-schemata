@@ -7,7 +7,7 @@
 
 	export let segment;
 </script>
-  
+
 <NavigationDrawer active={!mobile || sidenav} style="height:100vh;" fixed clipped borderless>
 	<!-- <br /> -->
 	<!-- <ListGroup eager {offset} active={expanded}></ListGroup> maybe needed around all nav-items -->
@@ -17,4 +17,4 @@
 		{/each}
 	</List>
 </NavigationDrawer>
-<Overlay index="3" active={mobile && sidenav} on:click={() => (sidenav = false)} fadeOptions={{ duration: 250 }} />
+<Overlay index="3" active={mobile && sidenav} on:click={() => (sidenav = false)} />
