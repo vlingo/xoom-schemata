@@ -82,10 +82,6 @@ isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!r
 {defineMode} {fullyQualified} {showNewButton}>
 	<OrganizationSelect/>
 	<UnitSelect {compatibleUnits}/>
-	<!-- <HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
-	{#if !defineMode}
-		<HierarchySelect label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
-	{/if} -->
 	<TextField class="mb-4 pb-4" bind:value={name} rules={[notEmpty]}>Name</TextField>
 	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>

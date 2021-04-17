@@ -24,7 +24,6 @@
 
 	function changedOrganization(store) {
 		$compatibleUnits = store ? $unitsStore.filter(u => u.organizationId === store.organizationId) : [];
-		console.log("ORG", store, $compatibleUnits);
 		$unitStore = $compatibleUnits.length ? $compatibleUnits[$compatibleUnits.length-1] : undefined;
 	}
 
@@ -96,37 +95,11 @@
 <CardForm title="Context" linkToNext="New Schema" prevLink="unit" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
-
 	<OrganizationSelect/>
 	<UnitSelect {compatibleUnits}/>
-
 	{#if !defineMode}
 		<ContextSelect {compatibleContexts}/>
 	{/if}
-	<!-- <Select class="flex-child" items={getHierarchySelectItemsFrom($organizationsStore, $detailed)}
-	value={$organizationStore ? idReturner($organizationStore) : ""} mandatory
-	on:change={(e) => $organizationStore = e.detail ? $organizationsStore.find(obj => idReturner(obj) === e.detail) : undefined}>
-		Organization
-	</Select> -->
-
-	<!-- <Select class="flex-child folder-inset1" items={getHierarchySelectItemsFrom(compatibleUnits, $detailed)}
-	value={$unitStore ? idReturner($unitStore) : ""} mandatory
-	on:change={(e) => $unitStore = e.detail ? $unitsStore.find(obj => idReturner(obj) === e.detail) : undefined}>
-	Unit
-	</Select> -->
-
-	<!-- {#if !defineMode}<Select class="flex-child folder-inset2" items={getHierarchySelectItemsFrom(compatibleContexts, $detailed)}
-		value={$contextStore ? idReturner($contextStore) : ""} mandatory
-		on:change={(e) => $contextStore = e.detail ? $contextsStore.find(obj => idReturner(obj) === e.detail) : undefined}>
-		Context
-		</Select> {/if}-->
-
-	<!-- <HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} items={getHierarchySelectItemsFrom($organizationsStore, $detailed)}/>
-	<HierarchySelect label="Unit" storeOne={unitStore} storeAll={unitsStore}  items={getHierarchySelectItemsFrom(compatibleUnits, $detailed)} containerClasses="folder-inset1"/>
-	{#if !defineMode}
-		<HierarchySelect label="Context" storeOne={contextStore} storeAll={contextsStore}  items={getHierarchySelectItemsFrom(compatibleContexts, $detailed)} containerClasses="folder-inset2"/>
-	{/if} -->
-
 	<TextField class="mb-4 pb-4" placeholder="your.namespace.here" bind:value={namespace} rules={[notEmpty, validName]}>Namespace</TextField>
 	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>

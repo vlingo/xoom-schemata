@@ -125,21 +125,12 @@
 <CardForm title="Schema" linkToNext="New Schema Version"  prevLink="context" href="schemaVersion" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
-
 	<OrganizationSelect/>
 	<UnitSelect {compatibleUnits}/>
 	<ContextSelect {compatibleContexts}/>
 	{#if !defineMode}
 		<SchemaSelect {compatibleSchemas}/>
 	{/if}
-
-	<!-- <HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
-	<HierarchySelect label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
-	<HierarchySelect label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
-	{#if !defineMode}
-		<HierarchySelect label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
-	{/if} -->
-
 	<span class="flex-two-col">
 		<Select class="flex-child" bind:value={category} items={categorySelect}>Category</Select>
 		<Select class="flex-child" bind:value={scope} items={scopeSelect}>Scope</Select>

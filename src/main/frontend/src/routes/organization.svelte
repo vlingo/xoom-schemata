@@ -66,7 +66,6 @@ isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!r
 {defineMode} {fullyQualified} {showNewButton}>
 	{#if !defineMode}
 		<OrganizationSelect/>
-		<!-- <HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/> -->
 	{/if}
 	<TextField class="mb-4 pb-4" bind:value={name} rules={[notEmpty]}>Name</TextField>
 	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
