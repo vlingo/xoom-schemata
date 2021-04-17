@@ -1,5 +1,5 @@
 <script>
-	import { Card } from "svelte-materialify";
+	import { Card } from "svelte-materialify/src";
 	import marked from 'marked';
 	import DOMPurify from 'dompurify';
 
