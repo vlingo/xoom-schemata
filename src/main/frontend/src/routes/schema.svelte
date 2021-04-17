@@ -1,7 +1,7 @@
 <script>
+	import { TextField, Textarea, Select } from 'svelte-materialify/src';
 	import CardForm from '../components/form/CardForm.svelte';
-	import ValidatedInput from '../components/form/ValidatedInput.svelte';
-	import Select from '../components/form/Select.svelte';
+	import HierarchySelect from '../components/form/HierarchySelect.svelte';
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
 	import { isEmpty } from '../utils';
@@ -9,6 +9,7 @@
 	const validName = (name) => {
 		return /^[A-Z][a-zA-Z\d]*$/.test(name) ? undefined : errors.CLASSNAME;
 	}
+	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
 	let categorySelect = [
 		{ name: "Command", value: "Command" },
 		{ name: "Data", value: "Data" },
@@ -119,19 +120,19 @@
 <CardForm title="Schema" linkToNext="New Schema Version"  prevLink="context" href="schemaVersion" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
-	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
-	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
-	<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
+	<HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
+	<HierarchySelect label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
+	<HierarchySelect label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	{#if !defineMode}
-		<Select label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
+		<HierarchySelect label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
 	{/if}
 
 	<span class="flex-two-col">
-		<ValidatedInput type="select" label="Category" bind:value={category} options={categorySelect}/>
-		<ValidatedInput type="select" label="Scope" bind:value={scope} options={scopeSelect}/>
+		<Select bind:value={category} items={categorySelect}>Category</Select>
+		<Select bind:value={scope} items={scopeSelect}>Scope</Select>
 	</span>
-	<ValidatedInput label="Name" bind:value={name} validator={validName}/>
-	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
+	<TextField bind:value={name} rules={[notEmpty, validName]}>Name</TextField>
+	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>
 
 

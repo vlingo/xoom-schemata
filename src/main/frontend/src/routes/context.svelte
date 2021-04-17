@@ -1,7 +1,7 @@
 <script>
+	import { TextField, Textarea } from 'svelte-materialify/src';
 	import CardForm from '../components/form/CardForm.svelte';
-	import ValidatedInput from '../components/form/ValidatedInput.svelte';
-	import Select from '../components/form/Select.svelte';
+	import HierarchySelect from '../components/form/HierarchySelect.svelte';
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, unitsStore, unitStore } from '../stores';
 	import { isEmpty } from '../utils';
@@ -9,6 +9,7 @@
 	const validName = (name) => {
 		return /^([a-z_]\d*(\.[a-z_])?)+$/.test(name) ? undefined : errors.NAMESPACE; //underscore should also be possible! see https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
 	}
+	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
 
 	let namespace;
 	let description;
@@ -91,12 +92,12 @@
 <CardForm title="Context" linkToNext="New Schema" prevLink="unit" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
-	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
-	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
+	<HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
+	<HierarchySelect label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	{#if !defineMode}
-		<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
+		<HierarchySelect label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
 	{/if}
 
-	<ValidatedInput label="Namespace" placeholder="your.namespace.here" bind:value={namespace} validator={validName}/>
-	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
+	<TextField placeholder="your.namespace.here" bind:value={namespace} rules={[notEmpty, validName]}>Namespace</TextField>
+	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>

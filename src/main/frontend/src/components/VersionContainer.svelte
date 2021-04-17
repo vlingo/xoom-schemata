@@ -1,9 +1,8 @@
 <script>
 	import { contextStore, organizationStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitStore } from '../stores';
 	import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull, mdiFileFind, mdiFileUndo, mdiContentSave} from '@mdi/js'
-	import { Card, ButtonGroup, ButtonGroupItem, Chip, Radio, Dialog, CardTitle, CardText } from 'svelte-materialify/src';
+	import { Card, ButtonGroup, ButtonGroupItem, Chip, Radio, Dialog, CardTitle, CardText, TextField, Textarea } from 'svelte-materialify/src';
 	import SchemataRepository from '../api/SchemataRepository';
-	import ValidatedInput from '../components/form/ValidatedInput.svelte';
 	import ButtonBar from '../components/form/ButtonBar.svelte';
 	import Button from '../components/form/Button.svelte';
 	import marked from 'marked';
@@ -97,6 +96,8 @@
 	$: if(chosenLang && typeof chosenLang === "string") sourceCodeFor(chosenLang.toLowerCase());
 	$: if(!showCodeModal) {chosenLang = undefined; sourceCode = undefined;}
 	$: status = $schemaVersionStore ? $schemaVersionStore.status : "";
+
+	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
 </script>
 
 
@@ -115,7 +116,11 @@
 		</div>
 		{#if active=="spec"}
 			<!-- <wc-monaco-editor style="width: 800px; height: 800px; display: block;" language="javascript"></wc-monaco-editor> -->
-			<ValidatedInput label="Specification" outlined rows="10" type="textarea" bind:value={specification} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true} readonly={$schemaVersionStore ? $schemaVersionStore.status !== "Draft" : true}/>
+			<Textarea rows="10" outlined bind:value={specification} rules={[notEmpty]} validateOnBlur={!specification}
+			disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true}
+			readonly={$schemaVersionStore ? $schemaVersionStore.status !== "Draft" : true}>
+				Specification
+			</Textarea>
 			<ButtonBar>
 				{#if status !== "Removed"}
 					{#if status === "Draft"}
@@ -132,7 +137,10 @@
 				{/if}
 			</ButtonBar>
 		{:else if active=="desc"}
-			<ValidatedInput label="Description" outlined rows="10" type="textarea" bind:value={description} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true}/>
+			<Textarea rows="10" outlined bind:value={description} rules={[notEmpty]} validateOnBlur={!description}
+				disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true}>
+				Description
+			</Textarea>
 			<ButtonBar>
 				<Button color="success" icon={mdiFileFind} text="PREVIEW" on:click={togglePreviewModal}/>
 				<Button color="warning" icon={mdiFileUndo} text="REVERT" on:click={() => description = $schemaVersionStore.description}/>

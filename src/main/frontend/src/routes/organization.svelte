@@ -1,10 +1,11 @@
 <script>
+	import { TextField, Textarea } from 'svelte-materialify/src';
 	import CardForm from '../components/form/CardForm.svelte';
-	import ValidatedInput from '../components/form/ValidatedInput.svelte';
-	import Select from '../components/form/Select.svelte';
+	import HierarchySelect from '../components/form/HierarchySelect.svelte';
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationStore, organizationsStore } from '../stores'
 	import { isEmpty } from '../utils';
+	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
 
 	let name;
 	let description;
@@ -42,7 +43,7 @@
 		if(reset) $organizationsStore = ($organizationsStore).filter(org => org.organizationId != ($organizationStore).organizationId);
     $organizationsStore = [...$organizationsStore, obj];
 	}
-	
+
 	let defineMode = isEmpty(($organizationsStore));
 	const toggleDefineMode = () => {
 		name = "";
@@ -60,12 +61,12 @@
 	<title>Organization</title>
 </svelte:head>
 
-<CardForm title="Organization" linkToNext="New Unit" on:new={toggleDefineMode} on:redefine={redefine} on:define={define} 
+<CardForm title="Organization" linkToNext="New Unit" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
 	{#if !defineMode}
-		<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
+		<HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{/if}
-	<ValidatedInput label="Name" bind:value={name}/>
-	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
+	<TextField bind:value={name} rules={[notEmpty]}>Name</TextField>
+	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>

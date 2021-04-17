@@ -1,11 +1,12 @@
 <script>
+	import { TextField, Textarea } from 'svelte-materialify/src';
 	import CardForm from '../components/form/CardForm.svelte';
-	import ValidatedInput from '../components/form/ValidatedInput.svelte';
-	import Select from '../components/form/Select.svelte';
+	import HierarchySelect from '../components/form/HierarchySelect.svelte';
 
 	import SchemataRepository from '../api/SchemataRepository';
 	import { organizationsStore, organizationStore, unitStore, unitsStore } from '../stores';
 	import { isEmpty } from '../utils';
+	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
 
 	let name;
 	let description;
@@ -13,12 +14,12 @@
 	let compatibleUnits = [];
 
 	let fullyQualified;
-	
+
 	function changedOrganization(store) {
 		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
 		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
 	}
-	
+
 	function changedUnit(store) {
 		if(store) {
 			name = store.name;
@@ -75,13 +76,13 @@
 	<title>Unit</title>
 </svelte:head>
 
-<CardForm title="Unit" linkToNext="New Context" prevLink="organization" on:new={toggleDefineMode} on:redefine={redefine} on:define={define} 
+<CardForm title="Unit" linkToNext="New Context" prevLink="organization" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
-	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
+	<HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
 	{#if !defineMode}
-		<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
+		<HierarchySelect label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
 	{/if}
-	<ValidatedInput label="Name" bind:value={name}/>
-	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
+	<TextField bind:value={name} rules={[notEmpty]}>Name</TextField>
+	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>

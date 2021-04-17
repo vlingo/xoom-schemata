@@ -1,9 +1,9 @@
 <script>
+	import { TextField, Textarea } from 'svelte-materialify/src';
 	import CardForm from '../components/form/CardForm.svelte';
-	import ValidatedInput from '../components/form/ValidatedInput.svelte';
 	import Button from '../components/form/Button.svelte';
 	import ButtonBar from '../components/form/ButtonBar.svelte';
-	import Select from '../components/form/Select.svelte';
+	import HierarchySelect from '../components/form/HierarchySelect.svelte';
 	import marked from 'marked';
 	import DOMPurify from 'dompurify';
 	import SchemataRepository from '../api/SchemataRepository';
@@ -16,6 +16,7 @@
 	const validator = (v) => {
 		return /^\d+\.\d+\.\d+$/.test(v) ? undefined : errors.VERSION
 	}
+	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
 	const versionPattern = /(\d+)\.(\d+)\.(\d+)/;
 	$: showVersionButtons = $schemaStore && $schemaVersionsStore.find(v => v.schemaId === $schemaStore.schemaId);
 	function clickedVersionButton(type) {
@@ -162,16 +163,16 @@
 </svelte:head>
 
 <CardForm title="Schema Version" linkToNext="Home" href="/" on:new={newVersion} on:define={define} {defineMode} {fullyQualified}>
-	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
-	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
-	<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
-	<Select label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
+	<HierarchySelect label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
+	<HierarchySelect label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
+	<HierarchySelect label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
+	<HierarchySelect label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
 	{#if showVersionSelect}
-		<Select label="Schema Version" storeOne={schemaVersionStore} storeAll={schemaVersionsStore} arrayOfSelectables={compatibleVersions} containerClasses="folder-inset4"/>
+		<HierarchySelect label="Schema Version" storeOne={schemaVersionStore} storeAll={schemaVersionsStore} arrayOfSelectables={compatibleVersions} containerClasses="folder-inset4"/>
 	{/if}
 	<div class="flex-two-col">
-		<!-- <ValidatedInput label="Previous Version" bind:value={previous} validator={validator} readonly/> -->
-		<ValidatedInput label="Current Version (previous was {previous})" placeholder="0.0.0" bind:value={current} validator={validator} disabled={!defineMode}/>
+		<TextField placeholder="0.0.0" bind:value={current} rules={[notEmpty, validator]} disabled={!defineMode}>Current Version (previous was {previous})</TextField>
+
 		{#if defineMode && showVersionButtons}
 		<ButtonBar center>
 			<Button color="error" text="New Major" on:click={() => clickedVersionButton("major")}/>
@@ -180,7 +181,7 @@
 		</ButtonBar>
 		{/if}
 	</div>
-	<ValidatedInput outlined placeholder="Markdown Description" type="textarea" label="Description" bind:value={description} disabled={!defineMode}/>
+	<Textarea outlined placeholder="Markdown Description" bind:value={description} rules={[notEmpty]} disabled={!defineMode}>Description</Textarea>
 
 	<Card disabled={!description} class="ma-2 pl-5 pt-2 pb-5 pr-2" style="min-height: 5rem">
 		<div id="markdown-container">
@@ -191,7 +192,7 @@
 			{/if}
 		</div>
 	</Card>
-	<ValidatedInput rows="8" outlined placeholder="Specify your schema" type="textarea" label="Specification" bind:value={specification} disabled={!defineMode}/>
+	<Textarea rows="8" outlined placeholder="Specify your schema" bind:value={specification} rules={[notEmpty]} disabled={!defineMode}>Specification</Textarea>
 
 	<div style="flex:1;" slot="buttons">
 		<ButtonBar>
