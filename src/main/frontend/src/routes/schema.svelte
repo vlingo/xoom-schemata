@@ -105,7 +105,6 @@
 		$schemasStore = [...$schemasStore, obj];
 	}
 	function updateSelects() {
-		// maybe also other compatibles..
 		$compatibleSchemas = $contextStore ? $schemasStore.filter(s => s.contextId == $contextStore.contextId) : [];
 	}
 
@@ -143,9 +142,5 @@ isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!r
 <style>
 	.flex-two-col {
 		display: flex;
-	}
-	:global(.flex-child) {
-		flex: 0 0 50%;
-		padding: 12px;
 	}
 </style>

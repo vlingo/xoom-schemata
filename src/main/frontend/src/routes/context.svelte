@@ -76,7 +76,6 @@
 		$contextsStore = [...$contextsStore, obj];
 	}
 	function updateSelects() {
-		// maybe also units..
 		$compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
 	}
 
@@ -103,10 +102,3 @@ isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!r
 	<TextField class="mb-4 pb-4" placeholder="your.namespace.here" bind:value={namespace} rules={[notEmpty, validName]}>Namespace</TextField>
 	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>
-
-<style>
-	:global(.flex-child) {
-		/* flex: 0 0 50%; */
-		padding: 12px;
-	}
-</style>

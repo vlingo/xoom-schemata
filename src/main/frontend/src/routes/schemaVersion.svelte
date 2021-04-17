@@ -1,61 +1,26 @@
 <script>
 	import { TextField, Textarea } from 'svelte-materialify/src';
-	import CardForm from '../components/form/CardForm.svelte';
-	import Button from '../components/form/Button.svelte';
-	import ButtonBar from '../components/form/ButtonBar.svelte';
 	import OrganizationSelect from '../components/form/OrganizationSelect.svelte';
 	import UnitSelect from '../components/form/UnitSelect.svelte';
 	import ContextSelect from '../components/form/ContextSelect.svelte';
 	import SchemaSelect from '../components/form/SchemaSelect.svelte';
 	import VersionSelect from '../components/form/VersionSelect.svelte';
-	import marked from 'marked';
-	import DOMPurify from 'dompurify';
+	import CardForm from '../components/form/CardForm.svelte';
+	import Button from '../components/form/Button.svelte';
+	import ButtonBar from '../components/form/ButtonBar.svelte';
+	import VersionButtons from '../components/form/VersionButtons.svelte';
+	import MarkdownPreview from '../components/form/MarkdownPreview.svelte';
+	import Diff from '../components/Diff.svelte';
 	import SchemataRepository from '../api/SchemataRepository';
-	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
+	import { contextsStore, contextStore, organizationStore, schemasStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitsStore, unitStore } from '../stores';
 	import { isEmpty } from '../utils';
 	import errors from '../errors';
-	import Diff from '../components/Diff.svelte';
-	import Card from 'svelte-materialify/src/components/Card';
 	import { mdiChevronLeft } from '@mdi/js';
 	import { writable } from 'svelte/store';
-
-	const validator = (v) => {
+	const versionRule = (v) => {
 		return /^\d+\.\d+\.\d+$/.test(v) ? undefined : errors.VERSION
 	}
-	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
-	const versionPattern = /(\d+)\.(\d+)\.(\d+)/;
-	$: showVersionButtons = !!$schemaStore && !!$schemaVersionsStore.find(v => v.schemaId === $schemaStore.schemaId);
-	function clickedVersionButton(type) {
-		if(showVersionButtons && $schemaStore) {
-			let versionsWithSameSchemaAsCurrent = $schemaVersionsStore.filter(v => v.schemaId === $schemaStore.schemaId);
-			console.log(versionsWithSameSchemaAsCurrent);
-			let highestVersion = versionsWithSameSchemaAsCurrent.map(v => v.currentVersion).sort(sortVersions).pop();
-			console.log(highestVersion);
-			let [, major, minor, patch] = versionPattern.exec(highestVersion);
-			switch(type) {
-				case "patch": ++patch; break;
-				case "minor": ++minor; patch = 0; break;
-				case "major": ++major; minor = 0; patch = 0; break;
-			}
-			current = `${major}.${minor}.${patch}`;
-			console.log(current);
-		}
-	}
-	//TODO: review edge-cases
-	function sortVersions(a, b) {
-		let [, majorA, minorA, patchA] = versionPattern.exec(a);
-		let [, majorB, minorB, patchB] = versionPattern.exec(b);
-		if(majorA > majorB) {
-			return 1;
-		}
-		if(majorA == majorB && minorA > minorB) {
-			return 1;
-		}
-		if(majorA == majorB && minorA == minorB && patchA > patchB) {
-			return 1;
-		}
-		return 0;
-	}
+	const notEmptyRule = (value) => !!value ? undefined : errors.EMPTY;
 
 	let current;
 	let previous;
@@ -148,7 +113,6 @@
 		$schemaVersionsStore = [...$schemaVersionsStore, obj]
 	}
 	function updateSelects() {
-		// maybe also other compatibles..
 		$compatibleVersions = $schemaStore ? $schemaVersionsStore.filter(v => v.schemaId == $schemaStore.schemaId) : [];
 	}
 
@@ -157,11 +121,8 @@
 	$: changedContext($contextStore);
 	$: changedSchema($schemaStore);
 	$: changedVersion($schemaVersionStore);
-	$: definable = specification && description && $organizationStore && $unitStore && $contextStore && $schemaStore && !validator(previous) && !validator(current) && !versionAlreadyExists(current);
+	$: definable = specification && description && $organizationStore && $unitStore && $contextStore && $schemaStore && !versionRule(previous) && !versionRule(current) && !versionAlreadyExists(current);
 	$: showVersionSelect = !isEmpty(($schemaVersionsStore));
-	$: {
-		console.log($schemaVersionsStore);
-	}
 </script>
 
 <svelte:head>
@@ -177,28 +138,20 @@
 		<VersionSelect {compatibleVersions}/>
 	{/if}
 	<div class="flex-two-col">
-		<TextField class="mb-4 pb-4" placeholder="0.0.0" bind:value={current} rules={[notEmpty, validator]} disabled={!defineMode}>Current Version (previous was {previous})</TextField>
-
-		{#if defineMode && showVersionButtons}
-		<ButtonBar center>
-			<Button color="error" text="New Major" on:click={() => clickedVersionButton("major")}/>
-			<Button color="warning" text="New Minor" on:click={() => clickedVersionButton("minor")}/>
-			<Button color="primary" text="New Patch" on:click={() => clickedVersionButton("patch")}/>
-		</ButtonBar>
+		<TextField class="mb-4 pb-4" placeholder="0.0.0" bind:value={current} rules={[notEmptyRule, versionRule]} disabled={!defineMode}>
+			Current Version (previous was {previous})
+		</TextField>
+		{#if defineMode}
+			<VersionButtons bind:currentVersion={current}/>
 		{/if}
 	</div>
-	<Textarea outlined placeholder="Markdown Description" bind:value={description} rules={[notEmpty]} disabled={!defineMode}>Description</Textarea>
-
-	<Card disabled={!description} class="ma-2 pl-5 pt-2 pb-5 pr-2" style="min-height: 5rem">
-		<div id="markdown-container">
-			{#if description}
-				{@html DOMPurify.sanitize(marked(description))}
-			{:else}
-				{@html marked("##### &#35;&#35;&#35;&#35; Write some &#95;_markdown_&#95; into &#42;&#42;**Description**&#42;&#42;")}
-			{/if}
-		</div>
-	</Card>
-	<Textarea rows="8" outlined placeholder="Specify your schema" bind:value={specification} rules={[notEmpty]} disabled={!defineMode}>Specification</Textarea>
+	<Textarea outlined placeholder="Markdown Description" bind:value={description} rules={[notEmptyRule]} disabled={!defineMode}>
+		Description
+	</Textarea>
+	<MarkdownPreview {description}/>
+	<Textarea rows="8" outlined placeholder="Specify your schema" bind:value={specification} rules={[notEmptyRule]} disabled={!defineMode}>
+		Specification
+	</Textarea>
 
 	<div style="flex:1;" slot="buttons">
 		<ButtonBar>
@@ -227,9 +180,5 @@
 
 	:global(#markdown-container h1) {
 		font-size: 4rem;
-	}
-
-	:global(.flex-child) {
-		padding: 12px;
 	}
 </style>
