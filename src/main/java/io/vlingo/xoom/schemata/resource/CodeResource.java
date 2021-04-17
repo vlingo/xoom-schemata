@@ -7,7 +7,17 @@
 
 package io.vlingo.xoom.schemata.resource;
 
-import io.vlingo.xoom.actors.Grid;
+import static io.vlingo.xoom.http.RequestHeader.Authorization;
+import static io.vlingo.xoom.http.Response.Status.BadRequest;
+import static io.vlingo.xoom.http.Response.Status.InternalServerError;
+import static io.vlingo.xoom.http.Response.Status.Ok;
+import static io.vlingo.xoom.http.resource.ResourceBuilder.get;
+import static io.vlingo.xoom.http.resource.ResourceBuilder.resource;
+import static io.vlingo.xoom.schemata.codegen.TypeDefinitionCompiler.compilerFor;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import io.vlingo.xoom.actors.Logger;
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.common.Outcome;
@@ -18,22 +28,20 @@ import io.vlingo.xoom.http.Response;
 import io.vlingo.xoom.http.ResponseHeader;
 import io.vlingo.xoom.http.resource.DynamicResourceHandler;
 import io.vlingo.xoom.http.resource.Resource;
+import io.vlingo.xoom.lattice.grid.Grid;
 import io.vlingo.xoom.schemata.Schemata;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
 import io.vlingo.xoom.schemata.infra.persistence.StorageProvider;
 import io.vlingo.xoom.schemata.model.Path;
 import io.vlingo.xoom.schemata.query.CodeQueries;
 import io.vlingo.xoom.schemata.query.QueryResultsCollector;
-import io.vlingo.xoom.schemata.resource.data.*;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import static io.vlingo.xoom.http.RequestHeader.Authorization;
-import static io.vlingo.xoom.http.Response.Status.*;
-import static io.vlingo.xoom.http.resource.ResourceBuilder.get;
-import static io.vlingo.xoom.http.resource.ResourceBuilder.resource;
-import static io.vlingo.xoom.schemata.codegen.TypeDefinitionCompiler.compilerFor;
+import io.vlingo.xoom.schemata.resource.data.AuthorizationData;
+import io.vlingo.xoom.schemata.resource.data.ContextData;
+import io.vlingo.xoom.schemata.resource.data.OrganizationData;
+import io.vlingo.xoom.schemata.resource.data.PathData;
+import io.vlingo.xoom.schemata.resource.data.SchemaData;
+import io.vlingo.xoom.schemata.resource.data.SchemaVersionData;
+import io.vlingo.xoom.schemata.resource.data.UnitData;
 
 //
 // like this:

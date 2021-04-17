@@ -7,20 +7,24 @@
 
 package io.vlingo.xoom.schemata.resource;
 
-import io.vlingo.xoom.common.serialization.JsonSerialization;
-import io.vlingo.xoom.http.Response;
-import io.vlingo.xoom.schemata.model.Category;
-import io.vlingo.xoom.schemata.model.Scope;
-import io.vlingo.xoom.schemata.resource.data.*;
+import static io.vlingo.xoom.http.Response.Status.Ok;
+import static io.vlingo.xoom.schemata.model.SchemaVersion.Status.Draft;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.List;
-
-import static io.vlingo.xoom.http.Response.Status.Ok;
-import static io.vlingo.xoom.schemata.model.SchemaVersion.Status.Draft;
-import static org.junit.Assert.assertEquals;
+import io.vlingo.xoom.common.serialization.JsonSerialization;
+import io.vlingo.xoom.http.Response;
+import io.vlingo.xoom.schemata.model.Category;
+import io.vlingo.xoom.schemata.model.Scope;
+import io.vlingo.xoom.schemata.resource.data.ContextData;
+import io.vlingo.xoom.schemata.resource.data.OrganizationData;
+import io.vlingo.xoom.schemata.resource.data.SchemaData;
+import io.vlingo.xoom.schemata.resource.data.SchemaVersionData;
+import io.vlingo.xoom.schemata.resource.data.UnitData;
 
 public class ExtendedResourceTest extends ResourceTest {
     private final OrganizationData orgData1 = OrganizationData.just("Org1", "Org1 description");

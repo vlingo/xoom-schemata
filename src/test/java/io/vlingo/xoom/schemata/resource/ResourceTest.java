@@ -7,21 +7,27 @@
 
 package io.vlingo.xoom.schemata.resource;
 
-import io.vlingo.xoom.actors.Grid;
+import org.junit.After;
+import org.junit.Before;
+
 import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.http.Response;
 import io.vlingo.xoom.http.ResponseHeader;
+import io.vlingo.xoom.lattice.grid.Grid;
 import io.vlingo.xoom.lattice.model.sourcing.SourcedTypeRegistry;
 import io.vlingo.xoom.schemata.Schemata;
 import io.vlingo.xoom.schemata.SchemataConfig;
 import io.vlingo.xoom.schemata.infra.persistence.ProjectionDispatcherProvider;
 import io.vlingo.xoom.schemata.infra.persistence.StateStoreProvider;
 import io.vlingo.xoom.schemata.infra.persistence.StorageProvider;
-import io.vlingo.xoom.schemata.query.*;
+import io.vlingo.xoom.schemata.query.CodeQueries;
+import io.vlingo.xoom.schemata.query.ContextQueries;
+import io.vlingo.xoom.schemata.query.OrganizationQueries;
+import io.vlingo.xoom.schemata.query.SchemaQueries;
+import io.vlingo.xoom.schemata.query.SchemaVersionQueries;
+import io.vlingo.xoom.schemata.query.UnitQueries;
 import io.vlingo.xoom.symbio.store.journal.Journal;
 import io.vlingo.xoom.turbo.Boot;
-import org.junit.After;
-import org.junit.Before;
 
 public abstract class ResourceTest {
   protected Journal<String> journal;

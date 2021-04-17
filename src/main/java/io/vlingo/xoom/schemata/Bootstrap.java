@@ -12,12 +12,12 @@ import java.net.ServerSocket;
 import java.util.Arrays;
 import java.util.List;
 
-import io.vlingo.xoom.actors.Grid;
 import io.vlingo.xoom.actors.Stage;
 import io.vlingo.xoom.cluster.model.Properties;
 import io.vlingo.xoom.http.resource.Configuration;
 import io.vlingo.xoom.http.resource.Configuration.Timing;
 import io.vlingo.xoom.http.resource.StaticFilesConfiguration;
+import io.vlingo.xoom.lattice.grid.Grid;
 import io.vlingo.xoom.lattice.grid.GridClusterProperties;
 import io.vlingo.xoom.schemata.infra.persistence.ProjectionDispatcherProvider;
 import io.vlingo.xoom.schemata.infra.persistence.StateStoreProvider;
