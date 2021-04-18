@@ -21,12 +21,12 @@
 	export let contexts = [];
 	export let schemas = [];
 	export let schemaVersions = [];
-	
+
 	if($firstPage) {
 		setAllStores();
 		$firstPage = false;
 	}
-	
+
 	function setAllStores() {
 		$organizationsStore = orgs;
 		$unitsStore = units;
@@ -102,5 +102,10 @@
 	.s-card.vl-card {
 		box-shadow: 0 0 64px 16px rgba(0, 0, 0, 0.075) !important;
 		border-radius: 16px !important;
+	}
+
+	:global(.flex-child) {
+		flex: 0 0 50%;
+		padding: 12px;
 	}
 </style>

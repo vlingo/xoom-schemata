@@ -1,9 +1,8 @@
 <script>
 	import { contextStore, organizationStore, schemaStore, schemaVersionsStore, schemaVersionStore, unitStore } from '../stores';
 	import {mdiDelete, mdiLabel, mdiLabelOff, mdiSourcePull, mdiFileFind, mdiFileUndo, mdiContentSave} from '@mdi/js'
-	import { Card, ButtonGroup, ButtonGroupItem, Chip, Radio, Dialog, CardTitle, CardText } from 'svelte-materialify/src';
+	import { Card, ButtonGroup, ButtonGroupItem, Chip, Radio, Dialog, CardTitle, CardText, Textarea } from 'svelte-materialify/src';
 	import SchemataRepository from '../api/SchemataRepository';
-	import ValidatedInput from '../components/form/ValidatedInput.svelte';
 	import ButtonBar from '../components/form/ButtonBar.svelte';
 	import Button from '../components/form/Button.svelte';
 	import marked from 'marked';
@@ -88,7 +87,6 @@
 
 	const toggleCodeModal = () => showCodeModal = !showCodeModal;
 	const togglePreviewModal = () => showPreviewModal = !showPreviewModal;
-	const changeActive = (index) => active = index === 0 ? "spec" : "desc";
 
 	$: changedVersionStore($schemaVersionStore);
 	$: definable = $schemaVersionStore && $organizationStore && $unitStore && $contextStore && $schemaStore
@@ -97,6 +95,11 @@
 	$: if(chosenLang && typeof chosenLang === "string") sourceCodeFor(chosenLang.toLowerCase());
 	$: if(!showCodeModal) {chosenLang = undefined; sourceCode = undefined;}
 	$: status = $schemaVersionStore ? $schemaVersionStore.status : "";
+
+	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
+
+	let selected = 0;
+	$: active = !selected ? "spec" : "desc";
 </script>
 
 
@@ -104,7 +107,7 @@
 	<div class="bottom-flex">
 	<Card class="vl-card pa-6">
 		<div style="display: flex">
-			<ButtonGroup value={[0]} on:change={(e) => changeActive(e.detail[0])} mandatory class="primary-text d-flex">
+			<ButtonGroup bind:value={selected} mandatory class="primary-text d-flex">
 				<ButtonGroupItem>Specification</ButtonGroupItem>
 				<ButtonGroupItem>Description</ButtonGroupItem>
 			</ButtonGroup>
@@ -115,7 +118,11 @@
 		</div>
 		{#if active=="spec"}
 			<!-- <wc-monaco-editor style="width: 800px; height: 800px; display: block;" language="javascript"></wc-monaco-editor> -->
-			<ValidatedInput label="Specification" outlined rows="10" type="textarea" bind:value={specification} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true} readonly={$schemaVersionStore ? $schemaVersionStore.status !== "Draft" : true}/>
+			<Textarea style="margin-top: 1rem" rows="10" outlined bind:value={specification} rules={[notEmpty]} validateOnBlur={!specification}
+			disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true}
+			readonly={$schemaVersionStore ? $schemaVersionStore.status !== "Draft" : true}>
+				Specification
+			</Textarea>
 			<ButtonBar>
 				{#if status !== "Removed"}
 					{#if status === "Draft"}
@@ -132,7 +139,10 @@
 				{/if}
 			</ButtonBar>
 		{:else if active=="desc"}
-			<ValidatedInput label="Description" outlined rows="10" type="textarea" bind:value={description} disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true}/>
+			<Textarea style="margin-top: 1rem" rows="10" outlined bind:value={description} rules={[notEmpty]} validateOnBlur={!description}
+				disabled={$schemaVersionStore ? $schemaVersionStore.status === "Removed" : true}>
+				Description
+			</Textarea>
 			<ButtonBar>
 				<Button color="success" icon={mdiFileFind} text="PREVIEW" on:click={togglePreviewModal}/>
 				<Button color="warning" icon={mdiFileUndo} text="REVERT" on:click={() => description = $schemaVersionStore.description}/>

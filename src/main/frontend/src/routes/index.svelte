@@ -153,7 +153,7 @@
 			Home
 			<span style="margin-left: auto; font-size: 1rem;"><Switch bind:checked={$detailed}>Details</Switch></span>
 		</CardTitle>
-		<!-- <ValidatedInput type="search" placeholder="Search..."/> -->
+		<!--<Search placeholder="Search..."/> -->
 		<Folder detailed={$detailed} file={root} first/>
 	{/if}
 	<div class="ma-4 pb-4">

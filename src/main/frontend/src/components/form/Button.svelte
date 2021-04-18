@@ -1,6 +1,5 @@
 <script>
-	import { Icon } from 'svelte-materialify/src';
-	import MatButton from 'svelte-materialify/src/components/Button';
+	import { Icon, Button } from 'svelte-materialify/src';
 	import { createEventDispatcher } from 'svelte';
 	import { goto } from '@sapper/app';
 
@@ -26,11 +25,11 @@
 
 </script>
 
-<MatButton class={"m-1 " + btnClass} {...$$restProps} disabled={disabled} on:click={clicked} {outlined}>
+<Button class={"m-1 " + btnClass} {...$$restProps} disabled={disabled} on:click={clicked} {outlined}>
 	<span>
 		{#if icon}
 			<Icon path={icon}/>
 		{/if}
 		{text}
 	</span>
-</MatButton>
+</Button>
