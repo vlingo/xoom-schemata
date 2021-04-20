@@ -57,7 +57,7 @@ public class SchemaQueriesTest {
     givenNamedSchemaView("vlingo", "schemata-test", "io.vlingo.xoom.schemata", "SchemaDefined", "First schema", "My first schema");
     stateStore.expectReadFailures(3);
 
-    Completes<NamedSchemaView> query = queries.schemaByNamesWithRetries("OO", "UU", "CC", "SS", 100, 3);
+    Completes<NamedSchemaView> query = queries.schemaByNamesWithRetries("vlingo", "schemata-test", "io.vlingo.xoom.schemata", "SchemaDefined", 100, 3);
     NamedSchemaView view = query.await();
 
     assertEquals("First schema", view.name());
