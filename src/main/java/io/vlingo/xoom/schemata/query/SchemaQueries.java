@@ -16,4 +16,5 @@ public interface SchemaQueries {
   Completes<SchemasView> schemas(final String organizationId, final String unitId, final String contextId);
   Completes<SchemaView> schema(final String organizationId, final String unitId, final String contextId, final String schemaId);
   Completes<NamedSchemaView> schemaByNames(final String organization, final String unit, final String context, final String schema);
+  Completes<NamedSchemaView> schemaByNamesWithRetries(final String organization, final String unit, final String context, final String schema, int retryInterval, int retryTotal);
 }
