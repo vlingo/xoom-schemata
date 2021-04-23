@@ -17,7 +17,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import io.vlingo.xoom.common.serialization.JsonSerialization;
@@ -77,7 +76,6 @@ public class SchemaVersionResourceTest extends ResourceTest {
     }
 
     @Test
-    @Ignore //FIXME: Doesn't hang anymore, but NullPointerException. (old: https://github.com/vlingo/xoom-schemata/issues/135)
     public void testThatSchemaVersionMinorUpgradeIsDefined() {
         final SchemaVersionResource resource = new SchemaVersionResource(stage);
         final SchemaVersionData previousData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);
