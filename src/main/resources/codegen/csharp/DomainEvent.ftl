@@ -1,20 +1,20 @@
 using Vlingo.Lattice.Model;
 using Vlingo.Xoom.Common.Version;
 
-namespace ${package}
+namespace ${namespace}
 {
   public sealed class ${typeName} : DomainEvent
   {
-    public readonly int semanticVersion;
+    public readonly int eventVersion;
 
-    <#list children as p>
-    public readonly ${p.type.name()} ${p.name};
+    <#list properties as p>
+    public readonly ${p.type} ${p.name};
     </#list>
 
-    public ${typeName}(<#list children as p>${p.type.name()} ${p.name}<#if p?has_next>, </#if></#list>)
+    public ${typeName}(<#list properties as p>${p.type} ${p.name}<#if p?has_next>, </#if></#list>)
     {
-      this.semanticVersion = SemanticVersion.toValue("1.0.0");
-      <#list children as p>
+      this.eventVersion = SemanticVersion.toValue("${version}");
+      <#list properties as p>
       this.${p.name} = ${p.name};
       </#list>
     }

@@ -1,3 +1,4 @@
+/*
 // Copyright © 2012-2021 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
@@ -14,3 +15,4 @@ import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
 public interface Backend {
     Outcome<SchemataBusinessException,String> generateOutput(Node node, String version);
 }
+*/

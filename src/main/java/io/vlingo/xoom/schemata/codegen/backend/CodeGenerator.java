@@ -1,8 +1,13 @@
 package io.vlingo.xoom.schemata.codegen.backend;
 
 import freemarker.template.*;
+import io.vlingo.xoom.common.Outcome;
+import io.vlingo.xoom.common.Success;
+import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
+import io.vlingo.xoom.turbo.codegen.CodeGenerationException;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Locale;
 
@@ -26,5 +31,15 @@ public class CodeGenerator {
     public void generateWith(String language, String templateName, Object templateArgs, Writer output) throws IOException, TemplateException {
         Template template = configuration.getTemplate("/codegen/" + language + "/" + templateName + ".ftl");
         template.process(templateArgs, output);
+    }
+
+    public Outcome<SchemataBusinessException, String> generateWith(String language, String templateName, Object templateArgs) {
+        StringWriter result = new StringWriter();
+        try{
+            generateWith(language, templateName, templateArgs, result);
+        }catch (IOException | TemplateException e) {
+            throw new CodeGenerationException(e);
+        }
+        return Success.of(result.toString());
     }
 }

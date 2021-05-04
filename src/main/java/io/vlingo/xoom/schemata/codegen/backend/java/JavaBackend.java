@@ -1,3 +1,4 @@
+/*
 // Copyright © 2012-2021 VLINGO LABS. All rights reserved.
 //
 // This Source Code Form is subject to the terms of the
@@ -292,3 +293,4 @@ public class JavaBackend implements Backend {
         }
     }
 }
+*/
