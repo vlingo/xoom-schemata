@@ -1,8 +1,17 @@
-FROM openjdk:8-jdk-alpine
+FROM alpine:3.13
 
-ENV JAVA_OPTS=""
+LABEL maintainer="VLINGO XOOM Team <info@vlingo.io>"
+
+ENV JAVA_HOME=/usr/lib/jvm/default-jvm/
+ENV PATH=${JAVA_HOME}/bin:$PATH
 ENV XOOM_ENV="env"
 
-ADD ./target/xoom-schemata-*-jar-with-dependencies.jar /app.jar
+ADD ./target/xoom-schemata-*-jar-with-dependencies.jar /schemata/xoom-schemata.jar
 
-ENTRYPOINT exec java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar $XOOM_ENV
+RUN addgroup -S xoom && adduser -S -D -s /sbin/nologin -h /schemata -G xoom xoom \
+ && apk add --no-cache bash openjdk8 \
+ && chown -R xoom:xoom /schemata
+
+WORKDIR /schemata
+CMD java -jar /schemata/xoom-schemata.jar $XOOM_ENV
+USER xoom
