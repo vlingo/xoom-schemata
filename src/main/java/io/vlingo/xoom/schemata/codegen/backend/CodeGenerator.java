@@ -1,10 +1,10 @@
 package io.vlingo.xoom.schemata.codegen.backend;
 
 import freemarker.template.*;
+import io.vlingo.xoom.codegen.CodeGenerationException;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.common.Success;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
-import io.vlingo.xoom.turbo.codegen.CodeGenerationException;
 
 import java.io.IOException;
 import java.io.StringWriter;

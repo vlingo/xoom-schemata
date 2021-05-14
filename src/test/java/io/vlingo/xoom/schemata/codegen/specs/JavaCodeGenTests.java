@@ -33,7 +33,7 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("public SalutationHappened(final String toWhom, final String text) {"));
     assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue(\"0.0.1\");"));
+    assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(\"0.0.1\");"));
     assertTrue(result.contains("this.toWhom = toWhom;"));
     assertTrue(result.contains("this.text = text;"));
     assertFalse(result.contains("public SalutationHappened()"));
@@ -64,7 +64,7 @@ public class JavaCodeGenTests extends CodeGenTests {
 
     assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue(\"0.0.1\");"));
+    assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(\"0.0.1\");"));
 
     assertTrue(result.contains("public boolean booleanAttribute = true;"));
     assertTrue(result.contains("public byte byteAttribute = 4;"));
@@ -120,7 +120,7 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("public int[] intAttribute = new int[] { 4242, 424242, 42424242 }"));
     assertTrue(result.contains("public long[] longAttribute = new long[] { 42L, 4242L, 424242L }"));
     assertTrue(result.contains("public short[] shortAttribute = new short[] { 258, 259, 260 }"));
-    assertTrue(result.contains("public String[] stringAttribute = new java.lang.String[] { \"foo\", \"bar\", \"baz\" }"));
+    assertTrue(result.contains("public String[] stringAttribute = new String[] { \"foo\", \"bar\", \"baz\" }"));
   }
 
   @Test
@@ -144,6 +144,9 @@ public class JavaCodeGenTests extends CodeGenTests {
     registerType("types/price", "Org:Unit:Context:Schema:Price", "1.0.0");
     final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("price-changed"), "Org:Unit:Context:Schema:PriceChanged", "0.5.1");
 
+    assertTrue(result.contains("import io.vlingo.xoom.common.version.SemanticVersion;"));
+    assertTrue(result.contains("import io.vlingo.xoom.common.version.SemanticVersion;"));
+    assertTrue(result.contains("import io.vlingo.xoom.lattice.model.DomainEvent;"));
     assertTrue(result.contains("public final class PriceChanged extends DomainEvent {"));
     assertTrue(result.contains("public final long occurredOn;"));
     assertTrue(result.contains("public final int eventVersion;"));
@@ -151,7 +154,7 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("public final Price newPrice;"));
     assertTrue(result.contains("public PriceChanged(final Price oldPrice, final Price newPrice) {"));
     assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue(\"0.5.1\");"));
+    assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(\"0.5.1\");"));
     assertTrue(result.contains("this.oldPrice = oldPrice;"));
     assertTrue(result.contains("this.newPrice = newPrice;"));
   }
