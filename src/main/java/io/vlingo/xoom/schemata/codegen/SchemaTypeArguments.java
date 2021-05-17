@@ -11,7 +11,7 @@ import io.vlingo.xoom.schemata.model.Category;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DomainEventArguments {
+public class SchemaTypeArguments {
 
     public final String namespace;
     public final String version;
@@ -21,7 +21,7 @@ public class DomainEventArguments {
     public final boolean createDefaultConstructor;
     public final boolean createRequiredArgsConstructor;
 
-    public DomainEventArguments(String language, String fqdn, String version, TypeDefinition node) {
+    public SchemaTypeArguments(String language, String fqdn, String version, TypeDefinition node) {
         this.namespace = extractNamespace(fqdn);
         this.type = node.category;
         this.typeName = node.typeName;

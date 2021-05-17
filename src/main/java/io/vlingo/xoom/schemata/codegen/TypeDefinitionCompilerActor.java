@@ -36,7 +36,7 @@ public class TypeDefinitionCompilerActor implements TypeDefinitionCompiler, Type
         return Completes.withSuccess(
                 parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
                     .andThen(node -> this.process(fullyQualifiedTypeName).apply(node))
-                    .andThenTo(node -> codeGenerator.generateWith(language, "SchemaType", new DomainEventArguments(language, fullyQualifiedTypeName, version, (TypeDefinition) node)))
+                    .andThenTo(node -> codeGenerator.generateWith(language, "SchemaType", new SchemaTypeArguments(language, fullyQualifiedTypeName, version, (TypeDefinition) node)))
                     .otherwiseFail(ex -> ex)
                 );
     }
