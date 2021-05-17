@@ -6,6 +6,7 @@ import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.Value;
+import io.vlingo.xoom.schemata.model.Category;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,12 +16,14 @@ public class DomainEventArguments {
     public final String namespace;
     public final String version;
     public final List<Property> properties;
+    public final Category type;
     public final String typeName;
     public final boolean createDefaultConstructor;
     public final boolean createRequiredArgsConstructor;
 
     public DomainEventArguments(String language, String fqdn, String version, TypeDefinition node) {
         this.namespace = extractNamespace(fqdn);
+        this.type = node.category;
         this.typeName = node.typeName;
         this.version = version;
         this.properties = extractProperties(language, node);

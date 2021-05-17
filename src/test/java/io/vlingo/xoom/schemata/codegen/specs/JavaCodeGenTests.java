@@ -19,6 +19,22 @@ import static org.junit.Assert.*;
 
 public class JavaCodeGenTests extends CodeGenTests {
   @Test
+  public void testThatGeneratesDataClass() throws ExecutionException, InterruptedException {
+    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
+    final String result = compileSpecAndUnwrap(generatorFor("java"),typeDefinition("types/price"), fullyQualifiedTypeName, "0.0.1");
+
+    assertFalse(result.contains("import io.vlingo.xoom.lattice.model.DomainEvent;"));
+    assertFalse(result.contains("import io.vlingo.xoom.lattice.model.Command;"));
+    assertTrue(result.contains("public final class Price {"));
+    assertTrue(result.contains("public final double amount;"));
+    assertTrue(result.contains("public final String currency;"));
+    assertTrue(result.contains("public Price(final double amount, final String currency) {"));
+    assertTrue(result.contains("this.amount = amount;"));
+    assertTrue(result.contains("this.currency = currency;"));
+    assertFalse(result.contains("public Price()"));
+  }
+
+  @Test
   public void testThatGeneratesABasicType() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
     final String result = compileSpecAndUnwrap(generatorFor("java"),typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1");

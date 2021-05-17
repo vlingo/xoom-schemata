@@ -12,10 +12,21 @@ using Vlingo.Xoom.Common.Version;
         </#if>
     </@compress>
 </#macro>
+<#macro printTypeName>
+    <@compress single_line=true>
+        <#if type = 'Command'>
+          ${typeName} : Command
+        <#elseif type = 'Event'>
+          ${typeName} : DomainEvent
+        <#else>
+          ${typeName}
+        </#if>
+    </@compress>
+</#macro>
 
 namespace ${namespace}
 {
-  public sealed class ${typeName} : DomainEvent
+  public sealed class <@printTypeName />
   {
     <#list properties as p>
     public <#if !p.value??>readonly </#if>${p.type}<#if p.array>[]</#if> ${p.name}<#if p.value??> = <@printValue p.value p.array /></#if>;

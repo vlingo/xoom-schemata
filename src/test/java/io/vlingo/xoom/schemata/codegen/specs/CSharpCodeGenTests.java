@@ -18,6 +18,21 @@ import java.util.regex.Pattern;
 import static org.junit.Assert.*;
 
 public class CSharpCodeGenTests extends CodeGenTests {
+
+  @Test
+  public void testThatGeneratesDataClass() throws ExecutionException, InterruptedException {
+    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
+    final String result = compileSpecAndUnwrap(generatorFor("csharp"),typeDefinition("types/price"), fullyQualifiedTypeName, "0.0.1");
+
+    assertTrue(result.contains("public sealed class Price"));
+    assertTrue(result.contains("public readonly double amount;"));
+    assertTrue(result.contains("public readonly string currency;"));
+    assertTrue(result.contains("public Price(double amount, string currency)"));
+    assertTrue(result.contains("this.amount = amount;"));
+    assertTrue(result.contains("this.currency = currency;"));
+    assertFalse(result.contains("public Price()"));
+  }
+
   @Test
   public void testThatGeneratesABasicType() throws ExecutionException, InterruptedException {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";

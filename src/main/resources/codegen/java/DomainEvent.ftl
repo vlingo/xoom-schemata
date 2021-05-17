@@ -1,8 +1,8 @@
 package ${namespace};
 
 import io.vlingo.xoom.common.version.SemanticVersion;
-import io.vlingo.xoom.lattice.model.DomainEvent;
-
+<#if type = 'Event'>import io.vlingo.xoom.lattice.model.DomainEvent;</#if>
+<#if type = 'Command'>import io.vlingo.xoom.lattice.model.Command;</#if>
 <#macro printValue value array type>
     <@compress single_line=true>
         <#if array>
@@ -14,8 +14,19 @@ import io.vlingo.xoom.lattice.model.DomainEvent;
         </#if>
     </@compress>
 </#macro>
+<#macro printSuperType>
+    <@compress single_line=true>
+        <#if type = 'Command'>
+          ${typeName} extends Command
+        <#elseif type = 'Event'>
+          ${typeName} extends DomainEvent
+        <#else>
+          ${typeName}
+        </#if>
+    </@compress>
+</#macro>
 
-public final class ${typeName} extends DomainEvent {
+public final class <@printSuperType /> {
 
   <#list properties as p>
   public <#if !p.value??>final </#if>${p.type}<#if p.array>[]</#if> ${p.name}<#if p.value??> = <@printValue p.value p.array p.type /></#if>;
