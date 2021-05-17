@@ -44,14 +44,14 @@ public abstract class CodeGenTests {
         world.terminate();
     }
 
-    protected final TypeDefinitionCompiler compilerWithJavaBackend() {
+    protected final TypeDefinitionCompiler generatorFor(String language) {
         return new TypeDefinitionCompilerActor(
                 typeParser,
                 Arrays.asList(
                         world.actorFor(Processor.class, ComputableTypeProcessor.class),
                         world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
                 ),
-                "java"
+                language
         );
     }
 

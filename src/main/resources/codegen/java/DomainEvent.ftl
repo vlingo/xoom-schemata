@@ -24,7 +24,7 @@ public final class ${typeName} extends DomainEvent {
   <#if createDefaultConstructor>
   public ${typeName}() {
     <#list properties as p>
-    <#if p.name = 'eventVersion'>
+    <#if p.name = 'eventVersion' || p.name = 'semanticVersion'>
     this.${p.name} = SemanticVersion.toValue("${version}");
     <#elseif p.name = 'eventType'>
     this.${p.name} = "${typeName}";
@@ -35,9 +35,9 @@ public final class ${typeName} extends DomainEvent {
   }
   </#if>
   <#if createRequiredArgsConstructor>
-  public ${typeName}(<#list properties as p><#if p.name != 'eventVersion' && p.name != 'eventType' && p.name != 'occurredOn'>final ${p.type}<#if p.array>[]</#if> ${p.name}<#if p?has_next>, </#if></#if></#list>) {
+  public ${typeName}(<#list properties as p><#if p.name != 'eventVersion' && p.name != 'semanticVersion' && p.name != 'eventType' && p.name != 'occurredOn'>final ${p.type}<#if p.array>[]</#if> ${p.name}<#if p?has_next>, </#if></#if></#list>) {
     <#list properties as p>
-    <#if p.name = 'eventVersion'>
+    <#if p.name = 'eventVersion' || p.name = 'semanticVersion'>
     this.${p.name} = SemanticVersion.toValue("${version}");
     <#elseif p.name = 'eventType'>
     this.${p.name} = "${typeName}";
