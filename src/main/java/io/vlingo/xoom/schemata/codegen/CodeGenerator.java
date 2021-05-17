@@ -1,4 +1,4 @@
-package io.vlingo.xoom.schemata.codegen.backend;
+package io.vlingo.xoom.schemata.codegen;
 
 import freemarker.template.*;
 import io.vlingo.xoom.codegen.CodeGenerationException;

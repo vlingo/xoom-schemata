@@ -11,7 +11,6 @@ import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.codegen.ast.Node;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
-import io.vlingo.xoom.schemata.codegen.backend.CodeGenerator;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
