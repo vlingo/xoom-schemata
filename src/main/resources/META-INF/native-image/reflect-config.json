@@ -109,6 +109,15 @@
     "allDeclaredMethods": true
   },
   {
+    "name": "io.netty.buffer.AbstractReferenceCountedByteBuf",
+    "fields": [
+      {
+        "name": "refCnt",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
     "name": "io.netty.channel.ChannelInboundHandlerAdapter",
     "methods": [
       {
@@ -367,6 +376,15 @@
     "name": "io.netty.channel.kqueue.KQueue"
   },
   {
+    "name": "io.netty.channel.socket.nio.NioServerSocketChannel",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
     "name": "io.netty.util.AbstractReferenceCounted",
     "fields": [
       {
@@ -374,6 +392,10 @@
         "allowUnsafeAccess": true
       }
     ]
+  },
+  {
+    "name": "io.netty.util.ReferenceCountUtil",
+    "allDeclaredMethods": true
   },
   {
     "name": "io.netty.util.internal.NativeLibraryUtil",
@@ -415,20 +437,29 @@
     ]
   },
   {
-    "name": "io.netty.channel.socket.nio.NioSocketChannel",
-    "methods": [
+    "name": "io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueueConsumerIndexField",
+    "fields": [
       {
-        "name": "<init>",
-        "parameterTypes": []
+        "name": "consumerIndex",
+        "allowUnsafeAccess": true
       }
     ]
   },
   {
-    "name": "io.netty.channel.socket.nio.NioServerSocketChannel",
-    "methods": [
+    "name": "io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueueProducerIndexField",
+    "fields": [
       {
-        "name": "<init>",
-        "parameterTypes": []
+        "name": "producerIndex",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "io.netty.util.internal.shaded.org.jctools.queues.MpscArrayQueueProducerLimitField",
+    "fields": [
+      {
+        "name": "producerLimit",
+        "allowUnsafeAccess": true
       }
     ]
   },
@@ -688,14 +719,6 @@
     "allPublicConstructors": true
   },
   {
-    "name": "io.vlingo.xoom.lattice.grid.application.GridActorControl$Inbound",
-    "allPublicMethods": true
-  },
-  {
-    "name": "io.vlingo.xoom.lattice.grid.application.GridActorControl$Outbound",
-    "allPublicMethods": true
-  },
-  {
     "name": "io.vlingo.xoom.lattice.grid.application.GridActorControlInbound__Proxy",
     "methods": [
       {
@@ -718,6 +741,14 @@
         ]
       }
     ]
+  },
+  {
+    "name": "io.vlingo.xoom.lattice.model.DomainEvent",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "io.vlingo.xoom.lattice.model.IdentifiedDomainEvent",
+    "allDeclaredFields": true
   },
   {
     "name": "io.vlingo.xoom.lattice.model.projection.MultiConfirmingProjectionControlActor",
@@ -801,10 +832,6 @@
     "allPublicConstructors": true
   },
   {
-    "name": "io.vlingo.xoom.lattice.util.HardRefHolder",
-    "allPublicMethods": true
-  },
-  {
     "name": "io.vlingo.xoom.lattice.util.HardRefHolder__Proxy",
     "methods": [
       {
@@ -865,8 +892,274 @@
     "allPublicConstructors": true
   },
   {
-    "name": "io.vlingo.xoom.schemata.query.CodeQueries",
-    "allPublicMethods": true
+    "name": "io.vlingo.xoom.schemata.model.Category",
+    "fields": [
+      {
+        "name": "Command"
+      },
+      {
+        "name": "Data"
+      },
+      {
+        "name": "Document"
+      },
+      {
+        "name": "Envelope"
+      },
+      {
+        "name": "Event"
+      },
+      {
+        "name": "Unknown"
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Context__Proxy",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.vlingo.xoom.actors.Actor",
+          "io.vlingo.xoom.actors.Mailbox"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$ContextDefined",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$OrganizationDefined",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$OrganizationRedefined",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaDefined",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "category",
+        "allowWrite": true
+      },
+      {
+        "name": "scope",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaVersionDefined",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaVersionId",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      },
+      {
+        "name": "specification",
+        "allowWrite": true
+      },
+      {
+        "name": "status",
+        "allowWrite": true
+      },
+      {
+        "name": "previousVersion",
+        "allowWrite": true
+      },
+      {
+        "name": "currentVersion",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$UnitDefined",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Organization__Proxy",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.vlingo.xoom.actors.Actor",
+          "io.vlingo.xoom.actors.Mailbox"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.SchemaVersion__Proxy",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.vlingo.xoom.actors.Actor",
+          "io.vlingo.xoom.actors.Mailbox"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Schema__Proxy",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.vlingo.xoom.actors.Actor",
+          "io.vlingo.xoom.actors.Mailbox"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Scope",
+    "fields": [
+      {
+        "name": "Private"
+      },
+      {
+        "name": "Public"
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Unit__Proxy",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.vlingo.xoom.actors.Actor",
+          "io.vlingo.xoom.actors.Mailbox"
+        ]
+      }
+    ]
   },
   {
     "name": "io.vlingo.xoom.schemata.query.CodeQueriesActor",
@@ -885,10 +1178,6 @@
     ]
   },
   {
-    "name": "io.vlingo.xoom.schemata.query.ContextQueries",
-    "allPublicMethods": true
-  },
-  {
     "name": "io.vlingo.xoom.schemata.query.ContextQueriesActor",
     "allPublicConstructors": true
   },
@@ -903,10 +1192,6 @@
         ]
       }
     ]
-  },
-  {
-    "name": "io.vlingo.xoom.schemata.query.OrganizationQueries",
-    "allPublicMethods": true
   },
   {
     "name": "io.vlingo.xoom.schemata.query.OrganizationQueriesActor",
@@ -925,10 +1210,6 @@
     ]
   },
   {
-    "name": "io.vlingo.xoom.schemata.query.SchemaQueries",
-    "allPublicMethods": true
-  },
-  {
     "name": "io.vlingo.xoom.schemata.query.SchemaQueriesActor",
     "allPublicConstructors": true
   },
@@ -943,10 +1224,6 @@
         ]
       }
     ]
-  },
-  {
-    "name": "io.vlingo.xoom.schemata.query.SchemaVersionQueries",
-    "allPublicMethods": true
   },
   {
     "name": "io.vlingo.xoom.schemata.query.SchemaVersionQueriesActor",
@@ -965,10 +1242,6 @@
     ]
   },
   {
-    "name": "io.vlingo.xoom.schemata.query.TypeResolverQueries",
-    "allPublicMethods": true
-  },
-  {
     "name": "io.vlingo.xoom.schemata.query.TypeResolverQueriesActor",
     "allPublicConstructors": true
   },
@@ -985,10 +1258,6 @@
     ]
   },
   {
-    "name": "io.vlingo.xoom.schemata.query.UnitQueries",
-    "allPublicMethods": true
-  },
-  {
     "name": "io.vlingo.xoom.schemata.query.UnitQueriesActor",
     "allPublicConstructors": true
   },
@@ -1001,6 +1270,366 @@
           "io.vlingo.xoom.actors.Actor",
           "io.vlingo.xoom.actors.Mailbox"
         ]
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.CodeView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.ContextView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.ContextsView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.ContextsView$ContextItem",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.NamedSchemaView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.OrganizationView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.OrganizationsView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ],
+    "fields": [
+      {
+        "name": "organizations",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.OrganizationsView$OrganizationItem",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.SchemaVersionView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.SchemaVersionsView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.SchemaView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.SchemasView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.SchemasView$SchemaItem",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.UnitView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.UnitsView",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ],
+    "fields": [
+      {
+        "name": "units",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.query.view.UnitsView$UnitItem",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.resource.data.ContextData",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "namespace",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.resource.data.OrganizationData",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.resource.data.SchemaData",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "category",
+        "allowWrite": true
+      },
+      {
+        "name": "scope",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.resource.data.SchemaVersionData",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaVersionId",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      },
+      {
+        "name": "specification",
+        "allowWrite": true
+      },
+      {
+        "name": "status",
+        "allowWrite": true
+      },
+      {
+        "name": "previousVersion",
+        "allowWrite": true
+      },
+      {
+        "name": "currentVersion",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.resource.data.UnitData",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.symbio.Source",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "dateTimeSourced",
+        "allowWrite": true
+      },
+      {
+        "name": "sourceTypeVersion",
+        "allowWrite": true
       }
     ]
   },
@@ -1041,7 +1670,31 @@
     ]
   },
   {
+    "name": "io.vlingo.xoom.symbio.store.journal.JournalAppendResultInterest__Proxy",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.vlingo.xoom.actors.Actor",
+          "io.vlingo.xoom.actors.Mailbox"
+        ]
+      }
+    ]
+  },
+  {
     "name": "io.vlingo.xoom.symbio.store.journal.Journal__Proxy",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.vlingo.xoom.actors.Actor",
+          "io.vlingo.xoom.actors.Mailbox"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.symbio.store.journal.StreamReader__Proxy",
     "methods": [
       {
         "name": "<init>",
@@ -1109,6 +1762,40 @@
     ]
   },
   {
+    "name": "io.vlingo.xoom.wire.fdx.bidirectional.netty.server.NettyInboundHandler",
+    "methods": [
+      {
+        "name": "channelActive",
+        "parameterTypes": [
+          "io.netty.channel.ChannelHandlerContext"
+        ]
+      },
+      {
+        "name": "channelRead",
+        "parameterTypes": [
+          "io.netty.channel.ChannelHandlerContext",
+          "java.lang.Object"
+        ]
+      },
+      {
+        "name": "channelUnregistered",
+        "parameterTypes": [
+          "io.netty.channel.ChannelHandlerContext"
+        ]
+      },
+      {
+        "name": "exceptionCaught",
+        "parameterTypes": [
+          "io.netty.channel.ChannelHandlerContext",
+          "java.lang.Throwable"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.wire.fdx.bidirectional.netty.server.NettyServerChannelActor$1"
+  },
+  {
     "name": "io.vlingo.xoom.wire.fdx.inbound.InboundStreamInterest__Proxy",
     "methods": [
       {
@@ -1141,6 +1828,1094 @@
           "io.vlingo.xoom.actors.Actor",
           "io.vlingo.xoom.actors.Mailbox"
         ]
+      }
+    ]
+  },
+  {
+    "name": "java.io.FilePermission"
+  },
+  {
+    "name": "java.lang.AbstractStringBuilder",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "coder",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "count",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "value",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Boolean",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "value",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Byte",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "value",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Character",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "value",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Double",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "value",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Float",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "value",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Integer",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "value",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Long",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "value",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Number",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "java.lang.Object",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.lang.RuntimePermission"
+  },
+  {
+    "name": "java.lang.Short",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "value",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.lang.String",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "coder",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "hash",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "value",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.lang.StringBuffer",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.lang.StringBuilder",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.lang.management.ManagementFactory",
+    "methods": [
+      {
+        "name": "getRuntimeMXBean",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.lang.management.RuntimeMXBean",
+    "methods": [
+      {
+        "name": "getInputArguments",
+        "parameterTypes": []
+      },
+      {
+        "name": "getName",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.lang.reflect.AccessibleObject",
+    "fields": [
+      {
+        "name": "override"
+      }
+    ]
+  },
+  {
+    "name": "java.math.BigDecimal",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "intVal",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "scale",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.math.BigInteger",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "bitCountPlusOne",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "bitLengthPlusOne",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "firstNonzeroIntNumPlusTwo",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "lowestSetBitPlusTwo",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "mag",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "signum",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.net.NetPermission"
+  },
+  {
+    "name": "java.net.SocketPermission"
+  },
+  {
+    "name": "java.net.URL",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "authority",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "file",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "hashCode",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "host",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "port",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "protocol",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "ref",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "readResolve",
+        "parameterTypes": []
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.net.URLPermission",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.String",
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.nio.Bits",
+    "fields": [
+      {
+        "name": "UNALIGNED"
+      }
+    ]
+  },
+  {
+    "name": "java.nio.Buffer",
+    "fields": [
+      {
+        "name": "address",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.nio.DirectByteBuffer",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "long",
+          "int"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.security.AllPermission"
+  },
+  {
+    "name": "java.security.MessageDigestSpi"
+  },
+  {
+    "name": "java.security.SecureRandomParameters"
+  },
+  {
+    "name": "java.security.SecurityPermission"
+  },
+  {
+    "name": "java.sql.Date",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "java.sql.Timestamp",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "nanos",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.text.DateFormat",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "calendar",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "numberFormat",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.text.Format",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "java.text.SimpleDateFormat",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "defaultCenturyStart",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "formatData",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "locale",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "pattern",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "serialVersionOnStream",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.AbstractCollection",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "java.util.AbstractList",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.util.AbstractMap",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.util.AbstractSequentialList",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.util.AbstractSet",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.util.ArrayList",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "size",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.BitSet",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "words",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.Calendar",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "areFieldsSet",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "fields",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "firstDayOfWeek",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "isSet",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "isTimeSet",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "lenient",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "minimalDaysInFirstWeek",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "nextStamp",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "serialVersionOnStream",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "time",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "zone",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.Date",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.Dictionary",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.util.GregorianCalendar",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "gregorianCutover",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.HashMap",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "loadFactor",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "threshold",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.Hashtable",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "loadFactor",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "threshold",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.LinkedList",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.Locale",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "readResolve",
+        "parameterTypes": []
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.PropertyPermission"
+  },
+  {
+    "name": "java.util.SimpleTimeZone",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "dstSavings",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "endDay",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "endDayOfWeek",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "endMode",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "endMonth",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "endTime",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "endTimeMode",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "monthLength",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "rawOffset",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "serialVersionOnStream",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "startDay",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "startDayOfWeek",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "startMode",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "startMonth",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "startTime",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "startTimeMode",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "startYear",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "useDaylight",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.TimeZone",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "ID",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "java.util.TreeMap",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "comparator",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.TreeSet",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.Vector",
+    "allDeclaredFields": true,
+    "fields": [
+      {
+        "name": "capacityIncrement",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "elementCount",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "elementData",
+        "allowUnsafeAccess": true
+      }
+    ],
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.concurrent.ConcurrentHashMap",
+    "allDeclaredFields": true,
+    "methods": [
+      {
+        "name": "readObject",
+        "parameterTypes": [
+          "java.io.ObjectInputStream"
+        ]
+      },
+      {
+        "name": "writeObject",
+        "parameterTypes": [
+          "java.io.ObjectOutputStream"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "javax.management.ObjectName"
+  },
+  {
+    "name": "jdk.internal.misc.Unsafe",
+    "methods": [
+      {
+        "name": "getUnsafe",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "reactor.netty.DisposableChannel",
+    "methods": [
+      {
+        "name": "address",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "reactor.netty.transport.ServerTransport$Acceptor",
+    "methods": [
+      {
+        "name": "channelRead",
+        "parameterTypes": [
+          "io.netty.channel.ChannelHandlerContext",
+          "java.lang.Object"
+        ]
+      },
+      {
+        "name": "exceptionCaught",
+        "parameterTypes": [
+          "io.netty.channel.ChannelHandlerContext",
+          "java.lang.Throwable"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "reactor.netty.transport.ServerTransport$AcceptorInitializer"
+  },
+  {
+    "name": "sun.misc.Unsafe",
+    "fields": [
+      {
+        "name": "theUnsafe"
+      }
+    ],
+    "methods": [
+      {
+        "name": "allocateInstance",
+        "parameterTypes": [
+          "java.lang.Class"
+        ]
+      },
+      {
+        "name": "copyMemory",
+        "parameterTypes": [
+          "java.lang.Object",
+          "long",
+          "java.lang.Object",
+          "long",
+          "long"
+        ]
+      },
+      {
+        "name": "getAndAddLong",
+        "parameterTypes": [
+          "java.lang.Object",
+          "long",
+          "long"
+        ]
+      },
+      {
+        "name": "getAndSetObject",
+        "parameterTypes": [
+          "java.lang.Object",
+          "long",
+          "java.lang.Object"
+        ]
+      },
+      {
+        "name": "invokeCleaner",
+        "parameterTypes": [
+          "java.nio.ByteBuffer"
+        ]
+      },
+      {
+        "name": "objectFieldOffset",
+        "parameterTypes": [
+          "java.lang.reflect.Field"
+        ]
+      },
+      {
+        "name": "putBoolean",
+        "parameterTypes": [
+          "java.lang.Object",
+          "long",
+          "boolean"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.nio.ch.SelectorImpl",
+    "fields": [
+      {
+        "name": "publicSelectedKeys",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "selectedKeys",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.NativePRNG",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.SHA",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
       }
     ]
   }
