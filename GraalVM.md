@@ -11,7 +11,7 @@ Prerequisites:
 
 ## Maven build
 ```bash
-mvn clean package -Pfrontend -Pnative-image
+mvn clean package -Pfrontend
 ```
 - Generate native image resources Configs
 ```bash
