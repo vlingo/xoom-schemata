@@ -24,7 +24,7 @@ using Vlingo.Xoom.Common.Version;
     </@compress>
 </#macro>
 
-namespace ${namespace}
+namespace ${namespace}.Events
 {
   public sealed class <@printTypeName />
   {
