@@ -180,7 +180,7 @@ public class JavaCodeGenTests extends CodeGenTests {
     final String fullyQualifiedTypeName = "Org:Unit:io.vlingo.xoom.mynamespace:SalutationHappened";
     final String result = compileSpecAndUnwrap(generatorFor("java"),typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1");
 
-    assertTrue(result.contains("package io.vlingo.xoom.mynamespace.events;"));
+    assertTrue(result.contains("package io.vlingo.xoom.mynamespace.event;"));
     assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
   }
 

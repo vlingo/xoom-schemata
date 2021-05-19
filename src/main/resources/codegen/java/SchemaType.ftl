@@ -1,4 +1,4 @@
-package ${namespace};
+package ${namespace}.event;
 
 import io.vlingo.xoom.common.version.SemanticVersion;
 <#if type = 'Event'>import io.vlingo.xoom.lattice.model.DomainEvent;</#if>
