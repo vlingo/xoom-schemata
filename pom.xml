@@ -134,9 +134,9 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.squareup</groupId>
-      <artifactId>javapoet</artifactId>
-      <version>1.11.1</version>
+      <groupId>org.freemarker</groupId>
+      <artifactId>freemarker</artifactId>
+      <version>2.3.31</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
