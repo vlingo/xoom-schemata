@@ -21,7 +21,7 @@
 	let chosenLang;
 	let langs = [
 		'Java',
-		'C#',
+		'CSharp',
 	]
 	let sourceCode = "";
 	let showPreviewModal = false;
@@ -77,7 +77,7 @@
 
 	// ($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, ($schemaVersionStore).schemaVersionId, "java")
 	const sourceCodeFor = (lang) => {
-		if(lang != "java" || !showCodeModal) return;
+		if(!showCodeModal) return;
 		SchemataRepository.loadSources(($organizationStore).name, ($unitStore).name, ($contextStore).namespace, ($schemaStore).name, ($schemaVersionStore).currentVersion, lang)
 			.then(code => {
 				console.log({code});
