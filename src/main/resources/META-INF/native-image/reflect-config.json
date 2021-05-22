@@ -1093,14 +1093,6 @@
     "allPublicConstructors": true,
     "fields": [
       {
-        "name": "organizationId",
-        "allowWrite": true
-      },
-      {
-        "name": "unitId",
-        "allowWrite": true
-      },
-      {
         "name": "contextId",
         "allowWrite": true
       },
@@ -1161,7 +1153,7 @@
         "allowWrite": true
       },
       {
-        "name": "ame",
+        "name": "name",
         "allowWrite": true
       }
     ]
@@ -1249,7 +1241,7 @@
         "allowWrite": true
       },
       {
-        "name": "currentVersion",
+        "name": "nextVersion",
         "allowWrite": true
       }
     ]
@@ -1767,6 +1759,12 @@
         "name": "<init>",
         "parameterTypes": []
       }
+    ],
+    "fields": [
+      {
+        "name": "schemaVersions",
+        "allowWrite": true
+      }
     ]
   },
   {
@@ -1777,6 +1775,40 @@
         "name": "<init>",
         "parameterTypes": []
       }
+    ],
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "category",
+        "allowWrite": true
+      },
+      {
+        "name": "scope",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
     ]
   },
   {
@@ -1786,6 +1818,12 @@
       {
         "name": "<init>",
         "parameterTypes": []
+      }
+    ],
+    "fields": [
+      {
+        "name": "schemas",
+        "allowWrite": true
       }
     ]
   },
