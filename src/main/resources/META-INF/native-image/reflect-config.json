@@ -951,6 +951,30 @@
     ]
   },
   {
+    "name": "io.vlingo.xoom.schemata.model.Events$ContextRedefined",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
     "name": "io.vlingo.xoom.schemata.model.Events$OrganizationDefined",
     "allPublicFields": true,
     "allPublicMethods": true,
@@ -991,6 +1015,38 @@
     ]
   },
   {
+    "name": "io.vlingo.xoom.schemata.model.Events$OrganizationDescribed",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$OrganizationRenamed",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
     "name": "io.vlingo.xoom.schemata.model.Events$SchemaDefined",
     "allPublicFields": true,
     "allPublicMethods": true,
@@ -1026,6 +1082,126 @@
       },
       {
         "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaRedefined",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "category",
+        "allowWrite": true
+      },
+      {
+        "name": "scope",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaDescribed",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaRenamed",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "ame",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaCategorized",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "category",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaScoped",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "scope",
         "allowWrite": true
       }
     ]
@@ -1079,6 +1255,94 @@
     ]
   },
   {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaVersionDescribed",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaVersionId",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaVersionSpecified",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaVersionId",
+        "allowWrite": true
+      },
+      {
+        "name": "specification",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaVersionPublished",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaVersionId",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaVersionDeprecated",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaVersionId",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$SchemaVersionRemoved",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "schemaVersionId",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
     "name": "io.vlingo.xoom.schemata.model.Events$UnitDefined",
     "allPublicFields": true,
     "allPublicMethods": true,
@@ -1094,6 +1358,70 @@
       },
       {
         "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$UnitRedefined",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$UnitRenamed",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      }
+    ]
+  },
+  {
+    "name": "io.vlingo.xoom.schemata.model.Events$UnitDescribed",
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
         "allowWrite": true
       },
       {
@@ -1291,6 +1619,24 @@
         "name": "<init>",
         "parameterTypes": []
       }
+    ],
+    "fields": [
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "namespace",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
     ]
   },
   {
@@ -1301,11 +1647,37 @@
         "name": "<init>",
         "parameterTypes": []
       }
+    ],
+    "fields": [
+      {
+        "name": "contexts",
+        "allowWrite": true
+      }
     ]
   },
   {
     "name": "io.vlingo.xoom.schemata.query.view.ContextsView$ContextItem",
-    "allDeclaredFields": true
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "namespace",
+        "allowWrite": true
+      },
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
   },
   {
     "name": "io.vlingo.xoom.schemata.query.view.NamedSchemaView",
@@ -1324,6 +1696,20 @@
       {
         "name": "<init>",
         "parameterTypes": []
+      }
+    ],
+    "fields": [
+      {
+        "name": "organizationId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
       }
     ]
   },
@@ -1405,7 +1791,35 @@
   },
   {
     "name": "io.vlingo.xoom.schemata.query.view.SchemasView$SchemaItem",
-    "allDeclaredFields": true
+    "allPublicFields": true,
+    "allPublicMethods": true,
+    "allPublicConstructors": true,
+    "fields": [
+      {
+        "name": "schemaId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "contextId",
+        "allowWrite": true
+      },
+      {
+        "name": "category",
+        "allowWrite": true
+      },
+      {
+        "name": "scope",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
+      }
+    ]
   },
   {
     "name": "io.vlingo.xoom.schemata.query.view.UnitView",
@@ -1414,6 +1828,20 @@
       {
         "name": "<init>",
         "parameterTypes": []
+      }
+    ],
+    "fields": [
+      {
+        "name": "unitId",
+        "allowWrite": true
+      },
+      {
+        "name": "name",
+        "allowWrite": true
+      },
+      {
+        "name": "description",
+        "allowWrite": true
       }
     ]
   },
