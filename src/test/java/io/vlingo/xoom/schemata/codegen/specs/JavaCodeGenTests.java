@@ -177,7 +177,6 @@ public class JavaCodeGenTests extends CodeGenTests {
   }
 
   @Test
-  @Ignore
   public void testThatGeneratesAComposedTypeWithNamespace() throws ExecutionException, InterruptedException, SchemataBusinessException {
     registerType("types/price", "Org:Unit:io.vlingo.dev:Schema:Price", "1.0.0");
     final String result = compileSpecAndUnwrap(generatorFor("java"),typeDefinition("price-created"), "Org:Unit:io.vlingo.dev:Schema:PriceCreated", "0.5.1");
