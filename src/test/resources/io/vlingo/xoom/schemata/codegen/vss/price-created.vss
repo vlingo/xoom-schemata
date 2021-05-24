@@ -1,0 +1,5 @@
+event PriceCreated {
+    version eventVersion
+    timestamp occurredOn
+    Org:Unit:io.vlingo.dev:Schema:Price:1.0.0 price
+}

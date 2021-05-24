@@ -9,6 +9,7 @@ package io.vlingo.xoom.schemata.codegen.specs;
 
 import io.vlingo.xoom.schemata.codegen.CodeGenTests;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
@@ -173,6 +174,25 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(\"0.5.1\");"));
     assertTrue(result.contains("this.oldPrice = oldPrice;"));
     assertTrue(result.contains("this.newPrice = newPrice;"));
+  }
+
+  @Test
+  @Ignore
+  public void testThatGeneratesAComposedTypeWithNamespace() throws ExecutionException, InterruptedException, SchemataBusinessException {
+    registerType("types/price", "Org:Unit:io.vlingo.dev:Schema:Price", "1.0.0");
+    final String result = compileSpecAndUnwrap(generatorFor("java"),typeDefinition("price-created"), "Org:Unit:io.vlingo.dev:Schema:PriceCreated", "0.5.1");
+
+    assertTrue(result.contains("import io.vlingo.xoom.common.version.SemanticVersion;"));
+    assertTrue(result.contains("import io.vlingo.xoom.common.version.SemanticVersion;"));
+    assertTrue(result.contains("import io.vlingo.xoom.lattice.model.DomainEvent;"));
+    assertTrue(result.contains("public final class PriceCreated extends DomainEvent {"));
+    assertTrue(result.contains("public final long occurredOn;"));
+    assertTrue(result.contains("public final int eventVersion;"));
+    assertTrue(result.contains("public final Price price;"));
+    assertTrue(result.contains("public PriceChanged(final Price price) {"));
+    assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
+    assertTrue(result.contains("this.eventVersion = SemanticVersion.toValue(\"0.5.1\");"));
+    assertTrue(result.contains("this.price = price;"));
   }
 
   @Test
