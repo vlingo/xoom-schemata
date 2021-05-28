@@ -7,6 +7,10 @@
 
 package io.vlingo.xoom.schemata.infra.persistence;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.lattice.model.DomainEvent;
 import io.vlingo.xoom.lattice.model.IdentifiedDomainEvent;
@@ -14,15 +18,15 @@ import io.vlingo.xoom.lattice.model.projection.Projectable;
 import io.vlingo.xoom.lattice.model.projection.StateStoreProjectionActor;
 import io.vlingo.xoom.schemata.Schemata;
 import io.vlingo.xoom.schemata.model.Events;
-import io.vlingo.xoom.schemata.query.view.*;
+import io.vlingo.xoom.schemata.query.view.CodeView;
+import io.vlingo.xoom.schemata.query.view.ContextView;
+import io.vlingo.xoom.schemata.query.view.OrganizationView;
+import io.vlingo.xoom.schemata.query.view.SchemaVersionView;
+import io.vlingo.xoom.schemata.query.view.SchemaView;
+import io.vlingo.xoom.schemata.query.view.UnitView;
 import io.vlingo.xoom.symbio.Entry;
 import io.vlingo.xoom.symbio.Source;
 import io.vlingo.xoom.symbio.store.state.StateStore;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class CodeProjection extends StateStoreProjectionActor<CodeView> {
 	private String dataId;

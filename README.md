@@ -12,13 +12,24 @@ The VLINGO XOOM Schema Registry.
 
 ## Quick Start
 
+### Docker
+
+The quickest way to run XOOM Schemata is to use the [docker image](https://hub.docker.com/r/vlingo/xoom-schemata)
+published by the VLINGO XOOM Team:
+
+```bash
+docker run -it --rm -eXOOM_ENV=dev -p '9019:9019' vlingo/xoom-schemata
+```
+
+### Maven
+
 :warning: Make sure you are using a Java 8 JDK.
 
 Build <pre><code>& "<b>{yourInstallPath}</b>\xoom-schemata\mvnw.cmd" clean package -Pfrontend -f "<b>{yourInstallPath}</b>\xoom-schemata\pom.xml"</code></pre>
 *e.g. <pre><code>& "<b>d:\vlingo</b>\xoom-schemata\mvnw.cmd" clean package -Pfrontend -f "<b>d:\vlingo</b>\xoom-schemata\pom.xml"</code></pre>*
 
 Run <pre><code>java -jar target/xoom-schemata-<b>{version}</b>-jar-with-dependencies.jar</code></pre>
-*e.g. <pre><code>java -jar target/xoom-schemata-<b>1.5.1-SNAPSHOT</b>-jar-with-dependencies.jar</code></pre>*
+*e.g. <pre><code>java -jar target/xoom-schemata-<b>1.7.8-SNAPSHOT</b>-jar-with-dependencies.jar</code></pre>*
 
 We provide an interface to allow for easy retrieval of schemata and 
 schemata meta information, e.g. available versions and publication status.
@@ -40,9 +51,9 @@ The maven build takes care of the following:
 * Run the UI build (`npm run export` in `src/main/frontend`) [Maven Profile 'frontend']
 * Package the backend, frontend and dependencies within a fat jar
 
-#### Docker Build:
-After building, you can optionally build the docker container with `docker build . -t vlingo/xoom-schemata`.
+#### Docker Build
 
+After building, you can optionally build the docker container with `docker build . -t vlingo/xoom-schemata`.
 
 ### Run
 

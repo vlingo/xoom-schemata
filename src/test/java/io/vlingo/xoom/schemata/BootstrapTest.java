@@ -7,13 +7,13 @@
 
 package io.vlingo.xoom.schemata;
 
-import org.junit.After;
-import org.junit.Test;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.URL;
 
-import static org.junit.Assert.fail;
+import org.junit.After;
+import org.junit.Test;
 
 public class BootstrapTest {
 

@@ -1,31 +1,35 @@
 <script>
+	import { TextField, Textarea, Select } from 'svelte-materialify/src';
 	import CardForm from '../components/form/CardForm.svelte';
-	import ValidatedInput from '../components/form/ValidatedInput.svelte';
-	import Select from '../components/form/Select.svelte';
+	import OrganizationSelect from '../components/form/OrganizationSelect.svelte';
+	import UnitSelect from '../components/form/UnitSelect.svelte';
+	import ContextSelect from '../components/form/ContextSelect.svelte';
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, unitsStore, unitStore } from '../stores';
 	import { isEmpty } from '../utils';
 	import errors from "../errors";
+	import { writable } from 'svelte/store';
 	const validName = (name) => {
 		return /^([a-z_]\d*(\.[a-z_])?)+$/.test(name) ? undefined : errors.NAMESPACE; //underscore should also be possible! see https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
 	}
+	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
 
 	let namespace;
 	let description;
 
-	let compatibleUnits = [];
-	let compatibleContexts = [];
+	let compatibleUnits = writable([]);
+	let compatibleContexts = writable([]);
 
 	let fullyQualified;
 
 	function changedOrganization(store) {
-		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId === store.organizationId) : [];
-		$unitStore = compatibleUnits.length ? compatibleUnits[compatibleUnits.length-1] : undefined;
+		$compatibleUnits = store ? $unitsStore.filter(u => u.organizationId === store.organizationId) : [];
+		$unitStore = $compatibleUnits.length ? $compatibleUnits[$compatibleUnits.length-1] : undefined;
 	}
 
 	function changedUnit(store) {
-		compatibleContexts = store ? $contextsStore.filter(c => c.unitId === store.unitId) : [];
-		$contextStore = compatibleContexts.length ? compatibleContexts[compatibleContexts.length-1] : undefined;
+		$compatibleContexts = store ? $contextsStore.filter(c => c.unitId === store.unitId) : [];
+		$contextStore = $compatibleContexts.length ? $compatibleContexts[$compatibleContexts.length-1] : undefined;
 	}
 
 	function changedContext(store) {
@@ -72,16 +76,15 @@
 		$contextsStore = [...$contextsStore, obj];
 	}
 	function updateSelects() {
-		// maybe also units..
-		compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
+		$compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
 	}
 
-	$: changedOrganization($organizationStore)
-	$: changedUnit($unitStore)
+	$: changedOrganization($organizationStore);
+	$: changedUnit($unitStore);
 	$: changedContext($contextStore);
 	$: definable = namespace && description && $organizationStore && $unitStore;
 	$: redefinable = definable && $contextStore;
-  $: showNewButton = $contextsStore.length > 0;
+	$: showNewButton = $contextsStore.length > 0;
 </script>
 
 <svelte:head>
@@ -91,12 +94,11 @@
 <CardForm title="Context" linkToNext="New Schema" prevLink="unit" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
-	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
-	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
+	<OrganizationSelect/>
+	<UnitSelect {compatibleUnits}/>
 	{#if !defineMode}
-		<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
+		<ContextSelect {compatibleContexts}/>
 	{/if}
-
-	<ValidatedInput label="Namespace" placeholder="your.namespace.here" bind:value={namespace} validator={validName}/>
-	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
+	<TextField class="mb-4 pb-4" placeholder="your.namespace.here" bind:value={namespace} rules={[notEmpty, validName]}>Namespace</TextField>
+	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>

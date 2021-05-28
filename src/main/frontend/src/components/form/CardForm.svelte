@@ -53,7 +53,6 @@
 				{:else}
 					<Button color="primary" text="Define" on:click={() => dispatch("define")} disabled={isDefineDisabled}/>
 				{/if}
-				<!-- disabled doesn't work on a-href, so just don't show the button when not needed: -->
 				{#if !isNextDisabled}
 					<Button color="primary" icon={mdiChevronRight} outline text={linkToNext} {href} disabled={isNextDisabled}/>
 				{/if}

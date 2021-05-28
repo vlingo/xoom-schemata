@@ -7,13 +7,31 @@
 
 package io.vlingo.xoom.schemata.resource;
 
-import io.vlingo.xoom.actors.Grid;
+import static io.vlingo.xoom.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.xoom.http.Response.Status.BadRequest;
+import static io.vlingo.xoom.http.Response.Status.Conflict;
+import static io.vlingo.xoom.http.Response.Status.Created;
+import static io.vlingo.xoom.http.Response.Status.InternalServerError;
+import static io.vlingo.xoom.http.Response.Status.NotFound;
+import static io.vlingo.xoom.http.Response.Status.Ok;
+import static io.vlingo.xoom.http.ResponseHeader.ContentType;
+import static io.vlingo.xoom.http.ResponseHeader.Location;
+import static io.vlingo.xoom.http.ResponseHeader.of;
+import static io.vlingo.xoom.http.resource.ResourceBuilder.get;
+import static io.vlingo.xoom.http.resource.ResourceBuilder.patch;
+import static io.vlingo.xoom.http.resource.ResourceBuilder.post;
+import static io.vlingo.xoom.http.resource.ResourceBuilder.put;
+import static io.vlingo.xoom.http.resource.ResourceBuilder.resource;
+import static io.vlingo.xoom.schemata.Schemata.NoId;
+import static io.vlingo.xoom.schemata.Schemata.UnitsPath;
+
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.http.Header.Headers;
 import io.vlingo.xoom.http.Response;
 import io.vlingo.xoom.http.ResponseHeader;
 import io.vlingo.xoom.http.resource.DynamicResourceHandler;
 import io.vlingo.xoom.http.resource.Resource;
+import io.vlingo.xoom.lattice.grid.Grid;
 import io.vlingo.xoom.schemata.infra.persistence.StorageProvider;
 import io.vlingo.xoom.schemata.model.Id.OrganizationId;
 import io.vlingo.xoom.schemata.model.Id.UnitId;
@@ -21,13 +39,6 @@ import io.vlingo.xoom.schemata.model.Naming;
 import io.vlingo.xoom.schemata.model.Unit;
 import io.vlingo.xoom.schemata.query.UnitQueries;
 import io.vlingo.xoom.schemata.resource.data.UnitData;
-
-import static io.vlingo.xoom.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.xoom.http.Response.Status.*;
-import static io.vlingo.xoom.http.ResponseHeader.*;
-import static io.vlingo.xoom.http.resource.ResourceBuilder.*;
-import static io.vlingo.xoom.schemata.Schemata.NoId;
-import static io.vlingo.xoom.schemata.Schemata.UnitsPath;
 
 public class UnitResource extends DynamicResourceHandler {
   private final Grid grid;
@@ -49,7 +60,7 @@ public class UnitResource extends DynamicResourceHandler {
     return Unit.with(grid, OrganizationId.existing(organizationId), data.name, data.description)
             .andThenTo(3000, state -> {
                 final String location = unitLocation(state.unitId);
-                final Headers<ResponseHeader> headers =Headers.of(
+                final Headers<ResponseHeader> headers = Headers.of(
                         of(Location, location),
                         of(ContentType, "application/json; charset=UTF-8")
                 );

@@ -34,8 +34,15 @@ public class SchemaQueriesActor extends StateStoreQueryActor implements SchemaQu
 
     @Override
     public Completes<NamedSchemaView> schemaByNames(String organization, String unit, String context, String schema) {
-        Path path = Path.with(organization, unit, context, schema);
-        String reference = path.toReference();
-        return queryStateFor(reference, NamedSchemaView.class);
+        return queryStateFor(schemaReference(organization, unit, context, schema), NamedSchemaView.class);
+    }
+
+    @Override
+    public Completes<NamedSchemaView> schemaByNamesWithRetries(String organization, String unit, String context, String schema, int retryInterval, int retryTotal) {
+        return queryStateFor(schemaReference(organization, unit, context, schema), NamedSchemaView.class, retryInterval, retryTotal);
+    }
+
+    private String schemaReference(String organization, String unit, String context, String schema) {
+        return Path.with(organization, unit, context, schema).toReference();
     }
 }

@@ -7,17 +7,33 @@
 
 package io.vlingo.xoom.schemata.resource;
 
-import io.vlingo.xoom.common.serialization.JsonSerialization;
-import io.vlingo.xoom.http.Response;
-import io.vlingo.xoom.schemata.model.*;
-import io.vlingo.xoom.schemata.model.SchemaVersion.Status;
-import io.vlingo.xoom.schemata.resource.data.SchemaVersionData;
-import org.junit.Ignore;
+import static io.vlingo.xoom.http.Response.Status.BadRequest;
+import static io.vlingo.xoom.http.Response.Status.Created;
+import static io.vlingo.xoom.http.Response.Status.NotFound;
+import static io.vlingo.xoom.http.ResponseHeader.Location;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
-import static io.vlingo.xoom.http.Response.Status.*;
-import static io.vlingo.xoom.http.ResponseHeader.Location;
-import static org.junit.Assert.*;
+import io.vlingo.xoom.common.serialization.JsonSerialization;
+import io.vlingo.xoom.http.Response;
+import io.vlingo.xoom.schemata.model.Category;
+import io.vlingo.xoom.schemata.model.Context;
+import io.vlingo.xoom.schemata.model.ContextState;
+import io.vlingo.xoom.schemata.model.Id;
+import io.vlingo.xoom.schemata.model.Organization;
+import io.vlingo.xoom.schemata.model.OrganizationState;
+import io.vlingo.xoom.schemata.model.Schema;
+import io.vlingo.xoom.schemata.model.SchemaState;
+import io.vlingo.xoom.schemata.model.SchemaVersion.Status;
+import io.vlingo.xoom.schemata.model.Scope;
+import io.vlingo.xoom.schemata.model.Unit;
+import io.vlingo.xoom.schemata.model.UnitState;
+import io.vlingo.xoom.schemata.resource.data.SchemaVersionData;
 
 public class SchemaVersionResourceTest extends ResourceTest {
     private static final String OrgId = "O123";
@@ -60,7 +76,6 @@ public class SchemaVersionResourceTest extends ResourceTest {
     }
 
     @Test
-    @Ignore //FIXME: Doesn't hang anymore, but NullPointerException. (old: https://github.com/vlingo/xoom-schemata/issues/135)
     public void testThatSchemaVersionMinorUpgradeIsDefined() {
         final SchemaVersionResource resource = new SchemaVersionResource(stage);
         final SchemaVersionData previousData = SchemaVersionData.just(SchemaVersionSpecification, SchemaVersionDescription, "", SchemaVersionVersion000, SchemaVersionVersion100);

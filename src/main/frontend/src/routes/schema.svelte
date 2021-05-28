@@ -1,14 +1,20 @@
 <script>
+	import { TextField, Textarea, Select } from 'svelte-materialify/src';
 	import CardForm from '../components/form/CardForm.svelte';
-	import ValidatedInput from '../components/form/ValidatedInput.svelte';
-	import Select from '../components/form/Select.svelte';
+	import OrganizationSelect from '../components/form/OrganizationSelect.svelte';
+	import UnitSelect from '../components/form/UnitSelect.svelte';
+	import ContextSelect from '../components/form/ContextSelect.svelte';
+	import SchemaSelect from '../components/form/SchemaSelect.svelte';
 	import SchemataRepository from '../api/SchemataRepository';
 	import { contextsStore, contextStore, organizationsStore, organizationStore, schemasStore, schemaStore, unitsStore, unitStore } from '../stores';
+	import { writable } from 'svelte/store';
 	import { isEmpty } from '../utils';
 	import errors from '../errors';
+
 	const validName = (name) => {
 		return /^[A-Z][a-zA-Z\d]*$/.test(name) ? undefined : errors.CLASSNAME;
 	}
+	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
 	let categorySelect = [
 		{ name: "Command", value: "Command" },
 		{ name: "Data", value: "Data" },
@@ -27,26 +33,26 @@
 	let category = ["Event"];
 	let scope = ["Public"];
 
-	let compatibleUnits = [];
-	let compatibleContexts = [];
-	let compatibleSchemas = [];
+	let compatibleUnits = writable([]);
+	let compatibleContexts = writable([]);
+	let compatibleSchemas = writable([]);
 
 	let fullyQualified;
 // 	$: fullyQualified = getFullyQualifiedName("organization", $organizationStore);
 
 	function changedOrganization(store) {
-		compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
-		$unitStore = compatibleUnits.length > 0 ? compatibleUnits[compatibleUnits.length-1] : undefined;
+		$compatibleUnits = store ? $unitsStore.filter(u => u.organizationId == store.organizationId) : [];
+		$unitStore = $compatibleUnits.length > 0 ? $compatibleUnits[$compatibleUnits.length-1] : undefined;
 	}
 
 	function changedUnit(store) {
-		compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
-		$contextStore = compatibleContexts.length > 0 ? compatibleContexts[compatibleContexts.length-1] : undefined;
+		$compatibleContexts = store ? $contextsStore.filter(c => c.unitId == store.unitId) : [];
+		$contextStore = $compatibleContexts.length > 0 ? $compatibleContexts[$compatibleContexts.length-1] : undefined;
 	}
 
 	function changedContext(store) {
-		compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
-		$schemaStore = compatibleSchemas.length > 0 ? compatibleSchemas[compatibleSchemas.length-1] : undefined;
+		$compatibleSchemas = store ? $schemasStore.filter(s => s.contextId == store.contextId) : [];
+		$schemaStore = $compatibleSchemas.length > 0 ? $compatibleSchemas[$compatibleSchemas.length-1] : undefined;
 	}
 
 	function changedSchema(store) {
@@ -99,8 +105,7 @@
 		$schemasStore = [...$schemasStore, obj];
 	}
 	function updateSelects() {
-		// maybe also other compatibles..
-		compatibleSchemas = $contextStore ? $schemasStore.filter(s => s.contextId == $contextStore.contextId) : [];
+		$compatibleSchemas = $contextStore ? $schemasStore.filter(s => s.contextId == $contextStore.contextId) : [];
 	}
 
 	$: changedOrganization($organizationStore);
@@ -109,7 +114,7 @@
 	$: changedSchema($schemaStore);
 	$: definable = !validName(name) && name && description && $organizationStore && $unitStore && $contextStore && scope[0] && category[0];
 	$: redefinable = definable && $schemaStore;
-  $: showNewButton = $schemasStore.length > 0;
+	$: showNewButton = $schemasStore.length > 0;
 </script>
 
 <svelte:head>
@@ -119,19 +124,18 @@
 <CardForm title="Schema" linkToNext="New Schema Version"  prevLink="context" href="schemaVersion" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
-	<Select label="Organization" storeOne={organizationStore} storeAll={organizationsStore} arrayOfSelectables={$organizationsStore}/>
-	<Select label="Unit" storeOne={unitStore} storeAll={unitsStore} arrayOfSelectables={compatibleUnits} containerClasses="folder-inset1"/>
-	<Select label="Context" storeOne={contextStore} storeAll={contextsStore} arrayOfSelectables={compatibleContexts} containerClasses="folder-inset2"/>
+	<OrganizationSelect/>
+	<UnitSelect {compatibleUnits}/>
+	<ContextSelect {compatibleContexts}/>
 	{#if !defineMode}
-		<Select label="Schema" storeOne={schemaStore} storeAll={schemasStore} arrayOfSelectables={compatibleSchemas} containerClasses="folder-inset3"/>
+		<SchemaSelect {compatibleSchemas}/>
 	{/if}
-
 	<span class="flex-two-col">
-		<ValidatedInput type="select" label="Category" bind:value={category} options={categorySelect}/>
-		<ValidatedInput type="select" label="Scope" bind:value={scope} options={scopeSelect}/>
+		<Select class="flex-child" mandatory bind:value={category} items={categorySelect}>Category</Select>
+		<Select class="flex-child" mandatory bind:value={scope} items={scopeSelect}>Scope</Select>
 	</span>
-	<ValidatedInput label="Name" bind:value={name} validator={validName}/>
-	<ValidatedInput type="textarea" label="Description" bind:value={description}/>
+	<TextField class="mb-4 pb-4" bind:value={name} rules={[notEmpty, validName]}>Name</TextField>
+	<Textarea bind:value={description} rules={[notEmpty]}>Description</Textarea>
 </CardForm>
 
 

@@ -7,19 +7,24 @@
 
 package io.vlingo.xoom.schemata.resource;
 
-// import io.vlingo.xoom.actors.CompletesEventually;
-import io.vlingo.xoom.http.*;
-import io.vlingo.xoom.schemata.Schemata;
-import io.vlingo.xoom.schemata.model.Category;
-import io.vlingo.xoom.schemata.model.Scope;
-import io.vlingo.xoom.schemata.resource.data.*;
+import static io.vlingo.xoom.http.Response.Status.Ok;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static io.vlingo.xoom.http.Response.Status.Ok;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+// import io.vlingo.xoom.actors.CompletesEventually;
+import io.vlingo.xoom.http.Response;
+import io.vlingo.xoom.schemata.Schemata;
+import io.vlingo.xoom.schemata.model.Category;
+import io.vlingo.xoom.schemata.model.Scope;
+import io.vlingo.xoom.schemata.resource.data.ContextData;
+import io.vlingo.xoom.schemata.resource.data.OrganizationData;
+import io.vlingo.xoom.schemata.resource.data.SchemaData;
+import io.vlingo.xoom.schemata.resource.data.SchemaVersionData;
+import io.vlingo.xoom.schemata.resource.data.UnitData;
 
 public class JavaCodeResourceTest extends ResourceTest {
   @Test

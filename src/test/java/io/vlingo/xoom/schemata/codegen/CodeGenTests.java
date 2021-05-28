@@ -12,7 +12,6 @@ import io.vlingo.xoom.actors.testkit.TestWorld;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.codegen.ast.Node;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
-import io.vlingo.xoom.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
@@ -45,14 +44,14 @@ public abstract class CodeGenTests {
         world.terminate();
     }
 
-    protected final TypeDefinitionCompiler compilerWithJavaBackend() {
+    protected final TypeDefinitionCompiler generatorFor(String language) {
         return new TypeDefinitionCompilerActor(
                 typeParser,
                 Arrays.asList(
                         world.actorFor(Processor.class, ComputableTypeProcessor.class),
                         world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
                 ),
-                new JavaBackend()
+                language
         );
     }
 

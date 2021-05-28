@@ -7,6 +7,16 @@
 
 package io.vlingo.xoom.schemata.resource;
 
+import static io.vlingo.xoom.http.Response.Status.Created;
+import static io.vlingo.xoom.http.Response.Status.NotFound;
+import static io.vlingo.xoom.http.ResponseHeader.Location;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
 import io.vlingo.xoom.common.serialization.JsonSerialization;
 import io.vlingo.xoom.http.Response;
 import io.vlingo.xoom.schemata.model.Organization;
@@ -14,12 +24,6 @@ import io.vlingo.xoom.schemata.model.OrganizationState;
 import io.vlingo.xoom.schemata.model.Unit;
 import io.vlingo.xoom.schemata.model.UnitState;
 import io.vlingo.xoom.schemata.resource.data.ContextData;
-import org.junit.Test;
-
-import static io.vlingo.xoom.http.Response.Status.Created;
-import static io.vlingo.xoom.http.Response.Status.NotFound;
-import static io.vlingo.xoom.http.ResponseHeader.Location;
-import static org.junit.Assert.*;
 
 public class ContextResourceTest extends ResourceTest {
   private static final String OrgId = "O123";
