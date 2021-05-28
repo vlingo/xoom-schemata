@@ -178,7 +178,7 @@ public class CSharpCodeGenTests extends CodeGenTests {
     final String fullyQualifiedTypeName = "Org:Unit:io.vlingo.xoom.mynamespace:SalutationHappened";
     final String result = compileSpecAndUnwrap(generatorFor("csharp"),typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1");
 
-    assertTrue(result.contains("namespace io.vlingo.xoom.mynamespace.Events"));
+    assertTrue(result.contains("namespace io.vlingo.xoom.mynamespace.events"));
     assertTrue(result.contains("public sealed class SalutationHappened : DomainEvent"));
   }
 

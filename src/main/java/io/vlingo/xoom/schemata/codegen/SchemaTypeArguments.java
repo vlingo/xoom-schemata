@@ -65,7 +65,7 @@ public class SchemaTypeArguments {
     private String extractNamespace(String fqdn) {
         int i = fqdn.indexOf(':', fqdn.indexOf(':') + 1) + 1;
         int j = fqdn.indexOf(':', i);
-        return fqdn.substring(i, j);
+        return fqdn.substring(i, j) + ".events";
     }
 
     private List<Property> extractProperties(String language, TypeDefinition root) {
