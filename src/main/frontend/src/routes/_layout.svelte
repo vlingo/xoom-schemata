@@ -13,6 +13,7 @@
 	import { mdiMenu, mdiWeatherNight, mdiWeatherSunny, mdiGithub } from '@mdi/js';
 	import { onMount } from 'svelte';
 	import SiteNavigation from '../components/SiteNavigation.svelte';
+	import logo from '../images/xoom-horizontal_schemata.png';
 
 	export let segment;
 
@@ -60,7 +61,13 @@
     	    </Button>
     	  {/if}
 		</div>
-		<a href="." slot="title" class="text--primary"><span style="color: var(--theme-text-primary)"> VLINGO XOOM Schemata </span></a>
+		<a href="." slot="title" class="text--primary d-flex">
+			<img
+				style="width: 256px;"
+				src={logo}
+				alt="VLINGO XOOM Schemata"
+			/>
+		</a>
 		<div style="flex-grow:1" />
     	<a href="https://github.com/vlingo/xoom-schemata" target="_blank" rel="noopener">
     	  <Button class="white-text grey darken-3" aria-label="GitHub" fab>
