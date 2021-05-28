@@ -180,4 +180,16 @@ public class JavaCodeGenTests extends CodeGenTests {
     assertNotNull("Parsing an invalid schema should report an exception", expected[0]);
     assertFalse("Parsing an invalid schema must not yield a successful result", hitSuccess[0]);
   }
+
+  @Test
+  public void testThatGeneratesTypeWithComputedOnlyFields() {
+    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(), typeDefinition("computedOnly"), fullyQualifiedTypeName, "0.0.1");
+
+    assertTrue(result.contains("public SalutationHappened()"));
+
+    assertTrue(result.contains("this.name = \"SalutationHappened\";"));
+    assertTrue(result.contains("this.publishedOn = System.currentTimeMillis();"));
+    assertTrue(result.contains("this.publishedVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue(\"0.0.1\");"));
+  }
 }

@@ -1,0 +1,5 @@
+event SalutationHappened {
+    type name
+    timestamp publishedOn
+    version publishedVersion
+}
