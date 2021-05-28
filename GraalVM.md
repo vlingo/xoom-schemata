@@ -18,11 +18,13 @@ mvn clean package -Pfrontend
 java -agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/native-image/io.vlingo.xoom/xoom-schemata -jar target/xoom-schemata-<version>-SNAPSHOT-jar-with-dependencies.jar dev
 ```
 ### Tips to load more resources and reflection for the agent
-- Reload the web page from the browser
-- Test max functionality of the app
+- Open browser and Reload all web pages to register all resources files
+- Test functionality 
+- Delete from resource-config.json all `{"pattern":"\\Qfrontend/<directory>\\E"},`
 - Adding missing serialization:
 ```json
-
+[
+  ...
   {
     "name": "java.sql.Timestamp"
   },
@@ -56,6 +58,8 @@ java -agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/
   {
     "name": "java.lang.String"
   },
+  ...
+]
 ```
 
 ## Native Image Maven Plugin & GraalVM SDK
