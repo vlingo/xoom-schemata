@@ -3,9 +3,9 @@
   "includes":[
     {"pattern":"\\QMETA-INF/mime.types\\E"}, 
     {"pattern":"\\QMETA-INF/mimetypes.default\\E"}, 
-    {"pattern":"\\QMETA-INF/native/libnetty_transport_native_kqueue_x86_64.jnilib\\E"},
-    {"pattern":"\\QMETA-INF/native/libnetty_transport_native_epoll_x86_64.so\\E"},
-    {"pattern":"\\QMETA-INF/native/libnetty_transport_native_epoll.so\\E"},
+    {"pattern":"\\QMETA-INF/native/libnetty_transport_native_kqueue_x86_64.jnilib\\E"}, 
+    {"pattern":"\\QMETA-INF/services/java.nio.file.spi.FileSystemProvider\\E"}, 
+    {"pattern":"\\QMETA-INF/services/javax.annotation.processing.Processor\\E"}, 
     {"pattern":"\\Qcodegen/java/SchemaType.ftl\\E"}, 
     {"pattern":"\\Qfreemarker/ext/beans/DefaultMemberAccessPolicy-rules\\E"}, 
     {"pattern":"\\Qfreemarker/version.properties\\E"}, 
@@ -25,9 +25,7 @@
     {"pattern":"\\Qfrontend/client/inject_styles.5607aec6.js\\E"}, 
     {"pattern":"\\Qfrontend/client/organization.005de748.js\\E"}, 
     {"pattern":"\\Qfrontend/client/purify.4e31d757.js\\E"}, 
-    {"pattern":"\\Qfrontend/client/schema-b49171da.css\\E"}, 
     {"pattern":"\\Qfrontend/client/schema.bb0570d2.js\\E"}, 
-    {"pattern":"\\Qfrontend/client/schemaVersion-dd627ee1.css\\E"}, 
     {"pattern":"\\Qfrontend/client/schemaVersion.9c0acfc2.js\\E"}, 
     {"pattern":"\\Qfrontend/client/unit.21de1809.js\\E"}, 
     {"pattern":"\\Qfrontend/context/index.html\\E"}, 
@@ -37,17 +35,16 @@
     {"pattern":"\\Qfrontend/logo-192.png\\E"}, 
     {"pattern":"\\Qfrontend/logo-512.png\\E"}, 
     {"pattern":"\\Qfrontend/manifest.json\\E"}, 
-    {"pattern":"\\Qfrontend/organization/index.html\\E"}, 
-    {"pattern":"\\Qfrontend/schema/index.html\\E"},
-    {"pattern":"\\Qfrontend/schemaVersion/index.html\\E"}, 
-    {"pattern":"\\Qfrontend/schemaVersion\\E"}, 
-    {"pattern":"\\Qfrontend/service-worker-index.html\\E"},
+    {"pattern":"\\Qfrontend/service-worker-index.html\\E"}, 
     {"pattern":"\\Qfrontend/service-worker.js\\E"}, 
-    {"pattern":"\\Qfrontend/unit/index.html\\E"}, 
-    {"pattern":"\\Qlogback.xml\\E"},
+    {"pattern":"\\Qlogback.xml\\E"}, 
     {"pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"}, 
+    {"pattern":"\\Qxoom-actors.properties\\E"}, 
     {"pattern":"\\Qxoom-cluster.properties\\E"}, 
     {"pattern":"\\Qxoom-schemata-dev.properties\\E"}
   ]},
-  "bundles":[]
+  "bundles":[
+    {"name":"com.sun.tools.javac.resources.compiler"}, 
+    {"name":"com.sun.tools.javac.resources.javac"}
+  ]
 }
