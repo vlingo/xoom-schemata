@@ -379,7 +379,7 @@
     "name": "io.netty.channel.kqueue.KQueue"
   },
   {
-    "name": "io.netty.channel.socket.nio.NioServerSocketChannel",
+    "name": "io.netty.channel.socket.nio.EpollServerSocketChannel",
     "methods": [
       {
         "name": "<init>",
