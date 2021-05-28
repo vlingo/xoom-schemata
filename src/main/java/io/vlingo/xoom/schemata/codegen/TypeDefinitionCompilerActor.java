@@ -10,7 +10,7 @@ package io.vlingo.xoom.schemata.codegen;
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.codegen.ast.Node;
-import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.backend.Backend;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
@@ -22,13 +22,12 @@ import java.util.function.Function;
 public class TypeDefinitionCompilerActor implements TypeDefinitionCompiler, TypeDefinitionMiddleware {
     private final TypeParser parser;
     private final List<Processor> processors;
-    private final String language;
-    private final CodeGenerator codeGenerator = new CodeGenerator();
+    private final Backend backend;
 
-    public TypeDefinitionCompilerActor(final TypeParser parser, final List<Processor> processors, final String language) {
+    public TypeDefinitionCompilerActor(final TypeParser parser, final List<Processor> processors, final Backend backend) {
         this.parser = parser;
         this.processors = processors;
-        this.language = language;
+        this.backend = backend;
     }
 
     @Override
@@ -36,7 +35,7 @@ public class TypeDefinitionCompilerActor implements TypeDefinitionCompiler, Type
         return Completes.withSuccess(
                 parser.parseTypeDefinition(typeDefinition, fullyQualifiedTypeName)
                     .andThen(node -> this.process(fullyQualifiedTypeName).apply(node))
-                    .andThenTo(node -> codeGenerator.generateWith(language, "SchemaType", new SchemaTypeArguments(language, fullyQualifiedTypeName, version, (TypeDefinition) node)))
+                    .andThenTo(node -> backend.generateOutput(node, version))
                     .otherwiseFail(ex -> ex)
                 );
     }

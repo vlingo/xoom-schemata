@@ -16,6 +16,7 @@ import io.vlingo.xoom.lattice.model.sourcing.SourcedTypeRegistry.Info;
 import io.vlingo.xoom.schemata.NoopDispatcher;
 import io.vlingo.xoom.schemata.codegen.TypeDefinitionCompilerActor;
 import io.vlingo.xoom.schemata.codegen.TypeDefinitionMiddleware;
+import io.vlingo.xoom.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
@@ -68,7 +69,7 @@ public class SchemaVersionTest {
             Arrays.asList(
                     world.actorFor(Processor.class, ComputableTypeProcessor.class),
                     world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)),
-            "java");
+            new JavaBackend());
 
     simpleSchemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
     simpleSchemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, simpleSchemaVersionId);
@@ -320,7 +321,7 @@ public class SchemaVersionTest {
   private static void assertIncompatible(String message, SpecificationDiff diff) {
     assertFalse(message, diff.isCompatible());
   }
-
+  
   @SuppressWarnings("unchecked")
   private SpecificationDiff unwrap(Completes<Outcome<SchemataBusinessException, SpecificationDiff>> outcome) throws SchemataBusinessException {
     return ((Outcome<SchemataBusinessException, SpecificationDiff>)outcome.await()).get();

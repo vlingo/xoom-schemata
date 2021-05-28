@@ -10,6 +10,8 @@ package io.vlingo.xoom.schemata.codegen;
 import io.vlingo.xoom.actors.Stage;
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.common.Outcome;
+import io.vlingo.xoom.schemata.codegen.backend.Backend;
+import io.vlingo.xoom.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
@@ -48,19 +50,21 @@ public interface TypeDefinitionCompiler {
    * @return TypeDefinitionCompiler
    */
   public static TypeDefinitionCompiler newCompilerFor(final Stage stage, final String language) {
-    if (!language.equals("java") && !language.equals("csharp")){
+    switch (language) {
+    case "java":
+      return forBackend(stage, new JavaBackend());
+    default:
       throw new IllegalArgumentException("Unsupported language: " + language);
     }
-    return forBackend(stage, language);
   }
 
   /**
    * Answer a new {@code TypeDefinitionCompiler} for a given language {@code backendType}.
    * @param stage the Stage in which to create the compiler actor
-   * @param language the backend language
+   * @param backend the language backend
    * @return TypeDefinitionCompiler
    */
-  static TypeDefinitionCompiler forBackend(final Stage stage, String language) {
+  static TypeDefinitionCompiler forBackend(final Stage stage, Backend backend) {
     final TypeParser typeParser =  new AntlrTypeParser();
     final TypeResolver typeResolver = StorageProvider.instance().typeResolverQueries;
 
@@ -68,7 +72,7 @@ public interface TypeDefinitionCompiler {
             Arrays.asList(
                     stage.actorFor(Processor.class, ComputableTypeProcessor.class),
                     stage.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
-            ), language);
+            ), backend);
   }
 
   /**
