@@ -127,7 +127,7 @@ java -agentlib:native-image-agent=config-output-dir=src/main/resources/META-INF/
 mvn clean package -Pfrontend -Pnative-image
 ```
 ```bash
-./target/xoom-schemata
+./target/xoom-schemata dev
 ```
 - On native image runtime, an exception is always thrown, issue described here: [ISSUE](https://github.com/RuedigerMoeller/fast-serialization/issues/313)
 
@@ -143,6 +143,6 @@ docker build -f Dockerfile.native -t vlingo/xoom-schemata .
 ```
 - Run the docker image
 ```bash
-docker run -it --rm -p '9019:9019' vlingo/xoom-schemata
+docker run -it --rm -eXOOM_ENV=dev -p '9019:9019' vlingo/xoom-schemata
 ```
 - On native image runtime, a netty native transport epoll issue: [PR](https://github.com/netty/netty/pull/11163)
