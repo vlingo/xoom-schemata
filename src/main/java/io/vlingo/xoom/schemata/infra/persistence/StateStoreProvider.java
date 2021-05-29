@@ -7,13 +7,26 @@
 
 package io.vlingo.xoom.schemata.infra.persistence;
 
+import java.util.Arrays;
+
 import io.vlingo.xoom.actors.ActorInstantiator;
 import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.lattice.model.stateful.StatefulTypeRegistry;
 import io.vlingo.xoom.lattice.model.stateful.StatefulTypeRegistry.Info;
 import io.vlingo.xoom.schemata.NoopDispatcher;
 import io.vlingo.xoom.schemata.SchemataConfig;
-import io.vlingo.xoom.schemata.query.view.*;
+import io.vlingo.xoom.schemata.query.view.CodeView;
+import io.vlingo.xoom.schemata.query.view.ContextView;
+import io.vlingo.xoom.schemata.query.view.ContextsView;
+import io.vlingo.xoom.schemata.query.view.NamedSchemaView;
+import io.vlingo.xoom.schemata.query.view.OrganizationView;
+import io.vlingo.xoom.schemata.query.view.OrganizationsView;
+import io.vlingo.xoom.schemata.query.view.SchemaVersionView;
+import io.vlingo.xoom.schemata.query.view.SchemaVersionsView;
+import io.vlingo.xoom.schemata.query.view.SchemaView;
+import io.vlingo.xoom.schemata.query.view.SchemasView;
+import io.vlingo.xoom.schemata.query.view.UnitView;
+import io.vlingo.xoom.schemata.query.view.UnitsView;
 import io.vlingo.xoom.symbio.State;
 import io.vlingo.xoom.symbio.store.DataFormat;
 import io.vlingo.xoom.symbio.store.common.jdbc.Configuration;
@@ -26,8 +39,6 @@ import io.vlingo.xoom.symbio.store.state.jdbc.JDBCStateStoreActor;
 import io.vlingo.xoom.symbio.store.state.jdbc.JDBCStateStoreActor.JDBCStateStoreInstantiator;
 import io.vlingo.xoom.symbio.store.state.jdbc.JDBCStorageDelegate;
 import io.vlingo.xoom.symbio.store.state.jdbc.postgres.PostgresStorageDelegate;
-
-import java.util.Arrays;
 
 public class StateStoreProvider {
 
@@ -42,7 +53,7 @@ public class StateStoreProvider {
 
     return new StateStoreProvider(world, stateStore);
   }
-  
+
   @SuppressWarnings({"rawtypes", "unchecked"})
   private static StateStore resolveProductionDatabase(final World world, final SchemataConfig config) throws Exception {
     final Configuration databaseConfiguration = buildDatabaseConfiguration(world, config);
@@ -111,7 +122,6 @@ public class StateStoreProvider {
     }
 
     private void registerStatefulTypes(final StateStore stateStore) {
-      world.defaultLogger().info("=============== PRE-INITIALIZATION ===============");
       final StatefulTypeRegistry registry = new StatefulTypeRegistry(world);
 
       registry
