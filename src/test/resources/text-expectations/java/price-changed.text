@@ -1,0 +1,20 @@
+package Context.event;
+
+import io.vlingo.xoom.lattice.model.DomainEvent;
+
+public final class PriceChanged extends DomainEvent {
+  public final int eventVersion;
+
+  public final long occurredOn;
+
+  public final Price oldPrice;
+
+  public final Price newPrice;
+
+  public PriceChanged(final Price oldPrice, final Price newPrice) {
+    this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue("0.5.1");
+    this.occurredOn = System.currentTimeMillis();
+    this.oldPrice = oldPrice;
+    this.newPrice = newPrice;
+  }
+}

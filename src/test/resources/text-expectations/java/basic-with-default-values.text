@@ -1,0 +1,54 @@
+package Context.event;
+
+import io.vlingo.xoom.lattice.model.DomainEvent;
+import java.lang.String;
+
+public final class SalutationHappened extends DomainEvent {
+  public final String eventType;
+
+  public final long occurredOn;
+
+  public final int eventVersion;
+
+  public boolean booleanAttribute = true;
+
+  public byte byteAttribute = 4;
+
+  public char charAttribute = 'x';
+
+  public double doubleAttribute = 0.23;
+
+  public float floatAttribute = 0.42f;
+
+  public int intAttribute = 4242;
+
+  public long longAttribute = 42L;
+
+  public short shortAttribute = 258;
+
+  public String stringAttribute = "foo";
+
+  public SalutationHappened(final boolean booleanAttribute, final byte byteAttribute,
+      final char charAttribute, final double doubleAttribute, final float floatAttribute,
+      final int intAttribute, final long longAttribute, final short shortAttribute,
+      final String stringAttribute) {
+    this.eventType = "SalutationHappened";
+    this.occurredOn = System.currentTimeMillis();
+    this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue("0.0.1");
+    this.booleanAttribute = booleanAttribute;
+    this.byteAttribute = byteAttribute;
+    this.charAttribute = charAttribute;
+    this.doubleAttribute = doubleAttribute;
+    this.floatAttribute = floatAttribute;
+    this.intAttribute = intAttribute;
+    this.longAttribute = longAttribute;
+    this.shortAttribute = shortAttribute;
+    this.stringAttribute = stringAttribute;
+  }
+
+  public SalutationHappened() {
+    this.eventType = "SalutationHappened";
+    this.occurredOn = System.currentTimeMillis();
+    this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue("0.0.1");
+  }
+}

@@ -7,169 +7,84 @@
 
 package io.vlingo.xoom.schemata.codegen.specs;
 
+import io.vlingo.xoom.codegen.TextExpectation;
 import io.vlingo.xoom.schemata.codegen.CodeGenTests;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
 import org.junit.Test;
 
-import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class JavaCodeGenTests extends CodeGenTests {
   @Test
-  public void testThatGeneratesABasicType() throws ExecutionException, InterruptedException {
+  public void testThatGeneratesABasicType() {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1");
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(), typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1");
 
-    assertTrue(result.contains("import io.vlingo.xoom.lattice.model.DomainEvent;"));
-    assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
-    assertTrue(result.contains("public final String eventType;"));
-    assertTrue(result.contains("public final long occurredOn;"));
-    assertTrue(result.contains("public final int eventVersion;"));
-    assertTrue(result.contains("public final String toWhom;"));
-    assertTrue(result.contains("public final String text;"));
-    assertTrue(result.contains("public SalutationHappened(final String toWhom, final String text) {"));
-    assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
-    assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue(\"0.0.1\");"));
-    assertTrue(result.contains("this.toWhom = toWhom;"));
-    assertTrue(result.contains("this.text = text;"));
-    assertFalse(result.contains("public SalutationHappened()"));
+    assertMatchesSpec(result, "basic");
   }
 
   @Test
-  public void testThatGeneratesABasicTypeWithDefaultValues() throws ExecutionException, InterruptedException {
+  public void testThatGeneratesABasicTypeWithDefaultValues() {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1");
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(), typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1");
 
-    assertTrue(result.contains("public boolean booleanAttribute = true;"));
-    assertTrue(result.contains("public byte byteAttribute = 4;"));
-    assertTrue(result.contains("public char charAttribute = 'x';"));
-    assertTrue(result.contains("public double doubleAttribute = 0.23;"));
-    assertTrue(result.contains("public float floatAttribute = 0.42f;"));
-    assertTrue(result.contains("public int intAttribute = 4242;"));
-    assertTrue(result.contains("public long longAttribute = 42L;"));
-    assertTrue(result.contains("public short shortAttribute = 258;"));
-    assertTrue(result.contains("public String stringAttribute = \"foo\";"));
+    assertMatchesSpec(result, "basic-with-default-values");
   }
 
   @Test
-  public void testThatGeneratesABasicTypeWithDefaultValuesAndComputedFields() throws ExecutionException, InterruptedException {
+  public void testThatDefaultCtorIsOnlyAddedOnce() {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basicWithDefaultValues"), fullyQualifiedTypeName, "0.0.1");
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(), typeDefinition("minimal"), fullyQualifiedTypeName, "0.0.1");
 
-    assertTrue(result.contains("public SalutationHappened()"));
-
-    assertTrue(result.contains("this.eventType = \"SalutationHappened\";"));
-    assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue(\"0.0.1\");"));
-
-    assertTrue(result.contains("public boolean booleanAttribute = true;"));
-    assertTrue(result.contains("public byte byteAttribute = 4;"));
-    assertTrue(result.contains("public char charAttribute = 'x';"));
-    assertTrue(result.contains("public double doubleAttribute = 0.23;"));
-    assertTrue(result.contains("public float floatAttribute = 0.42f;"));
-    assertTrue(result.contains("public int intAttribute = 4242;"));
-    assertTrue(result.contains("public long longAttribute = 42L;"));
-    assertTrue(result.contains("public short shortAttribute = 258;"));
-    assertTrue(result.contains("public String stringAttribute = \"foo\";"));
+    assertMatchesSpec(result, "minimal");
   }
 
   @Test
-  public void testThatDefaultCtorIsOnlyAddedOnce() throws ExecutionException, InterruptedException {
+  public void testThatGeneratesBasicTypeArrayFields() {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("minimal"), fullyQualifiedTypeName, "0.0.1");
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(), typeDefinition("basicArrays"), fullyQualifiedTypeName, "0.0.1");
 
-    Pattern pattern = Pattern.compile("public SalutationHappened\\(\\)");
-    Matcher matcher = pattern.matcher(result);
-    int matches = 0;
-    while (matcher.find()) {
-      matches++;
-    }
-    assertTrue(matches == 1);
+    assertMatchesSpec(result, "basic-arrays");
   }
 
   @Test
-  public void testThatGeneratesBasicTypeArrayFields() throws ExecutionException, InterruptedException {
+  public void testThatGeneratesBasicTypeArrayFieldsWithDefaults() {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basicArrays"), fullyQualifiedTypeName, "0.0.1");
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(), typeDefinition("basicArraysWithDefaultValues"), fullyQualifiedTypeName, "0.0.1");
 
-    assertTrue(result.contains("public final boolean[] booleanAttribute"));
-    assertTrue(result.contains("public final byte[] byteAttribute"));
-    assertTrue(result.contains("public final char[] charAttribute"));
-    assertTrue(result.contains("public final double[] doubleAttribute"));
-    assertTrue(result.contains("public final float[] floatAttribute"));
-    assertTrue(result.contains("public final int[] intAttribute"));
-    assertTrue(result.contains("public final long[] longAttribute"));
-    assertTrue(result.contains("public final short[] shortAttribute"));
-    assertTrue(result.contains("public final String[] stringAttribute"));
+    assertMatchesSpec(result, "basic-arrays-with-default-values");
   }
 
   @Test
-  public void testThatGeneratesBasicTypeArrayFieldsWithDefaults() throws ExecutionException, InterruptedException {
+  public void testThatGeneratesABasicTypeWithAllConsideredInnerTypes() {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basicArraysWithDefaultValues"), fullyQualifiedTypeName, "0.0.1");
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(), typeDefinition("allSingleTypes"), fullyQualifiedTypeName, "0.0.1");
 
-    assertTrue(result.contains("public boolean[] booleanAttribute = new boolean[] { true, false, true }"));
-    assertTrue(result.contains("public byte[] byteAttribute = new byte[] { 4, 3, 2, 1 }"));
-    assertTrue(result.contains("public char[] charAttribute = new char[] { 'x', 'y', 'z' }"));
-    assertTrue(result.contains("public double[] doubleAttribute = new double[] { 0.23, 0.22, 0.21 }"));
-    assertTrue(result.contains("public float[] floatAttribute = new float[] { 0.42f, 0.42f, 0.1f }"));
-    assertTrue(result.contains("public int[] intAttribute = new int[] { 4242, 424242, 42424242 }"));
-    assertTrue(result.contains("public long[] longAttribute = new long[] { 42L, 4242L, 424242L }"));
-    assertTrue(result.contains("public short[] shortAttribute = new short[] { 258, 259, 260 }"));
-    assertTrue(result.contains("public String[] stringAttribute = new java.lang.String[] { \"foo\", \"bar\", \"baz\" }"));
+    assertMatchesSpec(result, "all-single-types");
   }
 
   @Test
-  public void testThatGeneratesABasicTypeWithAllConsideredInnerTypes() throws ExecutionException, InterruptedException {
-    final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
-    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("allSingleTypes"), fullyQualifiedTypeName, "0.0.1");
-
-    assertTrue(result.contains("public final boolean booleanAttribute;"));
-    assertTrue(result.contains("public final byte byteAttribute;"));
-    assertTrue(result.contains("public final char charAttribute;"));
-    assertTrue(result.contains("public final double doubleAttribute;"));
-    assertTrue(result.contains("public final float floatAttribute;"));
-    assertTrue(result.contains("public final int intAttribute;"));
-    assertTrue(result.contains("public final long longAttribute;"));
-    assertTrue(result.contains("public final short shortAttribute;"));
-    assertTrue(result.contains("public final String stringAttribute;"));
-  }
-
-  @Test
-  public void testThatGeneratesAComposedTypeWithVersionedData() throws ExecutionException, InterruptedException, SchemataBusinessException {
+  public void testThatGeneratesAComposedTypeWithVersionedData() throws SchemataBusinessException {
     registerType("types/price", "Org:Unit:Context:Schema:Price", "1.0.0");
-    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("price-changed"), "Org:Unit:Context:Schema:PriceChanged", "0.5.1");
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(), typeDefinition("price-changed"), "Org:Unit:Context:Schema:PriceChanged", "0.5.1");
 
-    assertTrue(result.contains("public final class PriceChanged extends DomainEvent {"));
-    assertTrue(result.contains("public final long occurredOn;"));
-    assertTrue(result.contains("public final int eventVersion;"));
-    assertTrue(result.contains("public final Price oldPrice;"));
-    assertTrue(result.contains("public final Price newPrice;"));
-    assertTrue(result.contains("public PriceChanged(final Price oldPrice, final Price newPrice) {"));
-    assertTrue(result.contains("this.occurredOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue(\"0.5.1\");"));
-    assertTrue(result.contains("this.oldPrice = oldPrice;"));
-    assertTrue(result.contains("this.newPrice = newPrice;"));
+    assertMatchesSpec(result, "price-changed");
   }
 
   @Test
-  public void testThatGeneratedClassIsInCorrectPackage() throws ExecutionException, InterruptedException {
+  public void testThatGeneratedClassIsInCorrectPackage() {
     final String fullyQualifiedTypeName = "Org:Unit:io.vlingo.xoom.mynamespace:SalutationHappened";
-    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(),typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1");
+    final String result = compileSpecAndUnwrap(compilerWithJavaBackend(), typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1");
 
-    assertTrue(result.contains("package io.vlingo.xoom.mynamespace.event;"));
-    assertTrue(result.contains("public final class SalutationHappened extends DomainEvent {"));
+    assertMatchesSpec(result, "basic-with-package");
   }
 
   @Test
   public void testThatCompilingInvalidSchemaReportsError() {
     final Exception[] expected = new Exception[1];
-    final boolean[] hitSuccess = { false };
-      compilerWithJavaBackend()
+    final boolean[] hitSuccess = {false};
+    compilerWithJavaBackend()
             .compile(typeDefinition("invalid"), "O:U:C:S", "0.0.1")
             .andThen(o -> o.resolve(
                     ex -> expected[0] = ex,
@@ -186,10 +101,11 @@ public class JavaCodeGenTests extends CodeGenTests {
     final String fullyQualifiedTypeName = "Org:Unit:Context:Schema:SalutationHappened";
     final String result = compileSpecAndUnwrap(compilerWithJavaBackend(), typeDefinition("computedOnly"), fullyQualifiedTypeName, "0.0.1");
 
-    assertTrue(result.contains("public SalutationHappened()"));
+    assertMatchesSpec(result, "computed-only");
+  }
 
-    assertTrue(result.contains("this.name = \"SalutationHappened\";"));
-    assertTrue(result.contains("this.publishedOn = System.currentTimeMillis();"));
-    assertTrue(result.contains("this.publishedVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue(\"0.0.1\");"));
+  @Override
+  protected TextExpectation textExpectation() {
+    return TextExpectation.onJava();
   }
 }

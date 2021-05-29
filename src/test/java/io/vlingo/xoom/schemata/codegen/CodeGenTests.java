@@ -9,6 +9,7 @@ package io.vlingo.xoom.schemata.codegen;
 
 import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.actors.testkit.TestWorld;
+import io.vlingo.xoom.codegen.TextExpectation;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.codegen.ast.Node;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
@@ -25,6 +26,8 @@ import org.junit.Before;
 
 import java.io.InputStream;
 import java.util.Arrays;
+
+import static org.junit.Assert.assertTrue;
 
 public abstract class CodeGenTests {
     protected static final long TIMEOUT = 5000L;
@@ -84,4 +87,11 @@ public abstract class CodeGenTests {
                 Throwable::getMessage,
                 code -> code );
     }
+
+    protected void assertMatchesSpec(String actual, String spec) {
+        String expected = textExpectation().read(spec);
+        assertTrue(String.format("Expected:\n%s\nActual:\n%s\n", expected, actual), actual.contains(expected));
+    }
+
+    abstract protected TextExpectation textExpectation();
 }

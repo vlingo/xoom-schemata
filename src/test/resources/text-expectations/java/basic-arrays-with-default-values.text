@@ -1,0 +1,42 @@
+package Context.event;
+
+import io.vlingo.xoom.lattice.model.DomainEvent;
+import java.lang.String;
+
+public final class SalutationHappened extends DomainEvent {
+  public boolean[] booleanAttribute = new boolean[] { true, false, true };
+
+  public byte[] byteAttribute = new byte[] { 4, 3, 2, 1 };
+
+  public char[] charAttribute = new char[] { 'x', 'y', 'z' };
+
+  public double[] doubleAttribute = new double[] { 0.23, 0.22, 0.21 };
+
+  public float[] floatAttribute = new float[] { 0.42f, 0.42f, 0.1f };
+
+  public int[] intAttribute = new int[] { 4242, 424242, 42424242 };
+
+  public long[] longAttribute = new long[] { 42L, 4242L, 424242L };
+
+  public short[] shortAttribute = new short[] { 258, 259, 260 };
+
+  public String[] stringAttribute = new java.lang.String[] { "foo", "bar", "baz" };
+
+  public SalutationHappened(final boolean[] booleanAttribute, final byte[] byteAttribute,
+      final char[] charAttribute, final double[] doubleAttribute, final float[] floatAttribute,
+      final int[] intAttribute, final long[] longAttribute, final short[] shortAttribute,
+      final String[] stringAttribute) {
+    this.booleanAttribute = booleanAttribute;
+    this.byteAttribute = byteAttribute;
+    this.charAttribute = charAttribute;
+    this.doubleAttribute = doubleAttribute;
+    this.floatAttribute = floatAttribute;
+    this.intAttribute = intAttribute;
+    this.longAttribute = longAttribute;
+    this.shortAttribute = shortAttribute;
+    this.stringAttribute = stringAttribute;
+  }
+
+  public SalutationHappened() {
+  }
+}

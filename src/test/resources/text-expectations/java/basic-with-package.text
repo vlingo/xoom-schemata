@@ -1,0 +1,24 @@
+package io.vlingo.xoom.mynamespace.event;
+
+import io.vlingo.xoom.lattice.model.DomainEvent;
+import java.lang.String;
+
+public final class SalutationHappened extends DomainEvent {
+  public final String eventType;
+
+  public final long occurredOn;
+
+  public final int eventVersion;
+
+  public final String toWhom;
+
+  public final String text;
+
+  public SalutationHappened(final String toWhom, final String text) {
+    this.eventType = "SalutationHappened";
+    this.occurredOn = System.currentTimeMillis();
+    this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue("0.0.1");
+    this.toWhom = toWhom;
+    this.text = text;
+  }
+}

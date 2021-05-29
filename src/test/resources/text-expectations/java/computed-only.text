@@ -1,0 +1,18 @@
+package Context.event;
+
+import io.vlingo.xoom.lattice.model.DomainEvent;
+import java.lang.String;
+
+public final class SalutationHappened extends DomainEvent {
+  public final String name;
+
+  public final long publishedOn;
+
+  public final int publishedVersion;
+
+  public SalutationHappened() {
+    this.name = "SalutationHappened";
+    this.publishedOn = System.currentTimeMillis();
+    this.publishedVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue("0.0.1");
+  }
+}
