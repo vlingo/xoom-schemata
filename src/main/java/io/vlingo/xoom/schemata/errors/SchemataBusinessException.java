@@ -1,7 +1,15 @@
+// Copyright © 2012-2021 VLINGO LABS. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.xoom.schemata.errors;
 
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SchemataBusinessException extends RuntimeException {
   private static final long serialVersionUID = 5064988574760273382L;
@@ -39,14 +47,10 @@ public class SchemataBusinessException extends RuntimeException {
     return new SchemataBusinessException(Code.INVALID_REFERENCE, reference + " invalid");
   }
 
-  public static SchemataBusinessException invalidSchemaDefinition(String message, List<? extends Throwable> causes) {
+  public static SchemataBusinessException invalidSchemaDefinition(String message) {
     SchemataBusinessException ex = new SchemataBusinessException(Code.INVALID_SCHEMA_DEFINITION, message);
-    ex.context.put("causes", causes);
+    ex.context.put("causes", message);
     return ex;
-  }
-
-  public static SchemataBusinessException invalidSchemaDefinition(String message, Throwable cause) {
-    return invalidSchemaDefinition(message, Collections.singletonList(cause));
   }
 
   public static SchemataBusinessException invalidSchemaDefinition() {
