@@ -108,7 +108,7 @@ public class CodeResource extends DynamicResourceHandler {
               );
             })
             .recoverFrom(exception -> {
-              logger.error("EXCEPTION: " + exception, exception);
+              logger.error(exception.getMessage(), exception);
               return Response.of(
                       BadRequest,
                       Header.Headers.of(ResponseHeader.contentLength(exception.getMessage().length())),
