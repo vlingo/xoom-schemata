@@ -9,4 +9,9 @@ public class BasicArrayType extends BasicType {
   public boolean isArrayType() {
     return true;
   }
+
+  @Override
+  public String toString() {
+    return "BasicArrayType [typeName=" + typeName + "]";
+  }
 }

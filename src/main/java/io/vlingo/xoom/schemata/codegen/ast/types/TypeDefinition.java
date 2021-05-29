@@ -24,6 +24,8 @@ public class TypeDefinition implements Type {
         this.fullyQualifiedTypeName = fullyQualifiedTypeName;
         this.typeName = typeName;
         this.children = children;
+
+        System.out.print("==========\n" + this + "\n==========\n");
     }
 
     @Override
@@ -45,5 +47,11 @@ public class TypeDefinition implements Type {
     @Override
     public String name() {
         return typeName;
+    }
+
+    @Override
+    public String toString() {
+      return "TypeDefinition [category=" + category + ", fullyQualifiedTypeName=" + fullyQualifiedTypeName
+              + ", typeName=" + typeName + ", children=" + children + "]";
     }
 }

@@ -16,4 +16,9 @@ public class SingleValue<T> implements Value<T> {
   public T value() {
     return value;
   }
+
+  @Override
+  public String toString() {
+    return "SingleValue [value=" + value + "]";
+  }
 }

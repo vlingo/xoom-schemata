@@ -26,4 +26,9 @@ public class ComputableType implements Type {
     public String name() {
         return typeName;
     }
+
+    @Override
+    public String toString() {
+      return "ComputableType [typeName=" + typeName + "]";
+    }
 }

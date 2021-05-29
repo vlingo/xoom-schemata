@@ -19,4 +19,9 @@ public class ListValue<T extends List<? extends SingleValue>> implements Value<T
   public T value() {
     return value;
   }
+
+  @Override
+  public String toString() {
+    return "ListValue [value=" + value + "]";
+  }
 }

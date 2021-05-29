@@ -30,4 +30,9 @@ public class BasicType implements Type {
     public boolean isArrayType() {
         return false;
     }
+
+    @Override
+    public String toString() {
+      return "BasicType [typeName=" + typeName + "]";
+    }
 }

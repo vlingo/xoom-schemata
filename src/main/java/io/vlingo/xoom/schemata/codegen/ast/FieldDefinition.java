@@ -46,4 +46,10 @@ public class FieldDefinition implements Node {
     public String name() {
         return name;
     }
+
+    @Override
+    public String toString() {
+      return "FieldDefinition [type=" + type + ", version=" + version + ", name=" + name + ", defaultValue="
+              + defaultValue + "]";
+    }
 }

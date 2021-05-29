@@ -24,4 +24,9 @@ public class NullValue implements Value {
       return true;
     return false;
   }
+
+  @Override
+  public String toString() {
+    return "NullValue []";
+  }
 }
