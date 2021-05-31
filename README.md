@@ -55,6 +55,15 @@ The maven build takes care of the following:
 
 After building, you can optionally build the docker container with `docker build . -t vlingo/xoom-schemata`.
 
+#### GraalVM Build
+```bash
+mvn clean package -Pfrontend -Pnative-image
+```
+```bash
+./target/xoom-schemata
+```
+More details [GraalVM](GraalVM.md)
+
 ### Run
 
 If you want to configure the schemata runtime profile, you have several options:
