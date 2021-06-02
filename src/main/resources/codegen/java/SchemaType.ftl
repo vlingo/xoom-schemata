@@ -6,7 +6,11 @@ import ${import};
 
 public final class ${typeName} extends ${baseTypeName} {
 <#list fields as field>
-  ${field.modifiers} ${field.type} ${field.name}<#if field.initializer != ""> = ${field.initializer}</#if>;
+  <#if field.defaultValue??>
+  public ${field.type} ${field.name}<#if field.defaultValue??> = ${field.defaultValue}</#if>;
+  <#else>
+  public final ${field.type} ${field.name};
+  </#if>
 
 </#list>
 <#if needsConstructor>

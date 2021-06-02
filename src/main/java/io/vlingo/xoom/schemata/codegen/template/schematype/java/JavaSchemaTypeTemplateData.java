@@ -15,8 +15,8 @@ import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.Value;
 import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateData;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,76 +38,90 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
   @Override
   public TemplateParameters parameters() {
-    List<Field> fields = type.children.stream()
+    List<Field> fields = fields();
+    return TemplateParameters
+            .with(JavaSchemaTypeTemplateParameter.PACKAGE, packageName())
+            .and(JavaSchemaTypeTemplateParameter.TYPE_NAME, typeName())
+            .and(JavaSchemaTypeTemplateParameter.BASE_TYPE_NAME, baseTypeName())
+            .and(JavaSchemaTypeTemplateParameter.NEEDS_CONSTRUCTOR, needsConstructor(fields))
+            .and(JavaSchemaTypeTemplateParameter.NEEDS_DEFAULT_CONSTRUCTOR, needsDefaultConstructor(fields))
+            .and(JavaSchemaTypeTemplateParameter.FIELDS, fields)
+            .and(JavaSchemaTypeTemplateParameter.COMPUTED_FIELDS, computedFields(fields))
+            .and(JavaSchemaTypeTemplateParameter.IMPORTS, imports());
+  }
+
+  private List<Field> fields() {
+    return type.children.stream()
             .filter(c -> c instanceof FieldDefinition)
             .map(c -> (FieldDefinition) c)
             .map(this::toField)
             .collect(Collectors.toList());
-    Class<?> baseType = baseClassOf(type);
-    return TemplateParameters
-            .with(JavaSchemaTypeTemplateParameter.PACKAGE, packageOf(type.category.name().toLowerCase(), type.fullyQualifiedTypeName))
-            .and(JavaSchemaTypeTemplateParameter.TYPE_NAME, type.typeName)
-            .and(JavaSchemaTypeTemplateParameter.BASE_TYPE_NAME, baseType.getSimpleName())
-            .and(JavaSchemaTypeTemplateParameter.NEEDS_CONSTRUCTOR, fields.stream().anyMatch(f -> !f.isComputed))
-            .and(JavaSchemaTypeTemplateParameter.NEEDS_DEFAULT_CONSTRUCTOR, fields.size() != 0 && fields.stream().allMatch(f -> f.isComputed || f.initializer != ""))
-            .and(JavaSchemaTypeTemplateParameter.FIELDS, fields.stream().collect(Collectors.toList()))
-            .and(JavaSchemaTypeTemplateParameter.COMPUTED_FIELDS, fields.stream().filter(f -> f.isComputed).collect(Collectors.toList()))
-            .and(JavaSchemaTypeTemplateParameter.IMPORTS, imports(baseType, fields));
   }
 
-  private List<String> imports(final Class<?> baseType, final List<Field> fields) {
-    return Stream.concat(Arrays.asList(baseType.getName()).stream(), fields.stream().map(f -> {
-      if (f.type.equals("String") || f.type.equals("String[]")) {
-        return "java.lang.String";
-      }
-      return null;
-    }).filter(f -> f != null)).collect(Collectors.toSet()).stream().sorted().collect(Collectors.toList());
+  private List<Field> computedFields(final List<Field> fields) {
+    return fields.stream().filter(f -> f.isComputed).collect(Collectors.toList());
   }
 
-  private String initializationOf(final FieldDefinition definition, final TypeDefinition owner, final String version) {
-    Type type = definition.type;
-    if (type instanceof ComputableType) {
-      switch (((ComputableType) type).typeName) {
-        case "type":
-          return String.format("\"%s\"", owner.typeName);
-        case "version":
-          return String.format("io.vlingo.xoom.common.version.SemanticVersion.toValue(\"%s\")", version);
-        case "timestamp":
-          return "System.currentTimeMillis()";
-      }
+  private String packageName() {
+    final String category = type.category.name().toLowerCase();
+    final String reference = type.fullyQualifiedTypeName;
+    final String[] referenceParts = reference.split(Schemata.ReferenceSeparator);
+    if (referenceParts.length < Schemata.MinReferenceParts) {
+      throw new IllegalArgumentException("Invalid fully qualified type name. Valid type names look like this <organization>:<unit>:<context namespace>:<type name>[:<version>].");
     }
+    final String namespace = referenceParts[2];
+    final String className = referenceParts[3];
 
-    return String.format("%s", definition.name);
+    final String basePackage = namespace + "." + category;
+    final String localPackage = className.contains(".") ? className.substring(0, className.lastIndexOf('.')) : "";
+    return localPackage.length() > 0
+            ? basePackage + "." + localPackage
+            : basePackage;
   }
 
-  public class Field {
+  private String typeName() {
+    return type.typeName;
+  }
 
-    public final String modifiers;
-    public final String type;
-    public final String name;
-    public final String initializer;
-    public final String constructorInitializer;
-    public final boolean isComputed;
+  private String baseTypeName() {
+    return baseClass().getSimpleName();
+  }
 
-    public Field(final String modifiers, final String type, final String name, final String initializer, final String constructorInitializer, final boolean isComputed) {
-      this.modifiers = modifiers;
-      this.type = type;
-      this.name = name;
-      this.initializer = initializer != null ? initializer : "";
-      this.constructorInitializer = constructorInitializer;
-      this.isComputed = isComputed;
+  private String basePackageName() {
+    return baseClass().getName();
+  }
+
+  private Class<?> baseClass() {
+    switch (type.category) {
+      case Event:
+        return DomainEvent.class;
+      default:
+        return DomainEvent.class;
     }
   }
 
-  private Field toField(final FieldDefinition field) {
-    return new Field(
-            field.hasDefaultValue() ? "public" : "public final",
-            type(field.type),
-            field.name,
-            javaLiteralOf(field),
-            initializationOf(field, type, version),
-            field.type instanceof ComputableType
-    );
+  private boolean needsConstructor(final List<Field> fields) {
+    return fields.stream().anyMatch(f -> !f.isComputed);
+  }
+
+  private boolean needsDefaultConstructor(final List<Field> fields) {
+    return fields.size() != 0 && fields.stream().allMatch(f -> f.isComputed || f.defaultValue != null);
+  }
+
+  private List<String> imports() {
+    return Stream.concat(Stream.of(basePackageName()), fieldTypes().stream()).sorted().collect(Collectors.toList());
+  }
+
+  private Set<String> fieldTypes() {
+    return fields().stream()
+            .map(f -> {
+              if (f.type.equals("String") || f.type.equals("String[]")) {
+                return "java.lang.String";
+              }
+              return null;
+            })
+            .filter(f -> f != null)
+            .collect(Collectors.toSet());
   }
 
   private String type(final Type type) {
@@ -156,21 +170,6 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
     }
   }
 
-  private String packageOf(final String category, final String reference) {
-    String[] referenceParts = reference.split(Schemata.ReferenceSeparator);
-    if (referenceParts.length < Schemata.MinReferenceParts) {
-      throw new IllegalArgumentException("Invalid fully qualified type name. Valid type names look like this <organization>:<unit>:<context namespace>:<type name>[:<version>].");
-    }
-    final String namespace = referenceParts[2];
-    final String className = referenceParts[3];
-
-    final String basePackage = namespace + "." + category;
-    final String localPackage = className.contains(".") ? className.substring(0, className.lastIndexOf('.')) : "";
-    return localPackage.length() > 0
-            ? basePackage + "." + localPackage
-            : basePackage;
-  }
-
   private String javaLiteralOf(final FieldDefinition definition) {
     Value value = definition.defaultValue.orElseGet(NullValue::new);
 
@@ -212,12 +211,45 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
     }
   }
 
-  private Class<?> baseClassOf(final TypeDefinition type) {
-    switch (type.category) {
-      case Event:
-        return DomainEvent.class;
-      default:
-        return DomainEvent.class;
+  private String initializationOf(final FieldDefinition definition, final TypeDefinition owner) {
+    Type type = definition.type;
+    if (type instanceof ComputableType) {
+      switch (((ComputableType) type).typeName) {
+        case "type":
+          return String.format("\"%s\"", owner.typeName);
+        case "version":
+          return String.format("io.vlingo.xoom.common.version.SemanticVersion.toValue(\"%s\")", this.version);
+        case "timestamp":
+          return "System.currentTimeMillis()";
+      }
+    }
+
+    return definition.name;
+  }
+
+  private Field toField(final FieldDefinition field) {
+    return new Field(
+            type(field.type),
+            field.name,
+            javaLiteralOf(field),
+            initializationOf(field, type),
+            field.type instanceof ComputableType
+    );
+  }
+
+  public class Field {
+    public final String type;
+    public final String name;
+    public final String defaultValue;
+    public final String constructorInitializer;
+    public final boolean isComputed;
+
+    public Field(final String type, final String name, final String defaultValue, final String constructorInitializer, final boolean isComputed) {
+      this.type = type;
+      this.name = name;
+      this.defaultValue = defaultValue;
+      this.constructorInitializer = constructorInitializer;
+      this.isComputed = isComputed;
     }
   }
 }
