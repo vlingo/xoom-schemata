@@ -9,10 +9,13 @@ package io.vlingo.xoom.schemata.codegen;
 
 import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.actors.testkit.TestWorld;
+import io.vlingo.xoom.codegen.CodeGenerationContext;
 import io.vlingo.xoom.codegen.TextExpectation;
+import io.vlingo.xoom.codegen.template.*;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.codegen.ast.Node;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.backend.*;
 import io.vlingo.xoom.schemata.codegen.backend.java.JavaBackend;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
@@ -26,6 +29,7 @@ import org.junit.Before;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
@@ -55,7 +59,7 @@ public abstract class CodeGenTests {
                         world.actorFor(Processor.class, ComputableTypeProcessor.class),
                         world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
                 ),
-                new JavaBackend()
+                new CodeGenBackend(new SchemaTypeTemplateProcessingStep())
         );
     }
 
