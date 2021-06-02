@@ -10,6 +10,7 @@ import io.vlingo.xoom.common.Success;
 import io.vlingo.xoom.schemata.codegen.ast.Node;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
+import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeParameterLabel;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
 
 import java.util.stream.Collectors;
@@ -33,9 +34,9 @@ public class CodeGenBackend implements Backend {
   private String generateType(final TypeDefinition typeDefinition, final String version) {
     CodeGenerationContext context = CodeGenerationContext.with(
             CodeGenerationParameters
-                    .from(CodeGenerationParameter.ofObject(Label.TYPE_DEFINITION, typeDefinition))
-                    .add(CodeGenerationParameter.of(Label.VERSION, version))
-                    .add(CodeGenerationParameter.of(Label.LANGUAGE, language))
+                    .from(CodeGenerationParameter.ofObject(SchemaTypeParameterLabel.TYPE_DEFINITION, typeDefinition))
+                    .add(CodeGenerationParameter.of(SchemaTypeParameterLabel.VERSION, version))
+                    .add(CodeGenerationParameter.of(SchemaTypeParameterLabel.LANGUAGE, language))
     );
     templateProcessingStep.process(context);
     return context.contents().stream()

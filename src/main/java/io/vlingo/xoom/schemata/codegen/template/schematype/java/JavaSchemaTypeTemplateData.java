@@ -1,8 +1,7 @@
-package io.vlingo.xoom.schemata.codegen.backend;
+package io.vlingo.xoom.schemata.codegen.template.schematype.java;
 
 import io.vlingo.xoom.codegen.template.TemplateData;
 import io.vlingo.xoom.codegen.template.TemplateParameters;
-import io.vlingo.xoom.codegen.template.TemplateStandard;
 import io.vlingo.xoom.lattice.model.DomainEvent;
 import io.vlingo.xoom.schemata.Schemata;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
@@ -14,29 +13,25 @@ import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.Value;
+import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateData;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.lang.String;
 
 import static java.util.stream.Collectors.joining;
 
-public class SchemaTypeTemplateData extends TemplateData {
+public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
-  private final String language;
   private final TypeDefinition type;
   private final String version;
 
-  public static List<TemplateData> from(final String language, final TypeDefinition type, final String version) {
-    return Arrays.asList(
-            new SchemaTypeTemplateData(language, type, version)
-    );
+  public static TemplateData from(final TypeDefinition type, final String version) {
+    return new JavaSchemaTypeTemplateData(type, version);
   }
 
-  private SchemaTypeTemplateData(final String language, final TypeDefinition type, final String version) {
-    this.language = language;
+  private JavaSchemaTypeTemplateData(final TypeDefinition type, final String version) {
     this.type = type;
     this.version = version;
   }
@@ -50,14 +45,14 @@ public class SchemaTypeTemplateData extends TemplateData {
             .collect(Collectors.toList());
     Class<?> baseType = baseClassOf(type);
     return TemplateParameters
-            .with(TemplateParameter.PACKAGE, packageOf(type.category.name().toLowerCase(), type.fullyQualifiedTypeName))
-            .and(TemplateParameter.TYPE_NAME, type.typeName)
-            .and(TemplateParameter.BASE_TYPE, baseType.getSimpleName())
-            .and(TemplateParameter.NEEDS_CONSTRUCTOR, fields.stream().anyMatch(f -> !f.isComputed))
-            .and(TemplateParameter.NEEDS_DEFAULT_CONSTRUCTOR, fields.size() != 0 && fields.stream().allMatch(f -> f.isComputed || f.initializer != ""))
-            .and(TemplateParameter.FIELDS, fields.stream().collect(Collectors.toList()))
-            .and(TemplateParameter.COMPUTED_FIELDS, fields.stream().filter(f -> f.isComputed).collect(Collectors.toList()))
-            .and(TemplateParameter.IMPORTS, imports(baseType, fields));
+            .with(JavaSchemaTypeTemplateParameter.PACKAGE, packageOf(type.category.name().toLowerCase(), type.fullyQualifiedTypeName))
+            .and(JavaSchemaTypeTemplateParameter.TYPE_NAME, type.typeName)
+            .and(JavaSchemaTypeTemplateParameter.BASE_TYPE_NAME, baseType.getSimpleName())
+            .and(JavaSchemaTypeTemplateParameter.NEEDS_CONSTRUCTOR, fields.stream().anyMatch(f -> !f.isComputed))
+            .and(JavaSchemaTypeTemplateParameter.NEEDS_DEFAULT_CONSTRUCTOR, fields.size() != 0 && fields.stream().allMatch(f -> f.isComputed || f.initializer != ""))
+            .and(JavaSchemaTypeTemplateParameter.FIELDS, fields.stream().collect(Collectors.toList()))
+            .and(JavaSchemaTypeTemplateParameter.COMPUTED_FIELDS, fields.stream().filter(f -> f.isComputed).collect(Collectors.toList()))
+            .and(JavaSchemaTypeTemplateParameter.IMPORTS, imports(baseType, fields));
   }
 
   private List<String> imports(final Class<?> baseType, final List<Field> fields) {
@@ -122,11 +117,6 @@ public class SchemaTypeTemplateData extends TemplateData {
       return computable((ComputableType) type);
     }
     return type.name();
-  }
-
-  @Override
-  public TemplateStandard standard() {
-    return SchemataTemplateStandard.SCHEMA_TYPE;
   }
 
   private String primitive(final BasicType basicType) {

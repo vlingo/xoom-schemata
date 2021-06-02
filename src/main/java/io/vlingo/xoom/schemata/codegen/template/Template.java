@@ -1,4 +1,4 @@
-package io.vlingo.xoom.schemata.codegen.backend;
+package io.vlingo.xoom.schemata.codegen.template;
 
 public enum Template {
   SCHEMA_TYPE("SchemaType");

@@ -1,4 +1,4 @@
-package io.vlingo.xoom.schemata.codegen.backend;
+package io.vlingo.xoom.schemata.codegen.template;
 
 import io.vlingo.xoom.codegen.template.TemplateParameters;
 import io.vlingo.xoom.codegen.template.TemplateStandard;

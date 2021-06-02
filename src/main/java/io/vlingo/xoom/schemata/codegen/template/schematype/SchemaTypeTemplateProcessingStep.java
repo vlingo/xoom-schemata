@@ -1,4 +1,4 @@
-package io.vlingo.xoom.schemata.codegen.backend;
+package io.vlingo.xoom.schemata.codegen.template.schematype;
 
 import io.vlingo.xoom.codegen.CodeGenerationContext;
 import io.vlingo.xoom.codegen.dialect.Dialect;
@@ -11,15 +11,15 @@ public class SchemaTypeTemplateProcessingStep extends TemplateProcessingStep {
   @Override
   protected List<TemplateData> buildTemplatesData(final CodeGenerationContext context) {
     return SchemaTypeTemplateData.from(
-            context.parameterOf(Label.LANGUAGE),
-            context.parameterObjectOf(Label.TYPE_DEFINITION),
-            context.parameterOf(Label.VERSION)
+            context.parameterOf(SchemaTypeParameterLabel.LANGUAGE),
+            context.parameterObjectOf(SchemaTypeParameterLabel.TYPE_DEFINITION),
+            context.parameterOf(SchemaTypeParameterLabel.VERSION)
     );
   }
 
   @Override
   protected Dialect resolveDialect(final CodeGenerationContext context) {
-    String language = context.parameterOf(Label.LANGUAGE);
+    String language = context.parameterOf(SchemaTypeParameterLabel.LANGUAGE);
     switch (language) {
       case "java":
         return Dialect.JAVA;

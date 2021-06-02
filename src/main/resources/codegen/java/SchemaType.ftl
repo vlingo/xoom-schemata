@@ -4,7 +4,7 @@ package ${package};
 import ${import};
 </#list>
 
-public final class ${typeName} extends ${baseType} {
+public final class ${typeName} extends ${baseTypeName} {
 <#list fields as field>
   ${field.modifiers} ${field.type} ${field.name}<#if field.initializer != ""> = ${field.initializer}</#if>;
 
