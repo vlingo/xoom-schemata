@@ -25,16 +25,18 @@ import static java.util.stream.Collectors.joining;
 
 public class SchemaTypeTemplateData extends TemplateData {
 
+  private final String language;
   private final TypeDefinition type;
   private final String version;
 
-  public static List<TemplateData> from(final TypeDefinition type, final String version) {
+  public static List<TemplateData> from(final String language, final TypeDefinition type, final String version) {
     return Arrays.asList(
-            new SchemaTypeTemplateData(type, version)
+            new SchemaTypeTemplateData(language, type, version)
     );
   }
 
-  private SchemaTypeTemplateData(final TypeDefinition type, final String version) {
+  private SchemaTypeTemplateData(final String language, final TypeDefinition type, final String version) {
+    this.language = language;
     this.type = type;
     this.version = version;
   }

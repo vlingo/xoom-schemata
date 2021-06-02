@@ -11,7 +11,8 @@ import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.actors.testkit.TestWorld;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.SchemataConfig;
-import io.vlingo.xoom.schemata.codegen.backend.java.JavaBackend;
+import io.vlingo.xoom.schemata.codegen.backend.CodeGenBackend;
+import io.vlingo.xoom.schemata.codegen.backend.SchemaTypeTemplateProcessingStep;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
@@ -51,7 +52,7 @@ public class JavaCodeGenSchemaVersionResolverTests {
                    world.actorFor(Processor.class, ComputableTypeProcessor.class),
                    world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
            ),
-           new JavaBackend()
+           new CodeGenBackend(new SchemaTypeTemplateProcessingStep(), "java")
    );
    String spec = "event Foo {\n" +
            "    type eventType\n" +

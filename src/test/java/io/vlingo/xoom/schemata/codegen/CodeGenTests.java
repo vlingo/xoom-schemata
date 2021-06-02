@@ -9,14 +9,12 @@ package io.vlingo.xoom.schemata.codegen;
 
 import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.actors.testkit.TestWorld;
-import io.vlingo.xoom.codegen.CodeGenerationContext;
 import io.vlingo.xoom.codegen.TextExpectation;
-import io.vlingo.xoom.codegen.template.*;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.codegen.ast.Node;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
-import io.vlingo.xoom.schemata.codegen.backend.*;
-import io.vlingo.xoom.schemata.codegen.backend.java.JavaBackend;
+import io.vlingo.xoom.schemata.codegen.backend.CodeGenBackend;
+import io.vlingo.xoom.schemata.codegen.backend.SchemaTypeTemplateProcessingStep;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
@@ -29,7 +27,6 @@ import org.junit.Before;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
@@ -52,14 +49,16 @@ public abstract class CodeGenTests {
         world.terminate();
     }
 
-    protected final TypeDefinitionCompiler compilerWithJavaBackend() {
+    abstract protected TypeDefinitionCompilerActor compiler();
+
+    protected TypeDefinitionCompilerActor compilerFor(String language) {
         return new TypeDefinitionCompilerActor(
                 typeParser,
                 Arrays.asList(
                         world.actorFor(Processor.class, ComputableTypeProcessor.class),
                         world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
                 ),
-                new CodeGenBackend(new SchemaTypeTemplateProcessingStep())
+                new CodeGenBackend(new SchemaTypeTemplateProcessingStep(), language)
         );
     }
 
@@ -76,6 +75,10 @@ public abstract class CodeGenTests {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    protected String compileSpecAndUnwrap(InputStream spec, String fullyQualifiedTypeName, String version) {
+        return compileSpecAndUnwrap(compiler(), spec, fullyQualifiedTypeName, version);
     }
 
     protected String compileSpecAndUnwrap(

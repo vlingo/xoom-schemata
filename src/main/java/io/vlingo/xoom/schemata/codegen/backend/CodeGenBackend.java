@@ -17,9 +17,11 @@ import java.util.stream.Collectors;
 public class CodeGenBackend implements Backend {
 
   private final TemplateProcessingStep templateProcessingStep;
+  private final String language;
 
-  public CodeGenBackend(final TemplateProcessingStep templateProcessingStep) {
+  public CodeGenBackend(final TemplateProcessingStep templateProcessingStep, final String language) {
     this.templateProcessingStep = templateProcessingStep;
+    this.language = language;
   }
 
   @Override
@@ -33,6 +35,7 @@ public class CodeGenBackend implements Backend {
             CodeGenerationParameters
                     .from(CodeGenerationParameter.ofObject(Label.TYPE_DEFINITION, typeDefinition))
                     .add(CodeGenerationParameter.of(Label.VERSION, version))
+                    .add(CodeGenerationParameter.of(Label.LANGUAGE, language))
     );
     templateProcessingStep.process(context);
     return context.contents().stream()

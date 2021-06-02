@@ -4,6 +4,7 @@ import io.vlingo.xoom.codegen.parameter.ParameterLabel;
 
 public enum Label implements ParameterLabel {
   TYPE_DEFINITION("typeDefinition"),
+  LANGUAGE("language"),
   VERSION("version");
 
   private final String key;
