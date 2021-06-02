@@ -24,6 +24,8 @@ import io.vlingo.xoom.schemata.infra.persistence.StateStoreProvider;
 import io.vlingo.xoom.schemata.infra.persistence.StorageProvider;
 import io.vlingo.xoom.schemata.query.TypeResolverQueries;
 import io.vlingo.xoom.schemata.query.TypeResolverQueriesActor;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -32,9 +34,10 @@ import java.util.Arrays;
 import static org.junit.Assert.assertTrue;
 
 public class JavaCodeGenSchemaVersionResolverTests {
+  private World world;
+
   @Test
   public void testThatSpecificationsContainingBasicTypesCanBeCompiledWithSchemaVersionQueryTypeResolver() throws Exception {
-   final World world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
    final TypeParser typeParser = new AntlrTypeParser();
    final SchemataConfig config = SchemataConfig.forRuntime(SchemataConfig.RUNTIME_TYPE_DEV);
    final StateStoreProvider stateStoreProvider = StateStoreProvider.using(world, config);
@@ -95,5 +98,15 @@ public class JavaCodeGenSchemaVersionResolverTests {
    return outcome.resolve(
            Throwable::getMessage,
            code -> code );
+  }
+
+  @Before
+  public void setUp() {
+    world = TestWorld.startWithDefaults(getClass().getSimpleName()).world();
+  }
+
+  @After
+  public void tearDown() {
+    world.terminate();
   }
 }
