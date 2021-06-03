@@ -1,0 +1,54 @@
+using System;
+using Vlingo.Lattice.Model;
+using Vlingo.Xoom.Common.Version;
+
+namespace Context.Events
+{
+  public sealed class SalutationHappened : DomainEvent
+  {
+    public string EventType { get; }
+
+    public long OccurredOn { get; }
+
+    public int EventVersion { get; }
+
+    public bool BooleanAttribute { get; } = true;
+
+    public byte ByteAttribute { get; } = 4;
+
+    public char CharAttribute { get; } = 'x';
+
+    public double DoubleAttribute { get; } = 0.23;
+
+    public float FloatAttribute { get; } = 0.42f;
+
+    public int IntAttribute { get; } = 4242;
+
+    public long LongAttribute { get; } = 42L;
+
+    public short ShortAttribute { get; } = 258;
+
+    public string StringAttribute { get; } = "foo";
+
+    public SalutationHappened(bool booleanAttribute, byte byteAttribute, char charAttribute, double doubleAttribute, float floatAttribute, int intAttribute, long longAttribute, short shortAttribute, string stringAttribute) {
+      EventType = "SalutationHappened";
+      OccurredOn = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+      EventVersion = SemanticVersion.toValue("0.0.1");
+      BooleanAttribute = booleanAttribute;
+      ByteAttribute = byteAttribute;
+      CharAttribute = charAttribute;
+      DoubleAttribute = doubleAttribute;
+      FloatAttribute = floatAttribute;
+      IntAttribute = intAttribute;
+      LongAttribute = longAttribute;
+      ShortAttribute = shortAttribute;
+      StringAttribute = stringAttribute;
+    }
+
+    public SalutationHappened() {
+      EventType = "SalutationHappened";
+      OccurredOn = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+      EventVersion = SemanticVersion.toValue("0.0.1");
+    }
+  }
+}

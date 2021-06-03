@@ -7,11 +7,15 @@ import io.vlingo.xoom.schemata.codegen.ast.types.BasicType;
 import io.vlingo.xoom.schemata.codegen.ast.types.ComputableType;
 import io.vlingo.xoom.schemata.codegen.ast.types.Type;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
+import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
+import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
+import io.vlingo.xoom.schemata.codegen.ast.values.Value;
 import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateData;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 
@@ -31,12 +35,15 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
   @Override
   public TemplateParameters parameters() {
+    List<Property> properties = properties();
     return TemplateParameters
             .with(CSharpSchemaTypeTemplateParameter.NAMESPACE, namespace())
             .and(CSharpSchemaTypeTemplateParameter.IMPORTS, imports())
             .and(CSharpSchemaTypeTemplateParameter.TYPE_NAME, typeName())
             .and(CSharpSchemaTypeTemplateParameter.BASE_TYPE_NAME, baseTypeName())
-            .and(CSharpSchemaTypeTemplateParameter.PROPERTIES, properties());
+            .and(CSharpSchemaTypeTemplateParameter.PROPERTIES, properties)
+            .and(CSharpSchemaTypeTemplateParameter.NEEDS_CONSTRUCTOR, needsConstructor(properties))
+            .and(CSharpSchemaTypeTemplateParameter.NEEDS_DEFAULT_CONSTRUCTOR, needsDefaultConstructor(properties));
   }
 
   private String namespace() {
@@ -48,9 +55,9 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
   private List<String> imports() {
     List<Property> properties = properties();
-    return Arrays.asList("System", "Vlingo.Lattice.Model", "Vlingo.Xoom.Common.Version").stream()
-            .filter(i -> i != "System" || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("DateTimeOffset.")))
-            .filter(i -> i != "Vlingo.Xoom.Common.Version" || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("SemanticVersion.")))
+    return Stream.of("System", "Vlingo.Lattice.Model", "Vlingo.Xoom.Common.Version")
+            .filter(i -> !i.equals("System") || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("DateTimeOffset.")))
+            .filter(i -> !i.equals("Vlingo.Xoom.Common.Version") || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("SemanticVersion.")))
             .collect(Collectors.toList());
   }
 
@@ -68,6 +75,14 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
             .map(c -> (FieldDefinition) c)
             .map(this::toProperty)
             .collect(Collectors.toList());
+  }
+
+  private boolean needsConstructor(final List<Property> properties) {
+    return properties.stream().anyMatch(f -> !f.isComputed);
+  }
+
+  private boolean needsDefaultConstructor(final List<Property> properties) {
+    return properties.size() != 0 && properties.stream().allMatch(f -> f.isComputed || f.defaultValue != null);
   }
 
   private String initializationOf(final FieldDefinition field, final TypeDefinition owner) {
@@ -131,18 +146,48 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
     }
   }
 
+  private String cSharpLiteralOf(FieldDefinition field) {
+    Value<?> value = field.defaultValue.orElseGet(NullValue::new);
+
+    if(value instanceof NullValue) {
+      return null;
+    }
+
+    if(value instanceof SingleValue) {
+      return cSharpLiteralOf((SingleValue<?>) value);
+    }
+
+    if(value instanceof ListValue) {
+      return cSharpLiteralOf((ListValue<?>) value);
+    }
+
+    throw new IllegalStateException("Unsupported value type encountered");
+  }
+
+  private String cSharpLiteralOf(final SingleValue<?> value) {
+    return value.value().toString();
+  }
+
+  @SuppressWarnings("unchecked")
+  private String cSharpLiteralOf(final ListValue value) {
+    return value.value().stream()
+            .map(e -> ((SingleValue<?>) e).value())
+            .collect(joining(", ", "{ ", " }"))
+            .toString();
+  }
+
   private Property toProperty(final FieldDefinition field) {
     return new Property(
             type(field.type),
             field.name.substring(0, 1).toUpperCase() + field.name.substring(1),
             field.name,
-            null,
+            cSharpLiteralOf(field),
             initializationOf(field, type),
             field.type instanceof ComputableType
     );
   }
 
-  public class Property {
+  public static class Property {
     public final String type;
     public final String name;
     public final String argumentName;

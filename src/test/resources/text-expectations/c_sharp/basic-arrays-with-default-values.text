@@ -1,0 +1,40 @@
+using Vlingo.Lattice.Model;
+
+namespace Context.Events
+{
+  public sealed class SalutationHappened : DomainEvent
+  {
+    public bool[] BooleanAttribute { get; } = { true, false, true };
+
+    public byte[] ByteAttribute { get; } = { 4, 3, 2, 1 };
+
+    public char[] CharAttribute { get; } = { 'x', 'y', 'z' };
+
+    public double[] DoubleAttribute { get; } = { 0.23, 0.22, 0.21 };
+
+    public float[] FloatAttribute { get; } = { 0.42f, 0.42f, 0.1f };
+
+    public int[] IntAttribute { get; } = { 4242, 424242, 42424242 };
+
+    public long[] LongAttribute { get; } = { 42L, 4242L, 424242L };
+
+    public short[] ShortAttribute { get; } = { 258, 259, 260 };
+
+    public string[] StringAttribute { get; } = { "foo", "bar", "baz" };
+
+    public SalutationHappened(bool[] booleanAttribute, byte[] byteAttribute, char[] charAttribute, double[] doubleAttribute, float[] floatAttribute, int[] intAttribute, long[] longAttribute, short[] shortAttribute, string[] stringAttribute) {
+      BooleanAttribute = booleanAttribute;
+      ByteAttribute = byteAttribute;
+      CharAttribute = charAttribute;
+      DoubleAttribute = doubleAttribute;
+      FloatAttribute = floatAttribute;
+      IntAttribute = intAttribute;
+      LongAttribute = longAttribute;
+      ShortAttribute = shortAttribute;
+      StringAttribute = stringAttribute;
+    }
+
+    public SalutationHappened() {
+    }
+  }
+}

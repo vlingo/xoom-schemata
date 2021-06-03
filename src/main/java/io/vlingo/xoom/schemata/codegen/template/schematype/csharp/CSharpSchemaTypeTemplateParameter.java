@@ -7,7 +7,9 @@ public enum CSharpSchemaTypeTemplateParameter implements ParameterKey {
   TYPE_NAME("typeName"),
   BASE_TYPE_NAME("baseTypeName"),
   IMPORTS("imports"),
-  PROPERTIES("properties");
+  PROPERTIES("properties"),
+  NEEDS_CONSTRUCTOR("needsConstructor"),
+  NEEDS_DEFAULT_CONSTRUCTOR("needsDefaultConstructor");
 
   public final String key;
 
