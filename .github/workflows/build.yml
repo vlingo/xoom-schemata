@@ -29,7 +29,7 @@ jobs:
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2-repository
+          restore-keys: ${{ runner.os }}-m2-
 
       - name: Cache Node packages
         uses: actions/cache@v2
