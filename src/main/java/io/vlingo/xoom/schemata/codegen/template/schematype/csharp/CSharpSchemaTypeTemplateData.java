@@ -47,7 +47,11 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private List<String> imports() {
-    return Arrays.asList("System", "Vlingo.Lattice.Model", "Vlingo.Xoom.Common.Version");
+    List<Property> properties = properties();
+    return Arrays.asList("System", "Vlingo.Lattice.Model", "Vlingo.Xoom.Common.Version").stream()
+            .filter(i -> i != "System" || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("DateTimeOffset.")))
+            .filter(i -> i != "Vlingo.Xoom.Common.Version" || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("SemanticVersion.")))
+            .collect(Collectors.toList());
   }
 
   private String typeName() {

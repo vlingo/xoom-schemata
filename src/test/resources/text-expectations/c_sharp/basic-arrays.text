@@ -1,6 +1,4 @@
-using System;
 using Vlingo.Lattice.Model;
-using Vlingo.Xoom.Common.Version;
 
 namespace Context.Events
 {
