@@ -3,6 +3,7 @@ package io.vlingo.xoom.schemata.codegen.template.schematype;
 import io.vlingo.xoom.codegen.template.TemplateData;
 import io.vlingo.xoom.codegen.template.TemplateStandard;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.template.schematype.csharp.CSharpSchemaTypeTemplateData;
 import io.vlingo.xoom.schemata.codegen.template.schematype.java.JavaSchemaTypeTemplateData;
 import io.vlingo.xoom.schemata.codegen.template.SchemataTemplateStandard;
 
@@ -19,6 +20,8 @@ public abstract class SchemaTypeTemplateData extends TemplateData {
     switch (language) {
       case "java":
         return JavaSchemaTypeTemplateData.from(type, version);
+      case "csharp":
+        return CSharpSchemaTypeTemplateData.from(type, version);
       default:
         throw new IllegalArgumentException("Unsupported language: " + language);
     }
