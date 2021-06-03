@@ -13,7 +13,7 @@ import io.vlingo.xoom.codegen.TextExpectation;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.codegen.ast.Node;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
-import io.vlingo.xoom.schemata.codegen.backend.CodeGenBackend;
+import io.vlingo.xoom.schemata.codegen.backend.XoomCodeGenBackend;
 import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateProcessingStep;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
@@ -58,7 +58,7 @@ public abstract class CodeGenTests {
                         world.actorFor(Processor.class, ComputableTypeProcessor.class),
                         world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
                 ),
-                new CodeGenBackend(new SchemaTypeTemplateProcessingStep(), language)
+                new XoomCodeGenBackend(new SchemaTypeTemplateProcessingStep(), language)
         );
     }
 

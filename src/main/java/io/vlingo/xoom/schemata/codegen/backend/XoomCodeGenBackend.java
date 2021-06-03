@@ -15,12 +15,12 @@ import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
 
 import java.util.stream.Collectors;
 
-public class CodeGenBackend implements Backend {
+public class XoomCodeGenBackend implements Backend {
 
   private final TemplateProcessingStep templateProcessingStep;
   private final String language;
 
-  public CodeGenBackend(final TemplateProcessingStep templateProcessingStep, final String language) {
+  public XoomCodeGenBackend(final TemplateProcessingStep templateProcessingStep, final String language) {
     this.templateProcessingStep = templateProcessingStep;
     this.language = language;
   }

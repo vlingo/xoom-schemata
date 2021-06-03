@@ -11,7 +11,7 @@ import io.vlingo.xoom.actors.Stage;
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.codegen.backend.Backend;
-import io.vlingo.xoom.schemata.codegen.backend.CodeGenBackend;
+import io.vlingo.xoom.schemata.codegen.backend.XoomCodeGenBackend;
 import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateProcessingStep;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
@@ -53,7 +53,7 @@ public interface TypeDefinitionCompiler {
   public static TypeDefinitionCompiler newCompilerFor(final Stage stage, final String language) {
     switch (language) {
     case "java":
-      return forBackend(stage, new CodeGenBackend(new SchemaTypeTemplateProcessingStep(), language));
+      return forBackend(stage, new XoomCodeGenBackend(new SchemaTypeTemplateProcessingStep(), language));
     default:
       throw new IllegalArgumentException("Unsupported language: " + language);
     }
