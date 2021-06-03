@@ -94,6 +94,8 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
     String result;
     switch (basicType.typeName) {
       case "boolean":
+        result = "bool";
+        break;
       case "byte":
       case "char":
       case "short":

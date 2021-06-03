@@ -12,7 +12,7 @@ namespace Context.Events
 
     public int EventVersion { get; }
 
-    public boolean BooleanAttribute { get; }
+    public bool BooleanAttribute { get; }
 
     public byte ByteAttribute { get; }
 
@@ -30,7 +30,7 @@ namespace Context.Events
 
     public string StringAttribute { get; }
 
-    public SalutationHappened(boolean booleanAttribute, byte byteAttribute, char charAttribute, double doubleAttribute, float floatAttribute, int intAttribute, long longAttribute, short shortAttribute, string stringAttribute) {
+    public SalutationHappened(bool booleanAttribute, byte byteAttribute, char charAttribute, double doubleAttribute, float floatAttribute, int intAttribute, long longAttribute, short shortAttribute, string stringAttribute) {
       EventType = "SalutationHappened";
       OccurredOn = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
       EventVersion = SemanticVersion.toValue("0.0.1");
