@@ -63,20 +63,7 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String packageName() {
-    final String category = type.category.name().toLowerCase();
-    final String reference = type.fullyQualifiedTypeName;
-    final String[] referenceParts = reference.split(Schemata.ReferenceSeparator);
-    if (referenceParts.length < Schemata.MinReferenceParts) {
-      throw new IllegalArgumentException("Invalid fully qualified type name. Valid type names look like this <organization>:<unit>:<context namespace>:<type name>[:<version>].");
-    }
-    final String namespace = referenceParts[2];
-    final String className = referenceParts[3];
-
-    final String basePackage = namespace + "." + category;
-    final String localPackage = className.contains(".") ? className.substring(0, className.lastIndexOf('.')) : "";
-    return localPackage.length() > 0
-            ? basePackage + "." + localPackage
-            : basePackage;
+    return packageParts(type.fullyQualifiedTypeName, type.category.name().toLowerCase()).stream().collect(joining("."));
   }
 
   private String typeName() {
