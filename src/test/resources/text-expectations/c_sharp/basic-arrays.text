@@ -1,0 +1,39 @@
+using System;
+using Vlingo.Lattice.Model;
+using Vlingo.Xoom.Common.Version;
+
+namespace Context.Events
+{
+  public sealed class SalutationHappened : DomainEvent
+  {
+    public boolean[] BooleanAttribute { get; }
+
+    public byte[] ByteAttribute { get; }
+
+    public char[] CharAttribute { get; }
+
+    public double[] DoubleAttribute { get; }
+
+    public float[] FloatAttribute { get; }
+
+    public int[] IntAttribute { get; }
+
+    public long[] LongAttribute { get; }
+
+    public short[] ShortAttribute { get; }
+
+    public string[] StringAttribute { get; }
+
+    public SalutationHappened(boolean[] booleanAttribute, byte[] byteAttribute, char[] charAttribute, double[] doubleAttribute, float[] floatAttribute, int[] intAttribute, long[] longAttribute, short[] shortAttribute, string[] stringAttribute) {
+      BooleanAttribute = booleanAttribute;
+      ByteAttribute = byteAttribute;
+      CharAttribute = charAttribute;
+      DoubleAttribute = doubleAttribute;
+      FloatAttribute = floatAttribute;
+      IntAttribute = intAttribute;
+      LongAttribute = longAttribute;
+      ShortAttribute = shortAttribute;
+      StringAttribute = stringAttribute;
+    }
+  }
+}
