@@ -155,7 +155,7 @@ public class AntlrTypeParser implements TypeParser {
     }
 
     private Node parseComplexTypeAttribute(SchemaVersionDefinitionParser.ComplexTypeAttributeContext attribute) {
-        String typeName = attribute.typeName().getText();
+        String typeName = attribute.attributeTypeName().getText();
         String fieldName = attribute.IDENTIFIER().getText();
 
         return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, Optional.empty());

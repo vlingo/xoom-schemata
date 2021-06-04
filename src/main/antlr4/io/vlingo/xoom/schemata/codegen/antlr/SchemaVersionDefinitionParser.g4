@@ -40,6 +40,10 @@ attribute
   | specialTypeAttribute
   ;
 
+attributeTypeName
+  : ATTRIBUTE_TYPE_IDENTIFIER
+  ;
+
 basicTypeAttribute
   : BOOLEAN IDENTIFIER (ASSIGN BOOLEAN_LITERAL)?
   | BOOLEAN ARRAY IDENTIFIER (ASSIGN LBRACE BOOLEAN_LITERAL (COMMA BOOLEAN_LITERAL)* RBRACE)?
@@ -62,8 +66,8 @@ basicTypeAttribute
   ;
 
 complexTypeAttribute
-  : typeName IDENTIFIER (ASSIGN NULL_LITERAL)?
-  | typeName ARRAY IDENTIFIER
+  : attributeTypeName IDENTIFIER (ASSIGN NULL_LITERAL)?
+  | attributeTypeName ARRAY IDENTIFIER
   ;
 
 specialTypeAttribute
