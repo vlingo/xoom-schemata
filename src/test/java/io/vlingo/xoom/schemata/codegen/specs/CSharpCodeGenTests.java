@@ -9,9 +9,7 @@ package io.vlingo.xoom.schemata.codegen.specs;
 
 import io.vlingo.xoom.codegen.TextExpectation;
 import io.vlingo.xoom.schemata.codegen.TypeDefinitionCompilerActor;
-import org.junit.Ignore;
 
-@Ignore
 public class CSharpCodeGenTests extends CodeGenSpecs {
   @Override
   protected TypeDefinitionCompilerActor compiler() {

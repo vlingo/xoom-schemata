@@ -1,0 +1,21 @@
+using System;
+using Vlingo.Lattice.Model;
+using Vlingo.Xoom.Common.Version;
+
+namespace Context.Events
+{
+  public sealed class SalutationHappened : DomainEvent
+  {
+    public string Name { get; }
+
+    public long PublishedOn { get; }
+
+    public int PublishedVersion { get; }
+
+    public SalutationHappened() {
+      Name = "SalutationHappened";
+      PublishedOn = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+      PublishedVersion = SemanticVersion.toValue("0.0.1");
+    }
+  }
+}

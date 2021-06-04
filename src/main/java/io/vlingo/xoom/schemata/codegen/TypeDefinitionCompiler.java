@@ -52,6 +52,7 @@ public interface TypeDefinitionCompiler {
    */
   public static TypeDefinitionCompiler newCompilerFor(final Stage stage, final String language) {
     switch (language) {
+    case "csharp":
     case "java":
       return forBackend(stage, new XoomCodeGenBackend(new SchemaTypeTemplateProcessingStep(), language));
     default:

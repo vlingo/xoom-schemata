@@ -1,0 +1,13 @@
+using Vlingo.Lattice.Model;
+
+namespace Context.Events
+{
+  public sealed class SalutationHappened : DomainEvent
+  {
+    public string EventType { get; }
+
+    public SalutationHappened() {
+      EventType = "SalutationHappened";
+    }
+  }
+}
