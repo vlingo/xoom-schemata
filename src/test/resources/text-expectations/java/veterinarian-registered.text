@@ -1,0 +1,26 @@
+package io.vlingo.xoom.examples.petclinic.event;
+
+import io.vlingo.xoom.lattice.model.DomainEvent;
+import java.lang.Object;
+import java.lang.String;
+
+public final class VeterinarianRegistered extends DomainEvent {
+  public final int semanticVersion;
+
+  public final String id;
+
+  public final FullName name;
+
+  public final ContactInformation contactInformation;
+
+  public final Speciality specialty;
+
+  public VeterinarianRegistered(final String id, final FullName name, final ContactInformation contactInformation,
+      final Speciality specialty) {
+    this.semanticVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue("1.0.0");
+    this.id = id;
+    this.name = name;
+    this.contactInformation = contactInformation;
+    this.specialty = specialty;
+  }
+}

@@ -97,4 +97,18 @@ abstract public class CodeGenSpecs extends CodeGenTests {
 
     assertMatchesSpec(result, "computed-only");
   }
+
+  @Test
+  public void testThatGeneratesTypeWithDependencies() {
+    registerType("types/FullName", "xoom:apps:io.vlingo.xoom.examples.petclinic:FullName", "1.0.0");
+    registerType("types/ContactInformation", "xoom:apps:io.vlingo.xoom.examples.petclinic:ContactInformation", "2.0.0");
+    registerType("types/Speciality", "xoom:apps:io.vlingo.xoom.examples.petclinic:Speciality", "1.0.0");
+    registerType("types/PostalAddress", "xoom:apps:io.vlingo.xoom.examples.petclinic:PostalAddress", "1.2.0");
+    registerType("types/Telephone", "xoom:apps:io.vlingo.xoom.examples.petclinic:Telephone", "1.0.1");
+
+    final String fullyQualifiedTypeName = "xoom:apps:io.vlingo.xoom.examples.petclinic:VeterinarianRegistered";
+    final String result = compileSpecAndUnwrap(typeDefinition("veterinarian-registered"), fullyQualifiedTypeName, "1.0.0");
+
+    assertMatchesSpec(result, "veterinarian-registered");
+  }
 }
