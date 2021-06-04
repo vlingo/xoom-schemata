@@ -134,9 +134,9 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.squareup</groupId>
-      <artifactId>javapoet</artifactId>
-      <version>1.11.1</version>
+      <groupId>io.vlingo.xoom</groupId>
+      <artifactId>xoom-codegen</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>

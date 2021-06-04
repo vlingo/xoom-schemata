@@ -28,10 +28,7 @@ public final class SalutationHappened extends DomainEvent {
 
   public String stringAttribute = "foo";
 
-  public SalutationHappened(final boolean booleanAttribute, final byte byteAttribute,
-      final char charAttribute, final double doubleAttribute, final float floatAttribute,
-      final int intAttribute, final long longAttribute, final short shortAttribute,
-      final String stringAttribute) {
+  public SalutationHappened(final boolean booleanAttribute, final byte byteAttribute, final char charAttribute, final double doubleAttribute, final float floatAttribute, final int intAttribute, final long longAttribute, final short shortAttribute, final String stringAttribute) {
     this.eventType = "SalutationHappened";
     this.occurredOn = System.currentTimeMillis();
     this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue("0.0.1");

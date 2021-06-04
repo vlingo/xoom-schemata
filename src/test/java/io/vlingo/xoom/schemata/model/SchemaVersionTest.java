@@ -16,7 +16,8 @@ import io.vlingo.xoom.lattice.model.sourcing.SourcedTypeRegistry.Info;
 import io.vlingo.xoom.schemata.NoopDispatcher;
 import io.vlingo.xoom.schemata.codegen.TypeDefinitionCompilerActor;
 import io.vlingo.xoom.schemata.codegen.TypeDefinitionMiddleware;
-import io.vlingo.xoom.schemata.codegen.backend.java.JavaBackend;
+import io.vlingo.xoom.schemata.codegen.backend.XoomCodeGenBackend;
+import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateProcessingStep;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
@@ -38,7 +39,8 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class SchemaVersionTest {
   protected Journal<String> journal;
@@ -69,7 +71,7 @@ public class SchemaVersionTest {
             Arrays.asList(
                     world.actorFor(Processor.class, ComputableTypeProcessor.class),
                     world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)),
-            new JavaBackend());
+            new XoomCodeGenBackend(new SchemaTypeTemplateProcessingStep(), "java"));
 
     simpleSchemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
     simpleSchemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, simpleSchemaVersionId);
