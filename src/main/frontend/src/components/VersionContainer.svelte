@@ -19,10 +19,10 @@
 	let active;
 	let showCodeModal = false;
 	let chosenLang;
-	let langs = [
-		'Java',
-		'CSharp',
-	]
+	let langs = Object.entries({
+		java: 'Java',
+		csharp: 'C#',
+	})
 	let sourceCode = "";
 	let showPreviewModal = false;
 
@@ -158,8 +158,8 @@
 		<CardTitle>Choose language to generate:</CardTitle>
 		<CardText>
 			<div class="mx-3">
-				{#each langs as lang}
-					<Radio bind:group={chosenLang} value={lang} color="primary">{lang}</Radio>
+				{#each langs as [lang, langName]}
+					<Radio bind:group={chosenLang} value={lang} color="primary">{langName}</Radio>
 				{/each}
 				{#if sourceCode}
 					<pre class="mt-3"><code>{sourceCode}</code></pre>
