@@ -47,7 +47,7 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String namespace() {
-    return packageParts(type.fullyQualifiedTypeName, type.category.name()+"s")
+    return packageSegments(type.fullyQualifiedTypeName, type.category.name()+"s")
             .stream()
             .map(p -> p.substring(0, 1).toUpperCase() + p.substring(1))
             .collect(joining("."));

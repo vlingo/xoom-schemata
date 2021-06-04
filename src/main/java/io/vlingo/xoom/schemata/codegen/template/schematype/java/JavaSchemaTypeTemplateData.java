@@ -3,7 +3,6 @@ package io.vlingo.xoom.schemata.codegen.template.schematype.java;
 import io.vlingo.xoom.codegen.template.TemplateData;
 import io.vlingo.xoom.codegen.template.TemplateParameters;
 import io.vlingo.xoom.lattice.model.DomainEvent;
-import io.vlingo.xoom.schemata.Schemata;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.xoom.schemata.codegen.ast.types.BasicType;
 import io.vlingo.xoom.schemata.codegen.ast.types.ComputableType;
@@ -63,7 +62,7 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String packageName() {
-    return packageParts(type.fullyQualifiedTypeName, type.category.name().toLowerCase()).stream().collect(joining("."));
+    return packageSegments(type.fullyQualifiedTypeName, type.category.name().toLowerCase()).stream().collect(joining("."));
   }
 
   private String typeName() {

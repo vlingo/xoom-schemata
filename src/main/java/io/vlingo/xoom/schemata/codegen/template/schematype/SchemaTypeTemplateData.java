@@ -33,7 +33,7 @@ public abstract class SchemaTypeTemplateData extends TemplateData {
     return SchemataTemplateStandard.SCHEMA_TYPE;
   }
 
-  protected List<String> packageParts(String reference, String category) {
+  protected List<String> packageSegments(String reference, String category) {
     final String[] referenceParts = reference.split(Schemata.ReferenceSeparator);
     if (referenceParts.length < Schemata.MinReferenceParts) {
       throw new IllegalArgumentException("Invalid fully qualified type name. Valid type names look like this <organization>:<unit>:<context namespace>:<type name>[:<version>].");
