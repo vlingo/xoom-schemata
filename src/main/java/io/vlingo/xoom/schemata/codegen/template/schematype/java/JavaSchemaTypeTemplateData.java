@@ -4,10 +4,7 @@ import io.vlingo.xoom.codegen.template.TemplateData;
 import io.vlingo.xoom.codegen.template.TemplateParameters;
 import io.vlingo.xoom.lattice.model.DomainEvent;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
-import io.vlingo.xoom.schemata.codegen.ast.types.BasicType;
-import io.vlingo.xoom.schemata.codegen.ast.types.ComputableType;
-import io.vlingo.xoom.schemata.codegen.ast.types.Type;
-import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.ast.types.*;
 import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
@@ -111,7 +108,9 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String type(final Type type) {
-    if (type instanceof BasicType) {
+    if (type instanceof ArrayType) {
+      return type(((ArrayType) type).elementType) + "[]";
+    } else if (type instanceof BasicType) {
       return primitive((BasicType) type);
     } else if (type instanceof ComputableType) {
       return computable((ComputableType) type);
@@ -184,17 +183,9 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
             .map(e -> ((SingleValue)e).value())
             .collect(joining(
                     ", ",
-                    String.format("new %s { ", typeTypeOf(type)),
+                    String.format("new %s { ", type(type)),
                     " }"
             )).toString();
-  }
-
-  private String typeTypeOf(final Type type) {
-    if (type instanceof BasicType) {
-      return primitive((BasicType) type);
-    } else {
-      return ((TypeDefinition) type).typeName;
-    }
   }
 
   private String initializationOf(final FieldDefinition definition, final TypeDefinition owner) {

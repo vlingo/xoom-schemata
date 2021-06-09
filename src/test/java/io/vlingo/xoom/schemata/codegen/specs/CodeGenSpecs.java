@@ -67,6 +67,14 @@ abstract public class CodeGenSpecs extends CodeGenTests {
   }
 
   @Test
+  public void testThatGeneratesComplexTypeArrays() throws SchemataBusinessException {
+    registerType("types/price", "Org:Unit:Context:Schema:Price", "1.0.0");
+    final String result = compileSpecAndUnwrap(typeDefinition("complexTypeArrays"), "Org:Unit:Context:Schema:PriceChanged", "0.5.1");
+
+    assertMatchesSpec(result, "complex-type-arrays");
+  }
+
+  @Test
   public void testThatGeneratedClassIsInCorrectPackage() {
     final String fullyQualifiedTypeName = "Org:Unit:io.vlingo.xoom.mynamespace:SalutationHappened";
     final String result = compileSpecAndUnwrap(typeDefinition("basic"), fullyQualifiedTypeName, "0.0.1");

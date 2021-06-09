@@ -3,10 +3,7 @@ package io.vlingo.xoom.schemata.codegen.template.schematype.csharp;
 import io.vlingo.xoom.codegen.template.TemplateData;
 import io.vlingo.xoom.codegen.template.TemplateParameters;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
-import io.vlingo.xoom.schemata.codegen.ast.types.BasicType;
-import io.vlingo.xoom.schemata.codegen.ast.types.ComputableType;
-import io.vlingo.xoom.schemata.codegen.ast.types.Type;
-import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.ast.types.*;
 import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
@@ -101,7 +98,9 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String type(final Type type) {
-    if (type instanceof BasicType) {
+    if (type instanceof ArrayType) {
+      return type(((ArrayType) type).elementType) + "[]";
+    } else if (type instanceof BasicType) {
       return primitive((BasicType) type);
     } else if (type instanceof ComputableType) {
       return computable((ComputableType) type);
