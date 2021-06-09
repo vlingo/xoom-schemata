@@ -8,14 +8,7 @@
 package io.vlingo.xoom.schemata.codegen.specs;
 
 import io.vlingo.xoom.codegen.TextExpectation;
-import io.vlingo.xoom.schemata.codegen.CodeGenTests;
-import io.vlingo.xoom.schemata.codegen.TypeDefinitionCompiler;
 import io.vlingo.xoom.schemata.codegen.TypeDefinitionCompilerActor;
-import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 
 public class JavaCodeGenTests extends CodeGenSpecs {
   @Override

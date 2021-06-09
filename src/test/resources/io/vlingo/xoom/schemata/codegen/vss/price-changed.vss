@@ -1,6 +1,6 @@
 event PriceChanged {
     version eventVersion
     timestamp occurredOn
-    Org:Unit:Context:Schema:Price oldPrice
-    Org:Unit:Context:Schema:Price:1.0.0 newPrice
+    data.Price oldPrice
+    data.Price:1.0.0 newPrice
 }

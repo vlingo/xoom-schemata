@@ -30,6 +30,10 @@ typeBody
   : LBRACE attributes RBRACE
   ;
 
+categoryTypeReference
+  : type DOT typeName
+  ;
+
 attributes
   : attribute*
   ;
@@ -62,8 +66,8 @@ basicTypeAttribute
   ;
 
 complexTypeAttribute
-  : typeName IDENTIFIER (ASSIGN NULL_LITERAL)?
-  | typeName ARRAY IDENTIFIER
+  : categoryTypeReference (COLON SEMANTIC_VERSION)? IDENTIFIER (ASSIGN NULL_LITERAL)?
+  | categoryTypeReference (COLON SEMANTIC_VERSION)? ARRAY IDENTIFIER
   ;
 
 specialTypeAttribute
