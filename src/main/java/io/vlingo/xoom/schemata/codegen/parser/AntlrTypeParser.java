@@ -7,7 +7,27 @@
 
 package io.vlingo.xoom.schemata.codegen.parser;
 
-import static java.util.stream.Collectors.toList;
+import io.vlingo.xoom.common.Failure;
+import io.vlingo.xoom.common.Outcome;
+import io.vlingo.xoom.common.Success;
+import io.vlingo.xoom.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
+import io.vlingo.xoom.schemata.codegen.antlr.SchemaVersionDefinitionParser;
+import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
+import io.vlingo.xoom.schemata.codegen.ast.Node;
+import io.vlingo.xoom.schemata.codegen.ast.types.BasicArrayType;
+import io.vlingo.xoom.schemata.codegen.ast.types.BasicType;
+import io.vlingo.xoom.schemata.codegen.ast.types.ComplexType;
+import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
+import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
+import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
+import io.vlingo.xoom.schemata.codegen.ast.values.Value;
+import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
+import io.vlingo.xoom.schemata.model.Category;
+import org.antlr.v4.runtime.CodePointBuffer;
+import org.antlr.v4.runtime.CodePointCharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,27 +39,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.antlr.v4.runtime.CodePointBuffer;
-import org.antlr.v4.runtime.CodePointCharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.TerminalNode;
-
-import io.vlingo.xoom.common.Failure;
-import io.vlingo.xoom.common.Outcome;
-import io.vlingo.xoom.common.Success;
-import io.vlingo.xoom.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
-import io.vlingo.xoom.schemata.codegen.antlr.SchemaVersionDefinitionParser;
-import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
-import io.vlingo.xoom.schemata.codegen.ast.Node;
-import io.vlingo.xoom.schemata.codegen.ast.types.BasicArrayType;
-import io.vlingo.xoom.schemata.codegen.ast.types.BasicType;
-import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
-import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
-import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
-import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
-import io.vlingo.xoom.schemata.codegen.ast.values.Value;
-import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
-import io.vlingo.xoom.schemata.model.Category;
+import static java.util.stream.Collectors.toList;
 
 
 public class AntlrTypeParser implements TypeParser {
@@ -155,10 +155,11 @@ public class AntlrTypeParser implements TypeParser {
     }
 
     private Node parseComplexTypeAttribute(SchemaVersionDefinitionParser.ComplexTypeAttributeContext attribute) {
-        String typeName = attribute.typeName().getText();
+        String typeName = attribute.categoryTypeReference().typeName().getText();
+        Category category = categoryOf(attribute.categoryTypeReference().type().getText());
         String fieldName = attribute.IDENTIFIER().getText();
 
-        return new FieldDefinition(new BasicType(typeName), Optional.empty(), fieldName, Optional.empty());
+        return new FieldDefinition(new ComplexType(category, typeName), Optional.empty(), fieldName, Optional.empty());
     }
 
     private Node parseSpecialTypeAttribute(SchemaVersionDefinitionParser.SpecialTypeAttributeContext attribute) {
