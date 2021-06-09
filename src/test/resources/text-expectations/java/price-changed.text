@@ -1,5 +1,6 @@
 package Context.event;
 
+import Context.data.Price;
 import io.vlingo.xoom.lattice.model.DomainEvent;
 
 public final class PriceChanged extends DomainEvent {

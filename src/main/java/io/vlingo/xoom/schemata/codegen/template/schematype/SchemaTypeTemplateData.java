@@ -55,6 +55,8 @@ public abstract class SchemaTypeTemplateData extends TemplateData {
       return primitive((BasicType) type);
     } else if (type instanceof ComputableType) {
       return computable((ComputableType) type);
+    } else if (type instanceof ComplexType) {
+      return complex((ComplexType) type);
     }
     return type.name();
   }
@@ -64,4 +66,6 @@ public abstract class SchemaTypeTemplateData extends TemplateData {
   protected abstract String primitive(final BasicType basicType);
 
   protected abstract String computable(final ComputableType computableType);
+
+  protected abstract String complex(final ComplexType complexType);
 }

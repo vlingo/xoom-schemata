@@ -60,7 +60,11 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String packageName() {
-    return packageSegments(type.fullyQualifiedTypeName, type.category.name().toLowerCase()).stream().collect(joining("."));
+    return packageName(type.category.name().toLowerCase());
+  }
+
+  private String packageName(String lastSegment) {
+    return packageSegments(type.fullyQualifiedTypeName, lastSegment).stream().collect(joining("."));
   }
 
   private String typeName() {
@@ -98,12 +102,7 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
   private Set<String> fieldTypes() {
     return fields().stream()
-            .map(f -> {
-              if (f.type.equals("String") || f.type.equals("String[]")) {
-                return "java.lang.String";
-              }
-              return null;
-            })
+            .map(f -> f.typeImport)
             .filter(f -> f != null)
             .collect(Collectors.toSet());
   }
@@ -144,6 +143,11 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
       default:
         return "Object";
     }
+  }
+
+  @Override
+  protected String complex(final ComplexType complexType) {
+    return complexType.name();
   }
 
   private String javaLiteralOf(final FieldDefinition definition) {
@@ -195,9 +199,20 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
     return definition.name;
   }
 
+  private String typeImport(Type type) {
+    if (type instanceof ComplexType) {
+      return packageName(((ComplexType) type).category.name().toLowerCase()) + "." + type.name();
+    }
+    if (type.name().equals("string") || type.name().equals("string[]") || type.name().equals("type")) {
+      return "java.lang.String";
+    }
+    return null;
+  }
+
   private Field toField(final FieldDefinition field) {
     return new Field(
             type(field.type),
+            typeImport(field.type),
             field.name,
             javaLiteralOf(field),
             initializationOf(field, type),
@@ -207,13 +222,15 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
   public class Field {
     public final String type;
+    public final String typeImport;
     public final String name;
     public final String defaultValue;
     public final String constructorInitializer;
     public final boolean isComputed;
 
-    public Field(final String type, final String name, final String defaultValue, final String constructorInitializer, final boolean isComputed) {
+    public Field(final String type, final String typeImport, final String name, final String defaultValue, final String constructorInitializer, final boolean isComputed) {
       this.type = type;
+      this.typeImport = typeImport;
       this.name = name;
       this.defaultValue = defaultValue;
       this.constructorInitializer = constructorInitializer;

@@ -45,7 +45,11 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String namespace() {
-    return packageSegments(type.fullyQualifiedTypeName, categoryNamespaceSegment(type.category))
+    return namespace(categoryNamespaceSegment(type.category));
+  }
+
+  private String namespace(String lastSegment) {
+    return packageSegments(type.fullyQualifiedTypeName, lastSegment)
             .stream()
             .map(p -> p.substring(0, 1).toUpperCase() + p.substring(1))
             .collect(joining("."));
@@ -62,11 +66,13 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
   private List<String> imports() {
     List<Property> properties = properties();
-    return Stream.of("System", "Vlingo.Lattice.Model", "Vlingo.Xoom.Common.Version")
+    Stream<String> propertyImports = properties.stream().map(p -> p.namespaceImport).filter(i -> i != null);
+    return Stream.concat(Stream.of("System", "Vlingo.Lattice.Model", "Vlingo.Xoom.Common.Version"), propertyImports)
             .filter(i -> !i.equals("System") || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("DateTimeOffset.")))
             .filter(i -> !i.equals("Vlingo.Xoom.Common.Version") || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("SemanticVersion.")))
             .filter(i -> !i.equals("Vlingo.Lattice.Model") || type.category.equals(Category.Event))
-            .collect(Collectors.toList());
+            .collect(Collectors.toSet())
+            .stream().sorted().collect(Collectors.toList());
   }
 
   private String typeName() {
@@ -152,6 +158,11 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
     }
   }
 
+  @Override
+  protected String complex(final ComplexType complexType) {
+    return complexType.name();
+  }
+
   private String cSharpLiteralOf(FieldDefinition field) {
     Value<?> value = field.defaultValue.orElseGet(NullValue::new);
 
@@ -182,9 +193,17 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
             .toString();
   }
 
+  private String namespaceImport(Type type) {
+    if (type instanceof ComplexType) {
+      return namespace(((ComplexType) type).category.name());
+    }
+    return null;
+  }
+
   private Property toProperty(final FieldDefinition field) {
     return new Property(
             type(field.type),
+            namespaceImport(field.type),
             field.name.substring(0, 1).toUpperCase() + field.name.substring(1),
             field.name,
             cSharpLiteralOf(field),
@@ -195,14 +214,16 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
   public static class Property {
     public final String type;
+    public final String namespaceImport;
     public final String name;
     public final String argumentName;
     public final String defaultValue;
     public final String constructorInitializer;
     public final boolean isComputed;
 
-    public Property(final String type, final String name, final String argumentName, final String defaultValue, final String constructorInitializer, final boolean isComputed) {
+    public Property(final String type, final String namespaceImport, final String name, final String argumentName, final String defaultValue, final String constructorInitializer, final boolean isComputed) {
       this.type = type;
+      this.namespaceImport = namespaceImport;
       this.name = name;
       this.argumentName = argumentName;
       this.defaultValue = defaultValue;
