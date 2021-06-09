@@ -97,18 +97,13 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
     return field.name;
   }
 
-  private String type(final Type type) {
-    if (type instanceof ArrayType) {
-      return type(((ArrayType) type).elementType) + "[]";
-    } else if (type instanceof BasicType) {
-      return primitive((BasicType) type);
-    } else if (type instanceof ComputableType) {
-      return computable((ComputableType) type);
-    }
-    return type.name();
+  @Override
+  protected String array(final ArrayType type) {
+    return type(type.elementType) + "[]";
   }
 
-  private String primitive(final BasicType basicType) {
+  @Override
+  protected String primitive(final BasicType basicType) {
     switch (basicType.typeName) {
       case "boolean":
         return "bool";
@@ -126,7 +121,8 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
     }
   }
 
-  private String computable(final ComputableType computableType) {
+  @Override
+  protected String computable(final ComputableType computableType) {
     switch (computableType.typeName) {
       case "type":
         return "string";

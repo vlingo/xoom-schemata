@@ -3,7 +3,7 @@ package io.vlingo.xoom.schemata.codegen.template.schematype;
 import io.vlingo.xoom.codegen.template.TemplateData;
 import io.vlingo.xoom.codegen.template.TemplateStandard;
 import io.vlingo.xoom.schemata.Schemata;
-import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.ast.types.*;
 import io.vlingo.xoom.schemata.codegen.template.schematype.csharp.CSharpSchemaTypeTemplateData;
 import io.vlingo.xoom.schemata.codegen.template.schematype.java.JavaSchemaTypeTemplateData;
 import io.vlingo.xoom.schemata.codegen.template.SchemataTemplateStandard;
@@ -47,4 +47,21 @@ public abstract class SchemaTypeTemplateData extends TemplateData {
             ? basePackage + "." + localPackage
             : basePackage).split("\\."));
   }
+
+  protected String type(final Type type) {
+    if (type instanceof ArrayType) {
+      return array((ArrayType) type);
+    } else if (type instanceof BasicType) {
+      return primitive((BasicType) type);
+    } else if (type instanceof ComputableType) {
+      return computable((ComputableType) type);
+    }
+    return type.name();
+  }
+
+  protected abstract String array(final ArrayType type);
+
+  protected abstract String primitive(final BasicType basicType);
+
+  protected abstract String computable(final ComputableType computableType);
 }
