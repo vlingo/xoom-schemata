@@ -14,10 +14,7 @@ import io.vlingo.xoom.schemata.codegen.antlr.SchemaVersionDefinitionLexer;
 import io.vlingo.xoom.schemata.codegen.antlr.SchemaVersionDefinitionParser;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.xoom.schemata.codegen.ast.Node;
-import io.vlingo.xoom.schemata.codegen.ast.types.BasicArrayType;
-import io.vlingo.xoom.schemata.codegen.ast.types.BasicType;
-import io.vlingo.xoom.schemata.codegen.ast.types.ComplexType;
-import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.ast.types.*;
 import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
@@ -129,7 +126,7 @@ public class AntlrTypeParser implements TypeParser {
         }
 
         return new FieldDefinition(
-                isArrayType ? new BasicArrayType(typeName) : new BasicType(typeName),
+                isArrayType ? new ArrayType(new BasicType(typeName)) : new BasicType(typeName),
                 Optional.empty(),
                 fieldName,
                 defaultValue);
@@ -158,8 +155,15 @@ public class AntlrTypeParser implements TypeParser {
         String typeName = attribute.categoryTypeReference().typeName().getText();
         Category category = categoryOf(attribute.categoryTypeReference().type().getText());
         String fieldName = attribute.IDENTIFIER().getText();
+        boolean isArrayType = attribute.ARRAY() == null ? false : true;
 
-        return new FieldDefinition(new ComplexType(category, typeName), Optional.empty(), fieldName, Optional.empty());
+        ComplexType type = new ComplexType(category, typeName);
+        return new FieldDefinition(
+                isArrayType ? new ArrayType(type) : type,
+                Optional.empty(),
+                fieldName,
+                Optional.empty()
+        );
     }
 
     private Node parseSpecialTypeAttribute(SchemaVersionDefinitionParser.SpecialTypeAttributeContext attribute) {

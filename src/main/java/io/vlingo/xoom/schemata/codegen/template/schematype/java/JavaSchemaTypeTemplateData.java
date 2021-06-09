@@ -4,10 +4,7 @@ import io.vlingo.xoom.codegen.template.TemplateData;
 import io.vlingo.xoom.codegen.template.TemplateParameters;
 import io.vlingo.xoom.lattice.model.DomainEvent;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
-import io.vlingo.xoom.schemata.codegen.ast.types.BasicType;
-import io.vlingo.xoom.schemata.codegen.ast.types.ComputableType;
-import io.vlingo.xoom.schemata.codegen.ast.types.Type;
-import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.ast.types.*;
 import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
@@ -110,17 +107,13 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
             .collect(Collectors.toSet());
   }
 
-  private String type(final Type type) {
-    if (type instanceof BasicType) {
-      return primitive((BasicType) type);
-    } else if (type instanceof ComputableType) {
-      return computable((ComputableType) type);
-    }
-    return type.name();
+  @Override
+  protected String array(final ArrayType type) {
+    return type(type.elementType) + "[]";
   }
 
-  private String primitive(final BasicType basicType) {
-    String result = null;
+  @Override
+  protected String primitive(final BasicType basicType) {
     switch (basicType.typeName) {
       case "boolean":
       case "byte":
@@ -130,20 +123,16 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
       case "long":
       case "float":
       case "double":
-        result = basicType.typeName;
-        break;
+        return basicType.typeName;
       case "string":
-        result = "String";
-        break;
+        return "String";
       default:
-        result = "Object";
-        break;
+        return "Object";
     }
-
-    return basicType.isArrayType() ? result + "[]" : result;
   }
 
-  private String computable(final ComputableType computableType) {
+  @Override
+  protected String computable(final ComputableType computableType) {
     switch (computableType.typeName) {
       case "type":
         return "String";
@@ -184,17 +173,9 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
             .map(e -> ((SingleValue)e).value())
             .collect(joining(
                     ", ",
-                    String.format("new %s { ", typeTypeOf(type)),
+                    String.format("new %s { ", type(type)),
                     " }"
             )).toString();
-  }
-
-  private String typeTypeOf(final Type type) {
-    if (type instanceof BasicType) {
-      return primitive((BasicType) type);
-    } else {
-      return ((TypeDefinition) type).typeName;
-    }
   }
 
   private String initializationOf(final FieldDefinition definition, final TypeDefinition owner) {

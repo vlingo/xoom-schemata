@@ -1,0 +1,21 @@
+using System;
+using Vlingo.Lattice.Model;
+using Vlingo.Xoom.Common.Version;
+
+namespace Context.Events
+{
+  public sealed class PriceChanged : DomainEvent
+  {
+    public int EventVersion { get; }
+
+    public long OccurredOn { get; }
+
+    public Price[] PriceHistory { get; }
+
+    public PriceChanged(Price[] priceHistory) {
+      EventVersion = SemanticVersion.toValue("0.5.1");
+      OccurredOn = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+      PriceHistory = priceHistory;
+    }
+  }
+}

@@ -3,10 +3,7 @@ package io.vlingo.xoom.schemata.codegen.template.schematype.csharp;
 import io.vlingo.xoom.codegen.template.TemplateData;
 import io.vlingo.xoom.codegen.template.TemplateParameters;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
-import io.vlingo.xoom.schemata.codegen.ast.types.BasicType;
-import io.vlingo.xoom.schemata.codegen.ast.types.ComputableType;
-import io.vlingo.xoom.schemata.codegen.ast.types.Type;
-import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.ast.types.*;
 import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
@@ -100,21 +97,16 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
     return field.name;
   }
 
-  private String type(final Type type) {
-    if (type instanceof BasicType) {
-      return primitive((BasicType) type);
-    } else if (type instanceof ComputableType) {
-      return computable((ComputableType) type);
-    }
-    return type.name();
+  @Override
+  protected String array(final ArrayType type) {
+    return type(type.elementType) + "[]";
   }
 
-  private String primitive(final BasicType basicType) {
-    String result;
+  @Override
+  protected String primitive(final BasicType basicType) {
     switch (basicType.typeName) {
       case "boolean":
-        result = "bool";
-        break;
+        return "bool";
       case "byte":
       case "char":
       case "short":
@@ -123,17 +115,14 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
       case "float":
       case "double":
       case "string":
-        result = basicType.typeName;
-        break;
+        return basicType.typeName;
       default:
-        result = "object";
-        break;
+        return "object";
     }
-
-    return basicType.isArrayType() ? result + "[]" : result;
   }
 
-  private String computable(final ComputableType computableType) {
+  @Override
+  protected String computable(final ComputableType computableType) {
     switch (computableType.typeName) {
       case "type":
         return "string";

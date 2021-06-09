@@ -1,0 +1,5 @@
+event PriceChanged {
+    version eventVersion
+    timestamp occurredOn
+    data.Price:1.0.0[] priceHistory
+}
