@@ -12,6 +12,7 @@ import io.vlingo.xoom.schemata.codegen.ast.values.Value;
 import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateData;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -67,19 +68,19 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String baseTypeName() {
-    return baseClass().getSimpleName();
+    return baseClass().map(c -> c.getSimpleName()).orElse(null);
   }
 
   private String basePackageName() {
-    return baseClass().getName();
+    return baseClass().map(c -> c.getName()).orElse(null);
   }
 
-  private Class<?> baseClass() {
+  private Optional<Class<?>> baseClass() {
     switch (type.category) {
       case Event:
-        return DomainEvent.class;
+        return Optional.of(DomainEvent.class);
       default:
-        return DomainEvent.class;
+        return Optional.empty();
     }
   }
 
@@ -92,7 +93,7 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private List<String> imports() {
-    return Stream.concat(Stream.of(basePackageName()), fieldTypes().stream()).sorted().collect(Collectors.toList());
+    return Stream.concat(Stream.of(basePackageName()), fieldTypes().stream()).filter(i -> i != null).sorted().collect(Collectors.toList());
   }
 
   private Set<String> fieldTypes() {

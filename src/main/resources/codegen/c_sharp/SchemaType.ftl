@@ -1,10 +1,12 @@
-<#list imports as import>
+<#list imports>
+<#items as import>
 using ${import};
-</#list>
+</#items>
 
+</#list>
 namespace ${namespace}
 {
-  public sealed class ${typeName} : ${baseTypeName}
+  public sealed class ${typeName}<#if baseTypeName??> : ${baseTypeName}</#if>
   {
     <#list properties as property>
     public ${property.type} ${property.name} { get; }<#if property.defaultValue??> = ${property.defaultValue};</#if>

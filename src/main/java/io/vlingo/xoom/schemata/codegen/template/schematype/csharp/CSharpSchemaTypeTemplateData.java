@@ -9,6 +9,7 @@ import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.Value;
 import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateData;
+import io.vlingo.xoom.schemata.model.Category;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,10 +45,19 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String namespace() {
-    return packageSegments(type.fullyQualifiedTypeName, type.category.name()+"s")
+    return packageSegments(type.fullyQualifiedTypeName, categoryNamespaceSegment(type.category))
             .stream()
             .map(p -> p.substring(0, 1).toUpperCase() + p.substring(1))
             .collect(joining("."));
+  }
+
+  private String categoryNamespaceSegment(Category category) {
+    switch (category) {
+      case Data:
+        return "Data";
+      default:
+        return category.name() + "s";
+    }
   }
 
   private List<String> imports() {
@@ -55,6 +65,7 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
     return Stream.of("System", "Vlingo.Lattice.Model", "Vlingo.Xoom.Common.Version")
             .filter(i -> !i.equals("System") || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("DateTimeOffset.")))
             .filter(i -> !i.equals("Vlingo.Xoom.Common.Version") || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("SemanticVersion.")))
+            .filter(i -> !i.equals("Vlingo.Lattice.Model") || type.category.equals(Category.Event))
             .collect(Collectors.toList());
   }
 
@@ -63,7 +74,13 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String baseTypeName() {
-    return "DomainEvent";
+    switch(type.category) {
+      case Event:
+        return "DomainEvent";
+      default:
+        return null;
+    }
+
   }
 
   private List<Property> properties() {
