@@ -126,7 +126,7 @@ NULL_LITERAL
 
 
 TYPE_IDENTIFIER
-  : CapitalLetter LetterOrDigit* (COLON IDENTIFIER)* (COLON SEMANTIC_VERSION)?
+  : CapitalLetter LetterOrDigit*
   ;
 
 SEMANTIC_VERSION
