@@ -126,7 +126,7 @@ public class AntlrTypeParser implements TypeParser {
         }
 
         return new FieldDefinition(
-                isArrayType ? new BasicArrayType(typeName) : new BasicType(typeName),
+                isArrayType ? new ArrayType(new BasicType(typeName)) : new BasicType(typeName),
                 Optional.empty(),
                 fieldName,
                 defaultValue);

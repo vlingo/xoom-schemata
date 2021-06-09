@@ -119,7 +119,6 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String primitive(final BasicType basicType) {
-    String result = null;
     switch (basicType.typeName) {
       case "boolean":
       case "byte":
@@ -129,17 +128,12 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
       case "long":
       case "float":
       case "double":
-        result = basicType.typeName;
-        break;
+        return basicType.typeName;
       case "string":
-        result = "String";
-        break;
+        return "String";
       default:
-        result = "Object";
-        break;
+        return "Object";
     }
-
-    return basicType.isArrayType() ? result + "[]" : result;
   }
 
   private String computable(final ComputableType computableType) {

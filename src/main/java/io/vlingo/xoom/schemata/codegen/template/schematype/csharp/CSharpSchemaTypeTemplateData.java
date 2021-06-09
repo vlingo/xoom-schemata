@@ -109,11 +109,9 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String primitive(final BasicType basicType) {
-    String result;
     switch (basicType.typeName) {
       case "boolean":
-        result = "bool";
-        break;
+        return "bool";
       case "byte":
       case "char":
       case "short":
@@ -122,14 +120,10 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
       case "float":
       case "double":
       case "string":
-        result = basicType.typeName;
-        break;
+        return basicType.typeName;
       default:
-        result = "object";
-        break;
+        return "object";
     }
-
-    return basicType.isArrayType() ? result + "[]" : result;
   }
 
   private String computable(final ComputableType computableType) {
