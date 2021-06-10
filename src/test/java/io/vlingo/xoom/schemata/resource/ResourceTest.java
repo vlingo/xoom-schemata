@@ -13,20 +13,16 @@ import io.vlingo.xoom.cluster.ClusterProperties;
 import io.vlingo.xoom.http.Response;
 import io.vlingo.xoom.http.ResponseHeader;
 import io.vlingo.xoom.lattice.grid.Grid;
-import io.vlingo.xoom.lattice.model.sourcing.SourcedTypeRegistry;
 import io.vlingo.xoom.schemata.Schemata;
 import io.vlingo.xoom.schemata.SchemataConfig;
 import io.vlingo.xoom.schemata.infra.persistence.ProjectionDispatcherProvider;
 import io.vlingo.xoom.schemata.infra.persistence.StateStoreProvider;
 import io.vlingo.xoom.schemata.infra.persistence.StorageProvider;
 import io.vlingo.xoom.schemata.query.*;
-import io.vlingo.xoom.symbio.store.journal.Journal;
 import org.junit.After;
 import org.junit.Before;
 
 public abstract class ResourceTest {
-  protected Journal<String> journal;
-  protected SourcedTypeRegistry registry;
   protected Grid stage;
   protected World world;
 
