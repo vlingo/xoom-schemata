@@ -41,7 +41,7 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
   private String namespace() {
     return SchemaTypePackage.from(type.fullyQualifiedTypeName, categoryNamespaceSegment(type.category), ".")
-            .withSegmentFormatter((segment) -> segment.substring(0, 1).toUpperCase() + segment.substring(1))
+            .withTitleCaseSegmentFormatter()
             .name();
   }
 
@@ -58,7 +58,7 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
     final Stream<String> propertyImports = properties.stream().flatMap(p -> p.namespaceImports.stream());
     final boolean usesSystem = properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("DateTimeOffset."));
     final boolean usesVersion = properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("SemanticVersion."));
-    final boolean usesLatticeModel = type.category.equals(Category.Event);
+    final boolean usesLatticeModel = type.category.equals(Category.Event) || type.category.equals(Category.Command);
     return Stream.concat(Stream.of("System", "Vlingo.Lattice.Model", "Vlingo.Xoom.Common.Version"), propertyImports)
             .filter(i -> !(i.equals("System") && !usesSystem))
             .filter(i -> !(i.equals("Vlingo.Xoom.Common.Version") && !usesVersion))
@@ -75,6 +75,8 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
     switch (type.category) {
       case Event:
         return "DomainEvent";
+      case Command:
+        return "Command";
       default:
         return null;
     }

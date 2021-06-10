@@ -44,6 +44,10 @@ public class SchemaTypePackage {
     return new SchemaTypePackage(this.packageSegments, this.separator, formatter);
   }
 
+  public SchemaTypePackage withTitleCaseSegmentFormatter() {
+    return this.withSegmentFormatter((segment) -> segment.substring(0, 1).toUpperCase() + segment.substring(1));
+  }
+
   public String name() {
     return packageSegments.stream().map(segmentFormatter).collect(joining(separator));
   }

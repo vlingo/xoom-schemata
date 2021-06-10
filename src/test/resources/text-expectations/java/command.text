@@ -1,0 +1,15 @@
+package io.vlingo.xoom.examples.command;
+
+import io.vlingo.xoom.examples.data.Price;
+import io.vlingo.xoom.lattice.model.Command;
+
+public final class ChangePrice extends Command {
+  public final Price oldPrice;
+
+  public final Price newPrice;
+
+  public ChangePrice(final Price oldPrice, final Price newPrice) {
+    this.oldPrice = oldPrice;
+    this.newPrice = newPrice;
+  }
+}
