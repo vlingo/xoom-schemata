@@ -112,4 +112,12 @@ abstract public class CodeGenSpecs extends CodeGenTests {
 
     assertMatchesSpec(result, "types/price");
   }
+
+  @Test
+  public void testThatItGeneratesCommandTypes() throws SchemataBusinessException {
+    registerType("types/price", "Vlingo:Xoom:io.vlingo.xoom.examples:Command:Price", "1.0.0");
+    final String result = compileSpecAndUnwrap(typeDefinition("command"), "Vlingo:Xoom:io.vlingo.xoom.examples:Command:ChangePrice", "1.0.0");
+
+    assertMatchesSpec(result, "command");
+  }
 }

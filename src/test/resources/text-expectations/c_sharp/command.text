@@ -1,0 +1,17 @@
+using Io.Vlingo.Xoom.Examples.Data;
+using Vlingo.Lattice.Model;
+
+namespace Io.Vlingo.Xoom.Examples.Commands
+{
+  public sealed class ChangePrice : Command
+  {
+    public Price OldPrice { get; }
+
+    public Price NewPrice { get; }
+
+    public ChangePrice(Price oldPrice, Price newPrice) {
+      OldPrice = oldPrice;
+      NewPrice = newPrice;
+    }
+  }
+}

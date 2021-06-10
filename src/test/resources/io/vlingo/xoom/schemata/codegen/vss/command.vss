@@ -1,0 +1,4 @@
+command ChangePrice {
+    data.Price oldPrice
+    data.Price:1.0.0 newPrice
+}

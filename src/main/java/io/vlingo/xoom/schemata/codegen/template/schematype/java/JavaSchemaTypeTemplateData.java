@@ -2,6 +2,7 @@ package io.vlingo.xoom.schemata.codegen.template.schematype.java;
 
 import io.vlingo.xoom.codegen.template.TemplateData;
 import io.vlingo.xoom.codegen.template.TemplateParameters;
+import io.vlingo.xoom.lattice.model.Command;
 import io.vlingo.xoom.lattice.model.DomainEvent;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
@@ -73,6 +74,8 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
     switch (type.category) {
       case Event:
         return Optional.of(DomainEvent.class);
+      case Command:
+        return Optional.of(Command.class);
       default:
         return Optional.empty();
     }

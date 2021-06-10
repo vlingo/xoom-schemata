@@ -37,7 +37,11 @@ public class CSharpType {
       return CSharpType.from(((ArrayType) type).elementType, owner).namespaceImports();
     }
     if (type instanceof ComplexType) {
-      return Arrays.asList(SchemaTypePackage.from(owner.fullyQualifiedTypeName, ((ComplexType) type).category.name(), ".").name());
+      return Arrays.asList(
+              SchemaTypePackage.from(owner.fullyQualifiedTypeName, ((ComplexType) type).category.name(), ".")
+                      .withTitleCaseSegmentFormatter()
+                      .name()
+      );
     }
     return Arrays.asList();
   }
