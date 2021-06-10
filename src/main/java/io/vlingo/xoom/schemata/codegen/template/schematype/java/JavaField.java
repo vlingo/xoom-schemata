@@ -80,7 +80,7 @@ public class JavaField {
         case "type":
           return String.format("\"%s\"", owner.typeName);
         case "version":
-          return String.format("io.vlingo.xoom.common.version.SemanticVersion.toValue(\"%s\")", version);
+          return String.format("SemanticVersion.toValue(\"%s\")", version);
         case "timestamp":
           return "System.currentTimeMillis()";
       }

@@ -42,6 +42,9 @@ public class JavaType {
     if (type.name().equals("string") || type.name().equals("string[]") || type.name().equals("type")) {
       return Arrays.asList("java.lang.String");
     }
+    if (type.name().equals("version")) {
+      return Arrays.asList("io.vlingo.xoom.common.version.SemanticVersion");
+    }
     return Arrays.asList();
   }
 

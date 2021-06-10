@@ -1,5 +1,6 @@
 package Context.event;
 
+import io.vlingo.xoom.common.version.SemanticVersion;
 import io.vlingo.xoom.lattice.model.DomainEvent;
 import java.lang.String;
 
@@ -31,7 +32,7 @@ public final class SalutationHappened extends DomainEvent {
   public SalutationHappened(final boolean booleanAttribute, final byte byteAttribute, final char charAttribute, final double doubleAttribute, final float floatAttribute, final int intAttribute, final long longAttribute, final short shortAttribute, final String stringAttribute) {
     this.eventType = "SalutationHappened";
     this.occurredOn = System.currentTimeMillis();
-    this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue("0.0.1");
+    this.eventVersion = SemanticVersion.toValue("0.0.1");
     this.booleanAttribute = booleanAttribute;
     this.byteAttribute = byteAttribute;
     this.charAttribute = charAttribute;
