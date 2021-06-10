@@ -20,6 +20,9 @@ public interface Processor {
             return (T) node;
         }
 
-        throw new IllegalArgumentException(node + " is not of type " + nodeClass.getCanonicalName() + " but type " + node.getClass().getCanonicalName());
+        final String expectedType = nodeClass.getCanonicalName();
+        final String actualType = node == null ? "null" : node.getClass().getCanonicalName();
+
+        throw new IllegalArgumentException(String.format("%s is not of type %s but type %s", node, expectedType, actualType));
     }
 }
