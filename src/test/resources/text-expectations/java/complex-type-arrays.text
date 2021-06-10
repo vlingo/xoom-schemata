@@ -1,5 +1,7 @@
 package Context.event;
 
+import Context.data.Price;
+import io.vlingo.xoom.common.version.SemanticVersion;
 import io.vlingo.xoom.lattice.model.DomainEvent;
 
 public final class PriceChanged extends DomainEvent {
@@ -10,7 +12,7 @@ public final class PriceChanged extends DomainEvent {
   public final Price[] priceHistory;
 
   public PriceChanged(final Price[] priceHistory) {
-    this.eventVersion = io.vlingo.xoom.common.version.SemanticVersion.toValue("0.5.1");
+    this.eventVersion = SemanticVersion.toValue("0.5.1");
     this.occurredOn = System.currentTimeMillis();
     this.priceHistory = priceHistory;
   }

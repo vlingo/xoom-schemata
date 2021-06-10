@@ -4,19 +4,15 @@ import io.vlingo.xoom.codegen.template.TemplateData;
 import io.vlingo.xoom.codegen.template.TemplateParameters;
 import io.vlingo.xoom.lattice.model.DomainEvent;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
-import io.vlingo.xoom.schemata.codegen.ast.types.*;
-import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
-import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
-import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
-import io.vlingo.xoom.schemata.codegen.ast.values.Value;
+import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypePackage;
 import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateData;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.joining;
 
 public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
@@ -34,7 +30,7 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
   @Override
   public TemplateParameters parameters() {
-    List<Field> fields = fields();
+    List<JavaField> fields = fields();
     return TemplateParameters
             .with(JavaSchemaTypeTemplateParameter.PACKAGE, packageName())
             .and(JavaSchemaTypeTemplateParameter.TYPE_NAME, typeName())
@@ -43,23 +39,22 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
             .and(JavaSchemaTypeTemplateParameter.NEEDS_DEFAULT_CONSTRUCTOR, needsDefaultConstructor(fields))
             .and(JavaSchemaTypeTemplateParameter.FIELDS, fields)
             .and(JavaSchemaTypeTemplateParameter.COMPUTED_FIELDS, computedFields(fields))
-            .and(JavaSchemaTypeTemplateParameter.IMPORTS, imports());
+            .and(JavaSchemaTypeTemplateParameter.IMPORTS, imports(fields));
   }
 
-  private List<Field> fields() {
+  private List<JavaField> fields() {
     return type.children.stream()
             .filter(c -> c instanceof FieldDefinition)
-            .map(c -> (FieldDefinition) c)
-            .map(this::toField)
+            .map(c -> JavaField.from((FieldDefinition) c, type, version))
             .collect(Collectors.toList());
   }
 
-  private List<Field> computedFields(final List<Field> fields) {
+  private List<JavaField> computedFields(final List<JavaField> fields) {
     return fields.stream().filter(f -> f.isComputed).collect(Collectors.toList());
   }
 
   private String packageName() {
-    return packageSegments(type.fullyQualifiedTypeName, type.category.name().toLowerCase()).stream().collect(joining("."));
+    return SchemaTypePackage.from(type.fullyQualifiedTypeName, type.category.name().toLowerCase(), ".").name();
   }
 
   private String typeName() {
@@ -67,156 +62,40 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String baseTypeName() {
-    return baseClass().getSimpleName();
+    return baseClass().map(c -> c.getSimpleName()).orElse(null);
   }
 
   private String basePackageName() {
-    return baseClass().getName();
+    return baseClass().map(c -> c.getName()).orElse(null);
   }
 
-  private Class<?> baseClass() {
+  private Optional<Class<?>> baseClass() {
     switch (type.category) {
       case Event:
-        return DomainEvent.class;
+        return Optional.of(DomainEvent.class);
       default:
-        return DomainEvent.class;
+        return Optional.empty();
     }
   }
 
-  private boolean needsConstructor(final List<Field> fields) {
+  private boolean needsConstructor(final List<JavaField> fields) {
     return fields.stream().anyMatch(f -> !f.isComputed);
   }
 
-  private boolean needsDefaultConstructor(final List<Field> fields) {
+  private boolean needsDefaultConstructor(final List<JavaField> fields) {
     return fields.size() != 0 && fields.stream().allMatch(f -> f.isComputed || f.defaultValue != null);
   }
 
-  private List<String> imports() {
-    return Stream.concat(Stream.of(basePackageName()), fieldTypes().stream()).sorted().collect(Collectors.toList());
+  private List<String> imports(final List<JavaField> fields) {
+    return Stream.concat(Stream.of(basePackageName()), fieldImports(fields).stream())
+            .filter(i -> i != null)
+            .sorted()
+            .collect(Collectors.toList());
   }
 
-  private Set<String> fieldTypes() {
-    return fields().stream()
-            .map(f -> {
-              if (f.type.equals("String") || f.type.equals("String[]")) {
-                return "java.lang.String";
-              }
-              return null;
-            })
-            .filter(f -> f != null)
+  private Set<String> fieldImports(final List<JavaField> fields) {
+    return fields.stream()
+            .flatMap(f -> f.typeImports.stream())
             .collect(Collectors.toSet());
-  }
-
-  @Override
-  protected String array(final ArrayType type) {
-    return type(type.elementType) + "[]";
-  }
-
-  @Override
-  protected String primitive(final BasicType basicType) {
-    switch (basicType.typeName) {
-      case "boolean":
-      case "byte":
-      case "char":
-      case "short":
-      case "int":
-      case "long":
-      case "float":
-      case "double":
-        return basicType.typeName;
-      case "string":
-        return "String";
-      default:
-        return "Object";
-    }
-  }
-
-  @Override
-  protected String computable(final ComputableType computableType) {
-    switch (computableType.typeName) {
-      case "type":
-        return "String";
-      case "timestamp":
-        return "long";
-      case "version":
-        return "int";
-      default:
-        return "Object";
-    }
-  }
-
-  private String javaLiteralOf(final FieldDefinition definition) {
-    Value value = definition.defaultValue.orElseGet(NullValue::new);
-
-    if(value instanceof NullValue) {
-      return null;
-    }
-
-    if(value instanceof SingleValue) {
-      return javaLiteralOf((SingleValue) value);
-    }
-
-    if(value instanceof ListValue) {
-      return javaLiteralOf(definition.type, (ListValue) value);
-    }
-
-    throw new IllegalStateException("Unsupported value type encountered");
-  }
-
-  private String javaLiteralOf(final SingleValue value) {
-    return value.value().toString();
-  }
-
-  @SuppressWarnings("unchecked")
-  private String javaLiteralOf(final Type type, final ListValue value) {
-    return value.value().stream()
-            .map(e -> ((SingleValue)e).value())
-            .collect(joining(
-                    ", ",
-                    String.format("new %s { ", type(type)),
-                    " }"
-            )).toString();
-  }
-
-  private String initializationOf(final FieldDefinition definition, final TypeDefinition owner) {
-    Type type = definition.type;
-    if (type instanceof ComputableType) {
-      switch (((ComputableType) type).typeName) {
-        case "type":
-          return String.format("\"%s\"", owner.typeName);
-        case "version":
-          return String.format("io.vlingo.xoom.common.version.SemanticVersion.toValue(\"%s\")", this.version);
-        case "timestamp":
-          return "System.currentTimeMillis()";
-      }
-    }
-
-    return definition.name;
-  }
-
-  private Field toField(final FieldDefinition field) {
-    return new Field(
-            type(field.type),
-            field.name,
-            javaLiteralOf(field),
-            initializationOf(field, type),
-            field.type instanceof ComputableType
-    );
-  }
-
-  public class Field {
-    public final String type;
-    public final String name;
-    public final String defaultValue;
-    public final String constructorInitializer;
-    public final boolean isComputed;
-
-    public Field(final String type, final String name, final String defaultValue, final String constructorInitializer, final boolean isComputed) {
-      this.type = type;
-      this.name = name;
-      this.defaultValue = defaultValue;
-      this.constructorInitializer = constructorInitializer;
-      this.isComputed = isComputed;
-    }
   }
 }

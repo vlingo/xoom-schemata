@@ -105,4 +105,11 @@ abstract public class CodeGenSpecs extends CodeGenTests {
 
     assertMatchesSpec(result, "computed-only");
   }
+
+  @Test
+  public void testThatItGeneratesDataTypes() throws SchemataBusinessException {
+    final String result = compileSpecAndUnwrap(typeDefinition("types/price"), "Org:Unit:Context:Schema:Price", "1.0.0");
+
+    assertMatchesSpec(result, "types/price");
+  }
 }

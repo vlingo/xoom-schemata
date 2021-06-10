@@ -1,0 +1,14 @@
+package Context.data;
+
+import java.lang.String;
+
+public final class Price {
+  public final double amount;
+
+  public final String currency;
+
+  public Price(final double amount, final String currency) {
+    this.amount = amount;
+    this.currency = currency;
+  }
+}

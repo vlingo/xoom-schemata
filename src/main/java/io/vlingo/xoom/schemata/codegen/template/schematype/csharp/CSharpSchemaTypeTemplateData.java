@@ -3,18 +3,14 @@ package io.vlingo.xoom.schemata.codegen.template.schematype.csharp;
 import io.vlingo.xoom.codegen.template.TemplateData;
 import io.vlingo.xoom.codegen.template.TemplateParameters;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
-import io.vlingo.xoom.schemata.codegen.ast.types.*;
-import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
-import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
-import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
-import io.vlingo.xoom.schemata.codegen.ast.values.Value;
+import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
+import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypePackage;
 import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateData;
+import io.vlingo.xoom.schemata.model.Category;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.joining;
 
 public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
@@ -32,10 +28,10 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
 
   @Override
   public TemplateParameters parameters() {
-    List<Property> properties = properties();
+    List<CSharpProperty> properties = properties();
     return TemplateParameters
             .with(CSharpSchemaTypeTemplateParameter.NAMESPACE, namespace())
-            .and(CSharpSchemaTypeTemplateParameter.IMPORTS, imports())
+            .and(CSharpSchemaTypeTemplateParameter.IMPORTS, imports(properties))
             .and(CSharpSchemaTypeTemplateParameter.TYPE_NAME, typeName())
             .and(CSharpSchemaTypeTemplateParameter.BASE_TYPE_NAME, baseTypeName())
             .and(CSharpSchemaTypeTemplateParameter.PROPERTIES, properties)
@@ -44,18 +40,31 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String namespace() {
-    return packageSegments(type.fullyQualifiedTypeName, type.category.name()+"s")
-            .stream()
-            .map(p -> p.substring(0, 1).toUpperCase() + p.substring(1))
-            .collect(joining("."));
+    return SchemaTypePackage.from(type.fullyQualifiedTypeName, categoryNamespaceSegment(type.category), ".")
+            .withSegmentFormatter((segment) -> segment.substring(0, 1).toUpperCase() + segment.substring(1))
+            .name();
   }
 
-  private List<String> imports() {
-    List<Property> properties = properties();
-    return Stream.of("System", "Vlingo.Lattice.Model", "Vlingo.Xoom.Common.Version")
-            .filter(i -> !i.equals("System") || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("DateTimeOffset.")))
-            .filter(i -> !i.equals("Vlingo.Xoom.Common.Version") || properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("SemanticVersion.")))
-            .collect(Collectors.toList());
+  private String categoryNamespaceSegment(final Category category) {
+    switch (category) {
+      case Data:
+        return "Data";
+      default:
+        return category.name() + "s";
+    }
+  }
+
+  private List<String> imports(final List<CSharpProperty> properties) {
+    final Stream<String> propertyImports = properties.stream().flatMap(p -> p.namespaceImports.stream());
+    final boolean usesSystem = properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("DateTimeOffset."));
+    final boolean usesVersion = properties.stream().anyMatch(p -> p.constructorInitializer.startsWith("SemanticVersion."));
+    final boolean usesLatticeModel = type.category.equals(Category.Event);
+    return Stream.concat(Stream.of("System", "Vlingo.Lattice.Model", "Vlingo.Xoom.Common.Version"), propertyImports)
+            .filter(i -> !(i.equals("System") && !usesSystem))
+            .filter(i -> !(i.equals("Vlingo.Xoom.Common.Version") && !usesVersion))
+            .filter(i -> !(i.equals("Vlingo.Lattice.Model") && !usesLatticeModel))
+            .collect(Collectors.toSet())
+            .stream().sorted().collect(Collectors.toList());
   }
 
   private String typeName() {
@@ -63,134 +72,26 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String baseTypeName() {
-    return "DomainEvent";
+    switch (type.category) {
+      case Event:
+        return "DomainEvent";
+      default:
+        return null;
+    }
   }
 
-  private List<Property> properties() {
+  private List<CSharpProperty> properties() {
     return type.children.stream()
             .filter(c -> c instanceof FieldDefinition)
-            .map(c -> (FieldDefinition) c)
-            .map(this::toProperty)
+            .map(c -> CSharpProperty.from((FieldDefinition) c, type, version))
             .collect(Collectors.toList());
   }
 
-  private boolean needsConstructor(final List<Property> properties) {
+  private boolean needsConstructor(final List<CSharpProperty> properties) {
     return properties.stream().anyMatch(f -> !f.isComputed);
   }
 
-  private boolean needsDefaultConstructor(final List<Property> properties) {
+  private boolean needsDefaultConstructor(final List<CSharpProperty> properties) {
     return properties.size() != 0 && properties.stream().allMatch(f -> f.isComputed || f.defaultValue != null);
-  }
-
-  private String initializationOf(final FieldDefinition field, final TypeDefinition owner) {
-    Type type = field.type;
-    if (type instanceof ComputableType) {
-      switch (((ComputableType) type).typeName) {
-        case "type":
-          return String.format("\"%s\"", owner.typeName);
-        case "version":
-          return String.format("SemanticVersion.toValue(\"%s\")", this.version);
-        case "timestamp":
-          return "DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()";
-      }
-    }
-    return field.name;
-  }
-
-  @Override
-  protected String array(final ArrayType type) {
-    return type(type.elementType) + "[]";
-  }
-
-  @Override
-  protected String primitive(final BasicType basicType) {
-    switch (basicType.typeName) {
-      case "boolean":
-        return "bool";
-      case "byte":
-      case "char":
-      case "short":
-      case "int":
-      case "long":
-      case "float":
-      case "double":
-      case "string":
-        return basicType.typeName;
-      default:
-        return "object";
-    }
-  }
-
-  @Override
-  protected String computable(final ComputableType computableType) {
-    switch (computableType.typeName) {
-      case "type":
-        return "string";
-      case "timestamp":
-        return "long";
-      case "version":
-        return "int";
-      default:
-        return "object";
-    }
-  }
-
-  private String cSharpLiteralOf(FieldDefinition field) {
-    Value<?> value = field.defaultValue.orElseGet(NullValue::new);
-
-    if(value instanceof NullValue) {
-      return null;
-    }
-
-    if(value instanceof SingleValue) {
-      return cSharpLiteralOf((SingleValue<?>) value);
-    }
-
-    if(value instanceof ListValue) {
-      return cSharpLiteralOf((ListValue<?>) value);
-    }
-
-    throw new IllegalStateException("Unsupported value type encountered");
-  }
-
-  private String cSharpLiteralOf(final SingleValue<?> value) {
-    return value.value().toString();
-  }
-
-  @SuppressWarnings("unchecked")
-  private String cSharpLiteralOf(final ListValue value) {
-    return value.value().stream()
-            .map(e -> ((SingleValue<?>) e).value())
-            .collect(joining(", ", "{ ", " }"))
-            .toString();
-  }
-
-  private Property toProperty(final FieldDefinition field) {
-    return new Property(
-            type(field.type),
-            field.name.substring(0, 1).toUpperCase() + field.name.substring(1),
-            field.name,
-            cSharpLiteralOf(field),
-            initializationOf(field, type),
-            field.type instanceof ComputableType
-    );
-  }
-
-  public static class Property {
-    public final String type;
-    public final String name;
-    public final String argumentName;
-    public final String defaultValue;
-    public final String constructorInitializer;
-    public final boolean isComputed;
-
-    public Property(final String type, final String name, final String argumentName, final String defaultValue, final String constructorInitializer, final boolean isComputed) {
-      this.type = type;
-      this.name = name;
-      this.argumentName = argumentName;
-      this.defaultValue = defaultValue;
-      this.constructorInitializer = constructorInitializer;
-      this.isComputed = isComputed;
-    }
   }
 }

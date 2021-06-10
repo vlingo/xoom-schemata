@@ -4,7 +4,7 @@ package ${package};
 import ${import};
 </#list>
 
-public final class ${typeName} extends ${baseTypeName} {
+public final class ${typeName}<#if baseTypeName??> extends ${baseTypeName}</#if> {
 <#list fields as field>
   <#if field.defaultValue??>
   public ${field.type} ${field.name}<#if field.defaultValue??> = ${field.defaultValue}</#if>;

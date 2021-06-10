@@ -1,3 +1,4 @@
+using Context.Data;
 using System;
 using Vlingo.Lattice.Model;
 using Vlingo.Xoom.Common.Version;
