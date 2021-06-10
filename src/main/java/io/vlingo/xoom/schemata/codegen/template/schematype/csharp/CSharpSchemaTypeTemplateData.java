@@ -194,6 +194,9 @@ public class CSharpSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String namespaceImport(Type type) {
+    if (type instanceof ArrayType) {
+      return namespaceImport(((ArrayType) type).elementType);
+    }
     if (type instanceof ComplexType) {
       return namespace(((ComplexType) type).category.name());
     }

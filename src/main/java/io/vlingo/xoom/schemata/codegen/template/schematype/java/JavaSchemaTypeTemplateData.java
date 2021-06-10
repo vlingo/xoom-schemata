@@ -200,6 +200,9 @@ public class JavaSchemaTypeTemplateData extends SchemaTypeTemplateData {
   }
 
   private String typeImport(Type type) {
+    if (type instanceof ArrayType) {
+      return typeImport(((ArrayType) type).elementType);
+    }
     if (type instanceof ComplexType) {
       return packageName(((ComplexType) type).category.name().toLowerCase()) + "." + type.name();
     }
