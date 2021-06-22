@@ -1,0 +1,25 @@
+namespace Io.Vlingo.Xoom.Examples.Documents
+{
+  public sealed class FlightInformation
+  {
+    public string Id { get; }
+
+    public string AircraftId { get; }
+
+    public string Number { get; }
+
+    public string TailNumber { get; }
+
+    public string Equipment { get; }
+
+    public string Status { get; }
+
+    public ChangePrice(string id, string aircraftId, string number, string tailNumber, string equipment, string status) {
+      Id = id;
+      AircraftId = aircraftId;
+      Number = number;
+      TailNumber = tailNumber;
+      Status = status;
+    }
+  }
+}
