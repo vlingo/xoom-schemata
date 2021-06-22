@@ -14,11 +14,12 @@ namespace Io.Vlingo.Xoom.Examples.Documents
 
     public string Status { get; }
 
-    public ChangePrice(string id, string aircraftId, string number, string tailNumber, string equipment, string status) {
+    public FlightInformation(string id, string aircraftId, string number, string tailNumber, string equipment, string status) {
       Id = id;
       AircraftId = aircraftId;
       Number = number;
       TailNumber = tailNumber;
+      Equipment = equipment;
       Status = status;
     }
   }

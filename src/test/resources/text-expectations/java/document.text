@@ -1,6 +1,6 @@
 package io.vlingo.xoom.examples.document;
 
-import java.lang.String
+import java.lang.String;
 
 public final class FlightInformation {
   public final String id;
@@ -15,7 +15,7 @@ public final class FlightInformation {
 
   public final String status;
 
-  public ChangePrice(final String id, final String aircraftId, final String number, final String tailNumber, final String equipment, final String status) {
+  public FlightInformation(final String id, final String aircraftId, final String number, final String tailNumber, final String equipment, final String status) {
     this.id = id;
     this.aircraftId = aircraftId;
     this.number = number;
