@@ -1,0 +1,15 @@
+package io.vlingo.xoom.examples.envelope;
+
+import io.vlingo.xoom.examples.command.ChangePrice;
+import java.lang.String;
+
+public final class IdentityEnvelope {
+  public final String correlationId;
+
+  public final ChangePrice message;
+
+  public IdentityEnvelope(final String correlationId, final ChangePrice message) {
+    this.correlationId = correlationId;
+    this.message = message;
+  }
+}

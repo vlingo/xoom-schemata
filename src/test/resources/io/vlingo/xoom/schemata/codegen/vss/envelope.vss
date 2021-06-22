@@ -1,0 +1,4 @@
+envelope IdentityEnvelope {
+    string correlationId
+    command.ChangePrice message
+}

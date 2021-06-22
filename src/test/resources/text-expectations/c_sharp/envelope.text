@@ -1,0 +1,16 @@
+using Io.Vlingo.Xoom.Examples.Command;
+
+namespace Io.Vlingo.Xoom.Examples.Envelopes
+{
+  public sealed class IdentityEnvelope
+  {
+    public string CorrelationId { get; }
+
+    public ChangePrice Message { get; }
+
+    public IdentityEnvelope(string correlationId, ChangePrice message) {
+      CorrelationId = correlationId;
+      Message = message;
+    }
+  }
+}

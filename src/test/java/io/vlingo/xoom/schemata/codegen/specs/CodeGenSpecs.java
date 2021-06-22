@@ -120,4 +120,13 @@ abstract public class CodeGenSpecs extends CodeGenTests {
 
     assertMatchesSpec(result, "command");
   }
+
+  @Test
+  public void testThatItGeneratesEnvelopeTypes() throws SchemataBusinessException {
+    registerType("types/price", "Vlingo:Xoom:io.vlingo.xoom.examples:Envelope:Price", "1.0.0");
+    registerType("command", "Vlingo:Xoom:io.vlingo.xoom.examples:Envelope:ChangePrice", "1.0.0");
+    final String result = compileSpecAndUnwrap(typeDefinition("envelope"), "Vlingo:Xoom:io.vlingo.xoom.examples:Envelope:Envelope", "1.0.0");
+
+    assertMatchesSpec(result, "envelope");
+  }
 }
