@@ -41,7 +41,6 @@ function schemataStore(value, key) {
 		subscribe,
 		set: value => {
 			set(value);
-			console.log(key, value);
 			let data = {
 				organizationsStore: key === 'organizations' ? value : get(organizationsStore),
 				unitsStore: key === 'units' ? value : get(unitsStore),
