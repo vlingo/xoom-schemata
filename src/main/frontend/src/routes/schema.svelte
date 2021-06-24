@@ -99,10 +99,13 @@
 	}
 
 	function updateStores(obj, reset = false) {
-		console.log({obj});
 		$schemaStore = obj;
-		if(reset) $schemasStore = ($schemasStore).filter(schema => schema.schemaId !=  ($schemaStore).schemaId);
-		$schemasStore = [...$schemasStore, obj];
+		if(reset) {
+			$schemasStore.splice($schemasStore.findIndex(schema => schema.schemaId === $schemaStore.schemaId), 1, obj);
+			$schemasStore = $schemasStore;
+		} else {
+			$schemasStore = [...$schemasStore, obj];
+		}
 	}
 	function updateSelects() {
 		$compatibleSchemas = $contextStore ? $schemasStore.filter(s => s.contextId == $contextStore.contextId) : [];

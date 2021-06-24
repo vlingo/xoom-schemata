@@ -70,10 +70,13 @@
 	}
 
 	function updateStores(obj, reset = false) {
-		console.log({obj});
 		$contextStore = obj;
-		if(reset) $contextsStore = ($contextsStore).filter(context => context.contextId != ($contextStore).contextId);
-		$contextsStore = [...$contextsStore, obj];
+		if(reset) {
+			$contextsStore.splice($contextsStore.findIndex(context => context.contextId === $contextStore.contextId), 1, obj);
+			$contextsStore = $contextsStore;
+		} else {
+			$contextsStore = [...$contextsStore, obj];
+		}
 	}
 	function updateSelects() {
 		$compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
