@@ -6,13 +6,17 @@
 	import routes from '../util/routes';
 
 	export let segment;
+
+	import { getContext } from 'svelte';
+	const isProducer = getContext('isProducer');
+	let newRoutes = isProducer ? routes.filter(r => r.href === 'organization' || r.href === 'unit' || r.href === 'context') : routes;
 </script>
 
 <NavigationDrawer active={!mobile || sidenav} style="height:100vh;" fixed clipped borderless>
 	<!-- <br /> -->
 	<!-- <ListGroup eager {offset} active={expanded}></ListGroup> maybe needed around all nav-items -->
 	<List nav dense>
-		{#each routes as item}
+		{#each newRoutes as item}
 			<NavItem {item} {segment}/>
 		{/each}
 	</List>
