@@ -48,8 +48,8 @@
 	})
 
 	const { page } = stores();
-  $: setContext('fromDesigner', !!$page.query?.designer);
-  $: setContext('isProducer', !!$page.query?.producer);
+  $: setContext('fromDesigner', !!$page.query.designer);
+  $: setContext('isProducer', !!$page.query.producer);
 
 	//debug, btw. this doesn't fire when store gets set to undefined, for whatever reason
 	// $: console.log({$organizationsStore}, {$organizationStore}, {$unitsStore}, {$unitStore}, {$contextsStore}, {$contextStore}, {$schemasStore}, {$schemaStore}, {$schemaVersionsStore}, {$schemaVersionStore});

@@ -9,7 +9,7 @@
 	export let title = "";
 	export let linkToNext = "NEXT";
 	export let prevLink = "";
-	export let href = linkToNext?.split(" ")[1]?.toLowerCase(); //"CREATE UNIT" = unit
+	export let href = linkToNext && linkToNext.split(" ").length > 1 && linkToNext.split(" ")[1].toLowerCase(); //"CREATE UNIT" = unit
 	export let showNewButton = true;
 	const dispatch = createEventDispatcher();
 
