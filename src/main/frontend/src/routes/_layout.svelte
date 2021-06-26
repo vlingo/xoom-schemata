@@ -11,9 +11,10 @@
 	import { contextsStore, firstPage, isMobile, organizationsStore, schemasStore, schemaVersionsStore, theme, unitsStore} from '../stores';
 	import { initStoresOfOne } from '../utils';
 	import { mdiMenu, mdiWeatherNight, mdiWeatherSunny, mdiGithub } from '@mdi/js';
-	import { onMount } from 'svelte';
+	import { onMount, setContext } from 'svelte';
 	import SiteNavigation from '../components/SiteNavigation.svelte';
 	import logo from '../images/xoom-horizontal_schemata.png';
+	import { stores } from '@sapper/app';
 
 	export let segment;
 
@@ -45,6 +46,11 @@
 		SchemataRepository.setFetchFunction(fetch);
 		isMobile.check();
 	})
+
+	const { page } = stores();
+  $: setContext('fromDesigner', !!$page.query?.designer);
+  $: setContext('isProducer', !!$page.query?.producer);
+
 	//debug, btw. this doesn't fire when store gets set to undefined, for whatever reason
 	// $: console.log({$organizationsStore}, {$organizationStore}, {$unitsStore}, {$unitStore}, {$contextsStore}, {$contextStore}, {$schemasStore}, {$schemaStore}, {$schemaVersionsStore}, {$schemaVersionStore});
 </script>
