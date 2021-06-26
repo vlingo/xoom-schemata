@@ -29,7 +29,7 @@ Build <pre><code>& "<b>{yourInstallPath}</b>\xoom-schemata\mvnw.cmd" clean packa
 *e.g. <pre><code>& "<b>d:\vlingo</b>\xoom-schemata\mvnw.cmd" clean package -Pfrontend -f "<b>d:\vlingo</b>\xoom-schemata\pom.xml"</code></pre>*
 
 Run <pre><code>java -jar target/xoom-schemata-<b>{version}</b>-jar-with-dependencies.jar</code></pre>
-*e.g. <pre><code>java -jar target/xoom-schemata-<b>1.8.1-SNAPSHOT</b>-jar-with-dependencies.jar</code></pre>*
+*e.g. <pre><code>java -jar target/xoom-schemata-<b>1.8.2-SNAPSHOT</b>-jar-with-dependencies.jar</code></pre>*
 
 We provide an interface to allow for easy retrieval of schemata and 
 schemata meta information, e.g. available versions and publication status.
