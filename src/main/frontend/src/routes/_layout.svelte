@@ -14,7 +14,6 @@
 	import { onMount, setContext } from 'svelte';
 	import SiteNavigation from '../components/SiteNavigation.svelte';
 	import logo from '../images/xoom-horizontal_schemata.png';
-	import { stores } from '@sapper/app';
 
 	export let segment;
 
@@ -47,9 +46,7 @@
 		isMobile.check();
 	})
 
-	const { page } = stores();
-  $: setContext('fromDesigner', !!$page.query.designer);
-  $: setContext('isProducer', !!$page.query.producer);
+  $: if(process.browser) setContext('isProducer', window.location.href.includes('producer=true'));
 
 	//debug, btw. this doesn't fire when store gets set to undefined, for whatever reason
 	// $: console.log({$organizationsStore}, {$organizationStore}, {$unitsStore}, {$unitStore}, {$contextsStore}, {$contextStore}, {$schemasStore}, {$schemaStore}, {$schemaVersionsStore}, {$schemaVersionStore});
