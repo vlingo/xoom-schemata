@@ -108,7 +108,6 @@
 	}
 
 	function updateStores(obj) {
-		console.log({obj});
 		$schemaVersionStore = obj;
 		$schemaVersionsStore = [...$schemaVersionsStore, obj]
 	}

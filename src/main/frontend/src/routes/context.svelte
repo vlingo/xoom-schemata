@@ -9,6 +9,10 @@
 	import { isEmpty } from '../utils';
 	import errors from "../errors";
 	import { writable } from 'svelte/store';
+	import { getContext } from 'svelte';
+
+	const isProducer = getContext('isProducer');
+
 	const validName = (name) => {
 		return /^([a-z_]\d*(\.[a-z_])?)+$/.test(name) ? undefined : errors.NAMESPACE; //underscore should also be possible! see https://docs.oracle.com/javase/tutorial/java/package/namingpkgs.html
 	}
@@ -70,10 +74,13 @@
 	}
 
 	function updateStores(obj, reset = false) {
-		console.log({obj});
 		$contextStore = obj;
-		if(reset) $contextsStore = ($contextsStore).filter(context => context.contextId != ($contextStore).contextId);
-		$contextsStore = [...$contextsStore, obj];
+		if(reset) {
+			$contextsStore.splice($contextsStore.findIndex(context => context.contextId === $contextStore.contextId), 1, obj);
+			$contextsStore = $contextsStore;
+		} else {
+			$contextsStore = [...$contextsStore, obj];
+		}
 	}
 	function updateSelects() {
 		$compatibleContexts = $unitStore ? $contextsStore.filter(c => c.unitId == $unitStore.unitId) : [];
@@ -91,7 +98,7 @@
 	<title>Context</title>
 </svelte:head>
 
-<CardForm title="Context" linkToNext="New Schema" prevLink="unit" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
+<CardForm title="Context" linkToNext="{isProducer ? '' : 'New Schema'}" prevLink="unit" on:new={toggleDefineMode} on:redefine={redefine} on:define={define}
 isDefineDisabled={!definable} isNextDisabled={defineMode} isRedefineDisabled={!redefinable}
 {defineMode} {fullyQualified} {showNewButton}>
 	<OrganizationSelect/>

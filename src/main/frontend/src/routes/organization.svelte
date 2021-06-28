@@ -40,8 +40,12 @@
 	}
 	function updateStores(obj, reset = false) {
 		$organizationStore = obj;
-		if(reset) $organizationsStore = ($organizationsStore).filter(org => org.organizationId != ($organizationStore).organizationId);
-    $organizationsStore = [...$organizationsStore, obj];
+		if(reset) {
+			$organizationsStore.splice($organizationsStore.findIndex(org => org.organizationId === $organizationStore.organizationId), 1, obj);
+			$organizationsStore = $organizationsStore;
+		} else {
+			$organizationsStore = [...$organizationsStore, obj];
+		}
 	}
 
 	let defineMode = isEmpty(($organizationsStore));

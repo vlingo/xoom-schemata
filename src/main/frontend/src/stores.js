@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 
 export function createLocalStore(key, initialValue) {
 	const localValue = process.browser ? localStorage.getItem(key) : initialValue;
@@ -35,17 +35,34 @@ export const firstPage = writable(true);
 
 export const detailed = writable(false);
 
+function schemataStore(value, key) {
+	const { subscribe, set } = writable(value);
+	return {
+		subscribe,
+		set: value => {
+			set(value);
+			let data = {
+				organizationsStore: key === 'organizations' ? value : get(organizationsStore),
+				unitsStore: key === 'units' ? value : get(unitsStore),
+				contextsStore: key === 'contexts' ? value : get(contextsStore),
+				schemasStore: key === 'schemas' ? value : get(schemasStore),
+				schemaVersionsStore: key === 'schemaVersions' ? value : get(schemaVersionsStore),
+			};
+			if (process.browser) window.parent.postMessage(JSON.stringify(data), "*")
+		},
+	};
+};
 
 export const organizationStore = writable();
-export const organizationsStore = writable([]);
+export const organizationsStore = schemataStore([], 'organizations');
 export const unitStore = writable();
-export const unitsStore = writable([]);
+export const unitsStore = schemataStore([], 'units');
 export const contextStore = writable();
-export const contextsStore = writable([]);
+export const contextsStore = schemataStore([], 'contexts');
 export const schemaStore = writable();
-export const schemasStore = writable([]);
+export const schemasStore = schemataStore([], 'schemas');
 export const schemaVersionStore = writable();
-export const schemaVersionsStore = writable([]);
+export const schemaVersionsStore = schemataStore([], 'schemaVersions');
 
 //maybe adding the compatibles right here would be better, also we could have less code duplication
 

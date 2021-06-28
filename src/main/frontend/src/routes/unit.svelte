@@ -57,10 +57,13 @@
 			})
 	}
 	function updateStores(obj, reset = false) {
-		console.log({obj});
 		$unitStore = obj;
-		if(reset) $unitsStore = ($unitsStore).filter(unit => unit.unitId != ($unitStore).unitId);
-		$unitsStore = [...$unitsStore, obj];
+		if(reset) {
+			$unitsStore.splice($unitsStore.findIndex(unit => unit.unitId === $unitStore.unitId), 1, obj);
+			$unitsStore = $unitsStore;
+		} else {
+			$unitsStore = [...$unitsStore, obj];
+		}
 	}
 	function updateSelects() {
 		$compatibleUnits = $organizationStore ? $unitsStore.filter(u => u.organizationId == $organizationStore.organizationId) : [];
