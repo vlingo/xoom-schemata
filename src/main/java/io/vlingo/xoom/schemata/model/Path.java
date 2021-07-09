@@ -104,4 +104,8 @@ public class Path {
     private Path(final String organization) {
         this(organization, "", "", "", "");
     }
+
+    public Path withSchema(final String schema) {
+        return Path.with(organization, unit, context, schema, version);
+    }
 }

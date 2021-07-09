@@ -12,13 +12,13 @@ import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.codegen.backend.Backend;
 import io.vlingo.xoom.schemata.codegen.backend.XoomCodeGenBackend;
-import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateProcessingStep;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
 import io.vlingo.xoom.schemata.codegen.processor.types.ComputableTypeProcessor;
 import io.vlingo.xoom.schemata.codegen.processor.types.TypeResolver;
 import io.vlingo.xoom.schemata.codegen.processor.types.TypeResolverProcessor;
+import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateProcessingStep;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
 import io.vlingo.xoom.schemata.infra.persistence.StorageProvider;
 
@@ -38,7 +38,7 @@ public interface TypeDefinitionCompiler {
    * @param language the String identifying the language
    * @return TypeDefinitionCompiler
    */
-  public static TypeDefinitionCompiler compilerFor(final Stage stage, final String language) {
+   static TypeDefinitionCompiler compilerFor(final Stage stage, final String language) {
     return __TypeDefinitionCompiler__Holder.__internal__compilers.computeIfAbsent(
             language,
             (key) -> TypeDefinitionCompiler.newCompilerFor(stage, language));
@@ -50,7 +50,7 @@ public interface TypeDefinitionCompiler {
    * @param language the String identifying the language
    * @return TypeDefinitionCompiler
    */
-  public static TypeDefinitionCompiler newCompilerFor(final Stage stage, final String language) {
+  static TypeDefinitionCompiler newCompilerFor(final Stage stage, final String language) {
     switch (language) {
     case "csharp":
     case "java":
@@ -94,7 +94,11 @@ public interface TypeDefinitionCompiler {
 
 
   // INTERNAL USE ONLY
-  static class __TypeDefinitionCompiler__Holder {
+  class __TypeDefinitionCompiler__Holder {
     static final Map<String,TypeDefinitionCompiler> __internal__compilers = new ConcurrentHashMap<>();
+  }
+
+  static void init() {
+    __TypeDefinitionCompiler__Holder.__internal__compilers.clear();
   }
 }

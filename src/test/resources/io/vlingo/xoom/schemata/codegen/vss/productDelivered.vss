@@ -1,0 +1,6 @@
+event ProductDelivered {
+    string name
+    data.Price:1.0.0 price
+    data.Courier:1.0.0[] couriers
+    version eventVersion
+}

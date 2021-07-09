@@ -7,58 +7,13 @@
 
 package io.vlingo.xoom.schemata.infra.persistence;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Arrays;
-
 import io.vlingo.xoom.actors.Definition;
 import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.lattice.model.sourcing.SourcedTypeRegistry;
 import io.vlingo.xoom.schemata.SchemataConfig;
-import io.vlingo.xoom.schemata.model.ContextEntity;
-import io.vlingo.xoom.schemata.model.Events.ContextDefined;
-import io.vlingo.xoom.schemata.model.Events.ContextDescribed;
-import io.vlingo.xoom.schemata.model.Events.ContextMovedToNamespace;
-import io.vlingo.xoom.schemata.model.Events.ContextRedefined;
-import io.vlingo.xoom.schemata.model.Events.OrganizationDefined;
-import io.vlingo.xoom.schemata.model.Events.OrganizationDescribed;
-import io.vlingo.xoom.schemata.model.Events.OrganizationRedefined;
-import io.vlingo.xoom.schemata.model.Events.OrganizationRenamed;
-import io.vlingo.xoom.schemata.model.Events.SchemaCategorized;
-import io.vlingo.xoom.schemata.model.Events.SchemaDefined;
-import io.vlingo.xoom.schemata.model.Events.SchemaDescribed;
-import io.vlingo.xoom.schemata.model.Events.SchemaRedefined;
-import io.vlingo.xoom.schemata.model.Events.SchemaRenamed;
-import io.vlingo.xoom.schemata.model.Events.SchemaScoped;
-import io.vlingo.xoom.schemata.model.Events.SchemaVersionAssigned;
-import io.vlingo.xoom.schemata.model.Events.SchemaVersionDefined;
-import io.vlingo.xoom.schemata.model.Events.SchemaVersionDeprecated;
-import io.vlingo.xoom.schemata.model.Events.SchemaVersionDescribed;
-import io.vlingo.xoom.schemata.model.Events.SchemaVersionPublished;
-import io.vlingo.xoom.schemata.model.Events.SchemaVersionRemoved;
-import io.vlingo.xoom.schemata.model.Events.SchemaVersionSpecified;
-import io.vlingo.xoom.schemata.model.Events.UnitDefined;
-import io.vlingo.xoom.schemata.model.Events.UnitDescribed;
-import io.vlingo.xoom.schemata.model.Events.UnitRedefined;
-import io.vlingo.xoom.schemata.model.Events.UnitRenamed;
-import io.vlingo.xoom.schemata.model.OrganizationEntity;
-import io.vlingo.xoom.schemata.model.SchemaEntity;
-import io.vlingo.xoom.schemata.model.SchemaVersionEntity;
-import io.vlingo.xoom.schemata.model.UnitEntity;
-import io.vlingo.xoom.schemata.query.CodeQueries;
-import io.vlingo.xoom.schemata.query.CodeQueriesActor;
-import io.vlingo.xoom.schemata.query.ContextQueries;
-import io.vlingo.xoom.schemata.query.ContextQueriesActor;
-import io.vlingo.xoom.schemata.query.OrganizationQueries;
-import io.vlingo.xoom.schemata.query.OrganizationQueriesActor;
-import io.vlingo.xoom.schemata.query.SchemaQueries;
-import io.vlingo.xoom.schemata.query.SchemaQueriesActor;
-import io.vlingo.xoom.schemata.query.SchemaVersionQueries;
-import io.vlingo.xoom.schemata.query.SchemaVersionQueriesActor;
-import io.vlingo.xoom.schemata.query.TypeResolverQueries;
-import io.vlingo.xoom.schemata.query.TypeResolverQueriesActor;
-import io.vlingo.xoom.schemata.query.UnitQueries;
-import io.vlingo.xoom.schemata.query.UnitQueriesActor;
+import io.vlingo.xoom.schemata.model.*;
+import io.vlingo.xoom.schemata.model.Events.*;
+import io.vlingo.xoom.schemata.query.*;
 import io.vlingo.xoom.symbio.Entry;
 import io.vlingo.xoom.symbio.State.TextState;
 import io.vlingo.xoom.symbio.store.DataFormat;
@@ -75,6 +30,10 @@ import io.vlingo.xoom.symbio.store.journal.jdbc.JDBCJournalActor;
 import io.vlingo.xoom.symbio.store.journal.jdbc.JDBCJournalInstantWriter;
 import io.vlingo.xoom.symbio.store.journal.jdbc.JDBCJournalWriter;
 import io.vlingo.xoom.symbio.store.state.StateStore;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class StorageProvider {
     private static StorageProvider instance;
@@ -215,5 +174,9 @@ public class StorageProvider {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static Dispatcher<Dispatchable<Entry<String>, TextState>> typed(Dispatcher dispatcher) {
         return dispatcher;
+    }
+
+    public static void clear() {
+        instance = null;
     }
 }
