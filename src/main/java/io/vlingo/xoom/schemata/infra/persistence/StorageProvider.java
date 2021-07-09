@@ -56,7 +56,7 @@ public class StorageProvider {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static StorageProvider newInstance(final World world, StateStore stateStore, final Dispatcher dispatcher, final SchemataConfig config) throws Exception {
-        final Journal<String> journal = startJounral(world, dispatcher, config);
+        final Journal<String> journal = startJournal(world, dispatcher, config);
 
         SourcedTypeRegistry registry = new SourcedTypeRegistry(world);
 
@@ -132,7 +132,7 @@ public class StorageProvider {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static Journal<String> startJounral(final World world, final Dispatcher dispatcher, final SchemataConfig config) throws Exception {
+    private static Journal<String> startJournal(final World world, final Dispatcher dispatcher, final SchemataConfig config) throws Exception {
       final Journal<String> journal;
 
       if (config.isProductionRuntimeType()) {
