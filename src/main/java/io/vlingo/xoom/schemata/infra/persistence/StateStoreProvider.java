@@ -7,30 +7,19 @@
 
 package io.vlingo.xoom.schemata.infra.persistence;
 
-import java.util.Arrays;
-
 import io.vlingo.xoom.actors.ActorInstantiator;
 import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.lattice.model.stateful.StatefulTypeRegistry;
 import io.vlingo.xoom.lattice.model.stateful.StatefulTypeRegistry.Info;
-import io.vlingo.xoom.schemata.NoopDispatcher;
 import io.vlingo.xoom.schemata.SchemataConfig;
-import io.vlingo.xoom.schemata.query.view.CodeView;
-import io.vlingo.xoom.schemata.query.view.ContextView;
-import io.vlingo.xoom.schemata.query.view.ContextsView;
-import io.vlingo.xoom.schemata.query.view.NamedSchemaView;
-import io.vlingo.xoom.schemata.query.view.OrganizationView;
-import io.vlingo.xoom.schemata.query.view.OrganizationsView;
-import io.vlingo.xoom.schemata.query.view.SchemaVersionView;
-import io.vlingo.xoom.schemata.query.view.SchemaVersionsView;
-import io.vlingo.xoom.schemata.query.view.SchemaView;
-import io.vlingo.xoom.schemata.query.view.SchemasView;
-import io.vlingo.xoom.schemata.query.view.UnitView;
-import io.vlingo.xoom.schemata.query.view.UnitsView;
+import io.vlingo.xoom.schemata.query.view.*;
+import io.vlingo.xoom.symbio.Entry;
 import io.vlingo.xoom.symbio.State;
 import io.vlingo.xoom.symbio.store.DataFormat;
 import io.vlingo.xoom.symbio.store.common.jdbc.Configuration;
 import io.vlingo.xoom.symbio.store.common.jdbc.postgres.PostgresConfigurationProvider;
+import io.vlingo.xoom.symbio.store.dispatch.Dispatchable;
+import io.vlingo.xoom.symbio.store.dispatch.Dispatcher;
 import io.vlingo.xoom.symbio.store.state.StateStore;
 import io.vlingo.xoom.symbio.store.state.StateStore.InitializationPrimer;
 import io.vlingo.xoom.symbio.store.state.inmemory.InMemoryStateStoreActor;
@@ -40,6 +29,9 @@ import io.vlingo.xoom.symbio.store.state.jdbc.JDBCStateStoreActor.JDBCStateStore
 import io.vlingo.xoom.symbio.store.state.jdbc.JDBCStorageDelegate;
 import io.vlingo.xoom.symbio.store.state.jdbc.postgres.PostgresStorageDelegate;
 
+import java.util.Collections;
+import java.util.List;
+
 public class StateStoreProvider {
 
   private static final int MAXIMUM_RETRIES = 5;
@@ -47,22 +39,26 @@ public class StateStoreProvider {
   public final StateStore stateStore;
 
   public static StateStoreProvider using(final World world, final SchemataConfig config) throws Exception {
+    return using(world, config, Collections.emptyList());
+  }
+
+  public static StateStoreProvider using(final World world, final SchemataConfig config, final List<Dispatcher<Dispatchable<? extends Entry<?>, ? extends State<?>>>> dispatchers) throws Exception {
     final StateStore stateStore =
             config.isProductionRuntimeType() || config.isEnvironmentRuntimeType() ?
-                    resolveProductionDatabase(world, config) : resolveDeveloperDatabase(world);
+                    resolveProductionDatabase(world, config, dispatchers) : resolveDeveloperDatabase(world, dispatchers);
 
     return new StateStoreProvider(world, stateStore);
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private static StateStore resolveProductionDatabase(final World world, final SchemataConfig config) throws Exception {
+  private static StateStore resolveProductionDatabase(final World world, final SchemataConfig config, List<Dispatcher<Dispatchable<? extends Entry<?>, ? extends State<?>>>> dispatchers) throws Exception {
     final Configuration databaseConfiguration = buildDatabaseConfiguration(world, config);
 
     final JDBCStorageDelegate<?> delegate =
             new PostgresStorageDelegate(databaseConfiguration, world.defaultLogger());
 
     final JDBCEntriesInstantWriter entriesWriter =
-            new JDBCEntriesInstantWriter(typed(delegate), null, null);
+            new JDBCEntriesInstantWriter(typed(delegate), dispatchers, null);
 
     final ActorInstantiator instantiator =
             new JDBCStateStoreInstantiator(typed(delegate), entriesWriter, new StateStoreInitializationPrimer(world));
@@ -94,9 +90,8 @@ public class StateStoreProvider {
     throw connectionException;
   }
 
-  @SuppressWarnings({"rawtypes"})
-  private static StateStore resolveDeveloperDatabase(final World world) {
-    return world.stage().actorFor(StateStore.class, InMemoryStateStoreActor.class, Arrays.asList(new NoopDispatcher()));
+  private static StateStore resolveDeveloperDatabase(final World world, List<Dispatcher<Dispatchable<? extends Entry<?>, ? extends State<?>>>> dispatchers) {
+    return world.stage().actorFor(StateStore.class, InMemoryStateStoreActor.class, dispatchers);
   }
 
   private StateStoreProvider(final World world, final StateStore stateStore) {
