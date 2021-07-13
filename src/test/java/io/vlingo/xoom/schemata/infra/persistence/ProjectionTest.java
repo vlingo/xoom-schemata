@@ -59,6 +59,11 @@ public abstract class ProjectionTest {
     ));
   }
 
+  protected Completes<ContextState> givenAnyContext() {
+    return givenAnyUnit()
+            .andThenTo(this::givenAnyContext);
+  }
+
   protected Completes<ContextState> givenAnyContext(UnitState unit) {
     return onceProjected(ContextView.class, () -> Context.with(
             stage,
@@ -66,6 +71,11 @@ public abstract class ProjectionTest {
             Fixtures.ContextNamespace,
             Fixtures.ContextDescription
     ));
+  }
+
+  protected Completes<UnitState> givenAnyUnit() {
+    return givenAnyOrganization()
+            .andThenTo(this::givenAnyUnit);
   }
 
   protected Completes<UnitState> givenAnyUnit(OrganizationState organization) {
