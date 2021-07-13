@@ -12,7 +12,9 @@ import io.vlingo.xoom.schemata.test.symbio.FakeStateStoreDispatcher;
 import org.junit.After;
 import org.junit.Before;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 
 import static io.vlingo.xoom.schemata.infra.persistence.Fixtures.*;
@@ -23,6 +25,10 @@ public abstract class ProjectionTest {
 
   protected <R> R onceProjected(Class<?> projectionType, Supplier<R> supplier) {
     return stateStoreDispatcher.onceProjected(projectionType, supplier);
+  }
+
+  protected <R> R onceProjected(List<Class<?>> projectionTypes, Supplier<R> supplier) {
+    return stateStoreDispatcher.onceProjected(projectionTypes, supplier);
   }
 
   protected Completes<SchemaVersionState> givenAnySchemaVersion() {
@@ -65,7 +71,7 @@ public abstract class ProjectionTest {
   }
 
   protected Completes<ContextState> givenAnyContext(UnitState unit) {
-    return onceProjected(ContextView.class, () -> Context.with(
+    return onceProjected(Arrays.asList(ContextView.class, ContextsView.class), () -> Context.with(
             stage,
             unit.unitId,
             Fixtures.ContextNamespace,
@@ -79,7 +85,7 @@ public abstract class ProjectionTest {
   }
 
   protected Completes<UnitState> givenAnyUnit(OrganizationState organization) {
-    return onceProjected(UnitView.class, () -> Unit.with(
+    return onceProjected(Arrays.asList(UnitView.class, ContextsView.class), () -> Unit.with(
             stage,
             organization.organizationId,
             Fixtures.UnitName,
