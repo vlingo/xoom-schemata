@@ -1,9 +1,9 @@
 package io.vlingo.xoom.schemata.infra.persistence;
 
+import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.schemata.model.Path;
 import io.vlingo.xoom.schemata.model.SchemaVersion;
 import io.vlingo.xoom.schemata.model.SchemaVersion.Specification;
-import io.vlingo.xoom.schemata.query.CodeQueries;
 import io.vlingo.xoom.schemata.query.view.CodeView;
 import org.junit.Test;
 
@@ -12,7 +12,6 @@ import static io.vlingo.xoom.schemata.test.Assertions.assertCompletes;
 import static org.junit.Assert.assertEquals;
 
 public class CodeProjectionTest extends ProjectionTest {
-  private CodeQueries codeQueries;
 
   @Test
   public void itProjectsCodeViewFromSchemaVersionDefinedEvents() {
@@ -30,7 +29,7 @@ public class CodeProjectionTest extends ProjectionTest {
 
     final Path reference = Path.with(OrgName, UnitName, ContextNamespace, SchemaName, SchemaVersionVersion100.value);
 
-    assertCompletes(codeQueries.codeFor(reference), (codeView) -> {
+    assertCompletes(codeView(reference), (codeView) -> {
       assertEquals(SchemaVersionVersion100.value, codeView.currentVersion());
       assertEquals(SchemaVersionSpecification.value, codeView.specification());
     });
@@ -54,16 +53,13 @@ public class CodeProjectionTest extends ProjectionTest {
 
     final Path reference = Path.with(OrgName, UnitName, ContextNamespace, SchemaName, SchemaVersionVersion101.value);
 
-    assertCompletes(codeQueries.codeFor(reference), (codeView) -> {
+    assertCompletes(codeView(reference), (codeView) -> {
       assertEquals(SchemaVersionVersion101.value, codeView.currentVersion());
       assertEquals(updatedSchemaSpecification.value, codeView.specification());
     });
   }
 
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-
-    codeQueries = StorageProvider.instance().codeQueries;
+  private Completes<CodeView> codeView(Path reference) {
+    return StorageProvider.instance().codeQueries.codeFor(reference);
   }
 }
