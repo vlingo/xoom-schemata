@@ -90,7 +90,7 @@ public class OrganizationView {
     }
 
     public OrganizationView mergeWith(String organizationId, String name, String description) {
-        if (this.description.equals(organizationId)) {
+        if (this.organizationId.equals(organizationId)) {
             return new OrganizationView(organizationId, name, description);
         } else {
             return this;
