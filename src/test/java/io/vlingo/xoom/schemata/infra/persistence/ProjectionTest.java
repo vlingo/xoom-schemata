@@ -55,7 +55,7 @@ public abstract class ProjectionTest {
   }
 
   protected Completes<SchemaState> givenAnySchema(ContextState context) {
-    return onceProjected(Arrays.asList(SchemaView.class, NamedSchemaView.class), () -> Schema.with(
+    return onceProjected(Arrays.asList(SchemaView.class, SchemasView.class, NamedSchemaView.class), () -> Schema.with(
             stage,
             context.contextId,
             Fixtures.SchemaCategory,
@@ -71,7 +71,7 @@ public abstract class ProjectionTest {
   }
 
   protected Completes<ContextState> givenAnyContext(UnitState unit) {
-    return onceProjected(Arrays.asList(ContextView.class, ContextsView.class), () -> Context.with(
+    return onceProjected(Arrays.asList(ContextView.class, ContextsView.class, SchemasView.class), () -> Context.with(
             stage,
             unit.unitId,
             Fixtures.ContextNamespace,
