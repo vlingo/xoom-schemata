@@ -94,7 +94,11 @@ public abstract class ProjectionTest {
   }
 
   protected Completes<OrganizationState> givenAnyOrganization() {
-    return onceProjected(OrganizationView.class, () -> Organization.with(stage, OrgName, OrgDescription));
+    return onceProjected(Arrays.asList(OrganizationView.class, OrganizationsView.class), () -> Organization.with(
+            stage,
+            OrgName,
+            OrgDescription
+    ));
   }
 
   @Before

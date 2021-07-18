@@ -24,14 +24,14 @@ public class OrganizationProjectionTest extends ProjectionTest {
   }
 
   @Test
-  public void itUpdatesOrganizationDescriptionOnOrganizationDefinedEvent() {
+  public void itUpdatesOrganizationDescriptionOnOrganizationDescribedEvent() {
     Completes<OrganizationState> organizationState = onceProjected(OrganizationView.class, () -> givenAnyOrganization()
             .andThenTo(state -> organization(state.organizationId).describeAs("New organization description")));
     Completes<OrganizationView> view = organizationState.andThenTo(state -> organizationView(state.organizationId));
 
-    assertCompletes(view, (organizationView) -> {
-      assertEquals("New organization description", organizationView.description());
-    });
+    assertCompletes(view, (organizationView) ->
+            assertEquals("New organization description", organizationView.description())
+    );
   }
 
   @Test
@@ -40,9 +40,7 @@ public class OrganizationProjectionTest extends ProjectionTest {
             .andThenTo(state -> organization(state.organizationId).renameTo("New VLINGO")));
     Completes<OrganizationView> view = organizationState.andThenTo(state -> organizationView(state.organizationId));
 
-    assertCompletes(view, (organizationView) -> {
-      assertEquals("New VLINGO", organizationView.name());
-    });
+    assertCompletes(view, (organizationView) -> assertEquals("New VLINGO", organizationView.name()));
   }
 
   @Test
