@@ -91,7 +91,7 @@ public abstract class ProjectionTest {
   }
 
   protected Completes<UnitState> givenAnyUnit(OrganizationState organization) {
-    return onceProjected(Arrays.asList(UnitView.class, ContextsView.class), () -> Unit.with(
+    return onceProjected(Arrays.asList(UnitView.class, UnitsView.class, ContextsView.class), () -> Unit.with(
             stage,
             organization.organizationId,
             Fixtures.UnitName,
@@ -100,11 +100,10 @@ public abstract class ProjectionTest {
   }
 
   protected Completes<OrganizationState> givenAnyOrganization() {
-    return onceProjected(Arrays.asList(OrganizationView.class, OrganizationsView.class), () -> Organization.with(
-            stage,
-            OrgName,
-            OrgDescription
-    ));
+    return onceProjected(
+            Arrays.asList(OrganizationView.class, OrganizationsView.class, UnitsView.class),
+            () -> Organization.with(stage, OrgName, OrgDescription)
+    );
   }
 
   @Before
