@@ -5,7 +5,6 @@ import io.vlingo.xoom.schemata.model.Id.OrganizationId;
 import io.vlingo.xoom.schemata.model.Organization;
 import io.vlingo.xoom.schemata.model.OrganizationEntity;
 import io.vlingo.xoom.schemata.model.OrganizationState;
-import io.vlingo.xoom.schemata.query.view.OrganizationView;
 import io.vlingo.xoom.schemata.query.view.OrganizationsView;
 import org.junit.Test;
 
@@ -30,7 +29,7 @@ public class OrganizationsProjectionTest extends ProjectionTest {
 
   @Test
   public void itUpdatesOrganizationNameAndDescriptionOnOrganizationRedefinedEvent() {
-    final Completes<OrganizationState> organizationState = onceProjected(OrganizationView.class, () -> givenAnyOrganization()
+    final Completes<OrganizationState> organizationState = onceProjected(OrganizationsView.class, () -> givenAnyOrganization()
             .andThenTo(state -> organization(state.organizationId).redefineWith("New VLINGO", "New organization description")));
     final Completes<OrganizationsView> view = organizationState.andThenTo(state -> organizationsView());
     final Completes<OrganizationId> id = organizationState.andThen(state -> state.organizationId);
@@ -45,7 +44,7 @@ public class OrganizationsProjectionTest extends ProjectionTest {
 
   @Test
   public void itUpdatesOrganizationNameOnOrganizationRenamedEvent() {
-    final Completes<OrganizationState> organizationState = onceProjected(OrganizationView.class, () -> givenAnyOrganization()
+    final Completes<OrganizationState> organizationState = onceProjected(OrganizationsView.class, () -> givenAnyOrganization()
             .andThenTo(state -> organization(state.organizationId).renameTo("New VLINGO")));
     final Completes<OrganizationsView> view = organizationState.andThenTo(state -> organizationsView());
     final Completes<OrganizationId> id = organizationState.andThen(state -> state.organizationId);
