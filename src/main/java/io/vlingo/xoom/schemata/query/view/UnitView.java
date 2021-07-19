@@ -83,7 +83,7 @@ public class UnitView {
 
     public UnitView mergeDescriptionWith(String unitId, String description) {
         if (this.unitId.equals(unitId)) {
-            return new UnitView(this.unitId, this.name, this.description);
+            return new UnitView(this.unitId, this.name, description);
         } else {
             return this;
         }
