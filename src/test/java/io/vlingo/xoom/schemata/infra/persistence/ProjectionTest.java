@@ -37,14 +37,17 @@ public abstract class ProjectionTest {
   }
 
   protected Completes<SchemaVersionState> givenAnySchemaVersion(SchemaState schemaState) {
-    return onceProjected(Arrays.asList(CodeView.class, NamedSchemaView.class, SchemaVersionView.class), () -> SchemaVersion.with(
-            stage,
-            schemaState.schemaId,
-            SchemaVersionSpecification,
-            SchemaVersionDescription,
-            SchemaVersionVersion000,
-            SchemaVersionVersion100
-    ));
+    return onceProjected(
+            Arrays.asList(CodeView.class, NamedSchemaView.class, SchemaVersionView.class, SchemaVersionsView.class),
+            () -> SchemaVersion.with(
+                    stage,
+                    schemaState.schemaId,
+                    SchemaVersionSpecification,
+                    SchemaVersionDescription,
+                    SchemaVersionVersion000,
+                    SchemaVersionVersion100
+            )
+    );
   }
 
   protected Completes<SchemaState> givenAnySchema() {
@@ -55,14 +58,17 @@ public abstract class ProjectionTest {
   }
 
   protected Completes<SchemaState> givenAnySchema(ContextState context) {
-    return onceProjected(Arrays.asList(SchemaView.class, SchemasView.class, NamedSchemaView.class), () -> Schema.with(
-            stage,
-            context.contextId,
-            Fixtures.SchemaCategory,
-            Fixtures.SchemaScope,
-            Fixtures.SchemaName,
-            Fixtures.SchemaDescription
-    ));
+    return onceProjected(
+            Arrays.asList(SchemaView.class, SchemasView.class, NamedSchemaView.class, SchemaVersionsView.class),
+            () -> Schema.with(
+                    stage,
+                    context.contextId,
+                    Fixtures.SchemaCategory,
+                    Fixtures.SchemaScope,
+                    Fixtures.SchemaName,
+                    Fixtures.SchemaDescription
+            )
+    );
   }
 
   protected Completes<ContextState> givenAnyContext() {
