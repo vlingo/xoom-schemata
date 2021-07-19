@@ -37,7 +37,7 @@ public abstract class ProjectionTest {
   }
 
   protected Completes<SchemaVersionState> givenAnySchemaVersion(SchemaState schemaState) {
-    return onceProjected(Arrays.asList(CodeView.class, NamedSchemaView.class), () -> SchemaVersion.with(
+    return onceProjected(Arrays.asList(CodeView.class, NamedSchemaView.class, SchemaVersionView.class), () -> SchemaVersion.with(
             stage,
             schemaState.schemaId,
             SchemaVersionSpecification,
