@@ -7,6 +7,7 @@
 package io.vlingo.xoom.schemata.codegen;
 
 import io.vlingo.xoom.actors.Actor;
+import io.vlingo.xoom.actors.CompletesEventually;
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
@@ -30,22 +31,17 @@ public class TypeDependenciesRetrieverActor extends Actor implements TypeDepende
 
   @Override
   public Completes<TypeDependencies> dependenciesOf(final String rootReference) {
-    return resolveDependencies(rootReference, TypeDependencies.with(rootReference))
-            .andThenTo(retrievedDependencies -> {
-              completesEventually().with(retrievedDependencies);
-              return completes();
-            });
-  }
-
-  private Completes<TypeDependencies> resolveDependencies(final String reference, final TypeDependencies typeDependencies) {
-    return codeQueries.codeFor(Path.with(reference, true))
+    final CompletesEventually completesEventually = completesEventually();
+    final TypeDependencies typeDependencies = TypeDependencies.with(rootReference);
+    return codeQueries.codeFor(Path.with(rootReference, true))
             .andThenTo(codeView -> {
               final InputStream spec = new ByteArrayInputStream(codeView.specification().getBytes());
-              return middleware.compileToAST(spec, reference);
+              return middleware.compileToAST(spec, rootReference);
             }).andThen(outcome -> {
               final TypeDefinition type = (TypeDefinition) outcome.resolve(ex -> ex, node -> node);
               final Set<String> schemaNames = resolveComplexTypedSchemaNames(type);
               typeDependencies.add(schemaNames);
+              completesEventually.with(typeDependencies);
               return typeDependencies;
             });
   }
