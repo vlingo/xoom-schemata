@@ -21,6 +21,16 @@ published by the VLINGO XOOM Team:
 docker run -it --rm -eXOOM_ENV=dev -p '9019:9019' vlingo/xoom-schemata
 ```
 
+**TIP:** When using Docker to run XOOM Designer integrated with XOOM Schemata, name your Schemata container with `--name xoom-schemata` so that you can reference it in Designer-Schemata integration options:
+
+```bash
+docker run -it --rm -eXOOM_ENV=dev -p9019:9019 --name xoom-schemata vlingo/xoom-schemata
+```
+
+Select the Designer menu OPTIONS, and use the image name as the host.
+
+![designer-schemata-options](https://gblobscdn.gitbook.com/assets%2F-LLB-V2sJmANuWISDmBf%2F-Mf55LjxPvSPsYiTK6vx%2F-Mf58G5gBNAUtjyn-YXB%2Fxoom-designer-schemata-integration.png?alt=media&token=bb655841-ef75-4368-8d6f-6e22b58ceab5)
+
 ### Maven
 
 :warning: Make sure you are using a Java 8 JDK.
