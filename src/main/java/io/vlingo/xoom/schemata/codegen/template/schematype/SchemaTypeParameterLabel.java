@@ -7,6 +7,7 @@ public enum SchemaTypeParameterLabel implements ParameterLabel {
   LANGUAGE("language"),
   VERSION("version");
 
+  @SuppressWarnings("unused")
   private final String key;
 
   private SchemaTypeParameterLabel(String key) {

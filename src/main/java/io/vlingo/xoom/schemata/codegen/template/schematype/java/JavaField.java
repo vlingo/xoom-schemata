@@ -1,5 +1,9 @@
 package io.vlingo.xoom.schemata.codegen.template.schematype.java;
 
+import static java.util.stream.Collectors.joining;
+
+import java.util.List;
+
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.xoom.schemata.codegen.ast.types.ComputableType;
 import io.vlingo.xoom.schemata.codegen.ast.types.Type;
@@ -8,10 +12,6 @@ import io.vlingo.xoom.schemata.codegen.ast.values.ListValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.NullValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.SingleValue;
 import io.vlingo.xoom.schemata.codegen.ast.values.Value;
-
-import java.util.List;
-
-import static java.util.stream.Collectors.joining;
 
 public class JavaField {
   public final String type;
@@ -40,6 +40,7 @@ public class JavaField {
     );
   }
 
+  @SuppressWarnings("rawtypes")
   private static String javaLiteralOf(final FieldDefinition definition, final TypeDefinition owner) {
     Value value = definition.defaultValue.orElseGet(NullValue::new);
 
@@ -58,11 +59,12 @@ public class JavaField {
     throw new IllegalStateException("Unsupported value type encountered");
   }
 
+  @SuppressWarnings("rawtypes")
   private static String javaLiteralOf(final SingleValue value) {
     return value.value().toString();
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   private static String javaLiteralOf(final Type type, final TypeDefinition owner, final ListValue value) {
     return value.value().stream()
             .map(e -> ((SingleValue)e).value())
