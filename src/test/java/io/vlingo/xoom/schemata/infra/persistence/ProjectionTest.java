@@ -1,10 +1,11 @@
 package io.vlingo.xoom.schemata.infra.persistence;
 
 import io.vlingo.xoom.actors.Configuration;
-import io.vlingo.xoom.cluster.ClusterProperties;
+import io.vlingo.xoom.actors.Stage;
+import io.vlingo.xoom.actors.UUIDAddressFactory;
+import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.common.Completes;
-import io.vlingo.xoom.lattice.grid.Grid;
-import io.vlingo.xoom.schemata.Schemata;
+import io.vlingo.xoom.common.identity.IdentityGeneratorType;
 import io.vlingo.xoom.schemata.SchemataConfig;
 import io.vlingo.xoom.schemata.model.*;
 import io.vlingo.xoom.schemata.query.view.*;
@@ -20,7 +21,8 @@ import java.util.function.Supplier;
 import static io.vlingo.xoom.schemata.infra.persistence.Fixtures.*;
 
 public abstract class ProjectionTest {
-  protected Grid stage;
+  protected Stage stage;
+  protected World world;
   private FakeStateStoreDispatcher stateStoreDispatcher;
 
   protected <R> R onceProjected(Class<?> projectionType, Supplier<R> supplier) {
@@ -108,7 +110,8 @@ public abstract class ProjectionTest {
 
   @Before
   public void setUp() throws Exception {
-    stage = Grid.start("test-projection", Configuration.define(), ClusterProperties.oneNode(), Schemata.NodeName);
+    world = World.start("test-projection", Configuration.define().with(new UUIDAddressFactory(IdentityGeneratorType.RANDOM)));
+    stage = world.stage();
     stateStoreDispatcher = new FakeStateStoreDispatcher(stage.world().defaultLogger());
 
     final SchemataConfig config = SchemataConfig.forRuntime(SchemataConfig.RUNTIME_TYPE_DEV);
@@ -120,6 +123,6 @@ public abstract class ProjectionTest {
 
   @After
   public void tearDown() {
-    stage.world().terminate();
+    world.terminate();
   }
 }
