@@ -22,7 +22,6 @@ public abstract class AbstractRestTest {
     @BeforeClass
     public static void init() {
         StorageProvider.clear();
-        TypeDefinitionCompiler.init();
         RestAssured.defaultParser = Parser.JSON;
     }
 

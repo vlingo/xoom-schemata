@@ -86,7 +86,7 @@ abstract public class CodeGenSpecs extends CodeGenTests {
   public void testThatCompilingInvalidSchemaReportsError() {
     final Exception[] expected = new Exception[1];
     final boolean[] hitSuccess = {false};
-    ((TypeDefinitionCompiler) compilerFor("java"))
+    compilerFor("java")
             .compile(typeDefinition("invalid"), "O:U:C:S", "0.0.1")
             .andThen(o -> o.resolve(
                     ex -> expected[0] = ex,

@@ -38,7 +38,6 @@ public abstract class ResourceTest {
   @BeforeClass
   public static void clear() {
     StorageProvider.clear();
-    TypeDefinitionCompiler.init();
   }
 
   @Before

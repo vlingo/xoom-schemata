@@ -11,26 +11,15 @@ import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.actors.testkit.TestWorld;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.SchemataConfig;
-import io.vlingo.xoom.schemata.codegen.backend.XoomCodeGenBackend;
-import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateProcessingStep;
-import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
-import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
-import io.vlingo.xoom.schemata.codegen.processor.Processor;
-import io.vlingo.xoom.schemata.codegen.processor.types.ComputableTypeProcessor;
-import io.vlingo.xoom.schemata.codegen.processor.types.TypeResolver;
-import io.vlingo.xoom.schemata.codegen.processor.types.TypeResolverProcessor;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
 import io.vlingo.xoom.schemata.infra.persistence.ProjectionDispatcherProvider;
 import io.vlingo.xoom.schemata.infra.persistence.StateStoreProvider;
 import io.vlingo.xoom.schemata.infra.persistence.StorageProvider;
-import io.vlingo.xoom.schemata.query.TypeResolverQueries;
-import io.vlingo.xoom.schemata.query.TypeResolverQueriesActor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 
 import static org.junit.Assert.assertTrue;
 
@@ -39,21 +28,12 @@ public class JavaCodeGenSchemaVersionResolverTests {
 
   @Test
   public void testThatSpecificationsContainingBasicTypesCanBeCompiledWithSchemaVersionQueryTypeResolver() throws Exception {
-   final TypeParser typeParser = new AntlrTypeParser();
    final SchemataConfig config = SchemataConfig.forRuntime(SchemataConfig.RUNTIME_TYPE_DEV);
    final StateStoreProvider stateStoreProvider = StateStoreProvider.using(world, config);
    final ProjectionDispatcherProvider projectionDispatcherProvider = ProjectionDispatcherProvider.using(world.stage(), stateStoreProvider.stateStore);
-   final StorageProvider storageProvider = StorageProvider.newInstance(world, stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher, config);
-   final TypeResolver typeResolver = world.actorFor(TypeResolverQueries.class, TypeResolverQueriesActor.class, storageProvider.codeQueries);
+   StorageProvider.newInstance(world, stateStoreProvider.stateStore, projectionDispatcherProvider.storeDispatcher, config);
 
-   final TypeDefinitionCompiler typeDefinitionCompiler = new TypeDefinitionCompilerActor(
-           typeParser,
-           Arrays.asList(
-                   world.actorFor(Processor.class, ComputableTypeProcessor.class),
-                   world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
-           ),
-           new XoomCodeGenBackend(new SchemaTypeTemplateProcessingStep(), "java")
-   );
+   final TypeDefinitionCompiler typeDefinitionCompiler = TypeDefinitionCompiler.compilerFor(world.stage(), "java");
    String spec = "event Foo {\n" +
            "    type eventType\n" +
            "    version eventVersion\n" +
