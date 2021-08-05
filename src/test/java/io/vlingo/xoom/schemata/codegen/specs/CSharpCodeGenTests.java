@@ -8,11 +8,11 @@
 package io.vlingo.xoom.schemata.codegen.specs;
 
 import io.vlingo.xoom.codegen.TextExpectation;
-import io.vlingo.xoom.schemata.codegen.TypeDefinitionCompilerActor;
+import io.vlingo.xoom.schemata.codegen.TypeDefinitionCompiler;
 
 public class CSharpCodeGenTests extends CodeGenSpecs {
   @Override
-  protected TypeDefinitionCompilerActor compiler() {
+  protected TypeDefinitionCompiler compiler() {
     return compilerFor("csharp");
   }
 

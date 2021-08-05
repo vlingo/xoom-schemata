@@ -14,10 +14,8 @@ import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.lattice.model.sourcing.SourcedTypeRegistry;
 import io.vlingo.xoom.lattice.model.sourcing.SourcedTypeRegistry.Info;
 import io.vlingo.xoom.schemata.NoopDispatcher;
-import io.vlingo.xoom.schemata.codegen.TypeDefinitionCompilerActor;
+import io.vlingo.xoom.schemata.codegen.ParserTypeDefinitionMiddleware;
 import io.vlingo.xoom.schemata.codegen.TypeDefinitionMiddleware;
-import io.vlingo.xoom.schemata.codegen.backend.XoomCodeGenBackend;
-import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateProcessingStep;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
@@ -66,12 +64,11 @@ public class SchemaVersionTest {
 
     TypeResolver typeResolver = new CacheTypeResolver();
 
-    typeDefinitionMiddleware = new TypeDefinitionCompilerActor(
+    typeDefinitionMiddleware = new ParserTypeDefinitionMiddleware(
             typeParser,
             Arrays.asList(
                     world.actorFor(Processor.class, ComputableTypeProcessor.class),
-                    world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)),
-            new XoomCodeGenBackend(new SchemaTypeTemplateProcessingStep(), "java"));
+                    world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)));
 
     simpleSchemaVersionId = SchemaVersionId.uniqueFor(SchemaId.uniqueFor(ContextId.uniqueFor(UnitId.uniqueFor(OrganizationId.unique()))));
     simpleSchemaVersion = world.actorFor(SchemaVersion.class, SchemaVersionEntity.class, simpleSchemaVersionId);

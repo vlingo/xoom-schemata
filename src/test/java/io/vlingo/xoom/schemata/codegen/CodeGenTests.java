@@ -14,13 +14,13 @@ import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.codegen.ast.Node;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
 import io.vlingo.xoom.schemata.codegen.backend.XoomCodeGenBackend;
-import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateProcessingStep;
 import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
 import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
 import io.vlingo.xoom.schemata.codegen.processor.Processor;
 import io.vlingo.xoom.schemata.codegen.processor.types.CacheTypeResolver;
 import io.vlingo.xoom.schemata.codegen.processor.types.ComputableTypeProcessor;
 import io.vlingo.xoom.schemata.codegen.processor.types.TypeResolverProcessor;
+import io.vlingo.xoom.schemata.codegen.template.schematype.SchemaTypeTemplateProcessingStep;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
 import org.junit.After;
 import org.junit.Before;
@@ -49,14 +49,16 @@ public abstract class CodeGenTests {
         world.terminate();
     }
 
-    abstract protected TypeDefinitionCompilerActor compiler();
+    abstract protected TypeDefinitionCompiler compiler();
 
-    protected TypeDefinitionCompilerActor compilerFor(String language) {
-        return new TypeDefinitionCompilerActor(
-                typeParser,
-                Arrays.asList(
-                        world.actorFor(Processor.class, ComputableTypeProcessor.class),
-                        world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
+    protected TypeDefinitionCompiler compilerFor(String language) {
+        return new BackendTypeDefinitionCompiler(
+                new ParserTypeDefinitionMiddleware(
+                        typeParser,
+                        Arrays.asList(
+                                world.actorFor(Processor.class, ComputableTypeProcessor.class),
+                                world.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
+                        )
                 ),
                 new XoomCodeGenBackend(new SchemaTypeTemplateProcessingStep(), language)
         );

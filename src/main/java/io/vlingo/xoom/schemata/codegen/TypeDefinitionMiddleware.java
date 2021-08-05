@@ -4,15 +4,29 @@ import io.vlingo.xoom.actors.Stage;
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.common.Outcome;
 import io.vlingo.xoom.schemata.codegen.ast.Node;
+import io.vlingo.xoom.schemata.codegen.parser.AntlrTypeParser;
+import io.vlingo.xoom.schemata.codegen.parser.TypeParser;
+import io.vlingo.xoom.schemata.codegen.processor.Processor;
+import io.vlingo.xoom.schemata.codegen.processor.types.ComputableTypeProcessor;
+import io.vlingo.xoom.schemata.codegen.processor.types.TypeResolver;
+import io.vlingo.xoom.schemata.codegen.processor.types.TypeResolverProcessor;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
+import io.vlingo.xoom.schemata.infra.persistence.StorageProvider;
 
 import java.io.InputStream;
+import java.util.Arrays;
 
 public interface TypeDefinitionMiddleware {
-    Completes<Outcome<SchemataBusinessException,Node>> compileToAST(final InputStream typeDefinition, final String fullyQualifiedTypeName);
+  Completes<Outcome<SchemataBusinessException, Node>> compileToAST(final InputStream typeDefinition, final String fullyQualifiedTypeName);
 
-    public static TypeDefinitionMiddleware middlewareFor(final Stage stage) {
-        //TODO: factor out Middleware from compiler actor to be able to retrieve it w/o language
-        return TypeDefinitionCompiler.compilerFor(stage,"java").middleware();
-    }
+  static TypeDefinitionMiddleware middlewareFor(final Stage stage) {
+    final TypeParser typeParser = new AntlrTypeParser();
+    final TypeResolver typeResolver = StorageProvider.instance().typeResolverQueries;
+
+    return new ParserTypeDefinitionMiddleware(typeParser,
+            Arrays.asList(
+                    stage.actorFor(Processor.class, ComputableTypeProcessor.class),
+                    stage.actorFor(Processor.class, TypeResolverProcessor.class, typeResolver)
+            ));
+  }
 }
