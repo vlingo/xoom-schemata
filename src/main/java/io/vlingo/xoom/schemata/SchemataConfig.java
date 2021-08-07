@@ -55,8 +55,8 @@ public class SchemataConfig {
                 props.getProperty("database.username"),
                 props.getProperty("database.password"),
                 props.getProperty("database.originator"),
-                Long.parseLong(props.getProperty("dispatcher.control.confirmation_expiration_interval", "2000")),
-                Long.parseLong(props.getProperty("dispatcher.control.confirmation_expiration", "1000")),
+                Long.parseLong(props.getProperty("dispatcher.control.confirmation_expiration_interval", "5000")),
+                Long.parseLong(props.getProperty("dispatcher.control.confirmation_expiration", "5000")),
                 runtimeType
         );
     }
