@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class UnitsView {
+public class UnitsView extends View {
     private final List<UnitItem> units;
 
     public static UnitsView empty() {

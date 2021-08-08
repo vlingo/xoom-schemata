@@ -7,14 +7,14 @@
 
 package io.vlingo.xoom.schemata.query.view;
 
-import io.vlingo.xoom.schemata.model.Category;
-import io.vlingo.xoom.schemata.model.Scope;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class NamedSchemaView {
+import io.vlingo.xoom.schemata.model.Category;
+import io.vlingo.xoom.schemata.model.Scope;
+
+public class NamedSchemaView extends View {
 	// reference in the form of 'org:unit:context:schema'
 	private final String reference;
 

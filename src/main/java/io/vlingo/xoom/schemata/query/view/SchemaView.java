@@ -10,7 +10,7 @@ package io.vlingo.xoom.schemata.query.view;
 import io.vlingo.xoom.schemata.model.Category;
 import io.vlingo.xoom.schemata.model.Scope;
 
-public class SchemaView {
+public class SchemaView extends View {
     private final String organizationId;
     private final String unitId;
     private final String contextId;

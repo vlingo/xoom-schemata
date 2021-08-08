@@ -7,7 +7,7 @@
 
 package io.vlingo.xoom.schemata.query.view;
 
-public class UnitView {
+public class UnitView extends View {
     private final String unitId;
     private final String name;
     private final String description;

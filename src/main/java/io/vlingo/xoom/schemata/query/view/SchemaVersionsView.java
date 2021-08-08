@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SchemaVersionsView {
+public class SchemaVersionsView extends View {
     private final List<SchemaVersionView> schemaVersions;
 
     public static SchemaVersionsView empty() {

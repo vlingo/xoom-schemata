@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ContextsView {
+public class ContextsView extends View {
     private final List<ContextItem> contexts;
 
     public static ContextsView empty() {

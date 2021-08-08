@@ -7,7 +7,7 @@
 
 package io.vlingo.xoom.schemata.query.view;
 
-public class CodeView {
+public class CodeView extends View {
 	// reference in the form of 'org:unit:context:schema:version'
 	private final String reference;
 

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class OrganizationsView {
+public class OrganizationsView extends View {
     public static final String Id = "root";
 
     private final List<OrganizationItem> organizations;

@@ -9,7 +9,7 @@ package io.vlingo.xoom.schemata.query.view;
 
 import io.vlingo.xoom.common.version.SemanticVersion;
 
-public class SchemaVersionView {
+public class SchemaVersionView extends View {
     private final String organizationId;
     private final String unitId;
     private final String contextId;

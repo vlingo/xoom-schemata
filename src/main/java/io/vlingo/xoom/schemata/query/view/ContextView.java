@@ -7,7 +7,7 @@
 
 package io.vlingo.xoom.schemata.query.view;
 
-public class ContextView {
+public class ContextView extends View {
     private final String contextId;
     private final String namespace;
     private final String description;
