@@ -1,15 +1,16 @@
 package io.vlingo.xoom.schemata.infra.persistence;
 
+import static io.vlingo.xoom.schemata.test.Assertions.assertCompletes;
+import static org.junit.Assert.assertEquals;
+
+import java.util.Collections;
+
+import org.junit.Test;
+
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.schemata.model.SchemaState;
 import io.vlingo.xoom.schemata.model.SchemaVersionState;
 import io.vlingo.xoom.schemata.query.view.NamedSchemaView;
-import org.junit.Test;
-
-import java.util.Collections;
-
-import static io.vlingo.xoom.schemata.test.Assertions.assertCompletes;
-import static org.junit.Assert.assertEquals;
 
 public class NamedSchemaProjectionTest extends ProjectionTest {
 
@@ -39,7 +40,6 @@ public class NamedSchemaProjectionTest extends ProjectionTest {
     });
   }
 
-  @SuppressWarnings("SameParameterValue")
   private Completes<NamedSchemaView> namedSchemaView(final String orgName, final String unitName, final String contextNamespace, final String schemaName) {
     return StorageProvider.instance().schemaQueries.schemaByNames(orgName, unitName, contextNamespace, schemaName);
   }
