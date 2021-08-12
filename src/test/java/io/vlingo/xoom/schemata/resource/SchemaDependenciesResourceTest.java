@@ -45,6 +45,17 @@ public class SchemaDependenciesResourceTest extends AbstractRestTest {
     assertTrue(dependencies.contains("Vlingo:store:io.vlingo.store.logistics:Price:1.0.0"));
   }
 
+  @Test
+  public void testThatItReturns404IfSchemaIsNotFound() {
+    loadSchemas();
+
+    final String reference =
+            Path.with(OrgName, UnitName, Context, "ProductDelivered", "2.0.0").toReference();
+
+    given().when().get(String.format("/api/schemas/%s/dependencies", reference))
+            .then().statusCode(404);
+  }
+
   private void loadSchemas() {
     final String organizationId =
             given().when().body(OrganizationData.just(OrgName, OrgName))
