@@ -1,4 +1,15 @@
+// Copyright © 2012-2021 VLINGO LABS. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
+
 package io.vlingo.xoom.schemata.query;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.common.Failure;
@@ -12,10 +23,6 @@ import io.vlingo.xoom.symbio.store.StorageException;
 import io.vlingo.xoom.symbio.store.state.StateStore;
 import io.vlingo.xoom.symbio.store.state.StateStoreEntryReader;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class FailingStateStore implements StateStore {
 
   private final StateStore delegate;
@@ -27,7 +34,7 @@ public class FailingStateStore implements StateStore {
   }
 
   @Override
-  public void read(final String id, final Class type, final ReadResultInterest interest, final Object object) {
+  public void read(final String id, final Class<?> type, final ReadResultInterest interest, final Object object) {
     if (readCount.incrementAndGet() > expectedReadFailures.get()) {
       delegate.read(id, type, interest, object);
     } else {
@@ -36,13 +43,13 @@ public class FailingStateStore implements StateStore {
   }
 
   @Override
-  public void readAll(final Collection collection, final ReadResultInterest interest, final Object object) {
+  public void readAll(Collection<TypedStateBundle> bundles, ReadResultInterest interest, Object object) {
     readCount.incrementAndGet();
-    delegate.readAll(collection, interest, object);
+    delegate.readAll(bundles, interest, object);
   }
 
   @Override
-  public Completes<Stream> streamAllOf(final Class stateType) {
+  public Completes<Stream> streamAllOf(final Class<?> stateType) {
     readCount.incrementAndGet();
     return delegate.streamAllOf(stateType);
   }
