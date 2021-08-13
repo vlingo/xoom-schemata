@@ -1,12 +1,19 @@
-package io.vlingo.xoom.schemata.codegen.specs;
+// Copyright © 2012-2021 VLINGO LABS. All rights reserved.
+//
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v. 2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain
+// one at https://mozilla.org/MPL/2.0/.
 
-import io.vlingo.xoom.schemata.codegen.CodeGenTests;
-import io.vlingo.xoom.schemata.codegen.TypeDefinitionCompiler;
-import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
-import org.junit.Test;
+package io.vlingo.xoom.schemata.codegen.specs;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+
+import org.junit.Test;
+
+import io.vlingo.xoom.schemata.codegen.CodeGenTests;
+import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
 
 abstract public class CodeGenSpecs extends CodeGenTests {
 
