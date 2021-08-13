@@ -15,6 +15,7 @@ import io.vlingo.xoom.schemata.query.CodeQueries;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,8 +36,10 @@ public class TypeDependenciesRetrieverActor extends Actor implements TypeDepende
               final InputStream spec = new ByteArrayInputStream(codeView.specification().getBytes());
               return middleware.compileToAST(spec, rootReference);
             }).andThen(outcome -> {
-              final TypeDefinition type = (TypeDefinition) outcome.resolve(ex -> ex, node -> node);
-              final Set<String> schemaNames = resolveComplexTypedSchemaNames(type);
+              final Set<String> schemaNames = outcome.resolve(
+                      ex -> Collections.emptySet(),
+                      node -> resolveComplexTypedSchemaNames((TypeDefinition) node)
+              );
               final TypeDependencies typeDependencies = TypeDependencies.with(rootReference);
               typeDependencies.add(schemaNames);
               return typeDependencies;
