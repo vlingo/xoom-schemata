@@ -7,22 +7,28 @@
 
 package io.vlingo.xoom.schemata.resource;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+
 import io.vlingo.xoom.actors.Configuration;
 import io.vlingo.xoom.actors.World;
+import io.vlingo.xoom.actors.plugin.mailbox.concurrentqueue.ConcurrentQueueMailboxPlugin.ConcurrentQueueMailboxPluginConfiguration;
 import io.vlingo.xoom.cluster.ClusterProperties;
 import io.vlingo.xoom.http.Response;
 import io.vlingo.xoom.http.ResponseHeader;
 import io.vlingo.xoom.lattice.grid.Grid;
 import io.vlingo.xoom.schemata.Schemata;
 import io.vlingo.xoom.schemata.SchemataConfig;
-import io.vlingo.xoom.schemata.codegen.TypeDefinitionCompiler;
 import io.vlingo.xoom.schemata.infra.persistence.ProjectionDispatcherProvider;
 import io.vlingo.xoom.schemata.infra.persistence.StateStoreProvider;
 import io.vlingo.xoom.schemata.infra.persistence.StorageProvider;
-import io.vlingo.xoom.schemata.query.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import io.vlingo.xoom.schemata.query.CodeQueries;
+import io.vlingo.xoom.schemata.query.ContextQueries;
+import io.vlingo.xoom.schemata.query.OrganizationQueries;
+import io.vlingo.xoom.schemata.query.SchemaQueries;
+import io.vlingo.xoom.schemata.query.SchemaVersionQueries;
+import io.vlingo.xoom.schemata.query.UnitQueries;
 
 public abstract class ResourceTest {
   protected Grid stage;
@@ -42,7 +48,16 @@ public abstract class ResourceTest {
 
   @Before
   public void setUp() throws Exception {
-    stage = Grid.start("test-command-router", Configuration.define(), ClusterProperties.oneNode(), Schemata.NodeName);
+    final Configuration actorsConfig =
+            Configuration.define().with(
+                    ConcurrentQueueMailboxPluginConfiguration
+                      .define()
+                      .defaultMailbox()
+                      .numberOfDispatchersFactor(0)
+                      .numberOfDispatchers(12)
+                      .dispatcherThrottlingCount(10));
+
+    stage = Grid.start("test-command-router", actorsConfig, ClusterProperties.oneNode(), Schemata.NodeName);
     world = stage.world();
 
     final SchemataConfig config = SchemataConfig.forRuntime(SchemataConfig.RUNTIME_TYPE_DEV);

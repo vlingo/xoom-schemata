@@ -6,18 +6,23 @@
 // one at https://mozilla.org/MPL/2.0/.
 package io.vlingo.xoom.schemata.resource;
 
-import io.vlingo.xoom.schemata.codegen.TypeDependenciesRetriever.TypeDependencies;
-import io.vlingo.xoom.schemata.model.Path;
-import io.vlingo.xoom.schemata.resource.data.*;
-import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.apache.commons.io.IOUtils;
+import org.junit.Test;
+
+import io.vlingo.xoom.schemata.codegen.TypeDependenciesRetriever.TypeDependencies;
+import io.vlingo.xoom.schemata.model.Path;
+import io.vlingo.xoom.schemata.resource.data.ContextData;
+import io.vlingo.xoom.schemata.resource.data.OrganizationData;
+import io.vlingo.xoom.schemata.resource.data.SchemaData;
+import io.vlingo.xoom.schemata.resource.data.SchemaVersionData;
+import io.vlingo.xoom.schemata.resource.data.UnitData;
 
 public class SchemaDependenciesResourceTest extends AbstractRestTest {
 
@@ -29,7 +34,7 @@ public class SchemaDependenciesResourceTest extends AbstractRestTest {
   private static final String CourierSpecification = "data Courier { data.CourierName:1.0.0 name }";
 
   @Test
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "unlikely-arg-type" })
   public void testThatSchemaDependenciesAreRetrieved() {
     loadSchemas();
 
