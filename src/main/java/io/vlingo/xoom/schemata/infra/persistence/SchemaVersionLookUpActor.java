@@ -22,7 +22,7 @@ import io.vlingo.xoom.schemata.query.view.SchemaView;
 import io.vlingo.xoom.schemata.query.view.UnitView;
 import io.vlingo.xoom.schemata.query.view.View;
 
-class SchemaVersionLookUpActor extends Actor implements SchemaVersionLookUp {
+public class SchemaVersionLookUpActor extends Actor implements SchemaVersionLookUp {
   private final SchemaVersionLookUp lookUp;
   private final String nextVersion;
   private final Projectable projectable;
