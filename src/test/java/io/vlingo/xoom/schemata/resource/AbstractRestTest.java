@@ -36,6 +36,7 @@ public abstract class AbstractRestTest {
     @After
     public void cleanUp() throws InterruptedException {
         System.out.println("==== Test Server shutting down ");
+        StorageProvider.clear();
         xoom.terminateWorld();
         waitServerClose();
     }

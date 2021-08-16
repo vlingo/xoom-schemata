@@ -136,7 +136,8 @@ public class SchemaResource extends DynamicResourceHandler {
   public Completes<Response> querySchemaDependencies(final String reference) {
     return TypeDependenciesRetriever.with(stage(), codeQueries).dependenciesOf(reference)
             .andThen(typeDependencies -> typeDependencies.dependencyReferences)
-            .andThenTo(dependencyReferences -> Completes.withSuccess(Response.of(Ok, serialized(dependencyReferences))));
+            .andThenTo(dependencyReferences -> Completes.withSuccess(Response.of(Ok, serialized(dependencyReferences))))
+            .otherwise(e -> Response.of(NotFound));
   }
 
   @Override

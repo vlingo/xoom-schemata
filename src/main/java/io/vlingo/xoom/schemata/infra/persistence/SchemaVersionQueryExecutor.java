@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-class SchemaVersionQueryExecutor {
+public class SchemaVersionQueryExecutor {
   private final AtomicBoolean busy;
   private final Consumer<SchemaVersionQueryExecutor> queryRunner;
   private final AtomicReference<String> value;

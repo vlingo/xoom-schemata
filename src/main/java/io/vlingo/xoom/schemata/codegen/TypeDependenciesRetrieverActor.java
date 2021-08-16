@@ -7,7 +7,6 @@
 package io.vlingo.xoom.schemata.codegen;
 
 import io.vlingo.xoom.actors.Actor;
-import io.vlingo.xoom.actors.CompletesEventually;
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.schemata.codegen.ast.FieldDefinition;
 import io.vlingo.xoom.schemata.codegen.ast.types.TypeDefinition;
@@ -16,6 +15,7 @@ import io.vlingo.xoom.schemata.query.CodeQueries;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,19 +31,20 @@ public class TypeDependenciesRetrieverActor extends Actor implements TypeDepende
 
   @Override
   public Completes<TypeDependencies> dependenciesOf(final String rootReference) {
-    final CompletesEventually completesEventually = completesEventually();
-    final TypeDependencies typeDependencies = TypeDependencies.with(rootReference);
-    return codeQueries.codeFor(Path.with(rootReference, true))
+    return answerFrom(codeQueries.codeFor(Path.with(rootReference, true))
             .andThenTo(codeView -> {
               final InputStream spec = new ByteArrayInputStream(codeView.specification().getBytes());
               return middleware.compileToAST(spec, rootReference);
             }).andThen(outcome -> {
-              final TypeDefinition type = (TypeDefinition) outcome.resolve(ex -> ex, node -> node);
-              final Set<String> schemaNames = resolveComplexTypedSchemaNames(type);
+              final Set<String> schemaNames = outcome.resolve(
+                      ex -> Collections.emptySet(),
+                      node -> resolveComplexTypedSchemaNames((TypeDefinition) node)
+              );
+              final TypeDependencies typeDependencies = TypeDependencies.with(rootReference);
               typeDependencies.add(schemaNames);
-              completesEventually.with(typeDependencies);
               return typeDependencies;
-            });
+            })
+    );
   }
 
   private Set<String> resolveComplexTypedSchemaNames(final TypeDefinition typeDefinition) {
