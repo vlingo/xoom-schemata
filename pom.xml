@@ -92,6 +92,8 @@
           <archive>
             <manifest>
               <mainClass>io.vlingo.xoom.schemata.XoomInitializer</mainClass>
+              <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
             </manifest>
           </archive>
           <descriptorRefs>

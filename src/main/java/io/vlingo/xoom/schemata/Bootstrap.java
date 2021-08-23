@@ -33,6 +33,7 @@ public class Bootstrap implements XoomInitializationAware {
 
   @Override
   public void onInit(final Grid grid) {
+    grid.world().defaultLogger().info("XOOM Schemata version: " + SchemataConfig.resolveSchemataVersion());
   }
 
   @Override

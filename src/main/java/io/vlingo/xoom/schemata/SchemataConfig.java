@@ -98,4 +98,15 @@ public class SchemataConfig {
         this.confirmationExpiration = confirmationExpiration;
         this.runtimeType = runtimeType;
     }
+
+    public static String resolveSchemataVersion() {
+        final String version =
+                SchemataConfig.class.getPackage().getImplementationVersion();
+
+        if(version == null) {
+            return "";
+        }
+
+        return version;
+    }
 }
