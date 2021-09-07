@@ -1,4 +1,4 @@
-import { get, writable } from 'svelte/store';
+import {get, writable} from 'svelte/store';
 
 export function createLocalStore(key, initialValue) {
 	const localValue = process.browser ? localStorage.getItem(key) : initialValue;
@@ -22,11 +22,15 @@ export function isMobileStore() {
 		set,
 		check: () => {
 			import('svelte-materialify/src/utils/breakpoints').then(({ default: breakpoints }) => {
-				set(window.matchMedia(breakpoints['md-and-down']).matches);
+				// Firefox responsive iframe issue : Temporary fix
+				if(breakpoints['md-and-down'] ===  "only screen and (max-width: NaNpx)")
+					set(true)
+				else
+				  set(window.matchMedia(breakpoints['md-and-down']).matches);
 			});
 		},
 	};
-};
+}
 
 export const theme = createLocalStore('theme', 'light')
 export const isMobile = isMobileStore();
@@ -51,7 +55,7 @@ function schemataStore(value, key) {
 			if (process.browser) window.parent.postMessage(JSON.stringify(data), "*")
 		},
 	};
-};
+}
 
 export const organizationStore = writable();
 export const organizationsStore = schemataStore([], 'organizations');
