@@ -17,6 +17,7 @@ import io.vlingo.xoom.schemata.codegen.TypeDefinitionMiddleware;
 import io.vlingo.xoom.schemata.errors.SchemataBusinessException;
 import io.vlingo.xoom.schemata.model.Id.SchemaId;
 import io.vlingo.xoom.schemata.model.Id.SchemaVersionId;
+import io.vlingo.xoom.schemata.query.SchemaVersionQueries;
 import io.vlingo.xoom.schemata.resource.data.SchemaVersionData;
 
 public interface SchemaVersion {
@@ -27,6 +28,25 @@ public interface SchemaVersion {
   static SchemaVersionId uniqueId(final SchemaId schemaId) {
     return SchemaVersionId.uniqueFor(schemaId);
   }
+
+  static Completes<SchemaVersionState> with(
+          final Stage stage,
+          final SchemaVersionQueries schemaVersionQueries,
+          final SchemaId schemaId,
+          final Specification specification,
+          final String description,
+          final Version parentVersion,
+          final Version childVersion) {
+    return schemaVersionQueries.schemaVersionsByIds(schemaId.organizationIdValue(), schemaId.unitIdValue(), schemaId.contextIdValue(), schemaId.toString())
+            .andThenTo(view -> {
+              if(view.withVersion(childVersion.value).isNone()) {
+                return with(stage, uniqueId(schemaId), specification, description, parentVersion, childVersion);
+              }
+              return Completes.withSuccess(SchemaVersionState.from(SchemaVersion.uniqueId(schemaId)));
+            })
+            .otherwise(notFound -> with(stage, uniqueId(schemaId), specification, description, parentVersion, childVersion).await());
+  }
+
 
   static Completes<SchemaVersionState> with(
           final Stage stage,

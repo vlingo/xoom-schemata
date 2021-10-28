@@ -170,6 +170,18 @@ public abstract class Id implements Serializable {
       super(schemaId);
       this.contextId = ContextId.existing(organizationId, unitId, contextId);
     }
+
+    public String organizationIdValue() {
+      return this.contextId.organizationId().value;
+    }
+
+    public String contextIdValue() {
+      return this.contextId.value;
+    }
+
+    public String unitIdValue() {
+      return this.contextId.unitId.value;
+    }
   }
 
   public static class SchemaVersionId extends Id {

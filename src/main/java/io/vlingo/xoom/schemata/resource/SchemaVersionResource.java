@@ -135,7 +135,7 @@ public class SchemaVersionResource extends DynamicResourceHandler {
       }
     }
 
-    return SchemaVersion.with(grid, SchemaId.existing(organizationId, unitId, contextId, schemaId), Specification.of(data.specification), data.description,
+    return SchemaVersion.with(grid, schemaVersionQueries, SchemaId.existing(organizationId, unitId, contextId, schemaId), Specification.of(data.specification), data.description,
             Version.of(data.previousVersion), Version.of(data.currentVersion))
             .andThenTo(3000, state -> {
               final String location = schemaVersionLocation(state.schemaVersionId);
