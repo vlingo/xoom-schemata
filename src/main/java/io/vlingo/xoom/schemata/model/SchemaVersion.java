@@ -43,8 +43,7 @@ public interface SchemaVersion {
                 return with(stage, uniqueId(schemaId), specification, description, parentVersion, childVersion);
               }
               return Completes.withSuccess(SchemaVersionState.from(SchemaVersion.uniqueId(schemaId)));
-            })
-            .otherwise(notFound -> with(stage, uniqueId(schemaId), specification, description, parentVersion, childVersion).await());
+            });
   }
 
 

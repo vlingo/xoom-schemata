@@ -20,7 +20,7 @@ public class SchemaVersionQueriesActor extends StateStoreQueryActor implements S
 
   @Override
   public Completes<SchemaVersionsView> schemaVersionsByIds(final String organizationId, final String unitId, final String contextId, final String schemaId) {
-    return queryStateFor(schemaId, SchemaVersionsView.class);
+    return queryStateFor(schemaId, SchemaVersionsView.class, SchemaVersionsView.empty());
   }
 
   @Override
