@@ -7,25 +7,6 @@
 
 package io.vlingo.xoom.schemata.resource;
 
-import static io.vlingo.xoom.common.serialization.JsonSerialization.serialized;
-import static io.vlingo.xoom.http.Response.Status.BadRequest;
-import static io.vlingo.xoom.http.Response.Status.Conflict;
-import static io.vlingo.xoom.http.Response.Status.Created;
-import static io.vlingo.xoom.http.Response.Status.InternalServerError;
-import static io.vlingo.xoom.http.Response.Status.NotFound;
-import static io.vlingo.xoom.http.Response.Status.Ok;
-import static io.vlingo.xoom.http.ResponseHeader.ContentLength;
-import static io.vlingo.xoom.http.ResponseHeader.ContentType;
-import static io.vlingo.xoom.http.ResponseHeader.Location;
-import static io.vlingo.xoom.http.ResponseHeader.of;
-import static io.vlingo.xoom.http.resource.ResourceBuilder.get;
-import static io.vlingo.xoom.http.resource.ResourceBuilder.patch;
-import static io.vlingo.xoom.http.resource.ResourceBuilder.post;
-import static io.vlingo.xoom.http.resource.ResourceBuilder.resource;
-import static io.vlingo.xoom.schemata.Schemata.NoId;
-import static io.vlingo.xoom.schemata.Schemata.SchemaVersionsPath;
-import static io.vlingo.xoom.schemata.query.SchemaVersionQueries.GreatestVersion;
-
 import io.vlingo.xoom.actors.Logger;
 import io.vlingo.xoom.common.Completes;
 import io.vlingo.xoom.common.serialization.JsonSerialization;
@@ -50,6 +31,14 @@ import io.vlingo.xoom.schemata.query.SchemaQueries;
 import io.vlingo.xoom.schemata.query.SchemaVersionQueries;
 import io.vlingo.xoom.schemata.query.view.SchemaVersionView;
 import io.vlingo.xoom.schemata.resource.data.SchemaVersionData;
+
+import static io.vlingo.xoom.common.serialization.JsonSerialization.serialized;
+import static io.vlingo.xoom.http.Response.Status.*;
+import static io.vlingo.xoom.http.ResponseHeader.*;
+import static io.vlingo.xoom.http.resource.ResourceBuilder.*;
+import static io.vlingo.xoom.schemata.Schemata.NoId;
+import static io.vlingo.xoom.schemata.Schemata.SchemaVersionsPath;
+import static io.vlingo.xoom.schemata.query.SchemaVersionQueries.GreatestVersion;
 
 public class SchemaVersionResource extends DynamicResourceHandler {
   private final Grid grid;
@@ -135,8 +124,17 @@ public class SchemaVersionResource extends DynamicResourceHandler {
       }
     }
 
-    return SchemaVersion.with(grid, schemaVersionQueries, SchemaId.existing(organizationId, unitId, contextId, schemaId), Specification.of(data.specification), data.description,
-            Version.of(data.previousVersion), Version.of(data.currentVersion))
+    return schemaVersionQueries.schemaVersionsByIds(organizationId, unitId, contextId, schemaId)
+            .andThenTo(view -> {
+              final Specification specification = Specification.of(data.specification);
+              final SchemaVersionView currentVersion = view.withVersion(data.currentVersion);
+              if(currentVersion.isNone()) {
+                return SchemaVersion.with(grid, SchemaId.existing(organizationId, unitId, contextId, schemaId), Specification.of(data.specification), data.description,
+                        Version.of(data.previousVersion), Version.of(data.currentVersion));
+              }
+              return commands
+                      .specifyWith(SchemaVersionId.existing(organizationId, unitId, contextId, schemaId, currentVersion.schemaVersionId()), specification).answer();
+            })
             .andThenTo(3000, state -> {
               final String location = schemaVersionLocation(state.schemaVersionId);
               final Headers<ResponseHeader> headers = Headers.of(
