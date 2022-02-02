@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.vlingo.xoom</groupId>
   <artifactId>xoom-schemata</artifactId>
-  <version>1.9.1</version>
+  <version>1.9.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>xoom-schemata</name>
   <description>The schema registry for the VLINGO XOOM Platform.</description>
