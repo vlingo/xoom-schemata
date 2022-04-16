@@ -28,7 +28,7 @@ MINOR=$(echo $VERSION | cut -f 2 -d '.')
 PATCH=$(echo $VERSION | cut -f 3 -d '.')
 NEW_VERSION=$MAJOR.$MINOR.$(($PATCH + 1))-SNAPSHOT
 
-for dependency in "xoom-designer";
+for dependency in "xoom-designer" "xoom-examples" "xoom-helloworld" "xoom-streams-tck" "xoom-build-plugins-test";
 do
     trigger_dependency $dependency $VERSION $NEW_VERSION
 done
