@@ -160,12 +160,12 @@ export default {
 		});
 	},
 
-	createSchema(organization, unit, context, name, category, scope, description) {
+	createSchema(organization, unit, context, name, scope, category, description) {
 		return repoPost(resources.schemata(organization, unit, context), {
 			schemaId: '',
 			name: name,
-			category: category,
 			scope: scope,
+			category: category,
 			description: description
 		});
 	},
@@ -173,8 +173,8 @@ export default {
 		return repoPut(resources.schema(organizationId, unitId, contextId, id), {
 			schemaId: id,
 			name: name,
-			category: category,
 			scope: scope,
+			category: category,
 			description: description
 		})
 	},

@@ -81,7 +81,7 @@
 
 	const define = () => {
 		if(!definable) return;
-		SchemataRepository.createSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, name, category, scope, description)
+		SchemataRepository.createSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, name, scope[0], category[0], description)
 			.then(created => {
 				updateStores(created);
 				updateSelects();
@@ -91,7 +91,7 @@
 
 	const redefine = async () => {
 		if(!redefinable) return;
-		SchemataRepository.updateSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, name, category, scope, description)
+		SchemataRepository.updateSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, ($schemaStore).schemaId, name, category[0], scope[0], description)
 			.then(updated => {
 				updateStores(updated, true);
 				updateSelects();
