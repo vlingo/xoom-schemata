@@ -16,16 +16,16 @@
 	}
 	const notEmpty = (value) => !!value ? undefined : errors.EMPTY;
 	let categorySelect = [
-		{ name: "Command", value: "Command" },
-		{ name: "Data", value: "Data" },
-		{ name: "Document", value: "Document" },
-		{ name: "Envelope", value: "Envelope" },
-		{ name: "Event", value: "Event" },
-		{ name: "Unknown", value: "Unknown" },
+		{ name: "Command",  value: ["Command"] },
+		{ name: "Data",     value: ["Data"] },
+		{ name: "Document", value: ["Document"] },
+		{ name: "Envelope", value: ["Envelope"] },
+		{ name: "Event",    value: ["Event"] },
+		{ name: "Unknown",  value: ["Unknown"] },
 	];
 	let scopeSelect = [
-		{ name: "Private", value: "Private" },
-		{ name: "Public", value: "Public" },
+		{ name: "Private", value: ["Private"] },
+		{ name: "Public", value: ["Public"] },
 	];
 
 	let name;
@@ -81,7 +81,7 @@
 
 	const define = () => {
 		if(!definable) return;
-		SchemataRepository.createSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, name, scope[0], category[0], description)
+		SchemataRepository.createSchema(($organizationStore).organizationId, ($unitStore).unitId, ($contextStore).contextId, name, category[0], scope[0], description)
 			.then(created => {
 				updateStores(created);
 				updateSelects();
