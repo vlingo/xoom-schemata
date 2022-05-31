@@ -1,6 +1,6 @@
 <script>
 	import { Card } from "svelte-materialify/src";
-	import marked from 'marked';
+	import { marked } from 'marked'
 	import DOMPurify from 'dompurify';
 
 	export let description;
