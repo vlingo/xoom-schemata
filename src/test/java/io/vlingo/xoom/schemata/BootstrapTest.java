@@ -7,7 +7,7 @@
 
 package io.vlingo.xoom.schemata;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URL;
@@ -19,13 +19,26 @@ public class BootstrapTest {
 
   @Test
   public void testThatBootstrapStartsServerCleanly() throws Exception {
-    XoomInitializer.main(new String[]{"test"});
+    XoomInitializer.main(new String[]{ "dev" });
+
+    final int serverPort = XoomInitializer.instance().serverPort();
+
+    final String serverURL = "http://localhost:" + serverPort;
+
+    System.out.println("BootstrapTest: PORT: " + serverPort + " ATTEMPT TO REOPEN: " + serverURL);
+
+    boolean clientOpenedPort;
 
     try {
-      new URL("http://127.0.0.1:19090").openConnection().connect();
+      new URL(serverURL).openConnection().connect();
+
+      clientOpenedPort = true;
+
     } catch (IOException e) {
-      fail("Server did not open port 19090:" + e.getMessage());
+      clientOpenedPort = false;
     }
+
+    assertTrue("Client should be able to open server port: "  + serverPort, clientOpenedPort);
   }
 
   @After
