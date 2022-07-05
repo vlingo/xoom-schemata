@@ -43,6 +43,6 @@ public class BootstrapTest {
 
   @After
   public void tearDown() throws Exception {
-    io.vlingo.xoom.schemata.XoomInitializer.instance().stopServer();
+    XoomInitializer.instance().stopServer();
   }
 }
