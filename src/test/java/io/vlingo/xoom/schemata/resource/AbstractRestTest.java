@@ -1,23 +1,25 @@
 package io.vlingo.xoom.schemata.resource;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.parsing.Parser;
 import io.restassured.specification.RequestSpecification;
 import io.vlingo.xoom.schemata.XoomInitializer;
-import io.vlingo.xoom.schemata.codegen.TypeDefinitionCompiler;
 import io.vlingo.xoom.schemata.infra.persistence.StorageProvider;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public abstract class AbstractRestTest {
-
-    private XoomInitializer xoom;
+  private int serverPort;  
+  private XoomInitializer xoom;
 
     @BeforeClass
     public static void init() {
@@ -27,8 +29,9 @@ public abstract class AbstractRestTest {
 
     @Before
     public void setUp() throws Exception {
-        XoomInitializer.main(new String[]{"test"});
+        XoomInitializer.main(new String[]{ "dev" });
         xoom = XoomInitializer.instance();
+        serverPort = xoom.serverPort();
         Boolean startUpSuccess = xoom.server().startUp().await(100);
         assertThat(startUpSuccess, is(equalTo(true)));
     }
@@ -43,7 +46,7 @@ public abstract class AbstractRestTest {
 
     public RequestSpecification given() {
         return io.restassured.RestAssured.given()
-                .port(19090)
+                .port(serverPort)
                 .accept(ContentType.JSON)
                 .contentType(ContentType.JSON);
     }
