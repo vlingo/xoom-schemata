@@ -7,6 +7,7 @@
 
 package io.vlingo.xoom.schemata.resource;
 
+import io.vlingo.xoom.cluster.StaticClusterConfiguration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -14,11 +15,9 @@ import org.junit.BeforeClass;
 import io.vlingo.xoom.actors.Configuration;
 import io.vlingo.xoom.actors.World;
 import io.vlingo.xoom.actors.plugin.mailbox.concurrentqueue.ConcurrentQueueMailboxPlugin.ConcurrentQueueMailboxPluginConfiguration;
-import io.vlingo.xoom.cluster.ClusterProperties;
 import io.vlingo.xoom.http.Response;
 import io.vlingo.xoom.http.ResponseHeader;
 import io.vlingo.xoom.lattice.grid.Grid;
-import io.vlingo.xoom.schemata.Schemata;
 import io.vlingo.xoom.schemata.SchemataConfig;
 import io.vlingo.xoom.schemata.infra.persistence.ProjectionDispatcherProvider;
 import io.vlingo.xoom.schemata.infra.persistence.StateStoreProvider;
@@ -57,7 +56,11 @@ public abstract class ResourceTest {
                       .numberOfDispatchers(12)
                       .dispatcherThrottlingCount(10));
 
-    stage = Grid.start("test-command-router", actorsConfig, ClusterProperties.oneNode(), Schemata.NodeName);
+    StaticClusterConfiguration staticConfiguration = StaticClusterConfiguration.oneNode();
+    stage = Grid.start("test-command-router",
+            actorsConfig,
+            staticConfiguration.properties,
+            staticConfiguration.propertiesOf(0));
     world = stage.world();
 
     final SchemataConfig config = SchemataConfig.forRuntime(SchemataConfig.RUNTIME_TYPE_DEV);
