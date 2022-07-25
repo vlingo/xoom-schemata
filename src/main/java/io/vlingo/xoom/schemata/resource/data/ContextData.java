@@ -10,6 +10,8 @@ package io.vlingo.xoom.schemata.resource.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vlingo.xoom.schemata.model.ContextState;
 
 public class ContextData {
@@ -33,7 +35,12 @@ public class ContextData {
     return data;
   }
 
-  public static ContextData from(final String organizationId, final String unitId, final String contextId, final String namespace, final String description) {
+  @JsonCreator
+  public static ContextData from(@JsonProperty("organizationId") final String organizationId,
+                                 @JsonProperty("unitId") final String unitId,
+                                 @JsonProperty("contextId") final String contextId,
+                                 @JsonProperty("namespace") final String namespace,
+                                 @JsonProperty("description") final String description) {
     return new ContextData(organizationId, unitId, contextId, namespace, description);
   }
 

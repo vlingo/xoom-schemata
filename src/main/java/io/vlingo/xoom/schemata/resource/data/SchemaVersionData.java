@@ -7,6 +7,8 @@
 
 package io.vlingo.xoom.schemata.resource.data;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vlingo.xoom.common.version.SemanticVersion;
 import io.vlingo.xoom.schemata.model.SchemaVersionState;
 
@@ -49,17 +51,18 @@ public class SchemaVersionData {
     return data;
   }
 
+  @JsonCreator
   public static SchemaVersionData from(
-          final String organizationId,
-          final String unitId,
-          final String contextId,
-          final String schemaId,
-          final String schemaVersionId,
-          final String specification,
-          final String description,
-          final String status,
-          final String previousVersion,
-          final String nextVersion) {
+          @JsonProperty("organizationId") final String organizationId,
+          @JsonProperty("unitId") final String unitId,
+          @JsonProperty("contextId") final String contextId,
+          @JsonProperty("schemaId") final String schemaId,
+          @JsonProperty("schemaVersionId") final String schemaVersionId,
+          @JsonProperty("specification") final String specification,
+          @JsonProperty("description") final String description,
+          @JsonProperty("status") final String status,
+          @JsonProperty("previousVersion") final String previousVersion,
+          @JsonProperty("nextVersion") final String nextVersion) {
   return new SchemaVersionData(
           organizationId,
           unitId,
