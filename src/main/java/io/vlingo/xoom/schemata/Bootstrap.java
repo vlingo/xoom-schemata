@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.vlingo.xoom.actors.Stage;
+import io.vlingo.xoom.cluster.StaticClusterConfiguration;
 import io.vlingo.xoom.cluster.model.Properties;
 import io.vlingo.xoom.http.resource.Configuration;
 import io.vlingo.xoom.http.resource.Configuration.Timing;
@@ -93,7 +94,8 @@ public class Bootstrap implements XoomInitializationAware {
       return Properties.openWith(properties);
     } catch (Throwable t) {
       System.out.println("Unable to load cluster properties for Schemata; using default single-node cluster.");
-      return GridClusterProperties.oneNode();
+      return StaticClusterConfiguration.oneNode()
+              .properties;
     }
   }
 

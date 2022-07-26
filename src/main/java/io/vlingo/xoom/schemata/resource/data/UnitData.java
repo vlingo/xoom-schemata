@@ -10,6 +10,8 @@ package io.vlingo.xoom.schemata.resource.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vlingo.xoom.schemata.model.UnitState;
 
 public class UnitData {
@@ -32,7 +34,11 @@ public class UnitData {
     return data;
   }
 
-  public static UnitData from(final String organizationId, final String unitId, final String name, final String description) {
+  @JsonCreator
+  public static UnitData from(@JsonProperty("organizationId") final String organizationId,
+                              @JsonProperty("unitId") final String unitId,
+                              @JsonProperty("name") final String name,
+                              @JsonProperty("description") final String description) {
     return new UnitData(organizationId, unitId, name, description);
   }
 

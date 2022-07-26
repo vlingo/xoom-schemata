@@ -10,6 +10,8 @@ package io.vlingo.xoom.schemata.resource.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.vlingo.xoom.schemata.model.SchemaState;
 
 public class SchemaData {
@@ -36,7 +38,15 @@ public class SchemaData {
     return data;
   }
 
-  public static SchemaData from(final String organizationId, final String unitId, final String contextId, final String schemaId, final String category, final String scope, final String name, final String description) {
+  @JsonCreator
+  public static SchemaData from(@JsonProperty("organizationId") final String organizationId,
+                                @JsonProperty("unitId") final String unitId,
+                                @JsonProperty("contextId") final String contextId,
+                                @JsonProperty("schemaId") final String schemaId,
+                                @JsonProperty("category") final String category,
+                                @JsonProperty("scope") final String scope,
+                                @JsonProperty("name") final String name,
+                                @JsonProperty("description") final String description) {
     return new SchemaData(organizationId, unitId, contextId, schemaId, category, scope, name, description);
   }
 
