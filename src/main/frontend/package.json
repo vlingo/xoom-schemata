@@ -13,7 +13,7 @@
     "@mdi/js": "^5.9.55",
     "@rollup/plugin-url": "^6.0.0",
     "@vanillawc/wc-monaco-editor": "^1.10.12",
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.1",
     "compression": "^1.7.1",
     "dompurify": "^2.2.7",
     "marked": "^4.0.10",
