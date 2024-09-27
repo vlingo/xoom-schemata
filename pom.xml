@@ -203,7 +203,7 @@
               <workingDirectory>src/main/frontend</workingDirectory>
               <outputdir>${project.build.directory}/frontend</outputdir>
               <installDirectory>target/</installDirectory>
-              <nodeVersion>v12.22.12</nodeVersion>
+              <nodeVersion>v20.17.0</nodeVersion>
             </configuration>
             <executions>
               <execution>

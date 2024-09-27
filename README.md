@@ -195,7 +195,7 @@ https://github.com/vlingo/xoom-examples/tree/master/xoom-schemata-integration
 ### Frontend
 
 #### Prerequisites:
-* Node 12.22.12 is known to work
+* Node 20.17.0 is known to work
 * If you use vscode, recommended extensions: Svelte for VS Code, Svelte Intellisense
 
 The UI is built using Svelte and Svelte-Materialify.
