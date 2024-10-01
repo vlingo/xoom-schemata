@@ -5,7 +5,7 @@
 	import SchemataRepository from '../api/SchemataRepository';
 	import ButtonBar from '../components/form/ButtonBar.svelte';
 	import Button from '../components/form/Button.svelte';
-	import marked from 'marked';
+	import { marked } from 'marked';
 	import DOMPurify from 'dompurify';
 
 
