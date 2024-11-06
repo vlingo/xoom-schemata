@@ -28,7 +28,7 @@ jobs:
           cache: 'maven'
 
       - name: Cache Node packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             target/node
